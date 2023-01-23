@@ -59,9 +59,12 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
         swapChain.SetRenderTarget();
 
         imGui.NewFrame();
-        ImGui::Begin("Test");
-        ImGui::Button("Push me!");
-        ImGui::End();
+        if (ImGui::Begin("Test"))
+        {
+            if (ImGui::Button("Push me!"))
+                Debug::Println("You pushed me!");
+            ImGui::End();
+        }
         imGui.Render();
 
         swapChain.Present();

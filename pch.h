@@ -19,6 +19,7 @@ using Microsoft::WRL::ComPtr;
 
 // std
 #include <memory>
+#include <string>
 #include <string_view>
 #include <type_traits>
 
@@ -27,5 +28,6 @@ using Microsoft::WRL::ComPtr;
 #include <cstdlib>
 
 // other
+#include "Debug.h"
 #include "Window.h"
 #include "DX11.h"

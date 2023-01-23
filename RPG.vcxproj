@@ -160,6 +160,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="DearImGui.h" />
+    <ClInclude Include="Debug.h" />
     <ClInclude Include="DX11.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="RenderTarget.h" />
@@ -168,6 +169,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DearImGui.cpp" />
+    <ClCompile Include="Debug.cpp" />
     <ClCompile Include="DX11.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="pch.cpp">

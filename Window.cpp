@@ -23,9 +23,7 @@ WindowClass::~WindowClass()
 // Window
 
 Window::Window(const WindowClass& aClass)
-	: myWindow{}
-{
-	myWindow = CreateWindow(
+	: myWindow{CreateWindow(
 		aClass.lpszClassName,
 		NULL,
 		WS_OVERLAPPEDWINDOW | WS_VISIBLE,
@@ -37,7 +35,8 @@ Window::Window(const WindowClass& aClass)
 		NULL,
 		aClass.hInstance,
 		NULL
-	);
+	)}
+{
 }
 
 Window::~Window()

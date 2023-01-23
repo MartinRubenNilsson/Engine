@@ -13,6 +13,7 @@
       <Filter>graphics</Filter>
     </ClInclude>
     <ClInclude Include="DearImGui.h" />
+    <ClInclude Include="Debug.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
@@ -28,6 +29,7 @@
       <Filter>graphics</Filter>
     </ClCompile>
     <ClCompile Include="DearImGui.cpp" />
+    <ClCompile Include="Debug.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="graphics">
