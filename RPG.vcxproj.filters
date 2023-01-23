@@ -1,0 +1,37 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClInclude Include="pch.h" />
+    <ClInclude Include="Window.h" />
+    <ClInclude Include="SwapChain.h">
+      <Filter>graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderTarget.h">
+      <Filter>graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="DX11.h">
+      <Filter>graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="DearImGui.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="pch.cpp" />
+    <ClCompile Include="Window.cpp" />
+    <ClCompile Include="DX11.cpp">
+      <Filter>graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="RenderTarget.cpp">
+      <Filter>graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="SwapChain.cpp">
+      <Filter>graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="DearImGui.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="graphics">
+      <UniqueIdentifier>{4772e18b-77c9-45fb-84ae-85fc15abe4aa}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>
