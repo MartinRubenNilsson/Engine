@@ -29,5 +29,4 @@ using Microsoft::WRL::ComPtr;
 
 // other
 #include "Debug.h"
-#include "Window.h"
 #include "DX11.h"

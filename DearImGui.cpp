@@ -1,13 +1,12 @@
 #include "pch.h"
 #include "DearImGui.h"
 
-DearImGui::DearImGui(const Window& aWindow, const DX11& aDX11)
+DearImGui::DearImGui(HWND hWnd, ID3D11Device* aDevice, ID3D11DeviceContext* aContext)
 {
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGui::StyleColorsDark();
-    ImGui_ImplWin32_Init(aWindow.GetHandle());
-    ImGui_ImplDX11_Init(aDX11.GetDevice(), aDX11.GetContext());
+    mySucceeded = ImGui_ImplWin32_Init(hWnd) && ImGui_ImplDX11_Init(aDevice, aContext);
 }
 
 DearImGui::~DearImGui()

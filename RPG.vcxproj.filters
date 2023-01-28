@@ -14,6 +14,7 @@
     </ClInclude>
     <ClInclude Include="DearImGui.h" />
     <ClInclude Include="Debug.h" />
+    <ClInclude Include="ConstantBuffer.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
@@ -30,6 +31,7 @@
     </ClCompile>
     <ClCompile Include="DearImGui.cpp" />
     <ClCompile Include="Debug.cpp" />
+    <ClCompile Include="ConstantBuffer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="graphics">

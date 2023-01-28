@@ -3,13 +3,11 @@
 #pragma comment(lib, "DXGI") 
 #pragma comment(lib, "D3D11") 
 
-DX11* DX11::Ptr = nullptr;
+DX11* DX11::Instance = nullptr;
 
 DX11::DX11()
 {
-	assert(!Ptr);
-
-	HRESULT result = D3D11CreateDevice(
+	myResult = D3D11CreateDevice(
 		NULL,
 		D3D_DRIVER_TYPE_HARDWARE,
 		NULL,
@@ -21,7 +19,4 @@ DX11::DX11()
 		NULL,
 		&myContext
 	);
-
-	if (SUCCEEDED(result))
-		Ptr = this;
 }

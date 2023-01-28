@@ -1,13 +1,15 @@
 #include "pch.h"
-#include "SwapChain.h"
+#include "Window.h"
 #include "DearImGui.h"
+#include "SwapChain.h"
+#include "ConstantBuffer.h"
 
 IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
     if (ImGui_ImplWin32_WndProcHandler(hWnd, msg, wParam, lParam))
-        return true;
+        return 0;
 
     switch (msg)
     {
@@ -28,17 +30,25 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
 	if (!window)
 		return EXIT_FAILURE;
 
-    window.SetTitle(L"My Game");
-
     DX11 dx11{};
     if (!dx11)
+        return EXIT_FAILURE;
+    DX11::Instance = &dx11;
+
+    DearImGui imGui{ window.GetHandle(), dx11.GetDevice(), dx11.GetContext() };
+    if (!imGui)
         return EXIT_FAILURE;
 
     SwapChain swapChain{ window };
     if (!swapChain)
         return EXIT_FAILURE;
 
-    DearImGui imGui{ window, dx11 };
+    /*ConstantBuffer constantBuffer{ 16 };
+    if (!constantBuffer)
+        return EXIT_FAILURE;*/
+
+    window.SetTitle(L"My Game");
+    swapChain.SetRenderTarget();
 
     bool run = true;
     MSG msg{};
@@ -56,17 +66,18 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
 
         constexpr float clearColor[4] = { 0.6f, 0.5f, 0.5f, 1.f };
         swapChain.ClearRenderTarget(clearColor);
-        swapChain.SetRenderTarget();
-
         imGui.NewFrame();
-        if (ImGui::Begin("Test"))
-        {
-            if (ImGui::Button("Push me!"))
-                Debug::Println("You pushed me!");
-            ImGui::End();
-        }
-        imGui.Render();
 
+        /*
+        * BEGIN RENDERING
+        */
+
+
+        /*
+        * END RENDERING
+        */
+
+        imGui.Render();
         swapChain.Present();
     }
 

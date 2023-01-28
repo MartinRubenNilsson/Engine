@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "SwapChain.h"
+#include "Window.h"
 
 SwapChain::SwapChain(const Window& aWindow)
 {

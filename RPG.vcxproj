@@ -159,6 +159,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="ConstantBuffer.h" />
     <ClInclude Include="DearImGui.h" />
     <ClInclude Include="Debug.h" />
     <ClInclude Include="DX11.h" />
@@ -168,6 +169,7 @@
     <ClInclude Include="Window.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="ConstantBuffer.cpp" />
     <ClCompile Include="DearImGui.cpp" />
     <ClCompile Include="Debug.cpp" />
     <ClCompile Include="DX11.cpp" />

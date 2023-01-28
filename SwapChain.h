@@ -1,6 +1,8 @@
 #pragma once
 #include "RenderTarget.h"
 
+class Window;
+
 class SwapChain : public RenderTarget
 {
 public:
