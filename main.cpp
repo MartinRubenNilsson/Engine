@@ -5,6 +5,7 @@
 #include "Shader.h"
 #include "InputLayout.h"
 #include "Viewport.h"
+#include "VertexBuffer.h"
 
 IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
@@ -57,10 +58,25 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
     if (!inputLayout)
         return EXIT_FAILURE;
 
-    window.SetTitle(L"My Game");
+    struct Vertex
+    {
+        float position[4];
+    };
 
-    DX11_CONTEXT->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+    const Vertex vertices[] =
+    {
+        { 0.f, 0.f, 0.f, 1.f },
+        { 0.f, 0.5f, 0.f, 1.f },
+        { 0.5f, 0.f, 0.f, 1.f }
+    };
+
+    VertexBuffer vertexBuffer{ std::span(vertices) };
+    if (!vertexBuffer)
+        return EXIT_FAILURE;
+
+    dx11.GetContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
     inputLayout.SetInputLayout();
+    vertexBuffer.SetVertexBuffer();
     vertexShader.SetShader();
     pixelShader.SetShader();
     swapChain.SetRenderTarget();
@@ -94,7 +110,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
         * BEGIN RENDERING
         */
 
-        DX11_CONTEXT->Draw(0, 0);
+        dx11.GetContext()->Draw((UINT)vertexBuffer.GetVertexCount(), 0);
 
         /*
         * END RENDERING
