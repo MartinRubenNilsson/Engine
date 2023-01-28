@@ -56,3 +56,17 @@ std::wstring Window::GetTitle() const
 	title.resize(GetWindowText(myWindow, title.data(), static_cast<int>(title.size())));
 	return title;
 }
+
+LONG Window::GetClientWidth() const
+{
+	RECT rect{};
+	GetClientRect(myWindow, &rect);
+	return rect.right;
+}
+
+LONG Window::GetClientHeight() const
+{
+	RECT rect{};
+	GetClientRect(myWindow, &rect);
+	return rect.bottom;
+}

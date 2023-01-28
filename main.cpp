@@ -4,6 +4,7 @@
 #include "SwapChain.h"
 #include "Shader.h"
 #include "InputLayout.h"
+#include "Viewport.h"
 
 IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
@@ -57,11 +58,19 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
         return EXIT_FAILURE;
 
     window.SetTitle(L"My Game");
-    swapChain.SetRenderTarget();
 
+    DX11_CONTEXT->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
     inputLayout.SetInputLayout();
     vertexShader.SetShader();
     pixelShader.SetShader();
+    swapChain.SetRenderTarget();
+
+    {
+        Viewport viewport{};
+        viewport.Width = static_cast<float>(window.GetClientWidth());
+        viewport.Height = static_cast<float>(window.GetClientHeight());
+        viewport.SetViewport();
+    }
 
     bool run = true;
     MSG msg{};
@@ -85,7 +94,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
         * BEGIN RENDERING
         */
 
-        //DX11_CONTEXT->Draw
+        DX11_CONTEXT->Draw(0, 0);
 
         /*
         * END RENDERING
