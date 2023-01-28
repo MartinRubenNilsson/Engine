@@ -16,6 +16,8 @@ using Microsoft::WRL::ComPtr;
 // dx11
 #include <dxgi.h>
 #include <d3d11.h>
+#include <directxtk/simplemath/SimpleMath.h>
+using namespace DirectX::SimpleMath;
 
 // std
 #include <array>

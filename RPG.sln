@@ -5,7 +5,7 @@ VisualStudioVersion = 17.4.33205.214
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RPG", "RPG.vcxproj", "{47399816-F8DE-4173-B08D-0929CD7C408F}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "External", "..\External\External.vcxproj", "{EBB382BA-0C13-4015-B1F6-0886F91DFABC}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "External", "External.vcxproj", "{EBB382BA-0C13-4015-B1F6-0886F91DFABC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -57,16 +57,9 @@ std::wstring Window::GetTitle() const
 	return title;
 }
 
-LONG Window::GetClientWidth() const
+RECT Window::GetClientRect() const
 {
 	RECT rect{};
-	GetClientRect(myWindow, &rect);
-	return rect.right;
-}
-
-LONG Window::GetClientHeight() const
-{
-	RECT rect{};
-	GetClientRect(myWindow, &rect);
-	return rect.bottom;
+	::GetClientRect(myWindow, &rect);
+	return rect;
 }

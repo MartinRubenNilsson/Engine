@@ -4,9 +4,9 @@
 #include "SwapChain.h"
 #include "Shader.h"
 #include "InputLayout.h"
-#include "Viewport.h"
 #include "VertexBuffer.h"
 #include "IndexBuffer.h"
+#include "ConstantBuffer.h"
 
 IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
@@ -83,6 +83,12 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
     if (!vertexBuffer || ! indexBuffer)
         return EXIT_FAILURE;
 
+    ConstantBuffer constantBuffer{ 16 };
+    if (!constantBuffer)
+        return EXIT_FAILURE;
+
+    Viewport viewport{ window.GetClientRect() };
+
     dx11.GetContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
     inputLayout.SetInputLayout();
     vertexBuffer.SetVertexBuffer();
@@ -90,13 +96,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
     vertexShader.SetShader();
     pixelShader.SetShader();
     swapChain.SetRenderTarget();
-
-    {
-        Viewport viewport{};
-        viewport.Width = static_cast<float>(window.GetClientWidth());
-        viewport.Height = static_cast<float>(window.GetClientHeight());
-        viewport.SetViewport();
-    }
+    dx11.GetContext()->RSSetViewports(1, viewport.Get11());
 
     bool run = true;
     MSG msg{};

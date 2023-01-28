@@ -19,9 +19,6 @@
     <ClInclude Include="Shader.h">
       <Filter>graphics</Filter>
     </ClInclude>
-    <ClInclude Include="Viewport.h">
-      <Filter>graphics</Filter>
-    </ClInclude>
     <ClInclude Include="DearImGui.h">
       <Filter>imgui</Filter>
     </ClInclude>
@@ -53,9 +50,6 @@
       <Filter>graphics</Filter>
     </ClCompile>
     <ClCompile Include="Shader.cpp">
-      <Filter>graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="Viewport.cpp">
       <Filter>graphics</Filter>
     </ClCompile>
     <ClCompile Include="DearImGui.cpp">

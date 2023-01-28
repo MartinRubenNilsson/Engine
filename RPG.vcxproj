@@ -183,7 +183,6 @@
     <ClInclude Include="Shader.h" />
     <ClInclude Include="SwapChain.h" />
     <ClInclude Include="VertexBuffer.h" />
-    <ClInclude Include="Viewport.h" />
     <ClInclude Include="Window.h" />
   </ItemGroup>
   <ItemGroup>
@@ -204,13 +203,7 @@
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="SwapChain.cpp" />
     <ClCompile Include="VertexBuffer.cpp" />
-    <ClCompile Include="Viewport.cpp" />
     <ClCompile Include="Window.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\External\External.vcxproj">
-      <Project>{ebb382ba-0c13-4015-b1f6-0886f91dfabc}</Project>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="PsBasic.hlsl">
@@ -225,6 +218,11 @@
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
     </FxCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="External.vcxproj">
+      <Project>{ebb382ba-0c13-4015-b1f6-0886f91dfabc}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
