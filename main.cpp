@@ -2,7 +2,8 @@
 #include "Window.h"
 #include "DearImGui.h"
 #include "SwapChain.h"
-#include "ConstantBuffer.h"
+#include "Shader.h"
+#include "InputLayout.h"
 
 IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
@@ -43,12 +44,24 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
     if (!swapChain)
         return EXIT_FAILURE;
 
-    /*ConstantBuffer constantBuffer{ 16 };
-    if (!constantBuffer)
-        return EXIT_FAILURE;*/
+    const fs::path currentPath = fs::current_path() / "Bin";
+    fs::current_path(currentPath);
+
+    VertexShader vertexShader(currentPath / "VsBasic.cso");
+    PixelShader pixelShader(currentPath / "PsBasic.cso");
+    if (!vertexShader || !pixelShader)
+        return EXIT_FAILURE;
+
+    BasicInputLayout inputLayout{ vertexShader.GetBytecode() };
+    if (!inputLayout)
+        return EXIT_FAILURE;
 
     window.SetTitle(L"My Game");
     swapChain.SetRenderTarget();
+
+    inputLayout.SetInputLayout();
+    vertexShader.SetShader();
+    pixelShader.SetShader();
 
     bool run = true;
     MSG msg{};
@@ -64,7 +77,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
             DispatchMessage(&msg);
         }
 
-        constexpr float clearColor[4] = { 0.6f, 0.5f, 0.5f, 1.f };
+        constexpr float clearColor[4] = { 0.f, 0.f, 0.f, 0.f };
         swapChain.ClearRenderTarget(clearColor);
         imGui.NewFrame();
 
@@ -72,6 +85,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
         * BEGIN RENDERING
         */
 
+        //DX11_CONTEXT->Draw
 
         /*
         * END RENDERING
@@ -81,5 +95,5 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
         swapChain.Present();
     }
 
-	return msg.wParam;
+	return static_cast<int>(msg.wParam);
 }

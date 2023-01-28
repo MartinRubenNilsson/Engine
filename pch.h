@@ -18,10 +18,17 @@ using Microsoft::WRL::ComPtr;
 #include <d3d11.h>
 
 // std
+#include <array>
+#include <filesystem>
+#include <fstream>
+#include <initializer_list>
 #include <memory>
+#include <span>
 #include <string>
 #include <string_view>
 #include <type_traits>
+#include <vector>
+namespace fs = std::filesystem;
 
 // cstd
 #include <cassert>

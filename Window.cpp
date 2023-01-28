@@ -53,6 +53,6 @@ std::wstring Window::GetTitle() const
 {
 	std::wstring title{};
 	title.resize(GetWindowTextLength(myWindow) + 1);
-	title.resize(GetWindowText(myWindow, title.data(), title.size()));
+	title.resize(GetWindowText(myWindow, title.data(), static_cast<int>(title.size())));
 	return title;
 }

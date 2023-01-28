@@ -14,7 +14,15 @@
     </ClInclude>
     <ClInclude Include="DearImGui.h" />
     <ClInclude Include="Debug.h" />
-    <ClInclude Include="ConstantBuffer.h" />
+    <ClInclude Include="ConstantBuffer.h">
+      <Filter>graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="InputLayout.h">
+      <Filter>graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Shader.h">
+      <Filter>graphics</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
@@ -31,11 +39,30 @@
     </ClCompile>
     <ClCompile Include="DearImGui.cpp" />
     <ClCompile Include="Debug.cpp" />
-    <ClCompile Include="ConstantBuffer.cpp" />
+    <ClCompile Include="ConstantBuffer.cpp">
+      <Filter>graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="InputLayout.cpp">
+      <Filter>graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Shader.cpp">
+      <Filter>graphics</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="graphics">
       <UniqueIdentifier>{4772e18b-77c9-45fb-84ae-85fc15abe4aa}</UniqueIdentifier>
     </Filter>
+    <Filter Include="shaders">
+      <UniqueIdentifier>{712098a5-8cfa-4106-b3b6-c6ab6ced87d5}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="VsBasic.hlsl">
+      <Filter>shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="PsBasic.hlsl">
+      <Filter>shaders</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>
