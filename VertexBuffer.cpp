@@ -1,18 +1,18 @@
 #include "pch.h"
 #include "VertexBuffer.h"
 
-VertexBuffer::VertexBuffer(std::span<const std::byte> someData, size_t aVertexCount, size_t aVertexSize)
+VertexBuffer::VertexBuffer(const void* someData, size_t aVertexSize, size_t aVertexCount)
 	: myBuffer{}
-	, myVertexCount{ aVertexCount }
 	, myVertexSize{ aVertexSize }
+	, myVertexCount{ aVertexCount }
 {
 	D3D11_BUFFER_DESC desc{};
-	desc.ByteWidth = (UINT)someData.size_bytes();
+	desc.ByteWidth = static_cast<UINT>(aVertexSize * aVertexCount);
 	desc.Usage = D3D11_USAGE_IMMUTABLE;
 	desc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 
 	D3D11_SUBRESOURCE_DATA initialData{};
-	initialData.pSysMem = someData.data();
+	initialData.pSysMem = someData;
 
 	DX11_DEVICE->CreateBuffer(&desc, &initialData, &myBuffer);
 }

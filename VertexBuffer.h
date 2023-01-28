@@ -7,21 +7,21 @@ public:
 	VertexBuffer(std::span<T, N> someVertices);
 
 	void SetVertexBuffer() const;
-	size_t GetVertexCount() const { return myVertexCount; }
 	size_t GetVertexSize() const { return myVertexSize; }
+	size_t GetVertexCount() const { return myVertexCount; }
 
 	operator bool() const { return myBuffer; }
 
 private:
-	VertexBuffer(std::span<const std::byte> someData, size_t aVertexCount, size_t aVertexSize);
+	VertexBuffer(const void* someData, size_t aVertexSize, size_t aVertexCount);
 
 	ComPtr<ID3D11Buffer> myBuffer;
-	size_t myVertexCount;
 	size_t myVertexSize;
+	size_t myVertexCount;
 };
 
 template<class T, size_t N>
 inline VertexBuffer::VertexBuffer(std::span<T, N> someVertices)
-	: VertexBuffer{ std::as_bytes(someVertices), someVertices.size(), sizeof(T) }
+	: VertexBuffer{ someVertices.data(), sizeof(T), someVertices.size() }
 {
 }
