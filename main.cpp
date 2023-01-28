@@ -110,7 +110,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
         * BEGIN RENDERING
         */
 
-        dx11.GetContext()->Draw((UINT)vertexBuffer.GetVertexCount(), 0);
+        UINT vertexCount{ static_cast<UINT>(vertexBuffer.GetVertexCount()) };
+        dx11.GetContext()->Draw(vertexCount, 0);
 
         /*
         * END RENDERING

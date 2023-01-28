@@ -12,7 +12,6 @@
     <ClInclude Include="DX11.h">
       <Filter>graphics</Filter>
     </ClInclude>
-    <ClInclude Include="DearImGui.h" />
     <ClInclude Include="Debug.h" />
     <ClInclude Include="ConstantBuffer.h">
       <Filter>graphics</Filter>
@@ -29,6 +28,9 @@
     <ClInclude Include="VertexBuffer.h">
       <Filter>graphics</Filter>
     </ClInclude>
+    <ClInclude Include="DearImGui.h">
+      <Filter>imgui</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
@@ -43,7 +45,6 @@
     <ClCompile Include="SwapChain.cpp">
       <Filter>graphics</Filter>
     </ClCompile>
-    <ClCompile Include="DearImGui.cpp" />
     <ClCompile Include="Debug.cpp" />
     <ClCompile Include="ConstantBuffer.cpp">
       <Filter>graphics</Filter>
@@ -60,6 +61,9 @@
     <ClCompile Include="VertexBuffer.cpp">
       <Filter>graphics</Filter>
     </ClCompile>
+    <ClCompile Include="DearImGui.cpp">
+      <Filter>imgui</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="graphics">
@@ -67,6 +71,9 @@
     </Filter>
     <Filter Include="shaders">
       <UniqueIdentifier>{712098a5-8cfa-4106-b3b6-c6ab6ced87d5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="imgui">
+      <UniqueIdentifier>{1e33c815-f7de-412d-ab70-bb300b84bbb7}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
