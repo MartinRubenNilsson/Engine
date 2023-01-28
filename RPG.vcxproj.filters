@@ -13,9 +13,6 @@
       <Filter>graphics</Filter>
     </ClInclude>
     <ClInclude Include="Debug.h" />
-    <ClInclude Include="ConstantBuffer.h">
-      <Filter>graphics</Filter>
-    </ClInclude>
     <ClInclude Include="InputLayout.h">
       <Filter>graphics</Filter>
     </ClInclude>
@@ -25,11 +22,17 @@
     <ClInclude Include="Viewport.h">
       <Filter>graphics</Filter>
     </ClInclude>
-    <ClInclude Include="VertexBuffer.h">
-      <Filter>graphics</Filter>
-    </ClInclude>
     <ClInclude Include="DearImGui.h">
       <Filter>imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="VertexBuffer.h">
+      <Filter>graphics\buffers</Filter>
+    </ClInclude>
+    <ClInclude Include="ConstantBuffer.h">
+      <Filter>graphics\buffers</Filter>
+    </ClInclude>
+    <ClInclude Include="IndexBuffer.h">
+      <Filter>graphics\buffers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -46,9 +49,6 @@
       <Filter>graphics</Filter>
     </ClCompile>
     <ClCompile Include="Debug.cpp" />
-    <ClCompile Include="ConstantBuffer.cpp">
-      <Filter>graphics</Filter>
-    </ClCompile>
     <ClCompile Include="InputLayout.cpp">
       <Filter>graphics</Filter>
     </ClCompile>
@@ -58,11 +58,17 @@
     <ClCompile Include="Viewport.cpp">
       <Filter>graphics</Filter>
     </ClCompile>
-    <ClCompile Include="VertexBuffer.cpp">
-      <Filter>graphics</Filter>
-    </ClCompile>
     <ClCompile Include="DearImGui.cpp">
       <Filter>imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="VertexBuffer.cpp">
+      <Filter>graphics\buffers</Filter>
+    </ClCompile>
+    <ClCompile Include="ConstantBuffer.cpp">
+      <Filter>graphics\buffers</Filter>
+    </ClCompile>
+    <ClCompile Include="IndexBuffer.cpp">
+      <Filter>graphics\buffers</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -74,6 +80,9 @@
     </Filter>
     <Filter Include="imgui">
       <UniqueIdentifier>{1e33c815-f7de-412d-ab70-bb300b84bbb7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="graphics\buffers">
+      <UniqueIdentifier>{e28b3a7a-3a70-474d-ab62-9672b857f544}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
