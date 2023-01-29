@@ -11,10 +11,10 @@ VertexBuffer::VertexBuffer(const void* someData, size_t aVertexSize, size_t aVer
 	desc.Usage = D3D11_USAGE_IMMUTABLE;
 	desc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 
-	D3D11_SUBRESOURCE_DATA initialData{};
-	initialData.pSysMem = someData;
+	D3D11_SUBRESOURCE_DATA data{};
+	data.pSysMem = someData;
 
-	DX11_DEVICE->CreateBuffer(&desc, &initialData, &myBuffer);
+	DX11_DEVICE->CreateBuffer(&desc, &data, &myBuffer);
 }
 
 void VertexBuffer::SetVertexBuffer() const

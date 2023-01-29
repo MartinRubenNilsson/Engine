@@ -9,6 +9,7 @@
 #include "ConstantBuffer.h"
 
 #include "imgui_simplemath.h"
+#include "Mesh.h"
 
 #pragma comment(lib, "assimp-vc142-mt") 
 
@@ -46,31 +47,18 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
     if (!inputLayout)
         return EXIT_FAILURE;
 
-    struct Vertex
+    Mesh* mesh = nullptr;
+
     {
-        float position[4];
-    };
-
-    constexpr float extent = 10.f;
-
-    const Vertex vertices[] =
-    {
-        { 0.f,  0.f,  0.f, 1.f },
-        { 0.f,  extent, 0.f, 1.f },
-        { extent, 0.f,  0.f, 1.f },
-        { extent, extent, 0.f, 1.f }
-    };
-
-    const UINT indices[] =
-    {
-        0, 1, 2,
-        2, 1, 3
-    };
-
-    VertexBuffer vertexBuffer{ std::span(vertices) };
-    IndexBuffer indexBuffer{ indices };
-    if (!vertexBuffer || !indexBuffer)
-        return EXIT_FAILURE;
+        Assimp::Importer importer{};
+        if (const aiScene* scene = importer.ReadFile("teapot.obj", aiProcess_ConvertToLeftHanded | aiProcessPreset_TargetRealtime_MaxQuality))
+        {
+            if (scene->HasMeshes())
+            {
+                mesh = new Mesh(*scene->mMeshes[0]);
+            }
+        }
+    }
 
     ConstantBuffer cameraBuffer{ sizeof(Matrix) };
     ConstantBuffer modelBuffer{ sizeof(Matrix) };
@@ -83,8 +71,6 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
     cameraBuffer.VSSetConstantBuffer(0);
     modelBuffer.VSSetConstantBuffer(1);
     inputLayout.SetInputLayout();
-    vertexBuffer.SetVertexBuffer();
-    indexBuffer.SetIndexBuffer();
     vertexShader.SetShader();
     pixelShader.SetShader();
     swapChain.SetRenderTarget();
@@ -129,7 +115,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
         cameraBuffer.UpdateConstantBuffer(&worldToClipMatrix);
         modelBuffer.UpdateConstantBuffer(&modelTransform);
 
-        dx11.GetContext()->DrawIndexed((UINT)indexBuffer.GetIndexCount(), 0, 0);
+        if (mesh)
+            mesh->Draw();
 
         /*
         * END RENDERING

@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "IndexBuffer.h"
 
-IndexBuffer::IndexBuffer(std::span<const UINT> someIndices)
+IndexBuffer::IndexBuffer(std::span<const unsigned> someIndices)
 	: myBuffer{}
 	, myIndexCount{ someIndices.size() }
 {
@@ -10,10 +10,10 @@ IndexBuffer::IndexBuffer(std::span<const UINT> someIndices)
 	desc.Usage = D3D11_USAGE_IMMUTABLE;
 	desc.BindFlags = D3D11_BIND_INDEX_BUFFER;
 
-	D3D11_SUBRESOURCE_DATA initialData{};
-	initialData.pSysMem = someIndices.data();
+	D3D11_SUBRESOURCE_DATA data{};
+	data.pSysMem = someIndices.data();
 
-	DX11_DEVICE->CreateBuffer(&desc, &initialData, &myBuffer);
+	DX11_DEVICE->CreateBuffer(&desc, &data, &myBuffer);
 }
 
 void IndexBuffer::SetIndexBuffer() const

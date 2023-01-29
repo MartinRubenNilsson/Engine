@@ -20,6 +20,12 @@ using Microsoft::WRL::ComPtr;
 using namespace DirectX;
 using namespace DirectX::SimpleMath;
 
+// assimp
+#include <assimp/Importer.hpp>
+#include <assimp/postprocess.h>
+#include <assimp/scene.h>
+#include <assimp/mesh.h>
+
 // std
 #include <array>
 #include <filesystem>

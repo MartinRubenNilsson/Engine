@@ -3,7 +3,7 @@
 class IndexBuffer
 {
 public:
-	IndexBuffer(std::span<const UINT> someIndices);
+	IndexBuffer(std::span<const unsigned> someIndices);
 
 	void SetIndexBuffer() const;
 	size_t GetIndexCount() const { return myIndexCount; }
