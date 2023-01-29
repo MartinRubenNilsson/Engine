@@ -4,6 +4,10 @@ class Mesh
 {
 public:
 	Mesh(const aiMesh&);
+	Mesh(const fs::path&);
+	Mesh(Mesh&&);
+	Mesh& operator=(Mesh&&);
+	~Mesh();
 
 	void Draw() const;
 	size_t GetVertexCount() const;

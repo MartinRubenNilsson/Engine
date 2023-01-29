@@ -3,6 +3,8 @@
 #include "VertexBuffer.h"
 #include "IndexBuffer.h"
 
+#pragma comment(lib, "assimp-vc142-mt") 
+
 Mesh::Mesh(const aiMesh& aMesh)
 {
 	assert(aMesh.HasPositions());
@@ -34,6 +36,20 @@ Mesh::Mesh(const aiMesh& aMesh)
 		myIndexBuffer = std::make_unique<IndexBuffer>(std::span(indices));
 	}
 }
+
+Mesh::Mesh(const fs::path& aPath)
+{
+	Assimp::Importer importer{};
+	auto scene = importer.ReadFile(aPath.string(), aiProcess_ConvertToLeftHanded | aiProcessPreset_TargetRealtime_MaxQuality);
+	if (scene && scene->HasMeshes())
+		*this = { *scene->mMeshes[0] };
+}
+
+Mesh::Mesh(Mesh&&) = default;
+
+Mesh& Mesh::operator=(Mesh&&) = default;
+
+Mesh::~Mesh() = default;
 
 void Mesh::Draw() const
 {

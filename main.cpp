@@ -4,14 +4,10 @@
 #include "SwapChain.h"
 #include "Shader.h"
 #include "InputLayout.h"
-#include "VertexBuffer.h"
-#include "IndexBuffer.h"
 #include "ConstantBuffer.h"
-
-#include "imgui_simplemath.h"
 #include "Mesh.h"
 
-#pragma comment(lib, "assimp-vc142-mt") 
+#include "imgui_simplemath.h"
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
@@ -38,6 +34,10 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
     const fs::path currentPath = fs::current_path() / "Bin";
     fs::current_path(currentPath);
 
+    Mesh mesh("teapot.obj");
+    if (!mesh)
+        return EXIT_FAILURE;
+
     VertexShader vertexShader(currentPath / "VsBasic.cso");
     PixelShader pixelShader(currentPath / "PsBasic.cso");
     if (!vertexShader || !pixelShader)
@@ -46,19 +46,6 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
     BasicInputLayout inputLayout{ vertexShader.GetBytecode() };
     if (!inputLayout)
         return EXIT_FAILURE;
-
-    Mesh* mesh = nullptr;
-
-    {
-        Assimp::Importer importer{};
-        if (const aiScene* scene = importer.ReadFile("teapot.obj", aiProcess_ConvertToLeftHanded | aiProcessPreset_TargetRealtime_MaxQuality))
-        {
-            if (scene->HasMeshes())
-            {
-                mesh = new Mesh(*scene->mMeshes[0]);
-            }
-        }
-    }
 
     ConstantBuffer cameraBuffer{ sizeof(Matrix) };
     ConstantBuffer modelBuffer{ sizeof(Matrix) };
@@ -115,8 +102,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
         cameraBuffer.UpdateConstantBuffer(&worldToClipMatrix);
         modelBuffer.UpdateConstantBuffer(&modelTransform);
 
-        if (mesh)
-            mesh->Draw();
+        mesh.Draw();
 
         /*
         * END RENDERING
