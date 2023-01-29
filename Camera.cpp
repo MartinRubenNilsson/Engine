@@ -15,17 +15,18 @@ namespace
 	size_t ourCameraCount{ 0 };
 	std::unique_ptr<ConstantBuffer> ourCameraBuffer{};
 
-	void CreateCamera()
+	void OnCreateCamera()
 	{
 		if (ourCameraCount++ == 0)
 		{
 			ourCameraBuffer = std::make_unique<ConstantBuffer>(sizeof(CameraData));
+			assert(*ourCameraBuffer);
 			ourCameraBuffer->VSSetConstantBuffer(CBUFFER_SLOT_CAMERA);
 			ourCameraBuffer->PSSetConstantBuffer(CBUFFER_SLOT_CAMERA);
 		}
 	}
 
-	void DestroyCamera()
+	void OnDestroyCamera()
 	{
 		assert(ourCameraCount > 0);
 		if (ourCameraCount-- == 0)
@@ -35,26 +36,30 @@ namespace
 
 Camera::Camera()
 {
-	CreateCamera();
 	SetPerspectiveFov();
+	OnCreateCamera();
 }
 
 Camera::Camera(const Camera& aCamera)
-	: myProjection(aCamera.myProjection)
-	, myOrthographic(aCamera.myOrthographic)
+	: myProjection{ aCamera.myProjection }
+	, myOrthographic{ aCamera.myOrthographic }
 {
-	CreateCamera();
+	assert(this != &aCamera);
+	OnCreateCamera();
 }
 
-Camera& Camera::operator=(Camera aCamera)
+Camera& Camera::operator=(const Camera& aCamera)
 {
-	swap(*this, aCamera);
+	assert(this != &aCamera);
+	myProjection = aCamera.myProjection;
+	myOrthographic = aCamera.myOrthographic;
+	OnCreateCamera();
 	return *this;
 }
 
 Camera::~Camera()
 {
-	DestroyCamera();
+	OnDestroyCamera();
 }
 
 void Camera::WriteCamera(const Matrix& aTransform) const
@@ -72,11 +77,4 @@ void Camera::SetPerspectiveFov(float aFovAngleY, float anAspectRatio, float aNea
 {
 	myProjection = XMMatrixPerspectiveFovLH(aFovAngleY, anAspectRatio, aNearZ, aFarZ);
 	myOrthographic = false;
-}
-
-void swap(Camera& aFirst, Camera& aSecond)
-{
-	using std::swap;
-	swap(aFirst.myProjection, aSecond.myProjection);
-	swap(aFirst.myOrthographic, aSecond.myOrthographic);
 }
