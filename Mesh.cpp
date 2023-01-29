@@ -6,13 +6,11 @@
 #pragma comment(lib, "assimp-vc142-mt") 
 
 Mesh::Mesh(const aiMesh& aMesh)
+	: myName{ aMesh.mName.C_Str() }
+	, myMaterialIndex{ aMesh.mMaterialIndex }
+	, myVertexBuffer{}
+	, myIndexBuffer{}
 {
-	assert(aMesh.HasPositions());
-	assert(aMesh.HasFaces());
-	assert(aMesh.mPrimitiveTypes == aiPrimitiveType_TRIANGLE);
-
-	myName = aMesh.mName.C_Str();
-
 	// Load vertices
 	{
 		struct Vertex
@@ -23,8 +21,11 @@ Mesh::Mesh(const aiMesh& aMesh)
 
 		std::vector<Vertex> vertices(aMesh.mNumVertices);
 		
-		for (unsigned i = 0; i < aMesh.mNumVertices; ++i)
-			std::memcpy(&vertices[i].position, &aMesh.mVertices[i], 3 * sizeof(float));
+		if (aMesh.HasPositions())
+		{
+			for (unsigned i = 0; i < aMesh.mNumVertices; ++i)
+				std::memcpy(&vertices[i].position, &aMesh.mVertices[i], 3 * sizeof(float));
+		}
 
 		if (aMesh.HasNormals())
 		{
@@ -32,40 +33,20 @@ Mesh::Mesh(const aiMesh& aMesh)
 				std::memcpy(&vertices[i].normal, &aMesh.mNormals[i], 3 * sizeof(float));
 		}
 
-		myVertexBuffer = std::make_unique<VertexBuffer>(std::span(vertices));
+		myVertexBuffer = std::make_shared<VertexBuffer>(std::span(vertices));
 	}
 
 	// Load indices
+	if (aMesh.HasFaces() && aMesh.mPrimitiveTypes == aiPrimitiveType_TRIANGLE)
 	{
 		std::vector<unsigned> indices(3 * aMesh.mNumFaces);
 
 		for (unsigned i = 0; i < aMesh.mNumFaces; ++i)
 			std::memcpy(&indices[3 * i], aMesh.mFaces[i].mIndices, 3 * sizeof(unsigned));
 
-		myIndexBuffer = std::make_unique<IndexBuffer>(std::span(indices));
+		myIndexBuffer = std::make_shared<IndexBuffer>(std::span(indices));
 	}
 }
-
-Mesh::Mesh(const fs::path& aPath)
-{
-	Assimp::Importer importer{};
-	
-	auto scene = importer.ReadFile(
-		aPath.string(),
-		aiProcess_ConvertToLeftHanded |
-		aiProcessPreset_TargetRealtime_MaxQuality |
-		aiProcess_FixInfacingNormals
-	);
-	
-	if (scene && scene->HasMeshes())
-		*this = { *scene->mMeshes[0] };
-}
-
-Mesh::Mesh(Mesh&&) = default;
-
-Mesh& Mesh::operator=(Mesh&&) = default;
-
-Mesh::~Mesh() = default;
 
 void Mesh::Draw() const
 {

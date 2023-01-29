@@ -1,27 +1,26 @@
 #pragma once
 
+class VertexBuffer;
+class IndexBuffer;
+
 class Mesh
 {
 public:
 	Mesh(const aiMesh&);
-	Mesh(const fs::path&);
-	~Mesh();
 
 	void Draw() const;
+
+	const std::string& GetName() const { return myName; }
+	unsigned GetMaterialIndex() const { return myMaterialIndex; }
 	size_t GetVertexCount() const;
 	size_t GetIndexCount() const;
-	const std::string& GetName() { return myName; }
 
 	operator bool() const;
 
 private:
-	Mesh(Mesh&&);
-	Mesh& operator=(Mesh&&);
-	Mesh(const Mesh&) = delete;
-	Mesh& operator=(const Mesh&) = delete;
-
-	std::unique_ptr<class VertexBuffer> myVertexBuffer;
-	std::unique_ptr<class IndexBuffer> myIndexBuffer;
 	std::string myName;
+	unsigned myMaterialIndex;
+	std::shared_ptr<VertexBuffer> myVertexBuffer;
+	std::shared_ptr<IndexBuffer> myIndexBuffer;
 };
 

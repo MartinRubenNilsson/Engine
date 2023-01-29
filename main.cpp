@@ -39,9 +39,17 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
     const fs::path currentPath = fs::current_path() / "Bin";
     fs::current_path(currentPath);
 
-    Mesh mesh("mesh/bunny.obj");
-    if (!mesh)
-        return EXIT_FAILURE;
+    std::vector<Mesh> meshes{};
+    {
+        Assimp::Importer importer{};
+        const unsigned flags = aiProcess_ConvertToLeftHanded | aiProcessPreset_TargetRealtime_MaxQuality;
+
+        if (auto scene = importer.ReadFile("mesh/bunny.obj", flags))
+        {
+            for (auto mesh : std::span(scene->mMeshes, scene->mNumMeshes))
+                meshes.emplace_back(*mesh);
+        }
+    }
 
     VertexShader vertexShader(currentPath / "VsBasic.cso");
     PixelShader pixelShader(currentPath / "PsBasic.cso");
@@ -133,7 +141,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
             modelBuffer.UpdateConstantBuffer(&modelData);
         }
 
-        mesh.Draw();
+        if (!meshes.empty())
+            meshes.front().Draw();
 
         /*
         * END RENDERING
