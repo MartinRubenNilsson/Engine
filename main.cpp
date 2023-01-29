@@ -6,6 +6,7 @@
 #include "InputLayout.h"
 #include "ConstantBuffer.h"
 #include "Mesh.h"
+#include "DepthBuffer.h"
 
 #include "imgui_simplemath.h"
 
@@ -27,8 +28,12 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
     if (!imGui)
         return EXIT_FAILURE;
 
-    SwapChain swapChain{ window };
+    SwapChain swapChain{ window.GetHandle() };
     if (!swapChain)
+        return EXIT_FAILURE;
+
+    DepthBuffer depthBuffer{ swapChain.GetWidth(), swapChain.GetHeight() };
+    if (!depthBuffer)
         return EXIT_FAILURE;
 
     const fs::path currentPath = fs::current_path() / "Bin";
@@ -66,7 +71,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
     inputLayout.SetInputLayout();
     vertexShader.SetShader();
     pixelShader.SetShader();
-    swapChain.SetRenderTarget();
+    swapChain.SetRenderTarget(depthBuffer.GetDepthStencilView());
     dx11.GetContext()->RSSetViewports(1, viewport.Get11());
 
     Matrix cameraTransform{};

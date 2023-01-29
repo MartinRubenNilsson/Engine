@@ -6,9 +6,6 @@
     <ClInclude Include="SwapChain.h">
       <Filter>graphics</Filter>
     </ClInclude>
-    <ClInclude Include="RenderTarget.h">
-      <Filter>graphics</Filter>
-    </ClInclude>
     <ClInclude Include="DX11.h">
       <Filter>graphics</Filter>
     </ClInclude>
@@ -35,15 +32,13 @@
       <Filter>imgui</Filter>
     </ClInclude>
     <ClInclude Include="Mesh.h" />
+    <ClInclude Include="DepthBuffer.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
     <ClCompile Include="pch.cpp" />
     <ClCompile Include="Window.cpp" />
     <ClCompile Include="DX11.cpp">
-      <Filter>graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="RenderTarget.cpp">
       <Filter>graphics</Filter>
     </ClCompile>
     <ClCompile Include="SwapChain.cpp">
@@ -72,6 +67,7 @@
       <Filter>imgui</Filter>
     </ClCompile>
     <ClCompile Include="Mesh.cpp" />
+    <ClCompile Include="DepthBuffer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="graphics">

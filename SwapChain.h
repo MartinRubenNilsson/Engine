@@ -1,18 +1,23 @@
 #pragma once
-#include "RenderTarget.h"
 
-class Window;
-
-class SwapChain : public RenderTarget
+class SwapChain
 {
 public:
-	SwapChain(const Window&);
-
-	operator bool() const { return mySwapChain; }
+	SwapChain(HWND);
 
 	void Present();
+	void SetRenderTarget(ID3D11DepthStencilView* aDepthStencil = nullptr);
+	void ClearRenderTarget(const float aColor[4]);
+
+	unsigned GetWidth() const;
+	unsigned GetHeight() const;
+
+	operator bool() const { return SUCCEEDED(myResult); }
 
 private:
+	HRESULT myResult;
 	ComPtr<IDXGISwapChain> mySwapChain;
+	ComPtr<ID3D11Texture2D> myTexture2d;
+	ComPtr<ID3D11RenderTargetView> myRenderTargetView;
 };
 

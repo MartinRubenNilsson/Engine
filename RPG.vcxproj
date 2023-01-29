@@ -179,13 +179,13 @@
     <ClInclude Include="ConstantBuffer.h" />
     <ClInclude Include="DearImGui.h" />
     <ClInclude Include="Debug.h" />
+    <ClInclude Include="DepthBuffer.h" />
     <ClInclude Include="DX11.h" />
     <ClInclude Include="imgui_simplemath.h" />
     <ClInclude Include="IndexBuffer.h" />
     <ClInclude Include="InputLayout.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="pch.h" />
-    <ClInclude Include="RenderTarget.h" />
     <ClInclude Include="Shader.h" />
     <ClInclude Include="SwapChain.h" />
     <ClInclude Include="VertexBuffer.h" />
@@ -195,6 +195,7 @@
     <ClCompile Include="ConstantBuffer.cpp" />
     <ClCompile Include="DearImGui.cpp" />
     <ClCompile Include="Debug.cpp" />
+    <ClCompile Include="DepthBuffer.cpp" />
     <ClCompile Include="DX11.cpp" />
     <ClCompile Include="imgui_simplemath.cpp" />
     <ClCompile Include="IndexBuffer.cpp" />
@@ -207,7 +208,6 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="RenderTarget.cpp" />
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="SwapChain.cpp" />
     <ClCompile Include="VertexBuffer.cpp" />
