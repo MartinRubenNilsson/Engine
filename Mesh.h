@@ -5,8 +5,6 @@ class Mesh
 public:
 	Mesh(const aiMesh&);
 	Mesh(const fs::path&);
-	Mesh(Mesh&&);
-	Mesh& operator=(Mesh&&);
 	~Mesh();
 
 	void Draw() const;
@@ -17,6 +15,11 @@ public:
 	operator bool() const;
 
 private:
+	Mesh(Mesh&&);
+	Mesh& operator=(Mesh&&);
+	Mesh(const Mesh&) = delete;
+	Mesh& operator=(const Mesh&) = delete;
+
 	std::unique_ptr<class VertexBuffer> myVertexBuffer;
 	std::unique_ptr<class IndexBuffer> myIndexBuffer;
 	std::string myName;

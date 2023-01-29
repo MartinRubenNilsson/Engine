@@ -39,7 +39,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
     const fs::path currentPath = fs::current_path() / "Bin";
     fs::current_path(currentPath);
 
-    Mesh mesh("teapot.obj");
+    Mesh mesh("mesh/bunny.obj");
     if (!mesh)
         return EXIT_FAILURE;
 
@@ -77,6 +77,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
     Matrix cameraTransform{};
     Matrix cameraProjection{ XMMatrixPerspectiveFovLH(90.f, viewport.AspectRatio(), 0.01f, 100.f) };
     Matrix modelTransform{};
+    modelTransform.Translation({ 0.f, -10.f, 20.f });
+    modelTransform = Matrix::CreateScale(100.f) * modelTransform;
 
     bool run = true;
     MSG msg{};

@@ -7,6 +7,7 @@ float4 main(Pixel pixel) : SV_TARGET
     
     const float3 ambient = { 0.1f, 0.1f, 0.1f };
     const float3 diffuse = float3(0.9f, 0.6f, 0.2f) * saturate(dot(toLight, pixel.normalWorld.xyz));
+    const float3 color = ambient + diffuse;
     
-    return float4(saturate(ambient + diffuse), 1.f);
+    return float4(saturate(color), 1.f);
 }

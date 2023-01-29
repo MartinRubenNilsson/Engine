@@ -49,7 +49,14 @@ Mesh::Mesh(const aiMesh& aMesh)
 Mesh::Mesh(const fs::path& aPath)
 {
 	Assimp::Importer importer{};
-	auto scene = importer.ReadFile(aPath.string(), aiProcess_ConvertToLeftHanded | aiProcessPreset_TargetRealtime_MaxQuality);
+	
+	auto scene = importer.ReadFile(
+		aPath.string(),
+		aiProcess_ConvertToLeftHanded |
+		aiProcessPreset_TargetRealtime_MaxQuality |
+		aiProcess_FixInfacingNormals
+	);
+	
 	if (scene && scene->HasMeshes())
 		*this = { *scene->mMeshes[0] };
 }
