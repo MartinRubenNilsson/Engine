@@ -34,7 +34,6 @@ namespace
 }
 
 Camera::Camera()
-	: myProjection{}
 {
 	CreateCamera();
 	SetPerspectiveFov();
@@ -42,6 +41,7 @@ Camera::Camera()
 
 Camera::Camera(const Camera& aCamera)
 	: myProjection(aCamera.myProjection)
+	, myOrthographic(aCamera.myOrthographic)
 {
 	CreateCamera();
 }
@@ -71,10 +71,12 @@ void Camera::WriteCamera(const Matrix& aTransform) const
 void Camera::SetPerspectiveFov(float aFovAngleY, float anAspectRatio, float aNearZ, float aFarZ)
 {
 	myProjection = XMMatrixPerspectiveFovLH(aFovAngleY, anAspectRatio, aNearZ, aFarZ);
+	myOrthographic = false;
 }
 
 void swap(Camera& aFirst, Camera& aSecond)
 {
 	using std::swap;
 	swap(aFirst.myProjection, aSecond.myProjection);
+	swap(aFirst.myOrthographic, aSecond.myOrthographic);
 }
