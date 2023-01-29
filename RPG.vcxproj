@@ -176,6 +176,7 @@
     <ClInclude Include="DearImGui.h" />
     <ClInclude Include="Debug.h" />
     <ClInclude Include="DX11.h" />
+    <ClInclude Include="imgui_simplemath.h" />
     <ClInclude Include="IndexBuffer.h" />
     <ClInclude Include="InputLayout.h" />
     <ClInclude Include="pch.h" />
@@ -190,6 +191,7 @@
     <ClCompile Include="DearImGui.cpp" />
     <ClCompile Include="Debug.cpp" />
     <ClCompile Include="DX11.cpp" />
+    <ClCompile Include="imgui_simplemath.cpp" />
     <ClCompile Include="IndexBuffer.cpp" />
     <ClCompile Include="InputLayout.cpp" />
     <ClCompile Include="main.cpp" />

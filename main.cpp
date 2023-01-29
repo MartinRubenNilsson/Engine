@@ -8,24 +8,9 @@
 #include "IndexBuffer.h"
 #include "ConstantBuffer.h"
 
-IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+#include "imgui_simplemath.h"
 
-LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
-{
-    if (ImGui_ImplWin32_WndProcHandler(hWnd, msg, wParam, lParam))
-        return 0;
-
-    switch (msg)
-    {
-    case WM_DESTROY:
-        PostQuitMessage(EXIT_SUCCESS);
-        break;
-    default:
-        return DefWindowProc(hWnd, msg, wParam, lParam);
-    }
-
-    return 0;
-}
+LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
 {
@@ -80,12 +65,12 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
 
     VertexBuffer vertexBuffer{ std::span(vertices) };
     IndexBuffer indexBuffer{ indices };
-    if (!vertexBuffer || ! indexBuffer)
+    if (!vertexBuffer || !indexBuffer)
         return EXIT_FAILURE;
 
-    ConstantBuffer constantBuffer{ 16 };
+    /*ConstantBuffer constantBuffer{ 16 };
     if (!constantBuffer)
-        return EXIT_FAILURE;
+        return EXIT_FAILURE;*/
 
     Viewport viewport{ window.GetClientRect() };
 
@@ -97,6 +82,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
     pixelShader.SetShader();
     swapChain.SetRenderTarget();
     dx11.GetContext()->RSSetViewports(1, viewport.Get11());
+
+    Matrix m{};
 
     bool run = true;
     MSG msg{};
@@ -122,6 +109,12 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
 
         dx11.GetContext()->DrawIndexed((UINT)indexBuffer.GetIndexCount(), 0, 0);
 
+        if (ImGui::Begin("Debug"))
+        {
+            ImGui::DragMatrix(&m);
+            ImGui::End();
+        }
+
         /*
         * END RENDERING
         */
@@ -131,4 +124,23 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
     }
 
 	return static_cast<int>(msg.wParam);
+}
+
+IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+
+LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
+{
+    if (ImGui_ImplWin32_WndProcHandler(hWnd, msg, wParam, lParam))
+        return 0;
+
+    switch (msg)
+    {
+    case WM_DESTROY:
+        PostQuitMessage(EXIT_SUCCESS);
+        break;
+    default:
+        return DefWindowProc(hWnd, msg, wParam, lParam);
+    }
+
+    return 0;
 }

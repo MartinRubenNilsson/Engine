@@ -3,7 +3,6 @@
 class Shader
 {
 public:
-	Shader(const fs::path&);
 	virtual ~Shader() = default;
 
 	virtual void SetShader() const = 0;
@@ -12,6 +11,8 @@ public:
 	const std::string& GetBytecode() const { return myBytecode; }
 
 protected:
+	Shader(const fs::path&);
+
 	std::string myBytecode;
 };
 

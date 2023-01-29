@@ -29,7 +29,7 @@
       <Filter>imgui</Filter>
     </ClInclude>
     <ClInclude Include="External\directxtk\simplemath\SimpleMath.h">
-      <Filter>simplemath</Filter>
+      <Filter>directxtk\simplemath</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -58,20 +58,23 @@
       <Filter>imgui</Filter>
     </ClCompile>
     <ClCompile Include="External\directxtk\simplemath\SimpleMath.cpp">
-      <Filter>simplemath</Filter>
+      <Filter>directxtk\simplemath</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="imgui">
       <UniqueIdentifier>{7991e3fe-c4e9-453d-bf91-9ef7a137fb28}</UniqueIdentifier>
     </Filter>
-    <Filter Include="simplemath">
+    <Filter Include="directxtk">
+      <UniqueIdentifier>{671e2649-f407-4b59-93b3-cb5882d75af8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="directxtk\simplemath">
       <UniqueIdentifier>{399442e4-ca25-454e-b3e5-ede583d183dd}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="External\directxtk\simplemath\SimpleMath.inl">
-      <Filter>simplemath</Filter>
+      <Filter>directxtk\simplemath</Filter>
     </None>
   </ItemGroup>
 </Project>
