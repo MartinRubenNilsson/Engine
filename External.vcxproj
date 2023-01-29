@@ -19,6 +19,81 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="External\assimp\aabb.h" />
+    <ClInclude Include="External\assimp\ai_assert.h" />
+    <ClInclude Include="External\assimp\anim.h" />
+    <ClInclude Include="External\assimp\BaseImporter.h" />
+    <ClInclude Include="External\assimp\Bitmap.h" />
+    <ClInclude Include="External\assimp\BlobIOSystem.h" />
+    <ClInclude Include="External\assimp\ByteSwapper.h" />
+    <ClInclude Include="External\assimp\camera.h" />
+    <ClInclude Include="External\assimp\cexport.h" />
+    <ClInclude Include="External\assimp\cfileio.h" />
+    <ClInclude Include="External\assimp\cimport.h" />
+    <ClInclude Include="External\assimp\ColladaMetaData.h" />
+    <ClInclude Include="External\assimp\color4.h" />
+    <ClInclude Include="External\assimp\commonMetaData.h" />
+    <ClInclude Include="External\assimp\config.h" />
+    <ClInclude Include="External\assimp\CreateAnimMesh.h" />
+    <ClInclude Include="External\assimp\DefaultIOStream.h" />
+    <ClInclude Include="External\assimp\DefaultIOSystem.h" />
+    <ClInclude Include="External\assimp\DefaultLogger.hpp" />
+    <ClInclude Include="External\assimp\Defines.h" />
+    <ClInclude Include="External\assimp\defs.h" />
+    <ClInclude Include="External\assimp\Exceptional.h" />
+    <ClInclude Include="External\assimp\Exporter.hpp" />
+    <ClInclude Include="External\assimp\fast_atof.h" />
+    <ClInclude Include="External\assimp\GenericProperty.h" />
+    <ClInclude Include="External\assimp\Hash.h" />
+    <ClInclude Include="External\assimp\Importer.hpp" />
+    <ClInclude Include="External\assimp\importerdesc.h" />
+    <ClInclude Include="External\assimp\IOStream.hpp" />
+    <ClInclude Include="External\assimp\IOStreamBuffer.h" />
+    <ClInclude Include="External\assimp\IOSystem.hpp" />
+    <ClInclude Include="External\assimp\light.h" />
+    <ClInclude Include="External\assimp\LineSplitter.h" />
+    <ClInclude Include="External\assimp\LogAux.h" />
+    <ClInclude Include="External\assimp\Logger.hpp" />
+    <ClInclude Include="External\assimp\LogStream.hpp" />
+    <ClInclude Include="External\assimp\material.h" />
+    <ClInclude Include="External\assimp\MathFunctions.h" />
+    <ClInclude Include="External\assimp\matrix3x3.h" />
+    <ClInclude Include="External\assimp\matrix4x4.h" />
+    <ClInclude Include="External\assimp\MemoryIOWrapper.h" />
+    <ClInclude Include="External\assimp\mesh.h" />
+    <ClInclude Include="External\assimp\metadata.h" />
+    <ClInclude Include="External\assimp\NullLogger.hpp" />
+    <ClInclude Include="External\assimp\ParsingUtils.h" />
+    <ClInclude Include="External\assimp\pbrmaterial.h" />
+    <ClInclude Include="External\assimp\postprocess.h" />
+    <ClInclude Include="External\assimp\Profiler.h" />
+    <ClInclude Include="External\assimp\ProgressHandler.hpp" />
+    <ClInclude Include="External\assimp\qnan.h" />
+    <ClInclude Include="External\assimp\quaternion.h" />
+    <ClInclude Include="External\assimp\RemoveComments.h" />
+    <ClInclude Include="External\assimp\scene.h" />
+    <ClInclude Include="External\assimp\SceneCombiner.h" />
+    <ClInclude Include="External\assimp\SGSpatialSort.h" />
+    <ClInclude Include="External\assimp\SkeletonMeshBuilder.h" />
+    <ClInclude Include="External\assimp\SmallVector.h" />
+    <ClInclude Include="External\assimp\SmoothingGroups.h" />
+    <ClInclude Include="External\assimp\SpatialSort.h" />
+    <ClInclude Include="External\assimp\StandardShapes.h" />
+    <ClInclude Include="External\assimp\StreamReader.h" />
+    <ClInclude Include="External\assimp\StreamWriter.h" />
+    <ClInclude Include="External\assimp\StringComparison.h" />
+    <ClInclude Include="External\assimp\StringUtils.h" />
+    <ClInclude Include="External\assimp\Subdivision.h" />
+    <ClInclude Include="External\assimp\texture.h" />
+    <ClInclude Include="External\assimp\TinyFormatter.h" />
+    <ClInclude Include="External\assimp\types.h" />
+    <ClInclude Include="External\assimp\vector2.h" />
+    <ClInclude Include="External\assimp\vector3.h" />
+    <ClInclude Include="External\assimp\version.h" />
+    <ClInclude Include="External\assimp\Vertex.h" />
+    <ClInclude Include="External\assimp\XmlParser.h" />
+    <ClInclude Include="External\assimp\XMLTools.h" />
+    <ClInclude Include="External\assimp\ZipArchiveIOSystem.h" />
     <ClInclude Include="External\directxtk\simplemath\SimpleMath.h" />
     <ClInclude Include="External\imgui\imconfig.h" />
     <ClInclude Include="External\imgui\imgui.h" />
@@ -42,7 +117,20 @@
     <ClCompile Include="External\imgui\imgui_widgets.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="External\assimp\assimp-vc142-mt.dll" />
+    <None Include="External\assimp\color4.inl" />
+    <None Include="External\assimp\config.h.in" />
+    <None Include="External\assimp\material.inl" />
+    <None Include="External\assimp\matrix3x3.inl" />
+    <None Include="External\assimp\matrix4x4.inl" />
+    <None Include="External\assimp\quaternion.inl" />
+    <None Include="External\assimp\SmoothingGroups.inl" />
+    <None Include="External\assimp\vector2.inl" />
+    <None Include="External\assimp\vector3.inl" />
     <None Include="External\directxtk\simplemath\SimpleMath.inl" />
+  </ItemGroup>
+  <ItemGroup>
+    <Library Include="External\assimp\assimp-vc142-mt.lib" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
@@ -122,11 +210,15 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>$(SolutionDir)External\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
+    <Lib>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -136,6 +228,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>$(SolutionDir)External\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -143,6 +236,9 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
+    <Lib>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -150,11 +246,15 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>$(SolutionDir)External\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
+    <Lib>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -164,6 +264,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>$(SolutionDir)External\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -171,6 +272,9 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
+    <Lib>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Lib>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
