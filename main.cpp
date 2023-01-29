@@ -71,7 +71,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
     inputLayout.SetInputLayout();
     vertexShader.SetShader();
     pixelShader.SetShader();
-    swapChain.SetRenderTarget(depthBuffer.GetDepthStencilView());
+    swapChain.SetRenderTarget(depthBuffer.GetDepthStencil());
     dx11.GetContext()->RSSetViewports(1, viewport.Get11());
 
     Matrix cameraTransform{};
@@ -94,6 +94,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
 
         constexpr float clearColor[4] = { 0.f, 0.f, 0.f, 0.f };
         swapChain.ClearRenderTarget(clearColor);
+        depthBuffer.ClearDepthStencil();
         imGui.NewFrame();
 
         /*

@@ -7,7 +7,6 @@ DepthBuffer::DepthBuffer(unsigned aWidth, unsigned aHeight)
 		D3D11_TEXTURE2D_DESC textureDesc{};
 		textureDesc.Width = aWidth;
 		textureDesc.Height = aHeight;
-		textureDesc.MipLevels = 1;
 		textureDesc.ArraySize = 1;
 		textureDesc.Format = DXGI_FORMAT_D32_FLOAT;
 		textureDesc.SampleDesc.Count = 1;
@@ -29,4 +28,9 @@ DepthBuffer::DepthBuffer(unsigned aWidth, unsigned aHeight)
 		if (FAILED(myResult))
 			return;
 	}
+}
+
+void DepthBuffer::ClearDepthStencil()
+{
+	DX11_CONTEXT->ClearDepthStencilView(myDepthStencilView.Get(), D3D11_CLEAR_DEPTH, 1.f, 0);
 }
