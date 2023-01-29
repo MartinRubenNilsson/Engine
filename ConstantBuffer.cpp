@@ -5,7 +5,7 @@ ConstantBuffer::ConstantBuffer(size_t aByteWidth)
 	: myBuffer{}
 	, myByteWidth{ aByteWidth }
 {
-	assert(aByteWidth != 0 && "ByteWidth cannot be 0");
+	assert(aByteWidth != 0 && "ByteWidth must be positive");
 	assert(aByteWidth % 16 == 0 && "ByteWidth must be a multiple of 16");
 
 	D3D11_BUFFER_DESC desc{};
@@ -15,6 +15,14 @@ ConstantBuffer::ConstantBuffer(size_t aByteWidth)
 	desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 
 	DX11_DEVICE->CreateBuffer(&desc, NULL, &myBuffer);
+}
+
+void ConstantBuffer::UpdateConstantBuffer(const void* someData)
+{
+	D3D11_MAPPED_SUBRESOURCE subresource{};
+	DX11_CONTEXT->Map(myBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &subresource);
+	std::memcpy(subresource.pData, someData, myByteWidth);
+	DX11_CONTEXT->Unmap(myBuffer.Get(), 0);
 }
 
 void ConstantBuffer::VSSetConstantBuffer(UINT aSlot) const

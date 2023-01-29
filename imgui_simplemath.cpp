@@ -25,7 +25,7 @@ IMGUI_API bool ImGui::DragEulerDegrees(const char* label, Quaternion* q, float v
 	return changed;
 }
 
-IMGUI_API bool ImGui::DragMatrix(Matrix* m, float v_speed, float v_min, float v_max, const char* format, ImGuiSliderFlags flags)
+IMGUI_API bool ImGui::DragTransform(Matrix* m, float v_speed, float v_min, float v_max, const char* format, ImGuiSliderFlags flags)
 {
 	Vector3 scale{};
 	Quaternion rotation{};

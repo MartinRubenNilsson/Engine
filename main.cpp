@@ -49,12 +49,14 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
         float position[4];
     };
 
+    constexpr float extent = 10.f;
+
     const Vertex vertices[] =
     {
         { 0.f,  0.f,  0.f, 1.f },
-        { 0.f,  0.5f, 0.f, 1.f },
-        { 0.5f, 0.f,  0.f, 1.f },
-        { 0.5f, 0.5f, 0.f, 1.f }
+        { 0.f,  extent, 0.f, 1.f },
+        { extent, 0.f,  0.f, 1.f },
+        { extent, extent, 0.f, 1.f }
     };
 
     const UINT indices[] =
@@ -68,13 +70,14 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
     if (!vertexBuffer || !indexBuffer)
         return EXIT_FAILURE;
 
-    /*ConstantBuffer constantBuffer{ 16 };
-    if (!constantBuffer)
-        return EXIT_FAILURE;*/
+    ConstantBuffer cameraBuffer{ sizeof(Matrix)};
+    if (!cameraBuffer)
+        return EXIT_FAILURE;
 
     Viewport viewport{ window.GetClientRect() };
 
     dx11.GetContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+    cameraBuffer.VSSetConstantBuffer(0);
     inputLayout.SetInputLayout();
     vertexBuffer.SetVertexBuffer();
     indexBuffer.SetIndexBuffer();
@@ -83,7 +86,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
     swapChain.SetRenderTarget();
     dx11.GetContext()->RSSetViewports(1, viewport.Get11());
 
-    Matrix m{};
+    Matrix cameraTransform{};
+    Matrix cameraProjection{ XMMatrixPerspectiveFovLH(90.f, viewport.AspectRatio(), 0.01f, 100.f) };
 
     bool run = true;
     MSG msg{};
@@ -107,13 +111,16 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
         * BEGIN RENDERING
         */
 
-        dx11.GetContext()->DrawIndexed((UINT)indexBuffer.GetIndexCount(), 0, 0);
-
         if (ImGui::Begin("Debug"))
         {
-            ImGui::DragMatrix(&m);
+            ImGui::DragTransform(&cameraTransform);
             ImGui::End();
         }
+
+        Matrix worldToClipMatrix = cameraTransform.Invert() * cameraProjection;
+        cameraBuffer.UpdateConstantBuffer(&worldToClipMatrix);
+
+        dx11.GetContext()->DrawIndexed((UINT)indexBuffer.GetIndexCount(), 0, 0);
 
         /*
         * END RENDERING
