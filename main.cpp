@@ -43,7 +43,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
     if (!vertexShader || !pixelShader)
         return EXIT_FAILURE;
 
-    BasicInputLayout inputLayout{ vertexShader.GetBytecode() };
+    InputLayout inputLayout{ vertexShader.GetBytecode() };
     if (!inputLayout)
         return EXIT_FAILURE;
 

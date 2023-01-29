@@ -16,12 +16,19 @@ Mesh::Mesh(const aiMesh& aMesh)
 		struct Vertex
 		{
 			Vector3 position{};
+			Vector3 normal{};
 		};
 
 		std::vector<Vertex> vertices(aMesh.mNumVertices);
-
+		
 		for (unsigned i = 0; i < aMesh.mNumVertices; ++i)
 			std::memcpy(&vertices[i].position, &aMesh.mVertices[i], 3 * sizeof(float));
+
+		if (aMesh.HasNormals())
+		{
+			for (unsigned i = 0; i < aMesh.mNumVertices; ++i)
+				std::memcpy(&vertices[i].normal, &aMesh.mNormals[i], 3 * sizeof(float));
+		}
 
 		myVertexBuffer = std::make_unique<VertexBuffer>(std::span(vertices));
 	}
