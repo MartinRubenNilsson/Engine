@@ -58,8 +58,14 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
         Vector4 cameraPosition;
     };
 
+    struct ModelData
+    {
+        Matrix modelMatrix;
+        Matrix modelMatrixInverseTranspose;
+    };
+
     ConstantBuffer cameraBuffer{ sizeof(CameraData) };
-    ConstantBuffer modelBuffer{ sizeof(Matrix) };
+    ConstantBuffer modelBuffer{ sizeof(ModelData) };
     if (!cameraBuffer || !modelBuffer)
         return EXIT_FAILURE;
 
@@ -120,7 +126,12 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
             cameraBuffer.UpdateConstantBuffer(&cameraData);
         }
 
-        modelBuffer.UpdateConstantBuffer(&modelTransform);
+        {
+            ModelData modelData{};
+            modelData.modelMatrix = modelTransform;
+            modelData.modelMatrixInverseTranspose = modelTransform.Transpose().Invert();
+            modelBuffer.UpdateConstantBuffer(&modelData);
+        }
 
         mesh.Draw();
 

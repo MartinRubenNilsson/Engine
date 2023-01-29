@@ -6,7 +6,8 @@ cbuffer CameraBuffer : register(b0)
 
 cbuffer ModelBuffer : register(b1)
 {
-    float4x4 ModelToWorldMatrix;
+    float4x4 ModelMatrix;
+    float4x4 ModelMatrixInverseTranspose;
 }
 
 struct Vertex
