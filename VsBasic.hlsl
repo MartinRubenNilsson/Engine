@@ -1,21 +1,9 @@
-cbuffer CameraBuffer : register(b0)
-{
-    float4x4 WorldToClipMatrix;
-}
+#include "ShaderCommon.hlsli"
 
-cbuffer ModelBuffer : register(b1)
+Pixel main(Vertex vertex)
 {
-    float4x4 ModelToWorldMatrix;
-}
-
-struct Vertex
-{
-    float3 position : POSITION;
-    float3 normal : NORMAL;
-};
-
-float4 main(Vertex aVertex) : SV_POSITION
-{
-    const float4 position = float4(aVertex.position, 1.f);
-    return mul(WorldToClipMatrix, mul(ModelToWorldMatrix, position));
+    Pixel pixel;
+    pixel.positionClip = mul(WorldToClipMatrix, mul(ModelToWorldMatrix, float4(vertex.position, 1.f)));
+    pixel.normalWorld = mul(ModelToWorldMatrix, float4(vertex.normal, 0.f));
+    return pixel;
 }

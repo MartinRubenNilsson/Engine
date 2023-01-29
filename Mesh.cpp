@@ -64,7 +64,7 @@ void Mesh::Draw() const
 	{
 		myVertexBuffer->SetVertexBuffer();
 		myIndexBuffer->SetIndexBuffer();
-		DX11_CONTEXT->DrawIndexed(static_cast<UINT>(GetIndexCount()), 0, 0);
+		DX11_CONTEXT->DrawIndexed(static_cast<UINT>(myIndexBuffer->GetIndexCount()), 0, 0);
 	}
 }
 
