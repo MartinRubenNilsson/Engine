@@ -14,7 +14,7 @@ ConstantBuffer::ConstantBuffer(size_t aByteWidth)
 	DX11_DEVICE->CreateBuffer(&desc, NULL, &myBuffer);
 }
 
-void ConstantBuffer::UpdateConstantBuffer(const void* someData)
+void ConstantBuffer::WriteConstantBuffer(const void* someData)
 {
 	D3D11_MAPPED_SUBRESOURCE subresource{};
 	DX11_CONTEXT->Map(myBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &subresource);

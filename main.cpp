@@ -7,6 +7,7 @@
 #include "ConstantBuffer.h"
 #include "Mesh.h"
 #include "DepthBuffer.h"
+#include "Camera.h"
 
 #include "imgui_simplemath.h"
 
@@ -65,27 +66,19 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
     if (!inputLayout)
         return EXIT_FAILURE;
 
-    struct CameraData
-    {
-        Matrix worldToClipMatrix;
-        Vector4 cameraPosition;
-    };
-
     struct ModelData
     {
         Matrix modelMatrix;
         Matrix modelMatrixInverseTranspose;
     };
 
-    ConstantBuffer cameraBuffer{ sizeof(CameraData) };
     ConstantBuffer modelBuffer{ sizeof(ModelData) };
-    if (!cameraBuffer || !modelBuffer)
+    if (!modelBuffer)
         return EXIT_FAILURE;
 
     Viewport viewport{ window.GetClientRect() };
 
     dx11.GetContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-    cameraBuffer.VSSetConstantBuffer(0);
     modelBuffer.VSSetConstantBuffer(1);
     inputLayout.SetInputLayout();
     vertexShader.SetShader();
@@ -94,10 +87,11 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
     dx11.GetContext()->RSSetViewports(1, viewport.Get11());
 
     Matrix cameraTransform{};
-    Matrix cameraProjection{ XMMatrixPerspectiveFovLH(90.f, viewport.AspectRatio(), 0.01f, 100.f) };
     Matrix modelTransform{};
     modelTransform.Translation({ 0.f, -10.f, 20.f });
     modelTransform = Matrix::CreateScale(100.f) * modelTransform;
+
+    Camera camera{};
 
     bool run = true;
     MSG msg{};
@@ -131,19 +125,13 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
             ImGui::End();
         }
 
-        {
-            CameraData cameraData{};
-            cameraData.worldToClipMatrix = cameraTransform.Invert() * cameraProjection;
-            Vector3 position = cameraTransform.Translation();
-            cameraData.cameraPosition = { position.x, position.y, position.z, 1.f };
-            cameraBuffer.UpdateConstantBuffer(&cameraData);
-        }
+        camera.WriteCamera(cameraTransform);
 
         {
             ModelData modelData{};
             modelData.modelMatrix = modelTransform;
             modelData.modelMatrixInverseTranspose = modelTransform.Transpose().Invert();
-            modelBuffer.UpdateConstantBuffer(&modelData);
+            modelBuffer.WriteConstantBuffer(&modelData);
         }
 
         if (!meshes.empty())

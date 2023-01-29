@@ -5,7 +5,7 @@ class ConstantBuffer
 public:
 	ConstantBuffer(size_t aByteWidth);
 
-	void UpdateConstantBuffer(const void* someData);
+	void WriteConstantBuffer(const void* someData);
 	void VSSetConstantBuffer(UINT aSlot) const;
 	void PSSetConstantBuffer(UINT aSlot) const;
 	size_t GetByteWidth() const { return myByteWidth; }

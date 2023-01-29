@@ -32,7 +32,10 @@
       <Filter>imgui</Filter>
     </ClInclude>
     <ClInclude Include="Mesh.h" />
-    <ClInclude Include="DepthBuffer.h" />
+    <ClInclude Include="Camera.h" />
+    <ClInclude Include="DepthBuffer.h">
+      <Filter>graphics\buffers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
@@ -67,7 +70,10 @@
       <Filter>imgui</Filter>
     </ClCompile>
     <ClCompile Include="Mesh.cpp" />
-    <ClCompile Include="DepthBuffer.cpp" />
+    <ClCompile Include="Camera.cpp" />
+    <ClCompile Include="DepthBuffer.cpp">
+      <Filter>graphics\buffers</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="graphics">
