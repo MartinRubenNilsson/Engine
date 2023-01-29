@@ -3,19 +3,14 @@
 
 Shader::Shader(const fs::path& aPath)
 {
-	std::ifstream file(aPath, std::ios::binary);
-	myBytecode = { std::istreambuf_iterator(file), {} };
+	std::ifstream file{ aPath, std::ios::binary };
+	myBytecode = { std::istreambuf_iterator{ file }, {} };
 }
 
 VertexShader::VertexShader(const fs::path& aPath)
 	: Shader(aPath)
 {
-	DX11_DEVICE->CreateVertexShader(
-		myBytecode.data(),
-		myBytecode.size(),
-		NULL,
-		&myShader
-	);
+	DX11_DEVICE->CreateVertexShader(myBytecode.data(), myBytecode.size(), NULL, &myShader);
 }
 
 void VertexShader::SetShader() const
@@ -26,12 +21,7 @@ void VertexShader::SetShader() const
 PixelShader::PixelShader(const fs::path& aPath)
 	: Shader(aPath)
 {
-	DX11_DEVICE->CreatePixelShader(
-		myBytecode.data(),
-		myBytecode.size(),
-		NULL,
-		&myShader
-	);
+	DX11_DEVICE->CreatePixelShader(myBytecode.data(), myBytecode.size(), NULL, &myShader);
 }
 
 void PixelShader::SetShader() const

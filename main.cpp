@@ -40,6 +40,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
     fs::current_path(currentPath);
 
     std::vector<Mesh> meshes{};
+    std::vector<aiMaterial*> materials{};
+
     {
         Assimp::Importer importer{};
         const unsigned flags = aiProcess_ConvertToLeftHanded | aiProcessPreset_TargetRealtime_MaxQuality;
@@ -48,6 +50,9 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
         {
             for (auto mesh : std::span(scene->mMeshes, scene->mNumMeshes))
                 meshes.emplace_back(*mesh);
+
+            for (auto material : std::span(scene->mMaterials, scene->mNumMaterials))
+                materials.emplace_back(material);
         }
     }
 
