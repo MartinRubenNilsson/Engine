@@ -70,14 +70,16 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
     if (!vertexBuffer || !indexBuffer)
         return EXIT_FAILURE;
 
-    ConstantBuffer cameraBuffer{ sizeof(Matrix)};
-    if (!cameraBuffer)
+    ConstantBuffer cameraBuffer{ sizeof(Matrix) };
+    ConstantBuffer modelBuffer{ sizeof(Matrix) };
+    if (!cameraBuffer || !modelBuffer)
         return EXIT_FAILURE;
 
     Viewport viewport{ window.GetClientRect() };
 
     dx11.GetContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
     cameraBuffer.VSSetConstantBuffer(0);
+    modelBuffer.VSSetConstantBuffer(1);
     inputLayout.SetInputLayout();
     vertexBuffer.SetVertexBuffer();
     indexBuffer.SetIndexBuffer();
@@ -88,6 +90,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
 
     Matrix cameraTransform{};
     Matrix cameraProjection{ XMMatrixPerspectiveFovLH(90.f, viewport.AspectRatio(), 0.01f, 100.f) };
+    Matrix modelTransform{};
 
     bool run = true;
     MSG msg{};
@@ -113,12 +116,16 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
 
         if (ImGui::Begin("Debug"))
         {
-            ImGui::DragTransform(&cameraTransform);
+            if (ImGui::CollapsingHeader("Camera"))
+                ImGui::DragTransform("Camera", &cameraTransform);
+            if (ImGui::CollapsingHeader("Model"))
+                ImGui::DragTransform("Model", &modelTransform);
             ImGui::End();
         }
 
         Matrix worldToClipMatrix = cameraTransform.Invert() * cameraProjection;
         cameraBuffer.UpdateConstantBuffer(&worldToClipMatrix);
+        modelBuffer.UpdateConstantBuffer(&modelTransform);
 
         dx11.GetContext()->DrawIndexed((UINT)indexBuffer.GetIndexCount(), 0, 0);
 

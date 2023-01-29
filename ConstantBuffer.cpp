@@ -5,9 +5,6 @@ ConstantBuffer::ConstantBuffer(size_t aByteWidth)
 	: myBuffer{}
 	, myByteWidth{ aByteWidth }
 {
-	assert(aByteWidth != 0 && "ByteWidth must be positive");
-	assert(aByteWidth % 16 == 0 && "ByteWidth must be a multiple of 16");
-
 	D3D11_BUFFER_DESC desc{};
 	desc.ByteWidth = static_cast<UINT>(aByteWidth);
 	desc.Usage = D3D11_USAGE_DYNAMIC;
