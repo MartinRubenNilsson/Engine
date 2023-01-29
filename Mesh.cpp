@@ -11,6 +11,8 @@ Mesh::Mesh(const aiMesh& aMesh)
 	assert(aMesh.HasFaces());
 	assert(aMesh.mPrimitiveTypes == aiPrimitiveType_TRIANGLE);
 
+	myName = aMesh.mName.C_Str();
+
 	// Load vertices
 	{
 		struct Vertex

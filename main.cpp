@@ -47,7 +47,13 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
     if (!inputLayout)
         return EXIT_FAILURE;
 
-    ConstantBuffer cameraBuffer{ sizeof(Matrix) };
+    struct CameraData
+    {
+        Matrix worldToClipMatrix;
+        Vector4 cameraPosition;
+    };
+
+    ConstantBuffer cameraBuffer{ sizeof(CameraData) };
     ConstantBuffer modelBuffer{ sizeof(Matrix) };
     if (!cameraBuffer || !modelBuffer)
         return EXIT_FAILURE;
@@ -98,8 +104,14 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
             ImGui::End();
         }
 
-        Matrix worldToClipMatrix = cameraTransform.Invert() * cameraProjection;
-        cameraBuffer.UpdateConstantBuffer(&worldToClipMatrix);
+        {
+            CameraData cameraData{};
+            cameraData.worldToClipMatrix = cameraTransform.Invert() * cameraProjection;
+            Vector3 position = cameraTransform.Translation();
+            cameraData.cameraPosition = { position.x, position.y, position.z, 1.f };
+            cameraBuffer.UpdateConstantBuffer(&cameraData);
+        }
+
         modelBuffer.UpdateConstantBuffer(&modelTransform);
 
         mesh.Draw();

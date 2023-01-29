@@ -33,7 +33,7 @@ IMGUI_API bool ImGui::DragTransform(const char* label, Matrix* m, float v_speed,
 	m->Decompose(scale, rotation, translation);
 
 	PushID(label);
-	const bool translated = DragVector3("Translation", &translation, v_speed, v_min, v_max, format, flags);
+	const bool translated = DragVector3("Position", &translation, v_speed, v_min, v_max, format, flags);
 	const bool rotated = DragEulerDegrees("Rotation", &rotation, v_speed, v_min, v_max, format, flags);
 	const bool scaled = DragVector3("Scale", &scale, v_speed, v_min, v_max, format, flags);
 	PopID();

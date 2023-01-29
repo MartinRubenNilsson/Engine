@@ -12,11 +12,13 @@ public:
 	void Draw() const;
 	size_t GetVertexCount() const;
 	size_t GetIndexCount() const;
+	const std::string& GetName() { return myName; }
 
 	operator bool() const;
 
 private:
 	std::unique_ptr<class VertexBuffer> myVertexBuffer;
 	std::unique_ptr<class IndexBuffer> myIndexBuffer;
+	std::string myName;
 };
 
