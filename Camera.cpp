@@ -8,73 +8,40 @@ namespace
 {
 	struct CameraData
 	{
-		Matrix worldToClipMatrix;
-		Vector4 cameraPosition;
-	};
+		Matrix cameraMatrix{};
+		Matrix worldToClipMatrix{};
+	} ourCameraData{};
 
-	size_t ourCameraCount{ 0 };
 	std::unique_ptr<ConstantBuffer> ourCameraBuffer{};
-
-	void OnCreateCamera()
-	{
-		if (ourCameraCount++ == 0)
-		{
-			ourCameraBuffer = std::make_unique<ConstantBuffer>(sizeof(CameraData));
-			assert(*ourCameraBuffer);
-			ourCameraBuffer->VSSetConstantBuffer(CBUFFER_SLOT_CAMERA);
-			ourCameraBuffer->PSSetConstantBuffer(CBUFFER_SLOT_CAMERA);
-		}
-	}
-
-	void OnDestroyCamera()
-	{
-		assert(ourCameraCount > 0);
-		if (ourCameraCount-- == 0)
-			ourCameraBuffer = nullptr;
-	}
 }
 
 Camera::Camera()
 {
-	SetPerspectiveFov();
-	OnCreateCamera();
+	CreatePerspectiveFov();
 }
 
-Camera::Camera(const Camera& aCamera)
-	: myProjection{ aCamera.myProjection }
-	, myOrthographic{ aCamera.myOrthographic }
+void Camera::UseForDrawing(const Matrix& aTransform) const
 {
-	assert(this != &aCamera);
-	OnCreateCamera();
+	if (!ourCameraBuffer)
+	{
+		ourCameraBuffer = std::make_unique<ConstantBuffer>(sizeof(CameraData));
+		assert(*ourCameraBuffer);
+		ourCameraBuffer->VSSetConstantBuffer(CBUFFER_SLOT_CAMERA);
+		ourCameraBuffer->PSSetConstantBuffer(CBUFFER_SLOT_CAMERA);
+	}
+
+	ourCameraData.cameraMatrix = aTransform;
+	ourCameraData.worldToClipMatrix = aTransform.Invert() * myProjection;
+
+	ourCameraBuffer->WriteConstantBuffer(&ourCameraData);
 }
 
-Camera& Camera::operator=(const Camera& aCamera)
-{
-	assert(this != &aCamera);
-	myProjection = aCamera.myProjection;
-	myOrthographic = aCamera.myOrthographic;
-	OnCreateCamera();
-	return *this;
-}
-
-Camera::~Camera()
-{
-	OnDestroyCamera();
-}
-
-void Camera::WriteCamera(const Matrix& aTransform) const
-{
-	const Vector3 pos = aTransform.Translation();
-
-	CameraData data{};
-	data.worldToClipMatrix = aTransform.Invert() * myProjection;
-	data.cameraPosition = { pos.x, pos.y, pos.z, 1.f };
-
-	ourCameraBuffer->WriteConstantBuffer(&data);
-}
-
-void Camera::SetPerspectiveFov(float aFovAngleY, float anAspectRatio, float aNearZ, float aFarZ)
+void Camera::CreatePerspectiveFov(float aFovAngleY, float anAspectRatio, float aNearZ, float aFarZ)
 {
 	myProjection = XMMatrixPerspectiveFovLH(aFovAngleY, anAspectRatio, aNearZ, aFarZ);
+	myFovAngleY = aFovAngleY;
+	myAspectRatio = anAspectRatio;
+	myNearZ = aNearZ;
+	myFarZ = aFarZ;
 	myOrthographic = false;
 }

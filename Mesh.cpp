@@ -2,8 +2,22 @@
 #include "Mesh.h"
 #include "VertexBuffer.h"
 #include "IndexBuffer.h"
+#include "ConstantBuffer.h"
 
 #pragma comment(lib, "assimp-vc142-mt") 
+
+#define CBUFFER_SLOT_MESH 1
+
+namespace
+{
+	struct MeshData
+	{
+		Matrix meshMatrix{};
+		Matrix meshMatrixInverseTranspose{};
+	} ourMeshData{};
+
+	std::unique_ptr<ConstantBuffer> ourMeshBuffer{};
+}
 
 Mesh::Mesh(const aiMesh& aMesh)
 	: myName{ aMesh.mName.C_Str() }
@@ -48,14 +62,27 @@ Mesh::Mesh(const aiMesh& aMesh)
 	}
 }
 
-void Mesh::Draw() const
+void Mesh::Draw(const Matrix& aTransform) const
 {
-	if (operator bool())
+	if (!operator bool())
+		return;
+
+	if (!ourMeshBuffer)
 	{
-		myVertexBuffer->SetVertexBuffer();
-		myIndexBuffer->SetIndexBuffer();
-		DX11_CONTEXT->DrawIndexed(static_cast<UINT>(myIndexBuffer->GetIndexCount()), 0, 0);
+		ourMeshBuffer = std::make_unique<ConstantBuffer>(sizeof(MeshData));
+		assert(*ourMeshBuffer);
+		ourMeshBuffer->VSSetConstantBuffer(CBUFFER_SLOT_MESH);
+		ourMeshBuffer->PSSetConstantBuffer(CBUFFER_SLOT_MESH);
 	}
+
+	ourMeshData.meshMatrix = aTransform;
+	ourMeshData.meshMatrixInverseTranspose = aTransform.Transpose().Invert();
+	ourMeshBuffer->WriteConstantBuffer(&ourMeshData);
+
+	myVertexBuffer->SetVertexBuffer();
+	myIndexBuffer->SetIndexBuffer();
+
+	DX11_CONTEXT->DrawIndexed(static_cast<UINT>(myIndexBuffer->GetIndexCount()), 0, 0);
 }
 
 size_t Mesh::GetVertexCount() const

@@ -4,7 +4,6 @@
 #include "SwapChain.h"
 #include "Shader.h"
 #include "InputLayout.h"
-#include "ConstantBuffer.h"
 #include "Mesh.h"
 #include "DepthBuffer.h"
 #include "Camera.h"
@@ -66,20 +65,9 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
     if (!inputLayout)
         return EXIT_FAILURE;
 
-    struct ModelData
-    {
-        Matrix modelMatrix;
-        Matrix modelMatrixInverseTranspose;
-    };
-
-    ConstantBuffer modelBuffer{ sizeof(ModelData) };
-    if (!modelBuffer)
-        return EXIT_FAILURE;
-
     Viewport viewport{ window.GetClientRect() };
 
     dx11.GetContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-    modelBuffer.VSSetConstantBuffer(1);
     inputLayout.SetInputLayout();
     vertexShader.SetShader();
     pixelShader.SetShader();
@@ -87,9 +75,9 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
     dx11.GetContext()->RSSetViewports(1, viewport.Get11());
 
     Matrix cameraTransform{};
-    Matrix modelTransform{};
-    modelTransform.Translation({ 0.f, -10.f, 20.f });
-    modelTransform = Matrix::CreateScale(100.f) * modelTransform;
+    Matrix meshTransform{};
+    meshTransform.Translation({ 0.f, -10.f, 20.f });
+    meshTransform = Matrix::CreateScale(100.f) * meshTransform;
 
     Camera camera{};
 
@@ -121,21 +109,14 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
             if (ImGui::CollapsingHeader("Camera"))
                 ImGui::DragTransform("Camera", &cameraTransform);
             if (ImGui::CollapsingHeader("Model"))
-                ImGui::DragTransform("Model", &modelTransform);
+                ImGui::DragTransform("Model", &meshTransform);
             ImGui::End();
         }
 
-        camera.WriteCamera(cameraTransform);
-
-        {
-            ModelData modelData{};
-            modelData.modelMatrix = modelTransform;
-            modelData.modelMatrixInverseTranspose = modelTransform.Transpose().Invert();
-            modelBuffer.WriteConstantBuffer(&modelData);
-        }
+        camera.UseForDrawing(cameraTransform);
 
         if (!meshes.empty())
-            meshes.front().Draw();
+            meshes.front().Draw(meshTransform);
 
         /*
         * END RENDERING

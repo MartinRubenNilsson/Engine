@@ -8,7 +8,7 @@ class Mesh
 public:
 	Mesh(const aiMesh&);
 
-	void Draw() const;
+	void Draw(const Matrix& aTransform) const;
 
 	const std::string& GetName() const { return myName; }
 	unsigned GetMaterialIndex() const { return myMaterialIndex; }

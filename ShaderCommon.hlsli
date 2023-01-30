@@ -1,13 +1,13 @@
 cbuffer CameraBuffer : register(b0)
 {
+    float4x4 CameraMatrix;
     float4x4 WorldToClipMatrix;
-    float4 CameraPosition;
 }
 
-cbuffer ModelBuffer : register(b1)
+cbuffer MeshBuffer : register(b1)
 {
-    float4x4 ModelMatrix;
-    float4x4 ModelMatrixInverseTranspose;
+    float4x4 MeshMatrix;
+    float4x4 MeshMatrixInverseTranspose;
 }
 
 struct Vertex
