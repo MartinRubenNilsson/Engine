@@ -25,7 +25,6 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
     DX11 dx11{};
     if (!dx11)
         return EXIT_FAILURE;
-    DX11::Instance = &dx11;
 
     DearImGui imGui{ window.GetHandle(), dx11.GetDevice(), dx11.GetContext() };
     if (!imGui)

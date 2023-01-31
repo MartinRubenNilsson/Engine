@@ -3,20 +3,28 @@
 class DX11
 {
 public:
-	static DX11* Instance;
-
 	DX11();
+	~DX11();
 
-	operator bool() const { return SUCCEEDED(myResult); }
+	static DX11& Get() { return *ourInstance; }
 
 	ID3D11Device* GetDevice() const { return myDevice.Get(); }
 	ID3D11DeviceContext* GetContext() const { return myContext.Get(); }
 
+	operator bool() const { return SUCCEEDED(myResult); }
+
 private:
+	DX11(const DX11&) = delete;
+	DX11& operator=(const DX11&) = delete;
+	DX11(DX11&&) = delete;
+	DX11& operator=(DX11&&) = delete;
+
+	static DX11* ourInstance;
+
+	HRESULT myResult;
 	ComPtr<ID3D11Device> myDevice;
 	ComPtr<ID3D11DeviceContext> myContext;
-	HRESULT myResult;
 };
 
-#define DX11_DEVICE DX11::Instance->GetDevice()
-#define DX11_CONTEXT DX11::Instance->GetContext()
+#define DX11_DEVICE DX11::Get().GetDevice()
+#define DX11_CONTEXT DX11::Get().GetContext()

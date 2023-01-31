@@ -1207,11 +1207,11 @@ struct ImGuiShrinkWidthItem
 
 struct ImGuiPtrOrIndex
 {
-    void*       Instance;            // Either field can be set, not both. e.g. Dock node tab bars are loose while BeginTabBar() ones are in a pool.
+    void*       ourInstance;            // Either field can be set, not both. e.g. Dock node tab bars are loose while BeginTabBar() ones are in a pool.
     int         Index;          // Usually index in a main pool.
 
-    ImGuiPtrOrIndex(void* ptr)  { Instance = ptr; Index = -1; }
-    ImGuiPtrOrIndex(int index)  { Instance = NULL; Index = index; }
+    ImGuiPtrOrIndex(void* ptr)  { ourInstance = ptr; Index = -1; }
+    ImGuiPtrOrIndex(int index)  { ourInstance = NULL; Index = index; }
 };
 
 //-----------------------------------------------------------------------------
