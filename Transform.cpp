@@ -47,7 +47,7 @@ size_t Transform::GetDescendantCount() const
 
 IMGUI_API void ImGui::Hierarchy(const char* label, Transform::Ptr t)
 {
-	ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_None;
+	ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_OpenOnArrow;
 	if (!t->HasChildren())
 		flags = flags | ImGuiTreeNodeFlags_Leaf;
 
