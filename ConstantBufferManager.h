@@ -16,6 +16,18 @@ struct MeshBuffer
 class ConstantBufferManager
 {
 public:
+	ConstantBufferManager();
+	~ConstantBufferManager();
+
+	static ConstantBufferManager& Get() { return *ourInstance; }
+
+	template <class T> void WriteConstantBuffer(const T&) { assert(false); };
+	template <> void WriteConstantBuffer(const CameraBuffer& aBuffer) { WriteConstantBuffer(Camera, &aBuffer); }
+	template <> void WriteConstantBuffer(const MeshBuffer& aBuffer) { WriteConstantBuffer(Mesh, &aBuffer); }
+
+	operator bool() const;
+
+private:
 	enum Slot : unsigned
 	{
 		Camera,
@@ -23,24 +35,16 @@ public:
 		Count
 	};
 
-	ConstantBufferManager();
-	~ConstantBufferManager();
+	static ConstantBufferManager* ourInstance;
 
-	static ConstantBufferManager& Get() { return *ourInstance; }
-
-	void WriteConstantBuffer(Slot aSlot, const void* someData);
-
-	operator bool() const;
-
-private:
 	ConstantBufferManager(const ConstantBufferManager&) = delete;
 	ConstantBufferManager& operator=(const ConstantBufferManager&) = delete;
 	ConstantBufferManager(ConstantBufferManager&&) = delete;
 	ConstantBufferManager& operator=(ConstantBufferManager&&) = delete;
 
-	static ConstantBufferManager* ourInstance;
+	void WriteConstantBuffer(Slot aSlot, const void* someData);
 
 	ConstantBuffer myConstantBuffers[Count];
 };
 
-#define DX11_WRITE_CBUFFER(slot, data) ConstantBufferManager::Get().WriteConstantBuffer(ConstantBufferManager::##slot, data)
+#define DX11_WRITE_CBUFFER(buffer) ConstantBufferManager::Get().WriteConstantBuffer(buffer)

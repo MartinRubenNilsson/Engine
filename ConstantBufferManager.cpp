@@ -27,7 +27,6 @@ ConstantBufferManager::~ConstantBufferManager()
 
 void ConstantBufferManager::WriteConstantBuffer(Slot aSlot, const void* someData)
 {
-	assert(aSlot < Count && "Constant buffer slot must be valid");
 	myConstantBuffers[aSlot].WriteConstantBuffer(someData);
 }
 

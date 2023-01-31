@@ -12,7 +12,7 @@ void Camera::UseForDrawing(const Matrix& aTransform) const
 	buffer.cameraMatrix = aTransform;
 	buffer.worldToClipMatrix = aTransform.Invert() * myProjection;
 
-	DX11_WRITE_CBUFFER(Camera, &buffer);
+	DX11_WRITE_CBUFFER(buffer);
 }
 
 void Camera::CreatePerspectiveFov(float aFovAngleY, float anAspectRatio, float aNearZ, float aFarZ)

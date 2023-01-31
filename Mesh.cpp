@@ -57,7 +57,7 @@ void Mesh::Draw(const Matrix& aTransform) const
 	buffer.meshMatrix = aTransform;
 	buffer.meshMatrixInverseTranspose = aTransform.Transpose().Invert();
 
-	DX11_WRITE_CBUFFER(Mesh, &buffer);
+	DX11_WRITE_CBUFFER(buffer);
 	DX11_CONTEXT->DrawIndexed(static_cast<UINT>(myIndexBuffer->GetIndexCount()), 0, 0);
 }
 
