@@ -1,18 +1,5 @@
 #include "pch.h"
 #include "Camera.h"
-#include "ConstantBuffer.h"
-#include "ShaderCommon.h"
-
-namespace
-{
-	struct CameraData
-	{
-		Matrix cameraMatrix{};
-		Matrix worldToClipMatrix{};
-	} ourCameraData{};
-
-	std::unique_ptr<ConstantBuffer> ourCameraBuffer{};
-}
 
 Camera::Camera()
 {
@@ -21,18 +8,11 @@ Camera::Camera()
 
 void Camera::UseForDrawing(const Matrix& aTransform) const
 {
-	if (!ourCameraBuffer)
-	{
-		ourCameraBuffer = std::make_unique<ConstantBuffer>(sizeof(CameraData));
-		assert(*ourCameraBuffer);
-		ourCameraBuffer->VSSetConstantBuffer(CBUFFER_SLOT_CAMERA);
-		ourCameraBuffer->PSSetConstantBuffer(CBUFFER_SLOT_CAMERA);
-	}
+	CameraBuffer buffer{};
+	buffer.cameraMatrix = aTransform;
+	buffer.worldToClipMatrix = aTransform.Invert() * myProjection;
 
-	ourCameraData.cameraMatrix = aTransform;
-	ourCameraData.worldToClipMatrix = aTransform.Invert() * myProjection;
-
-	ourCameraBuffer->WriteConstantBuffer(&ourCameraData);
+	DX11_WRITE_CBUFFER(Camera, &buffer);
 }
 
 void Camera::CreatePerspectiveFov(float aFovAngleY, float anAspectRatio, float aNearZ, float aFarZ)

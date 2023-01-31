@@ -22,12 +22,12 @@ void ConstantBuffer::WriteConstantBuffer(const void* someData)
 	DX11_CONTEXT->Unmap(myBuffer.Get(), 0);
 }
 
-void ConstantBuffer::VSSetConstantBuffer(UINT aSlot) const
+void ConstantBuffer::VSSetConstantBuffer(unsigned aSlot) const
 {
 	DX11_CONTEXT->VSSetConstantBuffers(aSlot, 1, myBuffer.GetAddressOf());
 }
 
-void ConstantBuffer::PSSetConstantBuffer(UINT aSlot) const
+void ConstantBuffer::PSSetConstantBuffer(unsigned aSlot) const
 {
 	DX11_CONTEXT->PSSetConstantBuffers(aSlot, 1, myBuffer.GetAddressOf());
 }

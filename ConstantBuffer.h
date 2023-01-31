@@ -6,8 +6,8 @@ public:
 	ConstantBuffer(size_t aByteWidth);
 
 	void WriteConstantBuffer(const void* someData);
-	void VSSetConstantBuffer(UINT aSlot) const;
-	void PSSetConstantBuffer(UINT aSlot) const;
+	void VSSetConstantBuffer(unsigned aSlot) const;
+	void PSSetConstantBuffer(unsigned aSlot) const;
 	size_t GetByteWidth() const { return myByteWidth; }
 
 	operator bool() const { return myBuffer; }

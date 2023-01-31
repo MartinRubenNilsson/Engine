@@ -27,6 +27,7 @@ using namespace DirectX::SimpleMath;
 #include <assimp/mesh.h>
 
 // std
+#include <algorithm>
 #include <array>
 #include <filesystem>
 #include <fstream>
@@ -47,3 +48,4 @@ namespace fs = std::filesystem;
 // other
 #include "Debug.h"
 #include "DX11.h"
+#include "ConstantBufferManager.h"

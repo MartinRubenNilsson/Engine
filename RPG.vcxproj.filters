@@ -34,9 +34,6 @@
     <ClInclude Include="DepthBuffer.h">
       <Filter>graphics\buffers</Filter>
     </ClInclude>
-    <ClInclude Include="ShaderCommon.h">
-      <Filter>graphics</Filter>
-    </ClInclude>
     <ClInclude Include="Camera.h">
       <Filter>objects</Filter>
     </ClInclude>
@@ -45,6 +42,9 @@
     </ClInclude>
     <ClInclude Include="Transform.h">
       <Filter>objects</Filter>
+    </ClInclude>
+    <ClInclude Include="ConstantBufferManager.h">
+      <Filter>graphics</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -90,6 +90,9 @@
     </ClCompile>
     <ClCompile Include="Transform.cpp">
       <Filter>objects</Filter>
+    </ClCompile>
+    <ClCompile Include="ConstantBufferManager.cpp">
+      <Filter>graphics</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -38,6 +38,10 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
     if (!depthBuffer)
         return EXIT_FAILURE;
 
+    ConstantBufferManager cBufferMgr{};
+    if (!cBufferMgr)
+        return EXIT_FAILURE;
+
     const fs::path currentPath = fs::current_path() / "Bin";
     fs::current_path(currentPath);
 

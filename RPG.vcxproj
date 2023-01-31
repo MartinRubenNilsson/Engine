@@ -178,6 +178,7 @@
   <ItemGroup>
     <ClInclude Include="Camera.h" />
     <ClInclude Include="ConstantBuffer.h" />
+    <ClInclude Include="ConstantBufferManager.h" />
     <ClInclude Include="DearImGui.h" />
     <ClInclude Include="Debug.h" />
     <ClInclude Include="DepthBuffer.h" />
@@ -188,7 +189,6 @@
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="Shader.h" />
-    <ClInclude Include="ShaderCommon.h" />
     <ClInclude Include="SwapChain.h" />
     <ClInclude Include="Transform.h" />
     <ClInclude Include="VertexBuffer.h" />
@@ -197,6 +197,7 @@
   <ItemGroup>
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="ConstantBuffer.cpp" />
+    <ClCompile Include="ConstantBufferManager.cpp" />
     <ClCompile Include="DearImGui.cpp" />
     <ClCompile Include="Debug.cpp" />
     <ClCompile Include="DepthBuffer.cpp" />
