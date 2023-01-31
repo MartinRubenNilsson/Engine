@@ -31,15 +31,21 @@
     <ClInclude Include="imgui_simplemath.h">
       <Filter>imgui</Filter>
     </ClInclude>
-    <ClInclude Include="Mesh.h" />
-    <ClInclude Include="Camera.h" />
     <ClInclude Include="DepthBuffer.h">
       <Filter>graphics\buffers</Filter>
     </ClInclude>
     <ClInclude Include="ShaderCommon.h">
       <Filter>graphics</Filter>
     </ClInclude>
-    <ClInclude Include="Transform.h" />
+    <ClInclude Include="Camera.h">
+      <Filter>objects</Filter>
+    </ClInclude>
+    <ClInclude Include="Mesh.h">
+      <Filter>objects</Filter>
+    </ClInclude>
+    <ClInclude Include="Transform.h">
+      <Filter>objects</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
@@ -73,12 +79,18 @@
     <ClCompile Include="imgui_simplemath.cpp">
       <Filter>imgui</Filter>
     </ClCompile>
-    <ClCompile Include="Mesh.cpp" />
-    <ClCompile Include="Camera.cpp" />
     <ClCompile Include="DepthBuffer.cpp">
       <Filter>graphics\buffers</Filter>
     </ClCompile>
-    <ClCompile Include="Transform.cpp" />
+    <ClCompile Include="Camera.cpp">
+      <Filter>objects</Filter>
+    </ClCompile>
+    <ClCompile Include="Mesh.cpp">
+      <Filter>objects</Filter>
+    </ClCompile>
+    <ClCompile Include="Transform.cpp">
+      <Filter>objects</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="graphics">
@@ -92,6 +104,9 @@
     </Filter>
     <Filter Include="graphics\buffers">
       <UniqueIdentifier>{e28b3a7a-3a70-474d-ab62-9672b857f544}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="objects">
+      <UniqueIdentifier>{545fdeb4-0f2f-46c3-ac4c-1a93a1a6f995}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

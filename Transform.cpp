@@ -44,3 +44,19 @@ size_t Transform::GetDescendantCount() const
 		count += child->GetDescendantCount();
 	return count;
 }
+
+IMGUI_API void ImGui::Hierarchy(const char* label, Transform::Ptr t)
+{
+	ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_None;
+	if (!t->HasChildren())
+		flags = flags | ImGuiTreeNodeFlags_Leaf;
+
+	PushID(label);
+	if (TreeNodeEx(t->GetName().c_str(), flags))
+	{
+		for (const auto& child : t->GetChildren())
+			Hierarchy(label, child);
+		TreePop();
+	}
+	PopID();
+}

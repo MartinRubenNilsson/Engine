@@ -7,6 +7,8 @@ public:
 
 	Transform(const aiNode&);
 
+	const std::string& GetName() const { return myName; }
+
 	const Matrix& GetMatrix() { return myMatrix; }
 	void SetMatrix(const Matrix& aMatrix) { myMatrix = aMatrix; }
 
@@ -15,6 +17,8 @@ public:
 	size_t GetChildCount() const { return myChildren.size(); }
 	size_t GetDescendantCount() const;
 	size_t GetHierarchyCount() const { return GetDescendantCount() + 1; }
+
+	const std::vector<Ptr>& GetChildren() const { return myChildren; }
 
 	bool HasChildren() const { return !myChildren.empty(); }
 
@@ -25,4 +29,9 @@ private:
 	Matrix myMatrix;
 	std::vector<Ptr> myChildren;
 };
+
+namespace ImGui
+{
+	IMGUI_API void Hierarchy(const char* label, Transform::Ptr t);
+}
 

@@ -20,6 +20,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
 	if (!window)
 		return EXIT_FAILURE;
 
+    window.SetTitle(L"Model Viewer");
+
     DX11 dx11{};
     if (!dx11)
         return EXIT_FAILURE;
@@ -49,13 +51,6 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
 
         if (auto scene = importer.ReadFile("mesh/test_00.fbx", flags))
         {
-            const aiMetadata& metadata = *scene->mMetaData;
-
-            float unitScaleFactor = 1.f;
-            float originalUnitScaleFactor = 1.f;
-            metadata.Get("UnitScaleFactor", unitScaleFactor);
-            metadata.Get("OriginalUnitScaleFactor", originalUnitScaleFactor);
-
             assert(scene->mRootNode);
             rootTransform = std::make_shared<Transform>(*scene->mRootNode);
 
@@ -113,14 +108,12 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
         {
             if (ImGui::CollapsingHeader("Camera"))
                 ImGui::DragTransform("Camera", &cameraTransform);
+            ImGui::End();
+        }
 
-            if (ImGui::CollapsingHeader("Model"))
-            {
-                Matrix rootMatrix = rootTransform->GetMatrix();
-                ImGui::DragTransform("Model", &rootMatrix);
-                rootTransform->SetMatrix(rootMatrix);
-            }
-
+        if (ImGui::Begin("Hierarchy"))
+        {
+            ImGui::Hierarchy("Hierarchy", rootTransform);
             ImGui::End();
         }
 
