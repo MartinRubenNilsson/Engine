@@ -1,8 +1,7 @@
 #include "pch.h"
 #include "Camera.h"
 #include "ConstantBuffer.h"
-
-#define CBUFFER_SLOT_CAMERA 0
+#include "ShaderCommon.h"
 
 namespace
 {

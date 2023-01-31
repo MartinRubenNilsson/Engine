@@ -7,8 +7,9 @@
 #include "Mesh.h"
 #include "DepthBuffer.h"
 #include "Camera.h"
-
+#include "Transform.h"
 #include "imgui_simplemath.h"
+
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
@@ -40,19 +41,26 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
     fs::current_path(currentPath);
 
     std::vector<Mesh> meshes{};
-    std::vector<aiMaterial*> materials{};
+    std::shared_ptr<Transform> rootTransform{};
 
     {
         Assimp::Importer importer{};
         const unsigned flags = aiProcess_ConvertToLeftHanded | aiProcessPreset_TargetRealtime_MaxQuality;
 
-        if (auto scene = importer.ReadFile("mesh/bunny.obj", flags))
+        if (auto scene = importer.ReadFile("mesh/test_00.fbx", flags))
         {
+            const aiMetadata& metadata = *scene->mMetaData;
+
+            float unitScaleFactor = 1.f;
+            float originalUnitScaleFactor = 1.f;
+            metadata.Get("UnitScaleFactor", unitScaleFactor);
+            metadata.Get("OriginalUnitScaleFactor", originalUnitScaleFactor);
+
+            assert(scene->mRootNode);
+            rootTransform = std::make_shared<Transform>(*scene->mRootNode);
+
             for (auto mesh : std::span(scene->mMeshes, scene->mNumMeshes))
                 meshes.emplace_back(*mesh);
-
-            for (auto material : std::span(scene->mMaterials, scene->mNumMaterials))
-                materials.emplace_back(material);
         }
     }
 
@@ -74,12 +82,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
     swapChain.SetRenderTarget(depthBuffer.GetDepthStencil());
     dx11.GetContext()->RSSetViewports(1, viewport.Get11());
 
-    Matrix cameraTransform{};
-    Matrix meshTransform{};
-    meshTransform.Translation({ 0.f, -10.f, 20.f });
-    meshTransform = Matrix::CreateScale(100.f) * meshTransform;
-
     Camera camera{};
+    Matrix cameraTransform{};
 
     bool run = true;
     MSG msg{};
@@ -104,19 +108,28 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
         * BEGIN RENDERING
         */
 
+
         if (ImGui::Begin("Debug"))
         {
             if (ImGui::CollapsingHeader("Camera"))
                 ImGui::DragTransform("Camera", &cameraTransform);
+
             if (ImGui::CollapsingHeader("Model"))
-                ImGui::DragTransform("Model", &meshTransform);
+            {
+                Matrix rootMatrix = rootTransform->GetMatrix();
+                ImGui::DragTransform("Model", &rootMatrix);
+                rootTransform->SetMatrix(rootMatrix);
+            }
+
             ImGui::End();
         }
 
         camera.UseForDrawing(cameraTransform);
 
-        if (!meshes.empty())
-            meshes.front().Draw(meshTransform);
+        auto worldMatrices = rootTransform->GetHierarchyWorldMatrices();
+
+        for (size_t i = 0; i < meshes.size(); ++i)
+            meshes[i].Draw(worldMatrices[i + 1]);
 
         /*
         * END RENDERING

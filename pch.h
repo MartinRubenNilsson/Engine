@@ -41,6 +41,7 @@ namespace fs = std::filesystem;
 
 // cstd
 #include <cassert>
+#include <cmath>
 #include <cstdlib>
 
 // other

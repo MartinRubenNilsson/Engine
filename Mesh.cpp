@@ -3,10 +3,9 @@
 #include "VertexBuffer.h"
 #include "IndexBuffer.h"
 #include "ConstantBuffer.h"
+#include "ShaderCommon.h"
 
 #pragma comment(lib, "assimp-vc142-mt") 
-
-#define CBUFFER_SLOT_MESH 1
 
 namespace
 {
@@ -25,7 +24,6 @@ Mesh::Mesh(const aiMesh& aMesh)
 	, myVertexBuffer{}
 	, myIndexBuffer{}
 {
-	// Load vertices
 	{
 		struct Vertex
 		{
@@ -50,7 +48,6 @@ Mesh::Mesh(const aiMesh& aMesh)
 		myVertexBuffer = std::make_shared<VertexBuffer>(std::span(vertices));
 	}
 
-	// Load indices
 	if (aMesh.HasFaces() && aMesh.mPrimitiveTypes == aiPrimitiveType_TRIANGLE)
 	{
 		std::vector<unsigned> indices(3 * aMesh.mNumFaces);

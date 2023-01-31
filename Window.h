@@ -9,7 +9,7 @@ struct WindowClass : WNDCLASS
 class Window
 {
 public:
-	Window(const WindowClass&);
+	Window(const WNDCLASS&);
 	~Window();
 
 	void SetTitle(std::wstring_view);

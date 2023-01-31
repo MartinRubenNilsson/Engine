@@ -36,6 +36,10 @@
     <ClInclude Include="DepthBuffer.h">
       <Filter>graphics\buffers</Filter>
     </ClInclude>
+    <ClInclude Include="ShaderCommon.h">
+      <Filter>graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Transform.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
@@ -74,6 +78,7 @@
     <ClCompile Include="DepthBuffer.cpp">
       <Filter>graphics\buffers</Filter>
     </ClCompile>
+    <ClCompile Include="Transform.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="graphics">
