@@ -3,20 +3,49 @@
 
 Transform::Transform(const aiNode& aNode)
 	: myName{ aNode.mName.C_Str() }
-	, myMatrix{}
+	, myLocalMatrix{}
+	, myParent{}
 	, myChildren{}
 {
-	std::memcpy(&myMatrix, &aNode.mTransformation, sizeof(Matrix));
-	myMatrix = myMatrix.Transpose();
+	std::memcpy(&myLocalMatrix, &aNode.mTransformation, sizeof(Matrix));
+	myLocalMatrix = myLocalMatrix.Transpose();
 	
 	myChildren.resize(aNode.mNumChildren);
 	for (unsigned i = 0; i < aNode.mNumChildren; ++i)
-		myChildren[i] = std::make_shared<Transform>(*aNode.mChildren[i]);
+	{
+		myChildren[i] = Ptr(new Transform(*aNode.mChildren[i]));
+		myChildren[i]->myParent = shared_from_this();
+	}
+}
+
+Transform::Ptr Transform::Create(const aiNode& aNode)
+{
+	return Ptr(new Transform(aNode));
+}
+
+Transform::Ptr Transform::FindInHierarchy(std::string_view aName)
+{
+	if (aName == myName)
+		return shared_from_this();
+	for (auto& child : myChildren)
+	{
+		if (auto result = child->FindInHierarchy(aName))
+			return result;
+	}
+	return nullptr;
+}
+
+Matrix Transform::GetWorldMatrix() const
+{
+	Matrix result = myLocalMatrix;
+	if (myParent)
+		result *= myParent->GetWorldMatrix();
+	return result;
 }
 
 std::span<Matrix> Transform::GetHierarchyWorldMatrices(std::span<Matrix> aSpan) const
 {
-	std::memcpy(aSpan.data(), &myMatrix, sizeof(Matrix));
+	std::memcpy(aSpan.data(), &myLocalMatrix, sizeof(Matrix));
 	aSpan = aSpan.subspan(1);
 
 	const auto descendants = aSpan;
@@ -25,7 +54,7 @@ std::span<Matrix> Transform::GetHierarchyWorldMatrices(std::span<Matrix> aSpan) 
 		aSpan = child->GetHierarchyWorldMatrices(aSpan);
 
 	for (Matrix& matrix : descendants)
-		matrix *= myMatrix;
+		matrix *= myLocalMatrix;
 	
 	return aSpan;
 }

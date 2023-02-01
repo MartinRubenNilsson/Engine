@@ -82,7 +82,7 @@ public:
     explicit aiQuaterniont( aiVector3t<TReal> normalized);
 
     /** Returns a matrix representation of the quaternion */
-    aiMatrix3x3t<TReal> GetMatrix() const;
+    aiMatrix3x3t<TReal> GetLocalMatrix() const;
 
 public:
 

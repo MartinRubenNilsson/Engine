@@ -585,7 +585,7 @@ public:
     const aiImporterDesc *GetImporterInfo(size_t index) const;
 
     // -------------------------------------------------------------------
-    /** Find the importer corresponding to a specific index.
+    /** FindInHierarchy the importer corresponding to a specific index.
     *
     *  @param index Index to query, must be within [0,GetImporterCount())
     *  @return Importer instance. nullptr if the index does not
@@ -593,7 +593,7 @@ public:
     BaseImporter *GetImporter(size_t index) const;
 
     // -------------------------------------------------------------------
-    /** Find the importer corresponding to a specific file extension.
+    /** FindInHierarchy the importer corresponding to a specific file extension.
     *
     *  This is quite similar to #IsExtensionSupported except a
     *  BaseImporter instance is returned.
@@ -605,7 +605,7 @@ public:
     BaseImporter *GetImporter(const char *szExtension) const;
 
     // -------------------------------------------------------------------
-    /** Find the importer index corresponding to a specific file extension.
+    /** FindInHierarchy the importer index corresponding to a specific file extension.
     *
     *  @param szExtension Extension to check for. The following formats
     *    are recognized (BAH being the file extension): "BAH" (comparison

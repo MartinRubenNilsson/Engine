@@ -8,11 +8,13 @@ public:
 	virtual void SetShader() const = 0;
 	virtual operator bool() const = 0;
 
+	const fs::path& GetPath() const { return myPath; }
 	const std::string& GetBytecode() const { return myBytecode; }
 
 protected:
 	Shader(const fs::path&);
 
+	fs::path myPath;
 	std::string myBytecode;
 };
 

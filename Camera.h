@@ -3,20 +3,20 @@
 class Camera
 {
 public:
-	Camera();
+	using Ptr = std::shared_ptr<Camera>;
+
+	static Ptr Create(const aiCamera&);
 
 	void UseForDrawing(const Matrix& aTransform) const;
 
-	void CreatePerspectiveFov(float aFovAngleY = XM_PI / 3.f, float anAspectRatio = 16.f / 9.f, float aNearZ = 0.3f, float aFarZ = 1000.f);
-	
-	bool IsOrthographic() const { return myOrthographic; }
+	Matrix GetProjection() const;
 
 private:
-	Matrix myProjection;
-	float myFovAngleY;
+	Camera(const aiCamera&);
+
+	float myVerticalFov;
 	float myAspectRatio;
-	float myNearZ;
-	float myFarZ;
-	bool myOrthographic;
+	float myNearClipPlane;
+	float myFarClipPlane;
 };
 

@@ -6,7 +6,6 @@
 
 Mesh::Mesh(const aiMesh& aMesh)
 	: myName{ aMesh.mName.C_Str() }
-	, myMaterialIndex{ aMesh.mMaterialIndex }
 	, myVertexBuffer{}
 	, myIndexBuffer{}
 {
@@ -43,6 +42,11 @@ Mesh::Mesh(const aiMesh& aMesh)
 
 		myIndexBuffer = std::make_shared<IndexBuffer>(std::span(indices));
 	}
+}
+
+Mesh::Ptr Mesh::Create(const aiMesh& aMesh)
+{
+	return Ptr(new Mesh(aMesh));
 }
 
 void Mesh::Draw(const Matrix& aTransform) const

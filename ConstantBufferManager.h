@@ -21,9 +21,8 @@ public:
 
 	static ConstantBufferManager& Get() { return *ourInstance; }
 
-	template <class T> void WriteConstantBuffer(const T&) { assert(false); };
-	template <> void WriteConstantBuffer(const CameraBuffer& aBuffer) { WriteConstantBuffer(Camera, &aBuffer); }
-	template <> void WriteConstantBuffer(const MeshBuffer& aBuffer) { WriteConstantBuffer(Mesh, &aBuffer); }
+	void WriteConstantBuffer(const CameraBuffer& aBuffer) { WriteConstantBuffer(Camera, &aBuffer); }
+	void WriteConstantBuffer(const MeshBuffer& aBuffer) { WriteConstantBuffer(Mesh, &aBuffer); }
 
 	operator bool() const;
 

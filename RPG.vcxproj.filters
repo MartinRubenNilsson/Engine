@@ -44,7 +44,7 @@
       <Filter>objects</Filter>
     </ClInclude>
     <ClInclude Include="ConstantBufferManager.h">
-      <Filter>graphics</Filter>
+      <Filter>graphics\managers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -92,7 +92,7 @@
       <Filter>objects</Filter>
     </ClCompile>
     <ClCompile Include="ConstantBufferManager.cpp">
-      <Filter>graphics</Filter>
+      <Filter>graphics\managers</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -110,6 +110,9 @@
     </Filter>
     <Filter Include="objects">
       <UniqueIdentifier>{545fdeb4-0f2f-46c3-ac4c-1a93a1a6f995}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="graphics\managers">
+      <UniqueIdentifier>{c18edbf6-ced2-448f-a66c-4b49888979aa}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

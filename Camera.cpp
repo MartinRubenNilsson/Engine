@@ -1,26 +1,34 @@
 #include "pch.h"
 #include "Camera.h"
 
-Camera::Camera()
+Camera::Camera(const aiCamera& aCamera)
+	: myVerticalFov{ XM_PIDIV2 }
+	, myAspectRatio{ 1.f }
+	, myNearClipPlane{ aCamera.mClipPlaneNear }
+	, myFarClipPlane{ aCamera.mClipPlaneFar }
 {
-	CreatePerspectiveFov();
+	if (aCamera.mAspect > 0.f)
+	{
+		myVerticalFov = 2.f * atan(tan(aCamera.mHorizontalFOV) / aCamera.mAspect);
+		myAspectRatio = aCamera.mAspect;
+	}
+}
+
+Camera::Ptr Camera::Create(const aiCamera& aCamera)
+{
+	return Ptr(new Camera(aCamera));
 }
 
 void Camera::UseForDrawing(const Matrix& aTransform) const
 {
 	CameraBuffer buffer{};
 	buffer.cameraMatrix = aTransform;
-	buffer.worldToClipMatrix = aTransform.Invert() * myProjection;
+	buffer.worldToClipMatrix = aTransform.Invert() * GetProjection();
 
 	DX11_WRITE_CBUFFER(buffer);
 }
 
-void Camera::CreatePerspectiveFov(float aFovAngleY, float anAspectRatio, float aNearZ, float aFarZ)
+Matrix Camera::GetProjection() const
 {
-	myProjection = XMMatrixPerspectiveFovLH(aFovAngleY, anAspectRatio, aNearZ, aFarZ);
-	myFovAngleY = aFovAngleY;
-	myAspectRatio = anAspectRatio;
-	myNearZ = aNearZ;
-	myFarZ = aFarZ;
-	myOrthographic = false;
+	return XMMatrixPerspectiveFovLH(myVerticalFov, myAspectRatio, myNearClipPlane, myFarClipPlane);
 }

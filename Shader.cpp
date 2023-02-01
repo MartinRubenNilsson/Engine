@@ -2,6 +2,8 @@
 #include "Shader.h"
 
 Shader::Shader(const fs::path& aPath)
+	: myPath{ aPath }
+	, myBytecode{}
 {
 	std::ifstream file{ aPath, std::ios::binary };
 	myBytecode = { std::istreambuf_iterator{ file }, {} };

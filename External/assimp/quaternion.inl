@@ -167,7 +167,7 @@ inline aiQuaterniont<TReal>::aiQuaterniont( TReal fPitch, TReal fYaw, TReal fRol
 // ---------------------------------------------------------------------------
 // Returns a matrix representation of the quaternion
 template<typename TReal>
-inline aiMatrix3x3t<TReal> aiQuaterniont<TReal>::GetMatrix() const
+inline aiMatrix3x3t<TReal> aiQuaterniont<TReal>::GetLocalMatrix() const
 {
     aiMatrix3x3t<TReal> resMatrix;
     resMatrix.a1 = static_cast<TReal>(1.0) - static_cast<TReal>(2.0) * (y * y + z * z);

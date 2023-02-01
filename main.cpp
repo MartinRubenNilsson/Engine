@@ -10,7 +10,6 @@
 #include "Transform.h"
 #include "imgui_simplemath.h"
 
-
 LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
@@ -45,8 +44,13 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
     const fs::path currentPath = fs::current_path() / "Bin";
     fs::current_path(currentPath);
 
-    std::vector<Mesh> meshes{};
-    std::shared_ptr<Transform> rootTransform{};
+
+
+
+    Transform::Ptr rootTransform{};
+
+    std::vector<std::pair<Camera::Ptr, Transform::Ptr>> cameraInstances{};
+    std::vector<std::pair<Mesh::Ptr, Transform::Ptr>> meshInstances{};
 
     {
         Assimp::Importer importer{};
@@ -54,11 +58,22 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
 
         if (auto scene = importer.ReadFile("mesh/test_00.fbx", flags))
         {
-            assert(scene->mRootNode);
-            rootTransform = std::make_shared<Transform>(*scene->mRootNode);
+            rootTransform = Transform::Create(*scene->mRootNode);
 
-            for (auto mesh : std::span(scene->mMeshes, scene->mNumMeshes))
-                meshes.emplace_back(*mesh);
+            for (auto aiCamera : std::span(scene->mCameras, scene->mNumCameras))
+            {
+                auto camera = Camera::Create(*aiCamera);
+                auto transform = rootTransform->FindInHierarchy(aiCamera->mName.C_Str());
+
+                cameraInstances.emplace_back(camera, transform);
+            }
+
+            std::vector<Mesh::Ptr> meshes{};
+
+            for (auto aiMesh : std::span(scene->mMeshes, scene->mNumMeshes))
+                meshes.emplace_back(Mesh::Create(*aiMesh));
+
+            //for (auto aiNode : todo) // TODO
         }
     }
 
@@ -80,8 +95,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
     swapChain.SetRenderTarget(depthBuffer.GetDepthStencil());
     dx11.GetContext()->RSSetViewports(1, viewport.Get11());
 
-    Camera camera{};
-    Matrix cameraTransform{};
+    /*Camera camera{};
+    Matrix cameraTransform{};*/
 
     bool run = true;
     MSG msg{};
@@ -106,26 +121,19 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
         * BEGIN RENDERING
         */
 
-
-        if (ImGui::Begin("Debug"))
-        {
-            if (ImGui::CollapsingHeader("Camera"))
-                ImGui::DragTransform("Camera", &cameraTransform);
-            ImGui::End();
-        }
-
         if (ImGui::Begin("Hierarchy"))
         {
             ImGui::Hierarchy("Hierarchy", rootTransform);
             ImGui::End();
         }
 
-        camera.UseForDrawing(cameraTransform);
+        /*if (!cameras.empty())
+            cameras.front().UseForDrawing(cameraTransforms.front()->GetWorldMatrix());
 
         auto worldMatrices = rootTransform->GetHierarchyWorldMatrices();
 
         for (size_t i = 0; i < meshes.size(); ++i)
-            meshes[i].Draw(worldMatrices[i + 1]);
+            meshes[i].Draw(worldMatrices[i + 1]);*/
 
         /*
         * END RENDERING

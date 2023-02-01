@@ -3900,7 +3900,7 @@ static bool InputTextFilterCharacter(unsigned int* p_char, ImGuiInputTextFlags f
     return true;
 }
 
-// Find the shortest single replacement we can make to get the new text from the old text.
+// FindInHierarchy the shortest single replacement we can make to get the new text from the old text.
 // Important: needs to be run before TextW is rewritten with the new characters because calling STB_TEXTEDIT_GETCHAR() at the end.
 // FIXME: Ideally we should transition toward (1) making InsertChars()/DeleteChars() update undo-stack (2) discourage (and keep reconcile) or obsolete (and remove reconcile) accessing buffer directly.
 static void InputTextReconcileUndoStateAfterUserCallback(ImGuiInputTextState* state, const char* new_buf_a, int new_length_a)
@@ -4643,7 +4643,7 @@ bool ImGui::InputTextEx(const char* label, const char* hint, char* buf, int buf_
         ImVec2 cursor_offset, select_start_offset;
 
         {
-            // Find lines numbers straddling 'cursor' (slot 0) and 'select_start' (slot 1) positions.
+            // FindInHierarchy lines numbers straddling 'cursor' (slot 0) and 'select_start' (slot 1) positions.
             const ImWchar* searches_input_ptr[2] = { NULL, NULL };
             int searches_result_line_no[2] = { -1000, -1000 };
             int searches_remaining = 0;
