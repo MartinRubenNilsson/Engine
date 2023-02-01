@@ -30,7 +30,7 @@ Mesh::Mesh(const aiMesh& aMesh)
 				std::memcpy(&vertices[i].normal, &aMesh.mNormals[i], 3 * sizeof(float));
 		}
 
-		myVertexBuffer = std::make_shared<VertexBuffer>(std::span(vertices));
+		myVertexBuffer = std::make_unique<VertexBuffer>(std::span(vertices));
 	}
 
 	if (aMesh.HasFaces() && aMesh.mPrimitiveTypes == aiPrimitiveType_TRIANGLE)
@@ -40,14 +40,11 @@ Mesh::Mesh(const aiMesh& aMesh)
 		for (unsigned i = 0; i < aMesh.mNumFaces; ++i)
 			std::memcpy(&indices[3 * i], aMesh.mFaces[i].mIndices, 3 * sizeof(unsigned));
 
-		myIndexBuffer = std::make_shared<IndexBuffer>(std::span(indices));
+		myIndexBuffer = std::make_unique<IndexBuffer>(std::span(indices));
 	}
 }
 
-Mesh::Ptr Mesh::Create(const aiMesh& aMesh)
-{
-	return Ptr(new Mesh(aMesh));
-}
+Mesh::~Mesh() = default;
 
 void Mesh::Draw(const Matrix& aTransform) const
 {

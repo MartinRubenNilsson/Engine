@@ -14,11 +14,6 @@ Camera::Camera(const aiCamera& aCamera)
 	}
 }
 
-Camera::Ptr Camera::Create(const aiCamera& aCamera)
-{
-	return Ptr(new Camera(aCamera));
-}
-
 void Camera::UseForDrawing(const Matrix& aTransform) const
 {
 	CameraBuffer buffer{};

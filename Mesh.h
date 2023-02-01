@@ -3,9 +3,8 @@
 class Mesh
 {
 public:
-	using Ptr = std::shared_ptr<Mesh>;
-
-	static Ptr Create(const aiMesh&);
+	Mesh(const aiMesh&);
+	~Mesh();
 
 	void Draw(const Matrix& aTransform) const;
 
@@ -16,10 +15,8 @@ public:
 	operator bool() const;
 
 private:
-	Mesh(const aiMesh&);
-
-	const std::string myName;
-	std::shared_ptr<class VertexBuffer> myVertexBuffer;
-	std::shared_ptr<class IndexBuffer> myIndexBuffer;
+	std::string myName;
+	std::unique_ptr<class VertexBuffer> myVertexBuffer;
+	std::unique_ptr<class IndexBuffer> myIndexBuffer;
 };
 

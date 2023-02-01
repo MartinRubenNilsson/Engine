@@ -9,6 +9,7 @@
 #include "Camera.h"
 #include "Transform.h"
 #include "imgui_simplemath.h"
+#include "Scene.h"
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
@@ -44,37 +45,14 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
     const fs::path currentPath = fs::current_path() / "Bin";
     fs::current_path(currentPath);
 
-
-
-
-    Transform::Ptr rootTransform{};
-
-    std::vector<std::pair<Camera::Ptr, Transform::Ptr>> cameraInstances{};
-    std::vector<std::pair<Mesh::Ptr, Transform::Ptr>> meshInstances{};
+    std::unique_ptr<Scene> scene;
 
     {
         Assimp::Importer importer{};
         const unsigned flags = aiProcess_ConvertToLeftHanded | aiProcessPreset_TargetRealtime_MaxQuality;
 
-        if (auto scene = importer.ReadFile("mesh/test_00.fbx", flags))
-        {
-            rootTransform = Transform::Create(*scene->mRootNode);
-
-            for (auto aiCamera : std::span(scene->mCameras, scene->mNumCameras))
-            {
-                auto camera = Camera::Create(*aiCamera);
-                auto transform = rootTransform->FindInHierarchy(aiCamera->mName.C_Str());
-
-                cameraInstances.emplace_back(camera, transform);
-            }
-
-            std::vector<Mesh::Ptr> meshes{};
-
-            for (auto aiMesh : std::span(scene->mMeshes, scene->mNumMeshes))
-                meshes.emplace_back(Mesh::Create(*aiMesh));
-
-            //for (auto aiNode : todo) // TODO
-        }
+        if (auto aiScene = importer.ReadFile("mesh/test_00.fbx", flags))
+            scene = std::make_unique<Scene>(*aiScene);
     }
 
     VertexShader vertexShader(currentPath / "VsBasic.cso");
@@ -121,11 +99,11 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
         * BEGIN RENDERING
         */
 
-        if (ImGui::Begin("Hierarchy"))
+        /*if (ImGui::Begin("Hierarchy"))
         {
             ImGui::Hierarchy("Hierarchy", rootTransform);
             ImGui::End();
-        }
+        }*/
 
         /*if (!cameras.empty())
             cameras.front().UseForDrawing(cameraTransforms.front()->GetWorldMatrix());

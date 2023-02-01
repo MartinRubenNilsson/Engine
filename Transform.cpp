@@ -1,35 +1,25 @@
 #include "pch.h"
 #include "Transform.h"
 
-Transform::Transform(const aiNode& aNode)
-	: myName{ aNode.mName.C_Str() }
-	, myLocalMatrix{}
-	, myParent{}
-	, myChildren{}
+Transform::Ptr Transform::Create()
 {
-	std::memcpy(&myLocalMatrix, &aNode.mTransformation, sizeof(Matrix));
-	myLocalMatrix = myLocalMatrix.Transpose();
-	
-	myChildren.resize(aNode.mNumChildren);
-	for (unsigned i = 0; i < aNode.mNumChildren; ++i)
-	{
-		myChildren[i] = Ptr(new Transform(*aNode.mChildren[i]));
-		myChildren[i]->myParent = shared_from_this();
-	}
+	return Ptr(new Transform());
 }
 
-Transform::Ptr Transform::Create(const aiNode& aNode)
+Transform::Ptr Transform::CreateChild()
 {
-	return Ptr(new Transform(aNode));
+	auto child = myChildren.emplace_back(Create());
+	child->myParent = weak_from_this();
+	return child;
 }
 
-Transform::Ptr Transform::FindInHierarchy(std::string_view aName)
+Transform::Ptr Transform::FindByName(std::string_view aName)
 {
 	if (aName == myName)
 		return shared_from_this();
 	for (auto& child : myChildren)
 	{
-		if (auto result = child->FindInHierarchy(aName))
+		if (auto result = child->FindByName(aName))
 			return result;
 	}
 	return nullptr;
@@ -38,8 +28,8 @@ Transform::Ptr Transform::FindInHierarchy(std::string_view aName)
 Matrix Transform::GetWorldMatrix() const
 {
 	Matrix result = myLocalMatrix;
-	if (myParent)
-		result *= myParent->GetWorldMatrix();
+	if (!myParent.expired())
+		result *= myParent.lock()->GetWorldMatrix();
 	return result;
 }
 

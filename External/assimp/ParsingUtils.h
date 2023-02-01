@@ -241,7 +241,7 @@ AI_FORCE_INLINE unsigned int tokenize(const string_type &str, std::vector<string
     // Skip delimiters at beginning.
     typename string_type::size_type lastPos = str.find_first_not_of(delimiters, 0);
 
-    // FindInHierarchy first "non-delimiter".
+    // Find first "non-delimiter".
     typename string_type::size_type pos = str.find_first_of(delimiters, lastPos);
     while (string_type::npos != pos || string_type::npos != lastPos) {
         // Found a token, add it to the vector.
@@ -252,7 +252,7 @@ AI_FORCE_INLINE unsigned int tokenize(const string_type &str, std::vector<string
         // Skip delimiters.  Note the "not_of"
         lastPos = str.find_first_not_of(delimiters, pos);
 
-        // FindInHierarchy next "non-delimiter"
+        // Find next "non-delimiter"
         pos = str.find_first_of(delimiters, lastPos);
     }
 

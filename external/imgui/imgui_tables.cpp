@@ -2132,7 +2132,7 @@ void ImGui::TableSetColumnWidth(int column_n, float width)
     // Qt when manual resize is enabled only support a single _trailing_ stretch column.
 
     // When forwarding resize from Wn| to Fn+1| we need to be considerate of the _NoResize flag on Fn+1.
-    // FIXME-TABLE: FindInHierarchy a way to rewrite all of this so interactions feel more consistent for the user.
+    // FIXME-TABLE: Find a way to rewrite all of this so interactions feel more consistent for the user.
     // Scenarios:
     // - F1 F2 F3  resize from F1| or F2|   --> ok: alter ->WidthRequested of Fixed column. Subsequent columns will be offset.
     // - F1 F2 F3  resize from F3|          --> ok: alter ->WidthRequested of Fixed column. If active, ScrollX extent can be altered.
@@ -2403,7 +2403,7 @@ void ImGui::TableMergeDrawChannels(ImGuiTable* table)
             if (src_channel->_CmdBuffer.Size != 1)
                 continue;
 
-            // FindInHierarchy out the width of this merge group and check if it will fit in our column
+            // Find out the width of this merge group and check if it will fit in our column
             // (note that we assume that rendering didn't stray on the left direction. we should need a CursorMinPos to detect it)
             if (!(column->Flags & ImGuiTableColumnFlags_NoClip))
             {
@@ -3216,7 +3216,7 @@ ImGuiTableSettings* ImGui::TableSettingsCreate(ImGuiID id, int columns_count)
     return settings;
 }
 
-// FindInHierarchy existing settings
+// Find existing settings
 ImGuiTableSettings* ImGui::TableSettingsFindByID(ImGuiID id)
 {
     // FIXME-OPT: Might want to store a lookup map for this?

@@ -46,6 +46,7 @@
     <ClInclude Include="ConstantBufferManager.h">
       <Filter>graphics\managers</Filter>
     </ClInclude>
+    <ClInclude Include="Scene.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
@@ -94,6 +95,7 @@
     <ClCompile Include="ConstantBufferManager.cpp">
       <Filter>graphics\managers</Filter>
     </ClCompile>
+    <ClCompile Include="Scene.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="graphics">

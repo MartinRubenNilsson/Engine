@@ -383,7 +383,7 @@ CODE
 
  Occasionally introducing changes that are breaking the API. We try to make the breakage minor and easy to fix.
  Below is a change-log of API breaking changes only. If you are using one of the functions listed, expect to have to fix some code.
- When you are not sure about an old symbol or function name, try using the Search/FindInHierarchy function of your IDE to look for comments or references in all imgui files.
+ When you are not sure about an old symbol or function name, try using the Search/Find function of your IDE to look for comments or references in all imgui files.
  You can read releases logs https://github.com/ocornut/imgui/releases for more details.
 
  - 2022/10/26 (1.89) - commented out redirecting OpenPopupContextItem() which was briefly the name of OpenPopupOnItemClick() from 1.77 to 1.79.
@@ -459,7 +459,7 @@ CODE
                         - ImGui::TreeAdvanceToLabelPos()      -> use ImGui::SetCursorPosX(ImGui::GetCursorPosX() + ImGui::GetTreeNodeToLabelSpacing());
                         - ImFontAtlas::CustomRect             -> use ImFontAtlasCustomRect
                         - ImGuiColorEditFlags_RGB/HSV/HEX     -> use ImGuiColorEditFlags_DisplayRGB/HSV/Hex
- - 2021/12/20 (1.86) - backends: removed obsolete Marmalade backend (imgui_impl_marmalade.cpp) + example. FindInHierarchy last supported version at https://github.com/ocornut/imgui/wiki/Bindings
+ - 2021/12/20 (1.86) - backends: removed obsolete Marmalade backend (imgui_impl_marmalade.cpp) + example. Find last supported version at https://github.com/ocornut/imgui/wiki/Bindings
  - 2021/11/04 (1.86) - removed CalcListClipping() function. Prefer using ImGuiListClipper which can return non-contiguous ranges. Please open an issue if you think you really need this function.
  - 2021/08/23 (1.85) - removed GetWindowContentRegionWidth() function. keep inline redirection helper. can use 'GetWindowContentRegionMax().x - GetWindowContentRegionMin().x' instead for generally 'GetContentRegionAvail().x' is more useful.
  - 2021/07/26 (1.84) - commented out redirecting functions/enums names that were marked obsolete in 1.67 and 1.69 (March 2019):
@@ -1685,7 +1685,7 @@ int ImStrlenW(const ImWchar* str)
     return n;
 }
 
-// FindInHierarchy end-of-line. Return pointer will point to either first \n, either str_end.
+// Find end-of-line. Return pointer will point to either first \n, either str_end.
 const char* ImStreolRange(const char* str, const char* str_end)
 {
     const char* p = (const char*)memchr(str, '\n', str_end - str);
@@ -1728,7 +1728,7 @@ void ImStrTrimBlanks(char* buf)
     while (p[0] == ' ' || p[0] == '\t')     // Leading blanks
         p++;
     char* p_start = p;
-    while (*p != 0)                         // FindInHierarchy end of string
+    while (*p != 0)                         // Find end of string
         p++;
     while (p > p_start && (p[-1] == ' ' || p[-1] == '\t'))  // Trailing blanks
         p--;
@@ -4211,7 +4211,7 @@ void ImGui::UpdateMouseMovingWindowEndFrame()
     // (The left mouse button path calls FocusWindow on the hovered window, which will lead NewFrame->ClosePopupsOverWindow to trigger)
     if (g.IO.MouseClicked[1])
     {
-        // FindInHierarchy the top-most window between HoveredWindow and the top-most Modal Window.
+        // Find the top-most window between HoveredWindow and the top-most Modal Window.
         // This is where we can trim the popup stack.
         ImGuiWindow* modal = GetTopMostPopupModal();
         bool hovered_window_above_modal = g.HoveredWindow && (modal == NULL || IsWindowAbove(g.HoveredWindow, modal));
@@ -4231,7 +4231,7 @@ void ImGui::UpdateHoveredWindowAndCaptureFlags()
     ImGuiIO& io = g.IO;
     g.WindowsHoverPadding = ImMax(g.Style.TouchExtraPadding, ImVec2(WINDOWS_HOVER_PADDING, WINDOWS_HOVER_PADDING));
 
-    // FindInHierarchy the window hovered by mouse:
+    // Find the window hovered by mouse:
     // - Child windows can extend beyond the limit of their parent so we need to derive HoveredRootWindow from HoveredWindow.
     // - When moving a window we can skip the search, which also conveniently bypasses the fact that window->WindowRectClipped is lagging as this point of the frame.
     // - We also support the moved window toggling the NoInputs flag after moving has started in order to be able to detect windows below it, which is useful for e.g. docking mechanisms.
@@ -4473,7 +4473,7 @@ void ImGui::NewFrame()
     // Update mouse input state
     UpdateMouseInputs();
 
-    // FindInHierarchy hovered window
+    // Find hovered window
     // (needs to be before UpdateMouseMovingWindowNewFrame so we fill g.HoveredWindowUnderMovingWindow on the mouse release frame)
     UpdateHoveredWindowAndCaptureFlags();
 
@@ -4957,7 +4957,7 @@ ImVec2 ImGui::CalcTextSize(const char* text, const char* text_end, bool hide_tex
     return text_size;
 }
 
-// FindInHierarchy window given position, search front-to-back
+// Find window given position, search front-to-back
 // FIXME: Note that we have an inconsequential lag here: OuterRectClipped is updated in Begin(), so windows moved programmatically
 // with SetWindowPos() and not SetNextWindowPos() will have that rectangle lagging by a frame at the time FindHoveredWindow() is
 // called, aka before the next Begin(). Moving window isn't affected.
@@ -5946,7 +5946,7 @@ static ImGuiWindow* ImGui::FindBlockingModal(ImGuiWindow* window)
     if (g.OpenPopupStack.Size <= 0)
         return NULL;
 
-    // FindInHierarchy a modal that has common parent with specified window. Specified window should be positioned behind that modal.
+    // Find a modal that has common parent with specified window. Specified window should be positioned behind that modal.
     for (int i = g.OpenPopupStack.Size - 1; i >= 0; i--)
     {
         ImGuiWindow* popup_window = g.OpenPopupStack.Data[i].Window;
@@ -5978,7 +5978,7 @@ bool ImGui::Begin(const char* name, bool* p_open, ImGuiWindowFlags flags)
     IM_ASSERT(g.WithinFrameScope);                  // Forgot to call ImGui::NewFrame()
     IM_ASSERT(g.FrameCountEnded != g.FrameCount);   // Called ImGui::Render() or ImGui::EndFrame() and haven't called ImGui::NewFrame() again yet
 
-    // FindInHierarchy or create
+    // Find or create
     ImGuiWindow* window = FindWindowByName(name);
     const bool window_just_created = (window == NULL);
     if (window_just_created)
@@ -9996,7 +9996,7 @@ void ImGui::ClosePopupsOverWindow(ImGuiWindow* ref_window, bool restore_focus_to
     int popup_count_to_keep = 0;
     if (ref_window)
     {
-        // FindInHierarchy the highest popup which is a descendant of the reference window (generally reference window = NavWindow)
+        // Find the highest popup which is a descendant of the reference window (generally reference window = NavWindow)
         for (; popup_count_to_keep < g.OpenPopupStack.Size; popup_count_to_keep++)
         {
             ImGuiPopupData& popup = g.OpenPopupStack[popup_count_to_keep];
