@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "Scene.h"
+#include "imgui_simplemath.h"
 
 Scene::Scene(const aiScene& aScene)
 {
@@ -10,7 +11,39 @@ Scene::Scene(const aiScene& aScene)
     LoadHierarchy(myRootTransform, aScene.mRootNode);
 
     for (const aiCamera* camera : std::span{ aScene.mCameras, aScene.mNumCameras })
-        myCameras.emplace_back(myRootTransform->FindByName(camera->mName.C_Str()), *camera);
+    {
+        Matrix cameraMatrix{};
+        camera->GetCameraMatrix(reinterpret_cast<aiMatrix4x4&>(cameraMatrix));
+        //cameraMatrix.Transpose(); why no transpose?
+
+        auto cameraTransform = myRootTransform->FindByName(camera->mName.C_Str());
+        cameraTransform->SetLocalMatrix(cameraMatrix * cameraTransform->GetLocalMatrix());
+
+        myCameras.emplace_back(cameraTransform, *camera);
+    }
+}
+
+void Scene::ImGui()
+{
+    ImGui::Hierarchy("Hierarchy", myRootTransform);
+
+    if (!myCameras.empty())
+    {
+        auto& [transform, camera] = myCameras.front();
+        camera.UseForDrawing(transform->GetWorldMatrix());
+    }
+}
+
+void Scene::Render() const
+{
+    if (!myCameras.empty())
+    {
+        auto& [transform, camera] = myCameras.front();
+        camera.UseForDrawing(transform->GetWorldMatrix());
+    }
+
+    for (auto& [transform, mesh] : myMeshInstances)
+        mesh->Draw(transform->GetWorldMatrix());
 }
 
 void Scene::LoadHierarchy(TransformPtr aTransform, const aiNode* aNode)

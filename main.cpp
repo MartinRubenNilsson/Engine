@@ -45,16 +45,6 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
     const fs::path currentPath = fs::current_path() / "Bin";
     fs::current_path(currentPath);
 
-    std::unique_ptr<Scene> scene;
-
-    {
-        Assimp::Importer importer{};
-        const unsigned flags = aiProcess_ConvertToLeftHanded | aiProcessPreset_TargetRealtime_MaxQuality;
-
-        if (auto aiScene = importer.ReadFile("mesh/test_00.fbx", flags))
-            scene = std::make_unique<Scene>(*aiScene);
-    }
-
     VertexShader vertexShader(currentPath / "VsBasic.cso");
     PixelShader pixelShader(currentPath / "PsBasic.cso");
     if (!vertexShader || !pixelShader)
@@ -73,8 +63,14 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
     swapChain.SetRenderTarget(depthBuffer.GetDepthStencil());
     dx11.GetContext()->RSSetViewports(1, viewport.Get11());
 
-    /*Camera camera{};
-    Matrix cameraTransform{};*/
+    std::unique_ptr<Scene> scene;
+    {
+        Assimp::Importer importer{};
+        const unsigned flags = aiProcess_ConvertToLeftHanded | aiProcessPreset_TargetRealtime_MaxQuality;
+
+        if (auto aiScene = importer.ReadFile("mesh/test_00.fbx", flags))
+            scene = std::make_unique<Scene>(*aiScene);
+    }
 
     bool run = true;
     MSG msg{};
@@ -95,27 +91,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
         depthBuffer.ClearDepthStencil();
         imGui.NewFrame();
 
-        /*
-        * BEGIN RENDERING
-        */
-
-        /*if (ImGui::Begin("Hierarchy"))
-        {
-            ImGui::Hierarchy("Hierarchy", rootTransform);
-            ImGui::End();
-        }*/
-
-        /*if (!cameras.empty())
-            cameras.front().UseForDrawing(cameraTransforms.front()->GetWorldMatrix());
-
-        auto worldMatrices = rootTransform->GetHierarchyWorldMatrices();
-
-        for (size_t i = 0; i < meshes.size(); ++i)
-            meshes[i].Draw(worldMatrices[i + 1]);*/
-
-        /*
-        * END RENDERING
-        */
+        scene->ImGui();
+        scene->Render();
 
         imGui.Render();
         swapChain.Present();

@@ -1,6 +1,6 @@
 #pragma once
-#include "Transform.h"
 #include "Mesh.h"
+#include "Transform.h"
 #include "Camera.h"
 
 class Scene
@@ -8,9 +8,12 @@ class Scene
 public:
 	Scene(const aiScene&);
 
+	void ImGui();
+	void Render() const;
+
 private:
-	using TransformPtr = std::shared_ptr<Transform>;
 	using MeshPtr = std::shared_ptr<Mesh>;
+	using TransformPtr = std::shared_ptr<Transform>;
 
 	void LoadHierarchy(TransformPtr aTransform, const aiNode* aNode);
 

@@ -1,6 +1,8 @@
 #include "pch.h"
 #include "Camera.h"
 
+using namespace DirectX;
+
 Camera::Camera(const aiCamera& aCamera)
 	: myVerticalFov{ XM_PIDIV2 }
 	, myAspectRatio{ 1.f }
