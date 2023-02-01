@@ -25,7 +25,8 @@ Scene::Scene(const aiScene& aScene)
 
 void Scene::ImGui()
 {
-    ImGui::Hierarchy("Hierarchy", myRootTransform);
+    static Transform::Ptr selection;
+    ImGui::Hierarchy(myRootTransform, &selection);
 
     if (!myCameras.empty())
     {

@@ -64,18 +64,24 @@ size_t Transform::GetDescendantCount() const
 	return count;
 }
 
-IMGUI_API void ImGui::Hierarchy(const char* label, Transform::Ptr t)
+IMGUI_API void ImGui::Hierarchy(Transform::Ptr aTransform, Transform::Ptr* aSelection)
 {
-	ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_OpenOnArrow;
-	if (!t->HasChildren())
-		flags = flags | ImGuiTreeNodeFlags_Leaf;
+	ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanAvailWidth;
+	if (!aTransform->HasChildren())
+		flags |= ImGuiTreeNodeFlags_Leaf;
+	if (aSelection && *aSelection == aTransform)
+		flags |= ImGuiTreeNodeFlags_Selected;
 
-	PushID(label);
-	if (TreeNodeEx(t->GetName().c_str(), flags))
+	const bool open = TreeNodeEx(aTransform->GetName().c_str(), flags);
+
+	if (aSelection && IsItemClicked() && !IsItemToggledOpen())
+		*aSelection = aTransform;
+
+	if (open)
 	{
-		for (const auto& child : t->GetChildren())
-			Hierarchy(label, child);
+		for (auto& child : aTransform->GetChildren())
+			Hierarchy(child, aSelection);
+
 		TreePop();
 	}
-	PopID();
 }

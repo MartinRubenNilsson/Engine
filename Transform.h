@@ -45,6 +45,6 @@ private:
 
 namespace ImGui
 {
-	IMGUI_API void Hierarchy(const char* label, Transform::Ptr t);
+	IMGUI_API void Hierarchy(Transform::Ptr aTransform, Transform::Ptr* aSelection = nullptr);
 }
 
