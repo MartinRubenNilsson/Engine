@@ -2,7 +2,6 @@
 #include "Mesh.h"
 #include "VertexBuffer.h"
 #include "IndexBuffer.h"
-#pragma comment(lib, "assimp-vc142-mt")
 
 Mesh::Mesh(const aiMesh& aMesh)
 	: myName{ aMesh.mName.C_Str() }

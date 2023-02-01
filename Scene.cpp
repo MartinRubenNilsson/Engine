@@ -1,8 +1,28 @@
 #include "pch.h"
 #include "Scene.h"
 #include "imgui_simplemath.h"
+#pragma comment(lib, "assimp-vc142-mt")
 
-Scene::Scene(const aiScene& aScene)
+Scene::Scene(const fs::path& aPath)
+    : myPath{ aPath }
+    , myRootTransform{}
+    , myMeshes{}
+    , myMeshInstances{}
+    , myCameras{}
+    , mySuccessful{ false }
+{
+    Assimp::Importer importer{};
+    const unsigned flags = aiProcess_ConvertToLeftHanded | aiProcessPreset_TargetRealtime_MaxQuality;
+
+    if (const aiScene* scene = importer.ReadFile(aPath.string().c_str(), flags))
+    {
+        mySuccessful = true;
+        LoadScene(*scene);
+    }
+}
+
+
+void Scene::LoadScene(const aiScene& aScene)
 {
     for (const aiMesh* mesh : std::span{ aScene.mMeshes, aScene.mNumMeshes })
         myMeshes.emplace_back(std::make_shared<Mesh>(*mesh));
@@ -14,7 +34,6 @@ Scene::Scene(const aiScene& aScene)
     {
         Matrix cameraMatrix{};
         camera->GetCameraMatrix(reinterpret_cast<aiMatrix4x4&>(cameraMatrix));
-        //cameraMatrix.Transpose(); why no transpose?
 
         auto cameraTransform = myRootTransform->FindByName(camera->mName.C_Str());
         cameraTransform->SetLocalMatrix(cameraMatrix * cameraTransform->GetLocalMatrix());
@@ -47,7 +66,7 @@ void Scene::Render() const
         mesh->Draw(transform->GetWorldMatrix());
 }
 
-void Scene::LoadHierarchy(TransformPtr aTransform, const aiNode* aNode)
+void Scene::LoadHierarchy(Transform::Ptr aTransform, const aiNode* aNode)
 {
     aTransform->SetName(aNode->mName.C_Str());
 

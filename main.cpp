@@ -4,11 +4,7 @@
 #include "SwapChain.h"
 #include "Shader.h"
 #include "InputLayout.h"
-#include "Mesh.h"
 #include "DepthBuffer.h"
-#include "Camera.h"
-#include "Transform.h"
-#include "imgui_simplemath.h"
 #include "Scene.h"
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
@@ -63,14 +59,9 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
     swapChain.SetRenderTarget(depthBuffer.GetDepthStencil());
     dx11.GetContext()->RSSetViewports(1, viewport.Get11());
 
-    std::unique_ptr<Scene> scene;
-    {
-        Assimp::Importer importer{};
-        const unsigned flags = aiProcess_ConvertToLeftHanded | aiProcessPreset_TargetRealtime_MaxQuality;
-
-        if (auto aiScene = importer.ReadFile("mesh/test_00.fbx", flags))
-            scene = std::make_unique<Scene>(*aiScene);
-    }
+    Scene scene{ "mesh/test_00.fbx" };
+    if (!scene)
+        return EXIT_FAILURE;
 
     bool run = true;
     MSG msg{};
@@ -91,8 +82,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
         depthBuffer.ClearDepthStencil();
         imGui.NewFrame();
 
-        scene->ImGui();
-        scene->Render();
+        scene.ImGui();
+        scene.Render();
 
         imGui.Render();
         swapChain.Present();

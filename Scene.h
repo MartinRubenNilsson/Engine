@@ -6,20 +6,22 @@
 class Scene
 {
 public:
-	Scene(const aiScene&);
+	Scene(const fs::path&);
 
 	void ImGui();
 	void Render() const;
 
+	operator bool() const { return mySuccessful; }
+
 private:
-	using MeshPtr = std::shared_ptr<Mesh>;
-	using TransformPtr = std::shared_ptr<Transform>;
+	void LoadScene(const aiScene&);
+	void LoadHierarchy(Transform::Ptr aTransform, const aiNode* aNode);
 
-	void LoadHierarchy(TransformPtr aTransform, const aiNode* aNode);
-
-	std::vector<MeshPtr> myMeshes;
-	TransformPtr myRootTransform;
-	std::vector<std::pair<TransformPtr, MeshPtr>> myMeshInstances;
-	std::vector<std::pair<TransformPtr, Camera>> myCameras;
+	fs::path myPath;
+	Transform::Ptr myRootTransform;
+	std::vector<std::shared_ptr<Mesh>> myMeshes;
+	std::vector<std::pair<Transform::Ptr, std::shared_ptr<Mesh>>> myMeshInstances;
+	std::vector<std::pair<Transform::Ptr, Camera>> myCameras;
+	bool mySuccessful;
 };
 
