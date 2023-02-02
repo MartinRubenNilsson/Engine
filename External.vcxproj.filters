@@ -256,6 +256,9 @@
     <ClInclude Include="External\assimp\ZipArchiveIOSystem.h">
       <Filter>assimp</Filter>
     </ClInclude>
+    <ClInclude Include="External\imgui\ImGuizmo.h">
+      <Filter>imgui</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="External\imgui\imgui.cpp">
@@ -284,6 +287,9 @@
     </ClCompile>
     <ClCompile Include="External\directxtk\simplemath\SimpleMath.cpp">
       <Filter>directxtk\simplemath</Filter>
+    </ClCompile>
+    <ClCompile Include="External\imgui\ImGuizmo.cpp">
+      <Filter>imgui</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

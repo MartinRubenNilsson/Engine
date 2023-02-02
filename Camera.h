@@ -7,7 +7,7 @@ public:
 
 	void UseForDrawing(const Matrix& aTransform) const;
 
-	Matrix GetProjection() const;
+	Matrix GetProjectionMatrix() const;
 
 private:
 	float myVerticalFov;

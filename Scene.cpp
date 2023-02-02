@@ -47,6 +47,9 @@ void Scene::ImGui()
     static Transform::Ptr selection;
     ImGui::Hierarchy(myRootTransform, &selection);
 
+    if (selection)
+        ImGui::DragTransform(selection);
+
     if (!myCameras.empty())
     {
         auto& [transform, camera] = myCameras.front();

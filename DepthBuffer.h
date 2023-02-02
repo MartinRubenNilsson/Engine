@@ -12,8 +12,8 @@ public:
 	operator bool() const { return SUCCEEDED(myResult); }
 
 private:
-	HRESULT myResult;
 	ComPtr<ID3D11Texture2D> myTexture2d;
 	ComPtr<ID3D11DepthStencilView> myDepthStencilView;
+	HRESULT myResult;
 };
 

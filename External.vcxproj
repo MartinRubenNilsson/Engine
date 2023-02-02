@@ -97,6 +97,7 @@
     <ClInclude Include="External\directxtk\simplemath\SimpleMath.h" />
     <ClInclude Include="External\imgui\imconfig.h" />
     <ClInclude Include="External\imgui\imgui.h" />
+    <ClInclude Include="External\imgui\ImGuizmo.h" />
     <ClInclude Include="External\imgui\imgui_impl_dx11.h" />
     <ClInclude Include="External\imgui\imgui_impl_win32.h" />
     <ClInclude Include="External\imgui\imgui_internal.h" />
@@ -108,6 +109,7 @@
   <ItemGroup>
     <ClCompile Include="External\directxtk\simplemath\SimpleMath.cpp" />
     <ClCompile Include="External\imgui\imgui.cpp" />
+    <ClCompile Include="External\imgui\ImGuizmo.cpp" />
     <ClCompile Include="External\imgui\imgui_demo.cpp" />
     <ClCompile Include="External\imgui\imgui_draw.cpp" />
     <ClCompile Include="External\imgui\imgui_impl_dx11.cpp" />

@@ -64,9 +64,22 @@ size_t Transform::GetDescendantCount() const
 	return count;
 }
 
-IMGUI_API void ImGui::Hierarchy(Transform::Ptr aTransform, Transform::Ptr* aSelection)
+bool ImGui::DragTransform(Transform::Ptr aTransform)
 {
-	ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanAvailWidth;
+	float translation[3]{};
+	float rotation[3]{};
+	float scale[3]{};
+	ImGuizmo::DecomposeMatrixToComponents(aTransform->Data(), translation, rotation, scale);
+	const bool translated = ImGui::DragFloat3("Translation", translation, 0.025f);
+	const bool rotated = ImGui::DragFloat3("Rotation", rotation, 0.25f);
+	const bool scaled = ImGui::DragFloat3("Scale", scale, 0.025f);
+	ImGuizmo::RecomposeMatrixFromComponents(translation, rotation, scale, aTransform->Data());
+	return translated || rotated || scaled;
+}
+
+void ImGui::Hierarchy(Transform::Ptr aTransform, Transform::Ptr* aSelection)
+{
+	ImGuiTreeNodeFlags flags{ ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanAvailWidth };
 	if (!aTransform->HasChildren())
 		flags |= ImGuiTreeNodeFlags_Leaf;
 	if (aSelection && *aSelection == aTransform)

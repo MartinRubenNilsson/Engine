@@ -20,12 +20,12 @@ void Camera::UseForDrawing(const Matrix& aTransform) const
 {
 	CameraBuffer buffer{};
 	buffer.cameraMatrix = aTransform;
-	buffer.worldToClipMatrix = aTransform.Invert() * GetProjection();
+	buffer.worldToClipMatrix = aTransform.Invert() * GetProjectionMatrix();
 
 	DX11_WRITE_CBUFFER(buffer);
 }
 
-Matrix Camera::GetProjection() const
+Matrix Camera::GetProjectionMatrix() const
 {
 	return XMMatrixPerspectiveFovLH(myVerticalFov, myAspectRatio, myNearClipPlane, myFarClipPlane);
 }

@@ -29,6 +29,8 @@ public:
 	bool HasParent() const { return !myParent.expired(); }
 	bool HasChildren() const { return !myChildren.empty(); }
 
+	float* Data() { return myLocalMatrix.m[0]; }
+
 private:
 	Transform() = default;
 	Transform(const Transform&) = delete;
@@ -45,6 +47,7 @@ private:
 
 namespace ImGui
 {
+	IMGUI_API bool DragTransform(Transform::Ptr aTransform);
 	IMGUI_API void Hierarchy(Transform::Ptr aTransform, Transform::Ptr* aSelection = nullptr);
 }
 
