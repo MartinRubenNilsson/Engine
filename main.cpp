@@ -54,7 +54,6 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
     window.SetTitle(L"Model Viewer");
 
     dx11.GetContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-    inputLayoutMgr.SetInputLayout(typeid(BasicVertex));
     vertexShader.SetShader();
     pixelShader.SetShader();
     swapChain.SetRenderTarget(depthBuffer.GetDepthStencil());

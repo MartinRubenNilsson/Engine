@@ -23,10 +23,12 @@ void InputLayoutManager::SetInputLayout(std::type_index aVertexType) const
 
 InputLayoutManager::operator bool() const
 {
-	bool succeeded{ true };
 	for (auto& [vertexType, inputLayout] : myInputLayouts)
-		succeeded = succeeded && inputLayout;
-	return succeeded;
+	{
+		if (!inputLayout)
+			return false;
+	}
+	return true;
 }
 
 std::string InputLayoutManager::LoadShaderBytecode(const fs::path& aPath)

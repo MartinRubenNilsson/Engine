@@ -1,10 +1,11 @@
 #include "pch.h"
 #include "VertexBuffer.h"
 
-VertexBuffer::VertexBuffer(const void* someData, size_t aVertexSize, size_t aVertexCount)
-	: myBuffer{}
+VertexBuffer::VertexBuffer(std::type_index aVertexType, size_t aVertexSize, size_t aVertexCount, const void* someData)
+	: myVertexType{ aVertexType }
 	, myVertexSize{ aVertexSize }
 	, myVertexCount{ aVertexCount }
+	, myBuffer {}
 {
 	D3D11_BUFFER_DESC desc{};
 	desc.ByteWidth = static_cast<UINT>(aVertexSize * aVertexCount);
@@ -19,6 +20,8 @@ VertexBuffer::VertexBuffer(const void* someData, size_t aVertexSize, size_t aVer
 
 void VertexBuffer::SetVertexBuffer() const
 {
+	DX11_SET_INPUT_LAYOUT(myVertexType);
+
 	const UINT stride{ static_cast<UINT>(myVertexSize) };
 	const UINT offset{ 0 };
 	DX11_CONTEXT->IASetVertexBuffers(0, 1, myBuffer.GetAddressOf(), &stride, &offset);

@@ -3,25 +3,28 @@
 class VertexBuffer
 {
 public:
-	template<class T, size_t N>
-	VertexBuffer(std::span<T, N> someVertices);
+	template<class VertexType, size_t Extent>
+	VertexBuffer(std::span<VertexType, Extent> someVertices);
 
 	void SetVertexBuffer() const;
+
+	std::type_index GetVertexType() const { return myVertexType; }
 	size_t GetVertexSize() const { return myVertexSize; }
 	size_t GetVertexCount() const { return myVertexCount; }
 
 	operator bool() const { return myBuffer; }
 
 private:
-	VertexBuffer(const void* someData, size_t aVertexSize, size_t aVertexCount);
+	VertexBuffer(std::type_index aVertexType, size_t aVertexSize, size_t aVertexCount, const void* someData);
 
-	ComPtr<ID3D11Buffer> myBuffer;
+	std::type_index myVertexType;
 	size_t myVertexSize;
 	size_t myVertexCount;
+	ComPtr<ID3D11Buffer> myBuffer;
 };
 
-template<class T, size_t N>
-inline VertexBuffer::VertexBuffer(std::span<T, N> someVertices)
-	: VertexBuffer{ someVertices.data(), sizeof(T), someVertices.size() }
+template<class VertexType, size_t Extent>
+inline VertexBuffer::VertexBuffer(std::span<VertexType, Extent> someVertices)
+	: VertexBuffer{ typeid(VertexType), sizeof(VertexType), someVertices.size(), someVertices.data() }
 {
 }
