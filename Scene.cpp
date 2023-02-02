@@ -73,9 +73,7 @@ void Scene::LoadHierarchy(Transform::Ptr aTransform, aiNode* aNode)
 {
     aTransform->SetName(aNode->mName.C_Str());
 
-    auto& matrixToLoad = reinterpret_cast<const Matrix&>(aNode->mTransformation);
-    auto& matrixToStore = reinterpret_cast<Matrix&>(*aTransform->Data());
-    matrixToLoad.Transpose(matrixToStore);
+    std::memcpy(aTransform->Data(), &aNode->mTransformation.Transpose(), sizeof(Matrix));
 
     for (unsigned meshIndex : std::span{ aNode->mMeshes, aNode->mNumMeshes })
         myMeshes[meshIndex].second.emplace_back(aTransform);
