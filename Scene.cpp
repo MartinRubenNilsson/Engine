@@ -52,15 +52,18 @@ void Scene::ImGui()
     }
     ImGui::End();
 
-    if (ImGui::Begin("Inspector"))
+    if (selection)
     {
-        if (selection)
+        if (ImGui::Begin("Inspector"))
         {
-            ImGui::DragTransform(selection);
-            ImGui::ResetTransformButton(selection);
+            if (ImGui::CollapsingHeader("Transform"))
+            {
+                ImGui::DragTransform(selection);
+                ImGui::ResetTransformButton("Reset", selection);
+            }
         }
+        ImGui::End();
     }
-    ImGui::End();
 }
 
 void Scene::Render() const

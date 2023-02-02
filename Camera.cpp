@@ -22,7 +22,7 @@ void Camera::UseForDrawing(const Matrix& aTransform) const
 	buffer.cameraMatrix = aTransform;
 	buffer.worldToClipMatrix = aTransform.Invert() * GetProjectionMatrix();
 
-	DX11_WRITE_CBUFFER(buffer);
+	DX11_WRITE_CONSTANT_BUFFER(buffer);
 }
 
 Matrix Camera::GetProjectionMatrix() const

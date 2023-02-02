@@ -36,4 +36,4 @@ private:
 	ConstantBuffer myConstantBuffers[Count];
 };
 
-#define DX11_WRITE_CBUFFER(buffer) ConstantBufferManager::Get().WriteConstantBuffer(buffer)
+#define DX11_WRITE_CONSTANT_BUFFER(buffer) ConstantBufferManager::Get().WriteConstantBuffer(buffer)
