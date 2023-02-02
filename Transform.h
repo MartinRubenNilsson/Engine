@@ -4,7 +4,6 @@ class Transform : public std::enable_shared_from_this<Transform>
 {
 public:
 	using Ptr = std::shared_ptr<Transform>;
-	using WeakPtr = std::weak_ptr<Transform>;
 
 	static Ptr Create();
 
@@ -20,7 +19,6 @@ public:
 	// void SetWorldMatrix(const Matrix& aMatrix) // todo;
 	Matrix GetWorldMatrix() const;
 
-	WeakPtr GetParent() const { return myParent; }
 	const std::vector<Ptr>& GetChildren() const { return myChildren; }
 
 	size_t GetChildCount() const { return myChildren.size(); }
@@ -43,7 +41,7 @@ private:
 
 	Matrix myLocalMatrix;
 	std::string myName;
-	WeakPtr myParent;
+	std::weak_ptr<Transform> myParent;
 	std::vector<Ptr> myChildren;
 };
 

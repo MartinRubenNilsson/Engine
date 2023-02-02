@@ -9,10 +9,17 @@ public:
 
 	Matrix GetProjectionMatrix() const;
 
+	bool IsPerspective() const { return myOrthographicWidth == 0.f; }
+
 private:
+	Matrix GetPerspectiveMatrix() const;
+	Matrix GetOrthographicMatrix() const;
+
+	Matrix myLocalViewMatrix;
 	float myVerticalFov;
 	float myAspectRatio;
 	float myNearClipPlane;
 	float myFarClipPlane;
+	float myOrthographicWidth;
 };
 

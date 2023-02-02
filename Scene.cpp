@@ -1,6 +1,5 @@
 #include "pch.h"
 #include "Scene.h"
-#include "imgui_simplemath.h"
 #pragma comment(lib, "assimp-vc142-mt")
 
 Scene::Scene(const fs::path& aPath)
@@ -88,13 +87,5 @@ void Scene::LoadHierarchy(Transform::Ptr aTransform, aiNode* aNode)
 void Scene::LoadCameras(std::span<aiCamera*> someCameras)
 {
     for (auto camera : someCameras)
-    {
-        Matrix cameraMatrix{};
-        camera->GetCameraMatrix(reinterpret_cast<aiMatrix4x4&>(cameraMatrix));
-
-        auto cameraTransform = myRootTransform->FindByName(camera->mName.C_Str());
-        cameraTransform->SetLocalMatrix(cameraMatrix * cameraTransform->GetLocalMatrix());
-
-        myCameras.emplace_back(*camera, cameraTransform);
-    }
+        myCameras.emplace_back(*camera, myRootTransform->FindByName(camera->mName.C_Str()));
 }
