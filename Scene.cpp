@@ -9,14 +9,14 @@ Scene::Scene(const fs::path& aPath)
     , myMeshes{}
     , myMeshInstances{}
     , myCameras{}
-    , mySuccessful{ false }
+    , mySucceeded{ false }
 {
     Assimp::Importer importer{};
-    const unsigned flags = aiProcess_ConvertToLeftHanded | aiProcessPreset_TargetRealtime_MaxQuality;
+    constexpr unsigned flags = aiProcess_ConvertToLeftHanded | aiProcessPreset_TargetRealtime_MaxQuality;
 
     if (const aiScene* scene = importer.ReadFile(aPath.string().c_str(), flags))
     {
-        mySuccessful = true;
+        mySucceeded = true;
         LoadScene(*scene);
     }
 }
@@ -45,25 +45,28 @@ void Scene::LoadScene(const aiScene& aScene)
 void Scene::ImGui()
 {
     static Transform::Ptr selection;
-    ImGui::Hierarchy(myRootTransform, &selection);
 
-    if (selection)
-        ImGui::DragTransform(selection);
-
-    if (!myCameras.empty())
+    if (ImGui::Begin("Hierarchy"))
     {
-        auto& [transform, camera] = myCameras.front();
-        camera.UseForDrawing(transform->GetWorldMatrix());
+        ImGui::Hierarchy(myRootTransform, &selection);
     }
+    ImGui::End();
+
+    if (ImGui::Begin("Inspector"))
+    {
+        if (selection)
+        {
+            ImGui::DragTransform(selection);
+            ImGui::ResetTransformButton(selection);
+        }
+    }
+    ImGui::End();
 }
 
 void Scene::Render() const
 {
-    if (!myCameras.empty())
-    {
-        auto& [transform, camera] = myCameras.front();
+    for(auto& [transform, camera] : myCameras)
         camera.UseForDrawing(transform->GetWorldMatrix());
-    }
 
     for (auto& [transform, mesh] : myMeshInstances)
         mesh->Draw(transform->GetWorldMatrix());

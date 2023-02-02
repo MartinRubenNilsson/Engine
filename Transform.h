@@ -9,8 +9,9 @@ public:
 	static Ptr Create();
 
 	Ptr CreateChild();
-
 	Ptr FindByName(std::string_view aName);
+
+	void Reset();
 
 	void SetName(const std::string& aName)		{ myName = aName; }
 	const std::string& GetName() const			{ return myName; }
@@ -48,6 +49,7 @@ private:
 namespace ImGui
 {
 	IMGUI_API bool DragTransform(Transform::Ptr aTransform);
+	IMGUI_API bool ResetTransformButton(Transform::Ptr aTransform);
 	IMGUI_API void Hierarchy(Transform::Ptr aTransform, Transform::Ptr* aSelection = nullptr);
 }
 

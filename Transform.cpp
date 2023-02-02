@@ -25,6 +25,11 @@ Transform::Ptr Transform::FindByName(std::string_view aName)
 	return nullptr;
 }
 
+void Transform::Reset()
+{
+	myLocalMatrix = Matrix::Identity;
+}
+
 Matrix Transform::GetWorldMatrix() const
 {
 	Matrix result = myLocalMatrix;
@@ -75,6 +80,18 @@ bool ImGui::DragTransform(Transform::Ptr aTransform)
 	const bool scaled = ImGui::DragFloat3("Scale", scale, 0.025f);
 	ImGuizmo::RecomposeMatrixFromComponents(translation, rotation, scale, aTransform->Data());
 	return translated || rotated || scaled;
+}
+
+/*
+* ImGui
+*/
+
+bool ImGui::ResetTransformButton(Transform::Ptr aTransform)
+{
+	const bool pushed = ImGui::Button("Reset transform");
+	if (pushed)
+		aTransform->Reset();
+	return pushed;
 }
 
 void ImGui::Hierarchy(Transform::Ptr aTransform, Transform::Ptr* aSelection)

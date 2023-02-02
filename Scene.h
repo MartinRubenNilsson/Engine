@@ -11,7 +11,7 @@ public:
 	void ImGui();
 	void Render() const;
 
-	operator bool() const { return mySuccessful; }
+	operator bool() const { return mySucceeded; }
 
 private:
 	void LoadScene(const aiScene&);
@@ -22,6 +22,6 @@ private:
 	std::vector<std::shared_ptr<Mesh>> myMeshes;
 	std::vector<std::pair<Transform::Ptr, std::shared_ptr<Mesh>>> myMeshInstances;
 	std::vector<std::pair<Transform::Ptr, Camera>> myCameras;
-	bool mySuccessful;
+	bool mySucceeded;
 };
 
