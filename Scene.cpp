@@ -19,23 +19,16 @@ Scene::Scene(const fs::path& aPath)
     }
 }
 
-
-void Scene::LoadScene(const aiScene& aScene)
-{
-    LoadMeshes({ aScene.mMeshes, aScene.mNumMeshes });
-    LoadHierarchy(myRootTransform, aScene.mRootNode);
-    LoadCameras({ aScene.mCameras, aScene.mNumCameras });
-}
-
-void Scene::LoadMeshes(std::span<aiMesh*> someMeshes)
-{
-    for (auto mesh : someMeshes)
-        myMeshes.emplace_back(*mesh, Transforms{});
-}
-
 void Scene::ImGui()
 {
     static Transform::Ptr selection;
+
+    if (ImGui::Begin("Camera"))
+    {
+        if (!myCameras.empty())
+            ImGui::CameraEdit(&myCameras.front().first);
+    }
+    ImGui::End();
 
     if (ImGui::Begin("Hierarchy"))
     {
@@ -59,14 +52,30 @@ void Scene::ImGui()
 
 void Scene::Render() const
 {
-    for (auto& [camera, transform] : myCameras)
+    if (!myCameras.empty())
+    {
+        auto& [camera, transform] = myCameras.front();
         camera.SetCamera(transform->GetWorldMatrix());
+    }
 
     for (auto& [mesh, transforms] : myMeshes)
     {
         for (auto& transform : transforms)
             mesh.Draw(transform->GetWorldMatrix());
     }
+}
+
+void Scene::LoadScene(const aiScene& aScene)
+{
+    LoadMeshes({ aScene.mMeshes, aScene.mNumMeshes });
+    LoadHierarchy(myRootTransform, aScene.mRootNode);
+    LoadCameras({ aScene.mCameras, aScene.mNumCameras });
+}
+
+void Scene::LoadMeshes(std::span<aiMesh*> someMeshes)
+{
+    for (auto mesh : someMeshes)
+        myMeshes.emplace_back(*mesh, Transforms{});
 }
 
 void Scene::LoadHierarchy(Transform::Ptr aTransform, aiNode* aNode)
