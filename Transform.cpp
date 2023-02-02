@@ -86,9 +86,9 @@ bool ImGui::DragTransform(Transform::Ptr aTransform)
 * ImGui
 */
 
-bool ImGui::ResetTransformButton(Transform::Ptr aTransform)
+bool ImGui::ResetTransformButton(const char* aLabel, Transform::Ptr aTransform)
 {
-	const bool pushed = ImGui::Button("Reset transform");
+	const bool pushed = ImGui::Button(aLabel);
 	if (pushed)
 		aTransform->Reset();
 	return pushed;

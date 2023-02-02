@@ -49,7 +49,7 @@ private:
 namespace ImGui
 {
 	IMGUI_API bool DragTransform(Transform::Ptr aTransform);
-	IMGUI_API bool ResetTransformButton(Transform::Ptr aTransform);
+	IMGUI_API bool ResetTransformButton(const char* aLabel, Transform::Ptr aTransform);
 	IMGUI_API void Hierarchy(Transform::Ptr aTransform, Transform::Ptr* aSelection = nullptr);
 }
 
