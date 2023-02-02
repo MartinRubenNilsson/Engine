@@ -3,9 +3,9 @@
 #include "DearImGui.h"
 #include "SwapChain.h"
 #include "Shader.h"
-#include "InputLayout.h"
 #include "DepthBuffer.h"
 #include "Scene.h"
+#include "InputLayoutManager.h"
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
@@ -34,8 +34,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
     if (!depthBuffer)
         return EXIT_FAILURE;
 
-    ConstantBufferManager cBufferMgr{};
-    if (!cBufferMgr)
+    ConstantBufferManager constantBufferMgr{};
+    if (!constantBufferMgr)
         return EXIT_FAILURE;
 
     const fs::path currentPath = fs::current_path() / "Bin";
@@ -46,14 +46,14 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
     if (!vertexShader || !pixelShader)
         return EXIT_FAILURE;
 
-    InputLayout inputLayout{ vertexShader.GetBytecode() };
-    if (!inputLayout)
+    InputLayoutManager inputLayoutMgr{};
+    if (!inputLayoutMgr)
         return EXIT_FAILURE;
 
     Viewport viewport{ window.GetClientRect() };
 
     dx11.GetContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-    inputLayout.SetInputLayout();
+    inputLayoutMgr.SetInputLayout(typeid(BasicVertex));
     vertexShader.SetShader();
     pixelShader.SetShader();
     swapChain.SetRenderTarget(depthBuffer.GetDepthStencil());

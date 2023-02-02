@@ -3,7 +3,11 @@
 class InputLayout
 {
 public:
-	InputLayout(std::string_view someShaderBytecode);
+	InputLayout(
+		std::span<D3D11_INPUT_ELEMENT_DESC> someInputElements,
+		std::string_view someShaderBytecode
+	);
+	
 	void SetInputLayout() const;
 
 	operator bool() const { return myInputLayout; }
@@ -11,3 +15,4 @@ public:
 private:
 	ComPtr<ID3D11InputLayout> myInputLayout;
 };
+

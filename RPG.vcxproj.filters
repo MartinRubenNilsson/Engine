@@ -50,6 +50,9 @@
       <Filter>objects</Filter>
     </ClInclude>
     <ClInclude Include="Singleton.h" />
+    <ClInclude Include="InputLayoutManager.h">
+      <Filter>graphics\managers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
@@ -100,6 +103,9 @@
     </ClCompile>
     <ClCompile Include="Scene.cpp">
       <Filter>objects</Filter>
+    </ClCompile>
+    <ClCompile Include="InputLayoutManager.cpp">
+      <Filter>graphics\managers</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

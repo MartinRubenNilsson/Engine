@@ -9,13 +9,7 @@ Mesh::Mesh(const aiMesh& aMesh)
 	, myIndexBuffer{}
 {
 	{
-		struct Vertex
-		{
-			Vector3 position{};
-			Vector3 normal{};
-		};
-
-		std::vector<Vertex> vertices(aMesh.mNumVertices);
+		std::vector<BasicVertex> vertices(aMesh.mNumVertices);
 		
 		if (aMesh.HasPositions())
 		{

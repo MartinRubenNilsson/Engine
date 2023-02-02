@@ -16,6 +16,7 @@
 #include <string>
 #include <string_view>
 #include <type_traits>
+#include <typeindex>
 #include <vector>
 namespace fs = std::filesystem;
 
@@ -50,3 +51,4 @@ using namespace DirectX::SimpleMath;
 #include "Debug.h"
 #include "DX11.h"
 #include "ConstantBufferManager.h"
+#include "InputLayoutManager.h"
