@@ -11,12 +11,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
 {
+    fs::current_path(fs::current_path() / "Bin");
+
     WindowClass windowClass{ WndProc };
 	Window window{ windowClass };
 	if (!window)
 		return EXIT_FAILURE;
-
-    window.SetTitle(L"Model Viewer");
 
     DX11 dx11{};
     if (!dx11)
@@ -24,6 +24,14 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
 
     DearImGui imGui{ window.GetHandle(), dx11.GetDevice(), dx11.GetContext() };
     if (!imGui)
+        return EXIT_FAILURE;
+
+    ConstantBufferManager constantBufferMgr{};
+    if (!constantBufferMgr)
+        return EXIT_FAILURE;
+
+    InputLayoutManager inputLayoutMgr{};
+    if (!inputLayoutMgr)
         return EXIT_FAILURE;
 
     SwapChain swapChain{ window.GetHandle() };
@@ -34,34 +42,23 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
     if (!depthBuffer)
         return EXIT_FAILURE;
 
-    ConstantBufferManager constantBufferMgr{};
-    if (!constantBufferMgr)
-        return EXIT_FAILURE;
-
-    const fs::path currentPath = fs::current_path() / "Bin";
-    fs::current_path(currentPath);
-
-    VertexShader vertexShader(currentPath / "VsBasic.cso");
-    PixelShader pixelShader(currentPath / "PsBasic.cso");
+    VertexShader vertexShader{ "VsBasic.cso" };
+    PixelShader pixelShader{ "PsBasic.cso" };
     if (!vertexShader || !pixelShader)
         return EXIT_FAILURE;
 
-    InputLayoutManager inputLayoutMgr{};
-    if (!inputLayoutMgr)
+    Scene scene{ "mesh/test_00.fbx" };
+    if (!scene)
         return EXIT_FAILURE;
 
-    Viewport viewport{ window.GetClientRect() };
+    window.SetTitle(L"Model Viewer");
 
     dx11.GetContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
     inputLayoutMgr.SetInputLayout(typeid(BasicVertex));
     vertexShader.SetShader();
     pixelShader.SetShader();
     swapChain.SetRenderTarget(depthBuffer.GetDepthStencil());
-    dx11.GetContext()->RSSetViewports(1, viewport.Get11());
-
-    Scene scene{ "mesh/test_00.fbx" };
-    if (!scene)
-        return EXIT_FAILURE;
+    dx11.GetContext()->RSSetViewports(1, Viewport{ window.GetClientRect() }.Get11());
 
     bool run = true;
     MSG msg{};

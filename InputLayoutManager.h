@@ -22,3 +22,5 @@ private:
 	std::unordered_map<std::type_index, InputLayout> myInputLayouts;
 };
 
+#define DX11_SET_INPUT_LAYOUT(aVertexType) InputLayoutManager::Get().SetInputLayout(typeid(aVertexType))
+
