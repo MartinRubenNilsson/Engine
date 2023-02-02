@@ -14,14 +14,17 @@ public:
 	operator bool() const { return mySucceeded; }
 
 private:
+	using Transforms = std::vector<Transform::Ptr>;
+
 	void LoadScene(const aiScene&);
-	void LoadHierarchy(Transform::Ptr aTransform, const aiNode* aNode);
+	void LoadMeshes(std::span<aiMesh*>);
+	void LoadHierarchy(Transform::Ptr aTransform, aiNode* aNode);
+	void LoadCameras(std::span<aiCamera*>);
 
 	fs::path myPath;
 	Transform::Ptr myRootTransform;
-	std::vector<std::shared_ptr<Mesh>> myMeshes;
-	std::vector<std::pair<Transform::Ptr, std::shared_ptr<Mesh>>> myMeshInstances;
-	std::vector<std::pair<Transform::Ptr, Camera>> myCameras;
+	std::vector<std::pair<Mesh, Transforms>> myMeshes;
+	std::vector<std::pair<Camera, Transform::Ptr>> myCameras;
 	bool mySucceeded;
 };
 

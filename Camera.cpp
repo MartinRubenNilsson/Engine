@@ -16,7 +16,7 @@ Camera::Camera(const aiCamera& aCamera)
 	}
 }
 
-void Camera::UseForDrawing(const Matrix& aTransform) const
+void Camera::SetCamera(const Matrix& aTransform) const
 {
 	CameraBuffer buffer{};
 	buffer.cameraMatrix = aTransform;

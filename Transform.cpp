@@ -102,7 +102,9 @@ void ImGui::Hierarchy(Transform::Ptr aTransform, Transform::Ptr* aSelection)
 	if (aSelection && *aSelection == aTransform)
 		flags |= ImGuiTreeNodeFlags_Selected;
 
-	const bool open = TreeNodeEx(aTransform->GetName().c_str(), flags);
+	const std::string name{ aTransform->GetName() };
+
+	const bool open = TreeNodeEx(name.c_str(), flags);
 
 	if (aSelection && IsItemClicked() && !IsItemToggledOpen())
 		*aSelection = aTransform;

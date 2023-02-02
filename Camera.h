@@ -5,7 +5,7 @@ class Camera
 public:
 	Camera(const aiCamera&);
 
-	void UseForDrawing(const Matrix& aTransform) const;
+	void SetCamera(const Matrix& aTransform) const;
 
 	Matrix GetProjectionMatrix() const;
 

@@ -5,41 +5,33 @@
 
 Scene::Scene(const fs::path& aPath)
     : myPath{ aPath }
-    , myRootTransform{}
+    , myRootTransform{ Transform::Create() }
     , myMeshes{}
-    , myMeshInstances{}
     , myCameras{}
     , mySucceeded{ false }
 {
     Assimp::Importer importer{};
     constexpr unsigned flags = aiProcess_ConvertToLeftHanded | aiProcessPreset_TargetRealtime_MaxQuality;
 
-    if (const aiScene* scene = importer.ReadFile(aPath.string().c_str(), flags))
+    if (auto scene = importer.ReadFile(aPath.string().c_str(), flags))
     {
-        mySucceeded = true;
         LoadScene(*scene);
+        mySucceeded = true;
     }
 }
 
 
 void Scene::LoadScene(const aiScene& aScene)
 {
-    for (const aiMesh* mesh : std::span{ aScene.mMeshes, aScene.mNumMeshes })
-        myMeshes.emplace_back(std::make_shared<Mesh>(*mesh));
-
-	myRootTransform = Transform::Create();
+    LoadMeshes({ aScene.mMeshes, aScene.mNumMeshes });
     LoadHierarchy(myRootTransform, aScene.mRootNode);
+    LoadCameras({ aScene.mCameras, aScene.mNumCameras });
+}
 
-    for (const aiCamera* camera : std::span{ aScene.mCameras, aScene.mNumCameras })
-    {
-        Matrix cameraMatrix{};
-        camera->GetCameraMatrix(reinterpret_cast<aiMatrix4x4&>(cameraMatrix));
-
-        auto cameraTransform = myRootTransform->FindByName(camera->mName.C_Str());
-        cameraTransform->SetLocalMatrix(cameraMatrix * cameraTransform->GetLocalMatrix());
-
-        myCameras.emplace_back(cameraTransform, *camera);
-    }
+void Scene::LoadMeshes(std::span<aiMesh*> someMeshes)
+{
+    for (auto mesh : someMeshes)
+        myMeshes.emplace_back(*mesh, Transforms{});
 }
 
 void Scene::ImGui()
@@ -68,26 +60,41 @@ void Scene::ImGui()
 
 void Scene::Render() const
 {
-    for(auto& [transform, camera] : myCameras)
-        camera.UseForDrawing(transform->GetWorldMatrix());
+    for (auto& [camera, transform] : myCameras)
+        camera.SetCamera(transform->GetWorldMatrix());
 
-    for (auto& [transform, mesh] : myMeshInstances)
-        mesh->Draw(transform->GetWorldMatrix());
+    for (auto& [mesh, transforms] : myMeshes)
+    {
+        for (auto& transform : transforms)
+            mesh.Draw(transform->GetWorldMatrix());
+    }
 }
 
-void Scene::LoadHierarchy(Transform::Ptr aTransform, const aiNode* aNode)
+void Scene::LoadHierarchy(Transform::Ptr aTransform, aiNode* aNode)
 {
     aTransform->SetName(aNode->mName.C_Str());
 
-    {
-        Matrix localMatrix{};
-        std::memcpy(&localMatrix, &aNode->mTransformation, sizeof(Matrix));
-        aTransform->SetLocalMatrix(localMatrix.Transpose());
-    }
+    auto& matrixToLoad = reinterpret_cast<const Matrix&>(aNode->mTransformation);
+    auto& matrixToStore = reinterpret_cast<Matrix&>(*aTransform->Data());
+    matrixToLoad.Transpose(matrixToStore);
 
     for (unsigned meshIndex : std::span{ aNode->mMeshes, aNode->mNumMeshes })
-        myMeshInstances.emplace_back(aTransform, myMeshes[meshIndex]);
+        myMeshes[meshIndex].second.emplace_back(aTransform);
 
-    for (const aiNode* childNode : std::span{ aNode->mChildren, aNode->mNumChildren })
+    for (aiNode* childNode : std::span{ aNode->mChildren, aNode->mNumChildren })
         LoadHierarchy(aTransform->CreateChild(), childNode);
+}
+
+void Scene::LoadCameras(std::span<aiCamera*> someCameras)
+{
+    for (auto camera : someCameras)
+    {
+        Matrix cameraMatrix{};
+        camera->GetCameraMatrix(reinterpret_cast<aiMatrix4x4&>(cameraMatrix));
+
+        auto cameraTransform = myRootTransform->FindByName(camera->mName.C_Str());
+        cameraTransform->SetLocalMatrix(cameraMatrix * cameraTransform->GetLocalMatrix());
+
+        myCameras.emplace_back(*camera, cameraTransform);
+    }
 }

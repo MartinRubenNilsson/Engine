@@ -14,7 +14,7 @@ public:
 	void Reset();
 
 	void SetName(const std::string& aName)		{ myName = aName; }
-	const std::string& GetName() const			{ return myName; }
+	std::string_view GetName() const			{ return myName; }
 	void SetLocalMatrix(const Matrix& aMatrix)	{ myLocalMatrix = aMatrix; }
 	const Matrix& GetLocalMatrix()				{ return myLocalMatrix; }
 	// void SetWorldMatrix(const Matrix& aMatrix) // todo;
@@ -31,6 +31,7 @@ public:
 	bool HasChildren() const { return !myChildren.empty(); }
 
 	float* Data() { return myLocalMatrix.m[0]; }
+	const float* Data() const { return myLocalMatrix.m[0]; }
 
 private:
 	Transform() = default;

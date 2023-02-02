@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "IndexBuffer.h"
 
-IndexBuffer::IndexBuffer(std::span<const unsigned> someIndices)
+IndexBuffer::IndexBuffer(std::span<unsigned> someIndices)
 	: myBuffer{}
 	, myIndexCount{ someIndices.size() }
 {
