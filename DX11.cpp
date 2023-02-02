@@ -3,13 +3,9 @@
 #pragma comment(lib, "DXGI") 
 #pragma comment(lib, "D3D11") 
 
-DX11* DX11::ourInstance = nullptr;
-
 DX11::DX11()
+	: Singleton()
 {
-	assert(!ourInstance);
-	ourInstance = this;
-
 	myResult = D3D11CreateDevice(
 		NULL,
 		D3D_DRIVER_TYPE_HARDWARE,
@@ -22,9 +18,4 @@ DX11::DX11()
 		NULL,
 		&myContext
 	);
-}
-
-DX11::~DX11()
-{
-	ourInstance = nullptr;
 }

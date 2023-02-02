@@ -49,6 +49,7 @@
     <ClInclude Include="Scene.h">
       <Filter>objects</Filter>
     </ClInclude>
+    <ClInclude Include="Singleton.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />

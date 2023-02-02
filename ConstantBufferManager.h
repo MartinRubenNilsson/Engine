@@ -13,13 +13,10 @@ struct MeshBuffer
 	Matrix meshMatrixInverseTranspose;
 };
 
-class ConstantBufferManager
+class ConstantBufferManager : public Singleton<ConstantBufferManager>
 {
 public:
 	ConstantBufferManager();
-	~ConstantBufferManager();
-
-	static ConstantBufferManager& Get() { return *ourInstance; }
 
 	void WriteConstantBuffer(const CameraBuffer& aBuffer) { WriteConstantBuffer(Camera, &aBuffer); }
 	void WriteConstantBuffer(const MeshBuffer& aBuffer) { WriteConstantBuffer(Mesh, &aBuffer); }
@@ -33,13 +30,6 @@ private:
 		Mesh,
 		Count
 	};
-
-	static ConstantBufferManager* ourInstance;
-
-	ConstantBufferManager(const ConstantBufferManager&) = delete;
-	ConstantBufferManager& operator=(const ConstantBufferManager&) = delete;
-	ConstantBufferManager(ConstantBufferManager&&) = delete;
-	ConstantBufferManager& operator=(ConstantBufferManager&&) = delete;
 
 	void WriteConstantBuffer(Slot aSlot, const void* someData);
 

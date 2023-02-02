@@ -46,6 +46,7 @@ using namespace DirectX::SimpleMath;
 #include <assimp/mesh.h>
 
 // other
+#include "Singleton.h"
 #include "Debug.h"
 #include "DX11.h"
 #include "ConstantBufferManager.h"

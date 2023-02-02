@@ -1,18 +1,14 @@
 #include "pch.h"
 #include "ConstantBufferManager.h"
 
-ConstantBufferManager* ConstantBufferManager::ourInstance = nullptr;
-
 ConstantBufferManager::ConstantBufferManager()
-	: myConstantBuffers
+	: Singleton()
+	, myConstantBuffers
 	{
 		sizeof(CameraBuffer),
 		sizeof(MeshBuffer)
 	}
 {
-	assert(!ourInstance);
-	ourInstance = this;
-
 	for (unsigned slot = 0; slot < Count; ++slot)
 	{
 		myConstantBuffers[slot].VSSetConstantBuffer(slot);
@@ -20,10 +16,6 @@ ConstantBufferManager::ConstantBufferManager()
 	}
 }
 
-ConstantBufferManager::~ConstantBufferManager()
-{
-	ourInstance = nullptr;
-}
 
 void ConstantBufferManager::WriteConstantBuffer(Slot aSlot, const void* someData)
 {
