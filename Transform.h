@@ -8,6 +8,7 @@ public:
 	static Ptr Create();
 
 	Ptr CreateChild();
+
 	Ptr FindByName(std::string_view aName);
 	std::vector<Ptr> FindAllByName(std::string_view aName);
 

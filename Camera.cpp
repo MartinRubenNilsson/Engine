@@ -35,7 +35,7 @@ void Camera::SetCamera(const Matrix& aTransform) const
 {
 	CameraBuffer buffer{};
 	//buffer.cameraMatrix = aTransform;
-	buffer.worldToClipMatrix = aTransform.Invert() * myLocalViewMatrix * GetProjectionMatrix();
+	buffer.worldToClipMatrix = GetWorldViewMatrix(aTransform) * GetProjectionMatrix();
 
 	DX11_WRITE_CONSTANT_BUFFER(buffer);
 }
@@ -56,6 +56,11 @@ void Camera::ToOrthographic(float aDepth)
 		myOrthographicHeight = aDepth * 2.f * tan(myVerticalFov / 2.f);
 		myVerticalFov = 0.f;
 	}
+}
+
+Matrix Camera::GetWorldViewMatrix(const Matrix& aTransform) const
+{
+	return aTransform.Invert() * myLocalViewMatrix;
 }
 
 Matrix Camera::GetProjectionMatrix() const

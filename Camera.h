@@ -10,6 +10,9 @@ public:
 	void ToPerspective(float aDepth = 10.f);
 	void ToOrthographic(float aDepth = 10.f);
 
+	const Matrix& GetLocalViewMatrix() const { return myLocalViewMatrix; }
+	Matrix GetWorldViewMatrix(const Matrix& aTransform) const;
+
 	Matrix GetProjectionMatrix() const;
 
 	void SetVerticalFov(float aFov);

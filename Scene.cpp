@@ -26,7 +26,18 @@ void Scene::ImGui()
     if (ImGui::Begin("Camera"))
     {
         if (!myCameras.empty())
-            ImGui::CameraEdit(&myCameras.front().first);
+        {
+            auto& [camera, transform] = myCameras.front();
+            ImGui::CameraEdit(&camera);
+
+            Matrix world = transform->GetWorldMatrix();
+            Matrix view = camera.GetWorldViewMatrix(transform->GetWorldMatrix());
+            Matrix proj = camera.GetProjectionMatrix();
+
+            Matrix identity{};
+
+            ImGuizmo::DrawCubes(world.m[0], proj.m[0], identity.m[0], 1);
+        }
     }
     ImGui::End();
 
