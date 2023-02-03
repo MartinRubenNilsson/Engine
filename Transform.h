@@ -9,6 +9,7 @@ public:
 
 	Ptr CreateChild();
 	Ptr FindByName(std::string_view aName);
+	std::vector<Ptr> FindAllByName(std::string_view aName);
 
 	void Reset();
 
@@ -16,16 +17,17 @@ public:
 	std::string_view GetName() const			{ return myName; }
 	void SetLocalMatrix(const Matrix& aMatrix)	{ myLocalMatrix = aMatrix; }
 	const Matrix& GetLocalMatrix()				{ return myLocalMatrix; }
-	// void SetWorldMatrix(const Matrix& aMatrix) // todo;
+	void SetWorldMatrix(const Matrix& aMatrix);
 	Matrix GetWorldMatrix() const;
 
+	Ptr GetParent() const;
 	const std::vector<Ptr>& GetChildren() const { return myChildren; }
 
 	size_t GetChildCount() const { return myChildren.size(); }
 	size_t GetDescendantCount() const;
 	size_t GetHierarchyCount() const { return GetDescendantCount() + 1; }
 
-	bool HasParent() const { return !myParent.expired(); }
+	bool HasParent() const { return myParent; }
 	bool HasChildren() const { return !myChildren.empty(); }
 
 	float* Data() { return myLocalMatrix.m[0]; }
@@ -41,14 +43,14 @@ private:
 
 	Matrix myLocalMatrix;
 	std::string myName;
-	std::weak_ptr<Transform> myParent;
+	Transform* myParent = nullptr;
 	std::vector<Ptr> myChildren;
 };
 
 namespace ImGui
 {
-	IMGUI_API bool DragTransform(Transform::Ptr aTransform);
-	IMGUI_API bool ResetTransformButton(const char* aLabel, Transform::Ptr aTransform);
-	IMGUI_API void Hierarchy(Transform::Ptr aTransform, Transform::Ptr* aSelection = nullptr);
+	bool DragTransform(Transform::Ptr aTransform);
+	bool ResetTransformButton(const char* aLabel, Transform::Ptr aTransform);
+	void Hierarchy(Transform::Ptr aTransform, Transform::Ptr* aSelection = nullptr);
 }
 

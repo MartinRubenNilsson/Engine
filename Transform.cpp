@@ -9,7 +9,7 @@ Transform::Ptr Transform::Create()
 Transform::Ptr Transform::CreateChild()
 {
 	auto child = myChildren.emplace_back(Create());
-	child->myParent = weak_from_this();
+	child->myParent = this;
 	return child;
 }
 
@@ -25,17 +25,39 @@ Transform::Ptr Transform::FindByName(std::string_view aName)
 	return nullptr;
 }
 
+std::vector<Transform::Ptr> Transform::FindAllByName(std::string_view aName)
+{
+	std::vector<Ptr> result{};
+	if (aName == myName)
+		result.emplace_back(shared_from_this());
+	for (auto& child : myChildren)
+		result.append_range(child->FindAllByName(aName)); // untested!!!
+	return result;
+}
+
 void Transform::Reset()
 {
 	myLocalMatrix = Matrix::Identity;
 }
 
+void Transform::SetWorldMatrix(const Matrix& aMatrix)
+{
+	myLocalMatrix = aMatrix;
+	if (myParent)
+		myLocalMatrix *= myParent->GetWorldMatrix().Invert();
+}
+
 Matrix Transform::GetWorldMatrix() const
 {
 	Matrix result = myLocalMatrix;
-	if (!myParent.expired())
-		result *= myParent.lock()->GetWorldMatrix();
+	if (myParent)
+		result *= myParent->GetWorldMatrix();
 	return result;
+}
+
+Transform::Ptr Transform::GetParent() const
+{
+	return myParent ? myParent->shared_from_this() : nullptr;
 }
 
 std::span<Matrix> Transform::GetHierarchyWorldMatrices(std::span<Matrix> aSpan) const

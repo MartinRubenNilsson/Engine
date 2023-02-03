@@ -6,6 +6,7 @@ public:
 	Camera(const aiCamera&);
 
 	void SetCamera(const Matrix& aTransform) const;
+
 	void ToPerspective(float aDepth = 10.f);
 	void ToOrthographic(float aDepth = 10.f);
 
