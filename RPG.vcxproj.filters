@@ -56,6 +56,9 @@
     <ClInclude Include="RasterizerStateManager.h">
       <Filter>graphics\managers</Filter>
     </ClInclude>
+    <ClInclude Include="GeometryBuffer.h">
+      <Filter>graphics\buffers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
@@ -112,6 +115,9 @@
     </ClCompile>
     <ClCompile Include="RasterizerStateManager.cpp">
       <Filter>graphics\managers</Filter>
+    </ClCompile>
+    <ClCompile Include="GeometryBuffer.cpp">
+      <Filter>graphics\buffers</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -7,13 +7,13 @@ public:
 
 	void ClearDepthStencil();
 
-	ID3D11DepthStencilView* GetDepthStencil() const { return myDepthStencilView.Get(); }
+	ID3D11DepthStencilView* GetDepthStencil() const { return myDepthStencil.Get(); }
 
 	operator bool() const { return SUCCEEDED(myResult); }
 
 private:
-	ComPtr<ID3D11Texture2D> myTexture2d;
-	ComPtr<ID3D11DepthStencilView> myDepthStencilView;
+	ComPtr<ID3D11Texture2D> myTexture;
+	ComPtr<ID3D11DepthStencilView> myDepthStencil;
 	HRESULT myResult;
 };
 

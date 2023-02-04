@@ -7,6 +7,7 @@
 #include "InputLayoutManager.h"
 #include "RasterizerStateManager.h"
 #include "Scene.h"
+#include "GeometryBuffer.h"
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
@@ -46,6 +47,10 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
 
     DepthBuffer depthBuffer{ width, height };
     if (!depthBuffer)
+        return EXIT_FAILURE;
+
+    GeometryBuffer geometryBuffer{ width, height };
+    if (!geometryBuffer)
         return EXIT_FAILURE;
 
     VertexShader vertexShader{ "VsBasic.cso" };

@@ -183,6 +183,7 @@
     <ClInclude Include="Debug.h" />
     <ClInclude Include="DepthBuffer.h" />
     <ClInclude Include="DX11.h" />
+    <ClInclude Include="GeometryBuffer.h" />
     <ClInclude Include="imgui_simplemath.h" />
     <ClInclude Include="IndexBuffer.h" />
     <ClInclude Include="InputLayout.h" />
@@ -206,6 +207,7 @@
     <ClCompile Include="Debug.cpp" />
     <ClCompile Include="DepthBuffer.cpp" />
     <ClCompile Include="DX11.cpp" />
+    <ClCompile Include="GeometryBuffer.cpp" />
     <ClCompile Include="imgui_simplemath.cpp" />
     <ClCompile Include="IndexBuffer.cpp" />
     <ClCompile Include="InputLayout.cpp" />
