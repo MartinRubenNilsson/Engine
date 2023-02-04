@@ -51,5 +51,5 @@ namespace ImGui
 	void RasterizerStateManager(class RasterizerStateManager& aMgr);
 }
 
-#define DX11_RASTERIZER RasterizerStateManager().Get()
+#define DX11_RASTERIZER RasterizerStateManager::Get()
 

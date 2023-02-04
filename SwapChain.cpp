@@ -59,6 +59,11 @@ void SwapChain::ClearRenderTarget(const float aColor[4])
 	DX11_CONTEXT->ClearRenderTargetView(myRenderTargetView.Get(), aColor);
 }
 
+void SwapChain::ClearRenderTarget(const Color& aColor)
+{
+	ClearRenderTarget(aColor.operator const float *());
+}
+
 unsigned SwapChain::GetWidth() const
 {
 	D3D11_TEXTURE2D_DESC desc{};

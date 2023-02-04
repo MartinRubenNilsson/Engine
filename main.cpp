@@ -76,17 +76,39 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
             DispatchMessage(&msg);
         }
 
-        constexpr float clearColor[4] = { 0.f, 0.f, 0.f, 0.f };
-        swapChain.ClearRenderTarget(clearColor);
+        swapChain.ClearRenderTarget({ 0.f, 0.f, 0.f, 0.f });
         depthBuffer.ClearDepthStencil();
-        imGui.NewFrame();
 
-        ImGui::RasterizerStateManager(rasterizerStateMgr);
-
-        scene.ImGui();
         scene.Render();
 
-        imGui.Render();
+        // ImGui
+        {
+            imGui.NewFrame();
+
+            scene.ImGui();
+
+            static bool showRasterizer = false;
+
+            if (ImGui::BeginMainMenuBar())
+            {
+                if (ImGui::BeginMenu("DirectX"))
+                {
+                    ImGui::MenuItem("Rasterizer", NULL, &showRasterizer);
+                    ImGui::EndMenu();
+                }
+                ImGui::EndMainMenuBar();
+            }
+
+            if (showRasterizer)
+            {
+                if (ImGui::Begin("Rasterizer", &showRasterizer))
+                    ImGui::RasterizerStateManager(rasterizerStateMgr);
+                ImGui::End();
+            }
+
+            imGui.Render();
+        }
+
         swapChain.Present();
     }
 
