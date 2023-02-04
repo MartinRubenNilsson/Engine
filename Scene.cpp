@@ -12,7 +12,7 @@ Scene::Scene(const fs::path& aPath)
     Assimp::Importer importer{};
     constexpr unsigned flags = aiProcess_ConvertToLeftHanded | aiProcessPreset_TargetRealtime_MaxQuality;
 
-    if (auto scene = importer.ReadFile(aPath.string().c_str(), flags))
+    if (const aiScene* scene = importer.ReadFile(aPath.string().c_str(), flags))
     {
         LoadScene(*scene);
         mySucceeded = true;
@@ -60,21 +60,6 @@ void Scene::ImGui()
     }
 }
 
-void Scene::Render() const
-{
-    if (!myCameras.empty())
-    {
-        auto& [camera, transform] = myCameras.front();
-        camera.SetCamera(transform->GetWorldMatrix());
-    }
-
-    for (auto& [mesh, transforms] : myMeshes)
-    {
-        for (auto& transform : transforms)
-            mesh.Draw(transform->GetWorldMatrix());
-    }
-}
-
 void Scene::LoadScene(const aiScene& aScene)
 {
     LoadMeshes({ aScene.mMeshes, aScene.mNumMeshes });
@@ -85,7 +70,7 @@ void Scene::LoadScene(const aiScene& aScene)
 void Scene::LoadMeshes(std::span<aiMesh*> someMeshes)
 {
     for (aiMesh* mesh : someMeshes)
-        myMeshes.emplace_back(*mesh, Transforms{});
+        myMeshes.emplace_back(*mesh, 0);
 }
 
 void Scene::LoadHierarchy(Transform::Ptr aTransform, aiNode* aNode)

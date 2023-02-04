@@ -6,6 +6,13 @@ template <class Derived>
 class Singleton
 {
 public:
+	static Derived& Get()
+	{
+		assert(ourInstance);
+		return *ourInstance;
+	}
+
+protected:
 	Singleton()
 	{
 		static_assert(std::is_base_of_v<Singleton, Derived>);
@@ -16,12 +23,6 @@ public:
 	~Singleton()
 	{
 		ourInstance = nullptr;
-	}
-
-	static Derived& Get()
-	{
-		assert(ourInstance);
-		return *ourInstance;
 	}
 
 private:

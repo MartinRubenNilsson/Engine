@@ -9,13 +9,14 @@ public:
 	Scene(const fs::path&);
 
 	void ImGui();
-	void Render() const;
+
+	const fs::path& GetPath() const { return myPath; }
+	const auto& GetMeshes() const { return myMeshes; }
+	const auto& GetCameras() const { return myCameras; }
 
 	operator bool() const { return mySucceeded; }
 
 private:
-	using Transforms = std::vector<Transform::Ptr>;
-
 	void LoadScene(const aiScene&);
 	void LoadMeshes(std::span<aiMesh*>);
 	void LoadHierarchy(Transform::Ptr aTransform, aiNode* aNode);
@@ -23,7 +24,7 @@ private:
 
 	fs::path myPath;
 	Transform::Ptr myRootTransform;
-	std::vector<std::pair<Mesh, Transforms>> myMeshes;
+	std::vector<std::pair<Mesh, std::vector<Transform::Ptr>>> myMeshes;
 	std::vector<std::pair<Camera, Transform::Ptr>> myCameras;
 	bool mySucceeded;
 };

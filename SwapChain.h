@@ -8,6 +8,7 @@ public:
 	void Present();
 
 	void SetRenderTarget(ID3D11DepthStencilView* aDepthStencil = nullptr);
+
 	void ClearRenderTarget(const Color& aColor);
 
 	unsigned GetWidth() const;
@@ -17,8 +18,8 @@ public:
 
 private:
 	ComPtr<IDXGISwapChain> mySwapChain;
-	ComPtr<ID3D11Texture2D> myTexture2d;
-	ComPtr<ID3D11RenderTargetView> myRenderTargetView;
+	ComPtr<ID3D11Texture2D> myBackBuffer;
+	ComPtr<ID3D11RenderTargetView> myRenderTarget;
 	HRESULT myResult;
 };
 

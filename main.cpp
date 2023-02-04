@@ -79,7 +79,20 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
         swapChain.ClearRenderTarget({ 0.f, 0.f, 0.f, 0.f });
         depthBuffer.ClearDepthStencil();
 
-        scene.Render();
+        auto& cameras = scene.GetCameras();
+        auto& meshes = scene.GetMeshes();
+
+        if (!cameras.empty())
+        {
+            auto& [camera, transform] = cameras.front();
+            camera.SetCamera(transform->GetWorldMatrix());
+        }
+
+        for (auto& [mesh, transforms] : meshes)
+        {
+            for (auto& transform : transforms)
+                mesh.Draw(transform->GetWorldMatrix());
+        }
 
         // ImGui
         {

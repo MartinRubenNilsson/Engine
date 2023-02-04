@@ -26,18 +26,16 @@ SwapChain::SwapChain(HWND hWnd)
 			return;
 	}
 
-	{
-		myResult = mySwapChain->GetBuffer(0, IID_PPV_ARGS(myTexture2d.GetAddressOf()));
-		if (FAILED(myResult))
-			return;
-	}
+	myResult = mySwapChain->GetBuffer(0, IID_PPV_ARGS(myBackBuffer.GetAddressOf()));
+	if (FAILED(myResult))
+		return;
 
 	{
 		D3D11_RENDER_TARGET_VIEW_DESC renderTargetDesc{};
 		renderTargetDesc.Format = DXGI_FORMAT_UNKNOWN;
 		renderTargetDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
 
-		myResult = DX11_DEVICE->CreateRenderTargetView(myTexture2d.Get(), &renderTargetDesc, &myRenderTargetView);
+		myResult = DX11_DEVICE->CreateRenderTargetView(myBackBuffer.Get(), &renderTargetDesc, &myRenderTarget);
 		if (FAILED(myResult))
 			return;
 	}
@@ -51,26 +49,25 @@ void SwapChain::Present()
 
 void SwapChain::SetRenderTarget(ID3D11DepthStencilView* aDepthStencil)
 {
-	DX11_CONTEXT->OMSetRenderTargets(1, myRenderTargetView.GetAddressOf(), aDepthStencil);
+	DX11_CONTEXT->OMSetRenderTargets(1, myRenderTarget.GetAddressOf(), aDepthStencil);
 }
-
 void SwapChain::ClearRenderTarget(const Color& aColor)
 {
-	DX11_CONTEXT->ClearRenderTargetView(myRenderTargetView.Get(), aColor.operator const float* ());
+	DX11_CONTEXT->ClearRenderTargetView(myRenderTarget.Get(), aColor.operator const float* ());
 }
 
 unsigned SwapChain::GetWidth() const
 {
 	D3D11_TEXTURE2D_DESC desc{};
-	if (myTexture2d)
-		myTexture2d->GetDesc(&desc);
+	if (myBackBuffer)
+		myBackBuffer->GetDesc(&desc);
 	return desc.Width;
 }
 
 unsigned SwapChain::GetHeight() const
 {
 	D3D11_TEXTURE2D_DESC desc{};
-	if (myTexture2d)
-		myTexture2d->GetDesc(&desc);
+	if (myBackBuffer)
+		myBackBuffer->GetDesc(&desc);
 	return desc.Height;
 }
