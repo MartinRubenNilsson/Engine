@@ -27,6 +27,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
     if (!imGui)
         return EXIT_FAILURE;
 
+    RasterizerStateManager rasterizerStateMgr{};
+
     ConstantBufferManager constantBufferMgr{};
     if (!constantBufferMgr)
         return EXIT_FAILURE;
@@ -34,8 +36,6 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
     InputLayoutManager inputLayoutMgr{};
     if (!inputLayoutMgr)
         return EXIT_FAILURE;
-
-    RasterizerStateManager rasterizerStateMgr{}; // todo
 
     SwapChain swapChain{ window.GetHandle() };
     if (!swapChain)

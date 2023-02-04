@@ -54,14 +54,9 @@ void SwapChain::SetRenderTarget(ID3D11DepthStencilView* aDepthStencil)
 	DX11_CONTEXT->OMSetRenderTargets(1, myRenderTargetView.GetAddressOf(), aDepthStencil);
 }
 
-void SwapChain::ClearRenderTarget(const float aColor[4])
-{
-	DX11_CONTEXT->ClearRenderTargetView(myRenderTargetView.Get(), aColor);
-}
-
 void SwapChain::ClearRenderTarget(const Color& aColor)
 {
-	ClearRenderTarget(aColor.operator const float *());
+	DX11_CONTEXT->ClearRenderTargetView(myRenderTargetView.Get(), aColor.operator const float* ());
 }
 
 unsigned SwapChain::GetWidth() const

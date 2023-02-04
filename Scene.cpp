@@ -28,15 +28,11 @@ void Scene::ImGui()
         if (!myCameras.empty())
         {
             auto& [camera, transform] = myCameras.front();
-            ImGui::CameraEdit(&camera);
-
-            Matrix world = transform->GetWorldMatrix();
-            Matrix view = camera.GetWorldViewMatrix(transform->GetWorldMatrix());
-            Matrix proj = camera.GetProjectionMatrix();
+            ImGui::CameraEdit(camera);
 
             Matrix identity{};
 
-            ImGuizmo::DrawCubes(view.m[0], proj.m[0], identity.m[0], 1);
+            ImGui::DrawGrid(camera, transform->GetWorldMatrix(), identity, 20.f);
         }
     }
     ImGui::End();
@@ -85,7 +81,7 @@ void Scene::LoadScene(const aiScene& aScene)
 
 void Scene::LoadMeshes(std::span<aiMesh*> someMeshes)
 {
-    for (auto mesh : someMeshes)
+    for (aiMesh* mesh : someMeshes)
         myMeshes.emplace_back(*mesh, Transforms{});
 }
 
@@ -104,6 +100,6 @@ void Scene::LoadHierarchy(Transform::Ptr aTransform, aiNode* aNode)
 
 void Scene::LoadCameras(std::span<aiCamera*> someCameras)
 {
-    for (auto camera : someCameras)
+    for (aiCamera* camera : someCameras)
         myCameras.emplace_back(*camera, myRootTransform->FindByName(camera->mName.C_Str()));
 }

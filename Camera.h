@@ -25,6 +25,7 @@ public:
 	void GetClipPlanes(float& aNear, float& aFar) const;
 
 	bool IsPerspective() const { return myOrthographicHeight == 0.f; }
+	bool IsOrthographic() const { return !IsPerspective(); }
 
 private:
 	Matrix GetPerspectiveMatrix() const;
@@ -40,6 +41,8 @@ private:
 
 namespace ImGui
 {
-	void CameraEdit(Camera* aCamera);
+	void CameraEdit(Camera& aCamera);
+	void DrawCubes(const Camera& aCamera, const Matrix& aCameraTransform, std::span<const Matrix> someMatrices);
+	void DrawGrid(const Camera& aCamera, const Matrix& aCameraTransform, const Matrix& aMatrix, float aGridSize);
 }
 
