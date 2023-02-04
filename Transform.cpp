@@ -159,31 +159,34 @@ bool ImGui::Hierarchy(Transform::Ptr aTransform, Transform::Ptr& aSelection)
 
 	bool invalidated = false;
 
+	if (BeginDragDropSource())
+	{
+		SetDragDropPayload("transform", &aTransform, sizeof(Transform::Ptr));
+		EndDragDropSource();
+	}
+
+	if (BeginDragDropTarget())
+	{
+		if (auto payload = AcceptDragDropPayload("transform"))
+		{
+			auto child = *reinterpret_cast<Transform::Ptr*>(payload->Data);
+			child->SetParent(aTransform);
+			invalidated = true;
+		}
+		EndDragDropTarget();
+	}
+
 	if (open)
 	{
-		if (BeginDragDropSource())
+		if (!invalidated)
 		{
-			SetDragDropPayload("transform", &aTransform, sizeof(Transform::Ptr));
-			EndDragDropSource();
-		}
-
-		if (BeginDragDropTarget())
-		{
-			if (auto payload = AcceptDragDropPayload("transform"))
+			for (auto& child : aTransform->GetChildren())
 			{
-				auto child = *reinterpret_cast<Transform::Ptr*>(payload->Data);
-				child->SetParent(aTransform);
-				invalidated = true;
-			}
-			EndDragDropTarget();
-		}
-
-		for (auto& child : aTransform->GetChildren())
-		{
-			if (Hierarchy(child, aSelection))
-			{
-				invalidated = true;
-				break;
+				if (Hierarchy(child, aSelection))
+				{
+					invalidated = true;
+					break;
+				}
 			}
 		}
 
