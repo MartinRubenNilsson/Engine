@@ -2,21 +2,18 @@
 #include "Scene.h"
 #pragma comment(lib, "assimp-vc142-mt")
 
-Scene::Scene(const fs::path& aPath)
-    : myPath{ aPath }
-    , myRootTransform{ Transform::Create() }
+/*
+* class Scene
+*/
+
+Scene::Scene(const aiScene& aScene)
+    : myRootTransform{ Transform::Create() }
     , myMeshes{}
     , myCameras{}
-    , mySucceeded{ false }
 {
-    Assimp::Importer importer{};
-    constexpr unsigned flags = aiProcess_ConvertToLeftHanded | aiProcessPreset_TargetRealtime_MaxQuality;
-
-    if (const aiScene* scene = importer.ReadFile(aPath.string().c_str(), flags))
-    {
-        LoadScene(*scene);
-        mySucceeded = true;
-    }
+    LoadMeshes({ aScene.mMeshes, aScene.mNumMeshes });
+    LoadHierarchy(myRootTransform, aScene.mRootNode);
+    LoadCameras({ aScene.mCameras, aScene.mNumCameras });
 }
 
 void Scene::ImGui()
@@ -60,13 +57,6 @@ void Scene::ImGui()
     }
 }
 
-void Scene::LoadScene(const aiScene& aScene)
-{
-    LoadMeshes({ aScene.mMeshes, aScene.mNumMeshes });
-    LoadHierarchy(myRootTransform, aScene.mRootNode);
-    LoadCameras({ aScene.mCameras, aScene.mNumCameras });
-}
-
 void Scene::LoadMeshes(std::span<aiMesh*> someMeshes)
 {
     for (aiMesh* mesh : someMeshes)
@@ -90,4 +80,26 @@ void Scene::LoadCameras(std::span<aiCamera*> someCameras)
 {
     for (aiCamera* camera : someCameras)
         myCameras.emplace_back(*camera, myRootTransform->FindByName(camera->mName.C_Str()));
+}
+
+/*
+* class SceneManager
+*/
+
+std::shared_ptr<Scene> SceneManager::GetScene(const fs::path& aPath)
+{
+    auto itr = myScenes.find(aPath);
+    if (itr != myScenes.end())
+        return itr->second;
+
+    Assimp::Importer importer{};
+    unsigned flags = aiProcess_ConvertToLeftHanded | aiProcessPreset_TargetRealtime_MaxQuality;
+
+    if (const aiScene* scene = importer.ReadFile(aPath.string().c_str(), flags))
+    {
+        itr = myScenes.emplace(aPath, std::make_shared<Scene>(*scene)).first;
+        return itr->second;
+    }
+
+    return nullptr;
 }

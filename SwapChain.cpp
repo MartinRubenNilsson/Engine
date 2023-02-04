@@ -56,18 +56,11 @@ void SwapChain::ClearRenderTarget(const Color& aColor)
 	DX11_CONTEXT->ClearRenderTargetView(myRenderTarget.Get(), aColor.operator const float* ());
 }
 
-unsigned SwapChain::GetWidth() const
+void SwapChain::GetSize(unsigned& aWidth, unsigned& aHeight) const
 {
 	D3D11_TEXTURE2D_DESC desc{};
 	if (myBackBuffer)
 		myBackBuffer->GetDesc(&desc);
-	return desc.Width;
-}
-
-unsigned SwapChain::GetHeight() const
-{
-	D3D11_TEXTURE2D_DESC desc{};
-	if (myBackBuffer)
-		myBackBuffer->GetDesc(&desc);
-	return desc.Height;
+	aWidth = desc.Width;
+	aHeight = desc.Height;
 }

@@ -11,8 +11,7 @@ public:
 
 	void ClearRenderTarget(const Color& aColor);
 
-	unsigned GetWidth() const;
-	unsigned GetHeight() const;
+	void GetSize(unsigned& aWidth, unsigned& aHeight) const;
 
 	operator bool() const { return SUCCEEDED(myResult); }
 

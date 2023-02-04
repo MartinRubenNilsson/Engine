@@ -4,9 +4,9 @@
 #include "SwapChain.h"
 #include "Shader.h"
 #include "DepthBuffer.h"
-#include "Scene.h"
 #include "InputLayoutManager.h"
 #include "RasterizerStateManager.h"
+#include "Scene.h"
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
@@ -41,7 +41,10 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
     if (!swapChain)
         return EXIT_FAILURE;
 
-    DepthBuffer depthBuffer{ swapChain.GetWidth(), swapChain.GetHeight() };
+    unsigned width, height;
+    swapChain.GetSize(width, height);
+
+    DepthBuffer depthBuffer{ width, height };
     if (!depthBuffer)
         return EXIT_FAILURE;
 
@@ -50,7 +53,9 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
     if (!vertexShader || !pixelShader)
         return EXIT_FAILURE;
 
-    Scene scene{ "mesh/test_00.fbx" };
+    SceneManager sceneMgr{};
+
+    auto scene = sceneMgr.GetScene("mesh/test_00.fbx");
     if (!scene)
         return EXIT_FAILURE;
 
@@ -79,8 +84,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
         swapChain.ClearRenderTarget({ 0.f, 0.f, 0.f, 0.f });
         depthBuffer.ClearDepthStencil();
 
-        auto& cameras = scene.GetCameras();
-        auto& meshes = scene.GetMeshes();
+        auto& cameras = scene->GetCameras();
+        auto& meshes = scene->GetMeshes();
 
         if (!cameras.empty())
         {
@@ -98,7 +103,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
         {
             imGui.NewFrame();
 
-            scene.ImGui();
+            scene->ImGui();
 
             static bool showRasterizer = false;
 
