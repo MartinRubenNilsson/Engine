@@ -53,6 +53,9 @@
     <ClInclude Include="InputLayoutManager.h">
       <Filter>graphics\managers</Filter>
     </ClInclude>
+    <ClInclude Include="RasterizerStateManager.h">
+      <Filter>graphics\managers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
@@ -105,6 +108,9 @@
       <Filter>objects</Filter>
     </ClCompile>
     <ClCompile Include="InputLayoutManager.cpp">
+      <Filter>graphics\managers</Filter>
+    </ClCompile>
+    <ClCompile Include="RasterizerStateManager.cpp">
       <Filter>graphics\managers</Filter>
     </ClCompile>
   </ItemGroup>

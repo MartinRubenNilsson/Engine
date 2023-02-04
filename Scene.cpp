@@ -36,7 +36,7 @@ void Scene::ImGui()
 
             Matrix identity{};
 
-            ImGuizmo::DrawCubes(world.m[0], proj.m[0], identity.m[0], 1);
+            ImGuizmo::DrawCubes(view.m[0], proj.m[0], identity.m[0], 1);
         }
     }
     ImGui::End();

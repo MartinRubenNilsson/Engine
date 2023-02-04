@@ -1,1 +1,2 @@
 #define IMGUI_API
+#define SINGLETON_CLASS(aClass)

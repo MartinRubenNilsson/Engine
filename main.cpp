@@ -6,6 +6,7 @@
 #include "DepthBuffer.h"
 #include "Scene.h"
 #include "InputLayoutManager.h"
+#include "RasterizerStateManager.h"
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
@@ -33,6 +34,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
     InputLayoutManager inputLayoutMgr{};
     if (!inputLayoutMgr)
         return EXIT_FAILURE;
+
+    RasterizerStateManager rasterizerStateMgr{}; // todo
 
     SwapChain swapChain{ window.GetHandle() };
     if (!swapChain)
@@ -77,6 +80,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
         swapChain.ClearRenderTarget(clearColor);
         depthBuffer.ClearDepthStencil();
         imGui.NewFrame();
+
+        ImGui::RasterizerStateManager(rasterizerStateMgr);
 
         scene.ImGui();
         scene.Render();

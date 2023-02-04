@@ -6,10 +6,23 @@ template <class Derived>
 class Singleton
 {
 public:
-	Singleton();
-	~Singleton();
+	Singleton()
+	{
+		static_assert(std::is_base_of_v<Singleton, Derived>);
+		assert(!ourInstance);
+		ourInstance = static_cast<Derived*>(this);
+	}
 
-	static Derived& Get();
+	~Singleton()
+	{
+		ourInstance = nullptr;
+	}
+
+	static Derived& Get()
+	{
+		assert(ourInstance);
+		return *ourInstance;
+	}
 
 private:
 	Singleton(const Singleton&) = delete;
@@ -23,23 +36,4 @@ private:
 template <class Derived>
 Derived* Singleton<Derived>::ourInstance = nullptr;
 
-template<class Derived>
-inline Singleton<Derived>::Singleton()
-{
-	static_assert(std::is_base_of_v<Singleton<Derived>, Derived>);
-	assert(!ourInstance);
-	ourInstance = static_cast<Derived*>(this);
-}
-
-template<class Derived>
-inline Singleton<Derived>::~Singleton()
-{
-	ourInstance = nullptr;
-}
-
-template<class Derived>
-inline Derived& Singleton<Derived>::Get()
-{
-	assert(ourInstance);
-	return *ourInstance;
-}
+#define SINGLETON_CLASS(aClass) class aClass : public Singleton<aClass>
