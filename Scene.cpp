@@ -51,9 +51,12 @@ void Scene::ImGui()
 
     if (selection)
     {
-        Matrix m = selection->GetLocalMatrix();
-        ImGui::Manipulate(camera, transform->GetWorldMatrix(), ImGuizmo::TRANSLATE, ImGuizmo::LOCAL, m);
-        selection->SetLocalMatrix(m);
+        auto operation = ImGuizmo::TRANSLATE | ImGuizmo::ROTATE | ImGuizmo::SCALE;
+        auto mode = ImGuizmo::LOCAL;
+
+        Matrix m = selection->GetWorldMatrix();
+        ImGui::Manipulate(camera, transform->GetWorldMatrix(), operation, mode, m);
+        selection->SetWorldMatrix(m);
     }
 }
 

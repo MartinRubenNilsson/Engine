@@ -143,23 +143,23 @@ void ImGui::CameraEdit(class Camera& aCamera)
 	}
 }
 
-void ImGui::DrawCubes(const Camera& aCamera, const Matrix& aCameraTransform, std::span<const Matrix> someTransforms)
+void ImGui::DrawCubes(const Camera& aCamera, const Matrix& aCameraTransform, std::span<const Matrix> someCubeTransforms)
 {
-	if (someTransforms.empty())
+	if (someCubeTransforms.empty())
 		return;
 
 	Matrix view = aCamera.GetWorldViewMatrix(aCameraTransform);
 	Matrix proj = aCamera.GetProjectionMatrix();
 	ImGuizmo::SetOrthographic(aCamera.IsOrthographic());
-	ImGuizmo::DrawCubes(&view._11, &proj._11, &someTransforms.front()._11, static_cast<int>(someTransforms.size()));
+	ImGuizmo::DrawCubes(&view._11, &proj._11, &someCubeTransforms.front()._11, static_cast<int>(someCubeTransforms.size()));
 }
 
-void ImGui::DrawGrid(const Camera& aCamera, const Matrix& aCameraTransform, const Matrix& aTransform, float aGridSize)
+void ImGui::DrawGrid(const Camera& aCamera, const Matrix& aCameraTransform, const Matrix& aGridTransform, float aGridSize)
 {
 	Matrix view = aCamera.GetWorldViewMatrix(aCameraTransform);
 	Matrix proj = aCamera.GetProjectionMatrix();
 	ImGuizmo::SetOrthographic(aCamera.IsOrthographic());
-	ImGuizmo::DrawGrid(&view._11, &proj._11, &aTransform._11, aGridSize);
+	ImGuizmo::DrawGrid(&view._11, &proj._11, &aGridTransform._11, aGridSize);
 }
 
 bool ImGui::Manipulate(
