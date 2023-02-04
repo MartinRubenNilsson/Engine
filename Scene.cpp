@@ -23,24 +23,8 @@ void Scene::ImGui()
 {
     static Transform::Ptr selection;
 
-    if (ImGui::Begin("Camera"))
-    {
-        if (!myCameras.empty())
-        {
-            auto& [camera, transform] = myCameras.front();
-            ImGui::CameraEdit(camera);
-
-            Matrix identity{};
-
-            ImGui::DrawGrid(camera, transform->GetWorldMatrix(), identity, 20.f);
-        }
-    }
-    ImGui::End();
-
     if (ImGui::Begin("Hierarchy"))
-    {
         ImGui::Hierarchy(myRootTransform, &selection);
-    }
     ImGui::End();
 
     if (selection)
@@ -54,6 +38,22 @@ void Scene::ImGui()
             }
         }
         ImGui::End();
+    }
+
+    if (myCameras.empty())
+        return;
+
+    auto& [camera, transform] = myCameras.front();
+
+    if (ImGui::Begin("Camera"))
+        ImGui::CameraEdit(camera);
+    ImGui::End();
+
+    if (selection)
+    {
+        Matrix m = selection->GetLocalMatrix();
+        ImGui::Manipulate(camera, transform->GetWorldMatrix(), ImGuizmo::TRANSLATE, ImGuizmo::LOCAL, m);
+        selection->SetLocalMatrix(m);
     }
 }
 

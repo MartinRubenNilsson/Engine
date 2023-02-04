@@ -109,9 +109,11 @@ Matrix Camera::GetOrthographicMatrix() const
 
 void ImGui::CameraEdit(class Camera& aCamera)
 {
-	int orthographic = aCamera.IsOrthographic();
-	if (Combo("Projection", &orthographic, "Perspective\0Orthographic\0\0"))
-		orthographic ? aCamera.ToOrthographic() : aCamera.ToPerspective();
+	{
+		int orthographic = aCamera.IsOrthographic();
+		if (Combo("Projection", &orthographic, "Perspective\0Orthographic\0\0"))
+			orthographic ? aCamera.ToOrthographic() : aCamera.ToPerspective();
+	}
 
 	if (aCamera.IsPerspective())
 	{
@@ -126,36 +128,50 @@ void ImGui::CameraEdit(class Camera& aCamera)
 		aCamera.SetOrthograpicHeight(height);
 	}
 
-	float aspectRatio{ aCamera.GetAspectRatio() };
-	DragFloat("Aspect Ratio", &aspectRatio, 0.01f);
-	aCamera.SetAspectRatio(aspectRatio);
+	{
+		float aspectRatio{ aCamera.GetAspectRatio() };
+		DragFloat("Aspect Ratio", &aspectRatio, 0.01f);
+		aCamera.SetAspectRatio(aspectRatio);
+	}
 
-	float nearPlane, farPlane;
-	aCamera.GetClipPlanes(nearPlane, farPlane);
-	DragFloat("Near Plane", &nearPlane, 0.1f);
-	DragFloat("Far Plane", &farPlane);
-	aCamera.SetClipPlanes(nearPlane, farPlane);
+	{
+		float nearPlane, farPlane;
+		aCamera.GetClipPlanes(nearPlane, farPlane);
+		DragFloat("Near Plane", &nearPlane, 0.1f);
+		DragFloat("Far Plane", &farPlane);
+		aCamera.SetClipPlanes(nearPlane, farPlane);
+	}
 }
 
-void ImGui::DrawCubes(const Camera& aCamera, const Matrix& aCameraTransform, std::span<const Matrix> someMatrices)
+void ImGui::DrawCubes(const Camera& aCamera, const Matrix& aCameraTransform, std::span<const Matrix> someTransforms)
 {
-	if (someMatrices.empty())
+	if (someTransforms.empty())
 		return;
 
-	ImGuizmo::SetOrthographic(aCamera.IsOrthographic());
-
 	Matrix view = aCamera.GetWorldViewMatrix(aCameraTransform);
 	Matrix proj = aCamera.GetProjectionMatrix();
-
-	ImGuizmo::DrawCubes(&view._11, &proj._11, &someMatrices.front()._11, static_cast<int>(someMatrices.size()));
+	ImGuizmo::SetOrthographic(aCamera.IsOrthographic());
+	ImGuizmo::DrawCubes(&view._11, &proj._11, &someTransforms.front()._11, static_cast<int>(someTransforms.size()));
 }
 
-void ImGui::DrawGrid(const Camera& aCamera, const Matrix& aCameraTransform, const Matrix& aMatrix, float aGridSize)
+void ImGui::DrawGrid(const Camera& aCamera, const Matrix& aCameraTransform, const Matrix& aTransform, float aGridSize)
 {
-	ImGuizmo::SetOrthographic(aCamera.IsOrthographic());
-
 	Matrix view = aCamera.GetWorldViewMatrix(aCameraTransform);
 	Matrix proj = aCamera.GetProjectionMatrix();
+	ImGuizmo::SetOrthographic(aCamera.IsOrthographic());
+	ImGuizmo::DrawGrid(&view._11, &proj._11, &aTransform._11, aGridSize);
+}
 
-	ImGuizmo::DrawGrid(&view._11, &proj._11, &aMatrix._11, aGridSize);
+bool ImGui::Manipulate(
+	const Camera& aCamera,
+	const Matrix& aCameraTransform,
+	ImGuizmo::OPERATION anOperation,
+	ImGuizmo::MODE aMode,
+	Matrix& aTransform
+)
+{
+	Matrix view = aCamera.GetWorldViewMatrix(aCameraTransform);
+	Matrix proj = aCamera.GetProjectionMatrix();
+	ImGuizmo::SetOrthographic(aCamera.IsOrthographic());
+	return ImGuizmo::Manipulate(&view._11, &proj._11, anOperation, aMode, &aTransform._11);
 }
