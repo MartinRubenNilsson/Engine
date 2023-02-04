@@ -55,40 +55,68 @@ Matrix Transform::GetWorldMatrix() const
 	return result;
 }
 
+void Transform::SetParent(Ptr aParent)
+{
+	if (!aParent)
+		return;
+	auto me = shared_from_this();
+	if (aParent->IsChildOf(me))
+		return;
+	aParent->myChildren.push_back(me);
+	if (myParent)
+	{
+		auto& siblings = myParent->myChildren;
+		siblings.erase(std::remove(siblings.begin(), siblings.end(), me));
+	}
+	Matrix worldMatrix = GetWorldMatrix();
+	myParent = aParent.get();
+	SetWorldMatrix(worldMatrix);
+}
+
 Transform::Ptr Transform::GetParent() const
 {
 	return myParent ? myParent->shared_from_this() : nullptr;
 }
 
-std::span<Matrix> Transform::GetHierarchyWorldMatrices(std::span<Matrix> aSpan) const
+//std::span<Matrix> Transform::GetHierarchyWorldMatrices(std::span<Matrix> aSpan) const
+//{
+//	std::memcpy(aSpan.data(), &myLocalMatrix, sizeof(Matrix));
+//	aSpan = aSpan.subspan(1);
+//
+//	const auto descendants = aSpan;
+//
+//	for (const auto& child : myChildren)
+//		aSpan = child->GetHierarchyWorldMatrices(aSpan);
+//
+//	for (Matrix& matrix : descendants)
+//		matrix *= myLocalMatrix;
+//	
+//	return aSpan;
+//}
+//
+//std::vector<Matrix> Transform::GetHierarchyWorldMatrices() const
+//{
+//	std::vector<Matrix> matrices(GetHierarchyCount());
+//	GetHierarchyWorldMatrices(matrices);
+//	return matrices;
+//}
+
+size_t Transform::GetTreeSize() const
 {
-	std::memcpy(aSpan.data(), &myLocalMatrix, sizeof(Matrix));
-	aSpan = aSpan.subspan(1);
-
-	const auto descendants = aSpan;
-
+	size_t size = 1;
 	for (const auto& child : myChildren)
-		aSpan = child->GetHierarchyWorldMatrices(aSpan);
-
-	for (Matrix& matrix : descendants)
-		matrix *= myLocalMatrix;
-	
-	return aSpan;
+		size += child->GetTreeSize();
+	return size;
 }
 
-std::vector<Matrix> Transform::GetHierarchyWorldMatrices() const
+bool Transform::IsChildOf(Ptr aParent) const
 {
-	std::vector<Matrix> matrices(GetHierarchyCount());
-	GetHierarchyWorldMatrices(matrices);
-	return matrices;
-}
-
-size_t Transform::GetDescendantCount() const
-{
-	size_t count = GetChildCount();
-	for (const auto& child : myChildren)
-		count += child->GetDescendantCount();
-	return count;
+	for (auto t = this; t->myParent; t = t->myParent)
+	{
+		if (t == aParent.get())
+			return true;
+	}
+	return false;
 }
 
 bool ImGui::DragTransform(Transform::Ptr aTransform)
@@ -116,26 +144,51 @@ bool ImGui::ResetTransformButton(const char* aLabel, Transform::Ptr aTransform)
 	return pushed;
 }
 
-void ImGui::Hierarchy(Transform::Ptr aTransform, Transform::Ptr* aSelection)
+bool ImGui::Hierarchy(Transform::Ptr aTransform, Transform::Ptr& aSelection)
 {
 	ImGuiTreeNodeFlags flags{ ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanAvailWidth };
 	if (!aTransform->HasChildren())
 		flags |= ImGuiTreeNodeFlags_Leaf;
-	if (aSelection && *aSelection == aTransform)
+	if (aSelection == aTransform)
 		flags |= ImGuiTreeNodeFlags_Selected;
 
-	const std::string name{ aTransform->GetName() };
+	const bool open = TreeNodeEx(std::string{ aTransform->GetName() }.c_str(), flags);
 
-	const bool open = TreeNodeEx(name.c_str(), flags);
+	if (IsItemClicked() && !IsItemToggledOpen())
+		aSelection = aTransform;
 
-	if (aSelection && IsItemClicked() && !IsItemToggledOpen())
-		*aSelection = aTransform;
+	bool invalidated = false;
 
 	if (open)
 	{
+		if (BeginDragDropSource())
+		{
+			SetDragDropPayload("transform", &aTransform, sizeof(Transform::Ptr));
+			EndDragDropSource();
+		}
+
+		if (BeginDragDropTarget())
+		{
+			if (auto payload = AcceptDragDropPayload("transform"))
+			{
+				auto child = *reinterpret_cast<Transform::Ptr*>(payload->Data);
+				child->SetParent(aTransform);
+				invalidated = true;
+			}
+			EndDragDropTarget();
+		}
+
 		for (auto& child : aTransform->GetChildren())
-			Hierarchy(child, aSelection);
+		{
+			if (Hierarchy(child, aSelection))
+			{
+				invalidated = true;
+				break;
+			}
+		}
 
 		TreePop();
 	}
+
+	return invalidated;
 }

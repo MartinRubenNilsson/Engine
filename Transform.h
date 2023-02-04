@@ -21,26 +21,30 @@ public:
 	void SetWorldMatrix(const Matrix& aMatrix);
 	Matrix GetWorldMatrix() const;
 
+	void SetParent(Ptr aParent);
 	Ptr GetParent() const;
-	const std::vector<Ptr>& GetChildren() const { return myChildren; }
+
+	const auto& GetChildren() const { return myChildren; }
 
 	size_t GetChildCount() const { return myChildren.size(); }
-	size_t GetDescendantCount() const;
-	size_t GetHierarchyCount() const { return GetDescendantCount() + 1; }
+	size_t GetTreeSize() const;
 
+	bool IsChildOf(Ptr aParent) const; // true if this is identical to or a descendant of aParent, otherwise false.
 	bool HasParent() const { return myParent; }
 	bool HasChildren() const { return !myChildren.empty(); }
 
-	float* Data() { return myLocalMatrix.m[0]; }
-	const float* Data() const { return myLocalMatrix.m[0]; }
+	float* Data() { return &myLocalMatrix._11; }
+	const float* Data() const { return &myLocalMatrix._11; }
 
 private:
 	Transform() = default;
 	Transform(const Transform&) = delete;
 	Transform& operator=(const Transform&) = delete;
+	Transform(Transform&&) = delete;
+	Transform& operator=(Transform&&) = delete;
 
-	std::vector<Matrix> GetHierarchyWorldMatrices() const;
-	std::span<Matrix> GetHierarchyWorldMatrices(std::span<Matrix>) const;
+	/*std::vector<Matrix> GetHierarchyWorldMatrices() const;
+	std::span<Matrix> GetHierarchyWorldMatrices(std::span<Matrix>) const;*/
 
 	Matrix myLocalMatrix;
 	std::string myName;
@@ -52,6 +56,6 @@ namespace ImGui
 {
 	bool DragTransform(Transform::Ptr aTransform);
 	bool ResetTransformButton(const char* aLabel, Transform::Ptr aTransform);
-	void Hierarchy(Transform::Ptr aTransform, Transform::Ptr* aSelection = nullptr);
+	bool Hierarchy(Transform::Ptr aTransform, Transform::Ptr& aSelection);
 }
 

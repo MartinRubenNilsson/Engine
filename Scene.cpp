@@ -21,7 +21,7 @@ void Scene::ImGui()
     static Transform::Ptr selection;
 
     if (ImGui::Begin("Hierarchy"))
-        ImGui::Hierarchy(myRootTransform, &selection);
+        ImGui::Hierarchy(myRootTransform, selection);
     ImGui::End();
 
     if (selection)
