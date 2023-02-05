@@ -7,7 +7,7 @@ public:
 
 	void Present();
 	void SetRenderTarget(ID3D11DepthStencilView* aDepthStencil = nullptr);
-	void ClearRenderTarget(const Color& aColor);
+	void ClearRenderTarget(const Color& aColor = {});
 	void GetDimensions(unsigned& aWidth, unsigned& aHeight) const;
 
 	operator bool() const { return SUCCEEDED(myResult); }

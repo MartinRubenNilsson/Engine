@@ -52,3 +52,4 @@ using namespace DirectX::SimpleMath;
 #include "DX11.h"
 #include "ConstantBufferManager.h"
 #include "InputLayoutManager.h"
+#include "Shader.h"

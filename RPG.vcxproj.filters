@@ -56,6 +56,9 @@
     <ClInclude Include="GeometryBuffer.h">
       <Filter>graphics\buffers</Filter>
     </ClInclude>
+    <ClInclude Include="FullscreenPass.h">
+      <Filter>graphics</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
@@ -112,6 +115,9 @@
     </ClCompile>
     <ClCompile Include="GeometryBuffer.cpp">
       <Filter>graphics\buffers</Filter>
+    </ClCompile>
+    <ClCompile Include="FullscreenPass.cpp">
+      <Filter>graphics</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

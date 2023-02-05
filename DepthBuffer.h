@@ -7,7 +7,7 @@ public:
 
 	void ClearDepth();
 
-	ID3D11DepthStencilView* GetDepth() const { return myDepth.Get(); }
+	ID3D11DepthStencilView* GetDepthView() const { return myDepth.Get(); }
 
 	operator bool() const { return SUCCEEDED(myResult); }
 

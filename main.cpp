@@ -2,12 +2,11 @@
 #include "Window.h"
 #include "DearImGui.h"
 #include "SwapChain.h"
-#include "Shader.h"
 #include "DepthBuffer.h"
-#include "InputLayoutManager.h"
 #include "RasterizerStateManager.h"
 #include "Scene.h"
 #include "GeometryBuffer.h"
+#include "FullscreenPass.h"
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
@@ -63,18 +62,16 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
     window.SetTitle(L"Model Viewer");
 
     dx11.GetContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-    swapChain.SetRenderTarget(depthBuffer.GetDepth());
     dx11.GetContext()->RSSetViewports(1, Viewport{ window.GetClientRect() }.Get11());
-    // todo: add set viewports to GeometryBuffer
 
     auto vsBasic = shaderMgr.GetShader<VertexShader>("VsBasic.cso");
     auto psGBuffer = shaderMgr.GetShader<PixelShader>("PsGBuffer.cso");
-
     if (!vsBasic || !psGBuffer)
         return EXIT_FAILURE;
 
-    vsBasic->SetShader();
-    psGBuffer->SetShader();
+    FullscreenPass worldPosition{ shaderMgr.GetShader<PixelShader>("PsGBufferWorldPosition.cso") };
+    if (!worldPosition)
+        return EXIT_FAILURE;
 
     bool run = true;
     MSG msg{};
@@ -90,9 +87,6 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
             DispatchMessage(&msg);
         }
 
-        swapChain.ClearRenderTarget({ 0.f, 0.f, 0.f, 0.f });
-        depthBuffer.ClearDepth();
-
         auto& cameras = scene->GetCameras();
         auto& meshes = scene->GetMeshes();
 
@@ -102,11 +96,21 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
             camera.SetCamera(transform->GetWorldMatrix());
         }
 
+        vsBasic->SetShader();
+        psGBuffer->SetShader();
+
+        swapChain.ClearRenderTarget();
+        depthBuffer.ClearDepth();
+        geometryBuffer.SetRenderTargets(depthBuffer.GetDepthView());
+
         for (auto& [mesh, transforms] : meshes)
         {
             for (auto& transform : transforms)
                 mesh.Draw(transform->GetWorldMatrix());
         }
+
+        swapChain.SetRenderTarget();
+        worldPosition.Draw();
 
         // ImGui
         {
