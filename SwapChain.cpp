@@ -2,6 +2,12 @@
 #include "SwapChain.h"
 
 SwapChain::SwapChain(HWND hWnd)
+	: myResult{}
+	, mySwapChain{}
+	, myBackBuffer{}
+	, myRenderTarget{}
+	, myWidth{}
+	, myHeight{}
 {
 	DXGI_SWAP_CHAIN_DESC swapChainDesc{};
 	swapChainDesc.BufferDesc.RefreshRate.Numerator = 60;
@@ -32,28 +38,37 @@ SwapChain::SwapChain(HWND hWnd)
 	myResult = DX11_DEVICE->CreateRenderTargetView(myBackBuffer.Get(), &targetDesc, &myRenderTarget);
 	if (FAILED(myResult))
 		return;
+
+	D3D11_TEXTURE2D_DESC desc{};
+	myBackBuffer->GetDesc(&desc);
+	myWidth = desc.Width;
+	myHeight = desc.Height;
 }
 
-void SwapChain::Present()
-{
-	if (mySwapChain)
-		mySwapChain->Present(0, 0);
-}
-
-void SwapChain::SetRenderTarget(ID3D11DepthStencilView* aDepthStencil)
-{
-	DX11_CONTEXT->OMSetRenderTargets(1, myRenderTarget.GetAddressOf(), aDepthStencil);
-}
 void SwapChain::ClearRenderTarget(const Color& aColor)
 {
 	DX11_CONTEXT->ClearRenderTargetView(myRenderTarget.Get(), aColor.operator const float* ());
 }
 
+void SwapChain::SetRenderTarget(ID3D11DepthStencilView* aDepthStencil) const
+{
+	DX11_CONTEXT->OMSetRenderTargets(1, myRenderTarget.GetAddressOf(), aDepthStencil);
+
+	Viewport viewport{};
+	viewport.width = static_cast<float>(myWidth);
+	viewport.height = static_cast<float>(myHeight);
+
+	DX11_CONTEXT->RSSetViewports(1, viewport.Get11());
+}
+
+void SwapChain::Present() const
+{
+	if (mySwapChain)
+		mySwapChain->Present(0, 0);
+}
+
 void SwapChain::GetDimensions(unsigned& aWidth, unsigned& aHeight) const
 {
-	D3D11_TEXTURE2D_DESC desc{};
-	if (myBackBuffer)
-		myBackBuffer->GetDesc(&desc);
-	aWidth = desc.Width;
-	aHeight = desc.Height;
+	aWidth = myWidth;
+	aHeight = myHeight;
 }

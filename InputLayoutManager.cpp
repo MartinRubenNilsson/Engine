@@ -9,7 +9,7 @@ void InputLayoutManager::SetInputLayout(std::type_index aVertexType) const
 		DX11_CONTEXT->IASetInputLayout(itr->second.Get());
 }
 
-bool InputLayoutManager::CreateInputLayoutInternal(
+bool InputLayoutManager::CreateInputLayout(
 	std::type_index aVertexType,
 	std::span<const D3D11_INPUT_ELEMENT_DESC> someElements,
 	const fs::path& aVertexShaderPath

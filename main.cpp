@@ -26,7 +26,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
     ShaderManager shaderMgr{};
     RasterizerStateManager rasterizerStateMgr{};
 
-    if (!inputLayoutMgr.CreateInputLayout<BasicVertex>())
+    if (!inputLayoutMgr.RegisterInputLayout<BasicVertex>())
         return EXIT_FAILURE;
 
     WindowClass windowClass{ WndProc };

@@ -37,12 +37,12 @@ class InputLayoutManager : public Singleton<InputLayoutManager>
 {
 public:
 	template <class VertexType>
-	bool CreateInputLayout();
+	bool RegisterInputLayout();
 
 	void SetInputLayout(std::type_index aVertexType) const;
 
 private:
-	bool CreateInputLayoutInternal(
+	bool CreateInputLayout(
 		std::type_index aVertexType,
 		std::span<const D3D11_INPUT_ELEMENT_DESC> someElements,
 		const fs::path& aVertexShaderPath
@@ -52,9 +52,9 @@ private:
 };
 
 template<class VertexType>
-inline bool InputLayoutManager::CreateInputLayout()
+inline bool InputLayoutManager::RegisterInputLayout()
 {
-	return CreateInputLayoutInternal(
+	return CreateInputLayout(
 		typeid(VertexType),
 		InputLayout<VertexType>::elements,
 		InputLayout<VertexType>::shader
