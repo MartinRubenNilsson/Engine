@@ -49,6 +49,12 @@ GeometryBuffer::GeometryBuffer(unsigned aWidth, unsigned aHeight)
 	myHeight = aHeight;
 }
 
+void GeometryBuffer::ClearRenderTargets(const Color& aColor)
+{
+	for (auto& renderTarget : myRenderTargets)
+		DX11_CONTEXT->ClearRenderTargetView(renderTarget.Get(), aColor);
+}
+
 void GeometryBuffer::SetRenderTargets(ID3D11DepthStencilView* aDepthStencil) const
 {
 	ID3D11RenderTargetView* renderTargets[ourBufferCount];

@@ -48,18 +48,22 @@ Texture2D GBufferWorldNormal : register(t1);
 * Samplers
 */
 
-SamplerState BasicSampler;
+SamplerState DefaultSampler : register(s0);
 
 /*
 * Functions
 */
 
-void SampleGBuffer(float2 aPixelPosition, out float4 aWorldPosition, out float4 aWorldNormal)
+float4 SampleGBufferWorldPosition(float4 aPixelPosition)
 {
     uint2 dimensions;
     GBufferWorldPosition.GetDimensions(dimensions.x, dimensions.y);
-    float2 uv = aPixelPosition / dimensions;
-    
-    aWorldPosition = GBufferWorldPosition.Sample(BasicSampler, uv);
-    aWorldNormal = GBufferWorldNormal.Sample(BasicSampler, uv);
+    return GBufferWorldPosition.Sample(DefaultSampler, aPixelPosition.xy / dimensions);
+}
+
+float4 SampleGBufferWorldNormal(float4 aPixelPosition)
+{
+    uint2 dimensions;
+    GBufferWorldNormal.GetDimensions(dimensions.x, dimensions.y);
+    return GBufferWorldNormal.Sample(DefaultSampler, aPixelPosition.xy / dimensions);
 }

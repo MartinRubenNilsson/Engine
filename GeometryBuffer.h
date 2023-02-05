@@ -5,7 +5,9 @@ class GeometryBuffer
 public:
 	GeometryBuffer(unsigned aWidth, unsigned aHeight);
 
+	void ClearRenderTargets(const Color& aColor = { 0.f, 0.f, 0.f, 0.f });
 	void SetRenderTargets(ID3D11DepthStencilView* aDepthStencil = nullptr) const; // also sets viewports
+
 	void VSSetShaderResources(unsigned aStartSlot) const;
 	void PSSetShaderResources(unsigned aStartSlot) const;
 
@@ -19,7 +21,6 @@ private:
 	};
 
 	static constexpr UINT ourBufferCount = static_cast<UINT>(ourFormats.size());
-
 	static_assert(ourBufferCount <= D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT);
 
 	HRESULT myResult;

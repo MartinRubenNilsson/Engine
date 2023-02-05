@@ -10,15 +10,20 @@ struct BasicVertex
 	Vector3 normal;
 };
 
+struct FullscreenVertex
+{
+	// none
+};
+
 /*
-* Input layouts
+* Vertex traits
 */
 
 template <class VertexType>
-struct InputLayout;
+struct VertexTraits;
 
 template <>
-struct InputLayout<BasicVertex>
+struct VertexTraits<BasicVertex>
 {
 	static constexpr D3D11_INPUT_ELEMENT_DESC elements[] =
 	{
@@ -28,6 +33,17 @@ struct InputLayout<BasicVertex>
 
 	static constexpr char shader[] = "VsBasic.cso";
 };
+template <>
+struct VertexTraits<FullscreenVertex>
+{
+	static constexpr D3D11_INPUT_ELEMENT_DESC elements[] =
+	{
+		{ "SV_VertexID", 0, DXGI_FORMAT_R32_UINT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+	};
+
+	static constexpr char shader[] = "VsFullscreen.cso";
+};
+
 
 /*
 * class InputLayoutManager
@@ -54,12 +70,8 @@ private:
 template<class VertexType>
 inline bool InputLayoutManager::RegisterInputLayout()
 {
-	return CreateInputLayout(
-		typeid(VertexType),
-		InputLayout<VertexType>::elements,
-		InputLayout<VertexType>::shader
-	);
+	using VT = VertexTraits<VertexType>;
+	return CreateInputLayout(typeid(VertexType), VT::elements, VT::shader);
 }
 
 #define DX11_SET_INPUT_LAYOUT(aVertexType) InputLayoutManager::Get().SetInputLayout(aVertexType)
-
