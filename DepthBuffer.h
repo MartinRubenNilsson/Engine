@@ -5,9 +5,8 @@ class DepthBuffer
 public:
 	DepthBuffer(unsigned aWidth, unsigned aHeight);
 
-	void ClearDepth();
-
-	ID3D11DepthStencilView* GetView() const { return myDepthStencil.Get(); }
+	void ClearDepthStencil();
+	auto GetDepthStencil() const { return myDepthStencil.Get(); }
 
 	operator bool() const { return SUCCEEDED(myResult); }
 

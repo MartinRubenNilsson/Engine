@@ -45,20 +45,9 @@ SwapChain::SwapChain(HWND hWnd)
 	myHeight = desc.Height;
 }
 
-void SwapChain::ClearRenderTarget(const Color& aColor)
+void SwapChain::ClearRenderTargets(const Color& aColor)
 {
-	DX11_CONTEXT->ClearRenderTargetView(myRenderTarget.Get(), aColor.operator const float* ());
-}
-
-void SwapChain::SetRenderTarget(ID3D11DepthStencilView* aDepthStencil) const
-{
-	DX11_CONTEXT->OMSetRenderTargets(1, myRenderTarget.GetAddressOf(), aDepthStencil);
-
-	Viewport viewport{};
-	viewport.width = static_cast<float>(myWidth);
-	viewport.height = static_cast<float>(myHeight);
-
-	DX11_CONTEXT->RSSetViewports(1, viewport.Get11());
+	DX11_CONTEXT->ClearRenderTargetView(myRenderTarget.Get(), aColor);
 }
 
 void SwapChain::Present() const

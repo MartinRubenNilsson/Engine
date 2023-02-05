@@ -63,13 +63,9 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
     if (!depthBuffer)
         return EXIT_FAILURE;
 
-
-
     DearImGui imGui{ window.GetHandle(), dx11.GetDevice(), dx11.GetContext() };
     if (!imGui)
         return EXIT_FAILURE;
-    
-
 
     SceneManager sceneMgr{};
 
@@ -108,6 +104,15 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
 
     ScopedTopology topology{ D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST };
 
+    Viewport viewport{};
+    viewport.width = static_cast<float>(width);
+    viewport.height = static_cast<float>(height);
+
+    std::array<D3D11_VIEWPORT, 8> viewports{};
+    viewports.fill(viewport);
+
+    dx11.GetContext()->RSSetViewports(8, viewports.data());
+
     bool run = true;
     MSG msg{};
 
@@ -126,10 +131,11 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
         * Begin rendering
         */
 
-        // Clearing
-        swapChain.ClearRenderTarget();
+        swapChain.ClearRenderTargets();
         geometryBuffer.ClearRenderTargets();
-        depthBuffer.ClearDepth();
+        depthBuffer.ClearDepthStencil();
+
+        ScopedTargets scopedSwapChain{ swapChain };
 
         // Set camera
         {
@@ -146,8 +152,9 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
         psGBuffer->SetShader();
 
         // Render scene
-        geometryBuffer.SetRenderTargets(depthBuffer.GetView());
         {
+            ScopedTargets scopedGeometryBuffer{ geometryBuffer, depthBuffer };
+
             auto& meshes = scene->GetMeshes();
             for (auto& [mesh, transforms] : meshes)
             {
@@ -155,12 +162,9 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
                     mesh.Draw(transform->GetWorldMatrix());
             }
         }
-        dx11.GetContext()->OMSetRenderTargets(0, NULL, NULL);
 
         static int pass{};
-
-        // Render from gbuffer to backbuffer
-        swapChain.SetRenderTarget();
+        
         {
             ScopedResourcesPs resources{ 0, geometryBuffer };
             fullscreenPasses[pass].Draw();

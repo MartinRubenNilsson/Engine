@@ -71,17 +71,3 @@ void GeometryBuffer::ClearRenderTargets(const Color& aColor)
 	for (ID3D11RenderTargetView* target : myRenderTargets)
 		DX11_CONTEXT->ClearRenderTargetView(target, aColor);
 }
-
-void GeometryBuffer::SetRenderTargets(ID3D11DepthStencilView* aDepthStencil) const
-{
-	DX11_CONTEXT->OMSetRenderTargets((UINT)ourFormats.size(), myRenderTargets, aDepthStencil);
-
-	Viewport viewport{};
-	viewport.width = static_cast<float>(myWidth);
-	viewport.height = static_cast<float>(myHeight);
-
-	std::array<D3D11_VIEWPORT, ourFormats.size()> viewports{};
-	viewports.fill(viewport);
-
-	DX11_CONTEXT->RSSetViewports((UINT)ourFormats.size(), viewports.data());
-}

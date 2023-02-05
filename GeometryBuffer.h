@@ -7,8 +7,6 @@ public:
 	~GeometryBuffer();
 
 	void ClearRenderTargets(const Color& aColor = { 0.f, 0.f, 0.f, 0.f });
-	void SetRenderTargets(ID3D11DepthStencilView* aDepthStencil = nullptr) const; // also sets viewports
-
 	auto GetRenderTargets() const { return std::span(myRenderTargets); }
 	auto GetShaderResources() const { return std::span(myShaderResources); }
 

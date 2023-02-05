@@ -20,6 +20,27 @@ private:
 	D3D11_PRIMITIVE_TOPOLOGY myPreviousTopology;
 };
 
+class ScopedTargets : Scope
+{
+public:
+	ScopedTargets(std::span<ID3D11RenderTargetView* const> someTargets, ID3D11DepthStencilView* aDepthStencil = nullptr);
+	~ScopedTargets();
+
+	template <class T>
+	ScopedTargets(T& t)
+		: ScopedTargets(t.GetRenderTargets())
+	{}
+
+	template <class T, class U>
+	ScopedTargets(T& t, U& u)
+		: ScopedTargets(t.GetRenderTargets(), u.GetDepthStencil())
+	{}
+
+private:
+	std::vector<ID3D11RenderTargetView*> myPreviousTargets;
+	ID3D11DepthStencilView* myPreviousDepthStencil;
+};
+
 class ScopedResources : Scope
 {
 protected:
