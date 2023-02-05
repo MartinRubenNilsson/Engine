@@ -21,13 +21,12 @@ private:
 		DXGI_FORMAT_R32G32B32A32_FLOAT, // World normal
 	};
 
-	static constexpr UINT ourBufferCount = static_cast<UINT>(ourFormats.size());
-	static_assert(ourBufferCount <= D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT);
+	static_assert(ourFormats.size() <= D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT);
 
 	HRESULT myResult;
-	ID3D11Texture2D* myTextures[ourBufferCount];
-	ID3D11RenderTargetView* myRenderTargets[ourBufferCount];
-	ID3D11ShaderResourceView* myShaderResources[ourBufferCount];
+	ID3D11Texture2D* myTextures[ourFormats.size()];
+	ID3D11RenderTargetView* myRenderTargets[ourFormats.size()];
+	ID3D11ShaderResourceView* myShaderResources[ourFormats.size()];
 	unsigned myWidth;
 	unsigned myHeight;
 };

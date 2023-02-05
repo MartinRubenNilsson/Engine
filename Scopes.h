@@ -20,7 +20,17 @@ private:
 	D3D11_PRIMITIVE_TOPOLOGY myPreviousTopology;
 };
 
-class ScopedResourcesPs : Scope
+class ScopedResources : Scope
+{
+protected:
+	ScopedResources(UINT aStartSlot, std::span<ID3D11ShaderResourceView* const> someResources);
+	~ScopedResources();
+
+	unsigned myStartSlot;
+	std::vector<ID3D11ShaderResourceView*> myPreviousResources;
+};
+
+class ScopedResourcesPs : ScopedResources
 {
 public:
 	ScopedResourcesPs(UINT aStartSlot, std::span<ID3D11ShaderResourceView* const> someResources);
@@ -30,8 +40,4 @@ public:
 	ScopedResourcesPs(UINT aStartSlot, T& t)
 		: ScopedResourcesPs(aStartSlot, t.GetShaderResources())
 	{}
-
-private:
-	unsigned myStartSlot;
-	std::vector<ID3D11ShaderResourceView*> myPreviousResources;
 };

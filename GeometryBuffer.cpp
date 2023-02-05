@@ -26,7 +26,7 @@ GeometryBuffer::GeometryBuffer(unsigned aWidth, unsigned aHeight)
 	resourceDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
 	resourceDesc.Texture2D.MipLevels = static_cast<UINT>(-1);
 
-	for (size_t i = 0; i < ourBufferCount; ++i)
+	for (size_t i = 0; i < ourFormats.size(); ++i)
 	{
 		textureDesc.Format = targetDesc.Format = resourceDesc.Format = ourFormats[i];
 
@@ -68,20 +68,20 @@ GeometryBuffer::~GeometryBuffer()
 
 void GeometryBuffer::ClearRenderTargets(const Color& aColor)
 {
-	for (auto& renderTarget : myRenderTargets)
-		DX11_CONTEXT->ClearRenderTargetView(renderTarget, aColor);
+	for (ID3D11RenderTargetView* target : myRenderTargets)
+		DX11_CONTEXT->ClearRenderTargetView(target, aColor);
 }
 
 void GeometryBuffer::SetRenderTargets(ID3D11DepthStencilView* aDepthStencil) const
 {
-	DX11_CONTEXT->OMSetRenderTargets(ourBufferCount, myRenderTargets, aDepthStencil);
+	DX11_CONTEXT->OMSetRenderTargets((UINT)ourFormats.size(), myRenderTargets, aDepthStencil);
 
 	Viewport viewport{};
 	viewport.width = static_cast<float>(myWidth);
 	viewport.height = static_cast<float>(myHeight);
 
-	std::array<D3D11_VIEWPORT, ourBufferCount> viewports{};
+	std::array<D3D11_VIEWPORT, ourFormats.size()> viewports{};
 	viewports.fill(viewport);
 
-	DX11_CONTEXT->RSSetViewports(ourBufferCount, viewports.data());
+	DX11_CONTEXT->RSSetViewports((UINT)ourFormats.size(), viewports.data());
 }
