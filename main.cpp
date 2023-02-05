@@ -15,20 +15,22 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
 {
     fs::current_path(fs::current_path() / "Bin");
 
-    WindowClass windowClass{ WndProc };
-	Window window{ windowClass };
-	if (!window)
-		return EXIT_FAILURE;
-
     DX11 dx11{};
     if (!dx11)
         return EXIT_FAILURE;
 
-    DearImGui imGui{ window.GetHandle(), dx11.GetDevice(), dx11.GetContext() };
-    if (!imGui)
+    RasterizerStateManager rasterizerStateMgr{};
+    ShaderManager shaderMgr{};
+
+    if (auto vsBasic = shaderMgr.GetShader<VertexShader>("VsBasic.cso"))
+        vsBasic->SetShader();
+    else
         return EXIT_FAILURE;
 
-    RasterizerStateManager rasterizerStateMgr{};
+    if (auto psBasic = shaderMgr.GetShader<PixelShader>("PsGBuffer.cso"))
+        psBasic->SetShader();
+    else
+        return EXIT_FAILURE;
 
     ConstantBufferManager constantBufferMgr{};
     if (!constantBufferMgr)
@@ -38,24 +40,30 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
     if (!inputLayoutMgr)
         return EXIT_FAILURE;
 
+    
+
+    WindowClass windowClass{ WndProc };
+	Window window{ windowClass };
+	if (!window)
+		return EXIT_FAILURE;
+
+    DearImGui imGui{ window.GetHandle(), dx11.GetDevice(), dx11.GetContext() };
+    if (!imGui)
+        return EXIT_FAILURE;
+
     SwapChain swapChain{ window.GetHandle() };
     if (!swapChain)
         return EXIT_FAILURE;
 
     unsigned width, height;
-    swapChain.GetSize(width, height);
-
-    DepthBuffer depthBuffer{ width, height };
-    if (!depthBuffer)
-        return EXIT_FAILURE;
+    swapChain.GetDimensions(width, height);
 
     GeometryBuffer geometryBuffer{ width, height };
     if (!geometryBuffer)
         return EXIT_FAILURE;
 
-    VertexShader vertexShader{ "VsBasic.cso" };
-    PixelShader pixelShader{ "PsBasic.cso" };
-    if (!vertexShader || !pixelShader)
+    DepthBuffer depthBuffer{ width, height };
+    if (!depthBuffer)
         return EXIT_FAILURE;
 
     SceneManager sceneMgr{};
@@ -67,9 +75,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
     window.SetTitle(L"Model Viewer");
 
     dx11.GetContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-    vertexShader.SetShader();
-    pixelShader.SetShader();
-    swapChain.SetRenderTarget(depthBuffer.GetDepthStencil());
+    swapChain.SetRenderTarget(depthBuffer.GetDepth());
     dx11.GetContext()->RSSetViewports(1, Viewport{ window.GetClientRect() }.Get11());
 
     bool run = true;
@@ -87,7 +93,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
         }
 
         swapChain.ClearRenderTarget({ 0.f, 0.f, 0.f, 0.f });
-        depthBuffer.ClearDepthStencil();
+        depthBuffer.ClearDepth();
 
         auto& cameras = scene->GetCameras();
         auto& meshes = scene->GetMeshes();

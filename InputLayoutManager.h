@@ -17,8 +17,6 @@ public:
 	operator bool() const;
 
 private:
-	static std::string LoadShaderBytecode(const fs::path&);
-
 	std::unordered_map<std::type_index, InputLayout> myInputLayouts;
 };
 

@@ -1,13 +1,13 @@
 #pragma once
 #include "ConstantBuffer.h"
 
-struct CameraBuffer
+struct alignas(16) CameraBuffer
 {
 	Matrix cameraMatrix;
 	Matrix worldToClipMatrix;
 };
 
-struct MeshBuffer
+struct alignas(16) MeshBuffer
 {
 	Matrix meshMatrix;
 	Matrix meshMatrixInverseTranspose;

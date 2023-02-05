@@ -1,10 +1,11 @@
 #include "ShaderCommon.hlsli"
 
-Pixel main(Vertex vertex)
+BasicPixel main(BasicVertex aVertex)
 {
-    Pixel pixel;
-    pixel.positionWorld = mul(MeshMatrix, float4(vertex.position, 1.f));
-    pixel.positionClip = mul(WorldToClipMatrix, pixel.positionWorld);
-    pixel.normalWorld = normalize(mul(MeshMatrixInverseTranspose, float4(vertex.normal, 0.f)));
+    BasicPixel pixel;
+    pixel.worldPosition = mul(MeshMatrix, float4(aVertex.position, 1.f));
+    pixel.pixelPosition = mul(WorldToClipMatrix, pixel.worldPosition);
+    pixel.worldNormal = normalize(mul(MeshMatrixInverseTranspose, float4(aVertex.normal, 0.f)));
+    
     return pixel;
 }

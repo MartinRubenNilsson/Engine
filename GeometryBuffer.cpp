@@ -16,13 +16,16 @@ GeometryBuffer::GeometryBuffer(unsigned aWidth, unsigned aHeight)
 	textureDesc.SampleDesc.Quality = 0;
 	textureDesc.Usage = D3D11_USAGE_DEFAULT;
 	textureDesc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
+	//textureDesc.Format is set in the below for loop
 
 	D3D11_RENDER_TARGET_VIEW_DESC targetDesc{};
 	targetDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
+	//targetDesc.Format is set in the below for loop
 
 	D3D11_SHADER_RESOURCE_VIEW_DESC resourceDesc{};
 	resourceDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
 	resourceDesc.Texture2D.MipLevels = static_cast<UINT>(-1);
+	//resourceDesc.Format is set in the below for loop
 
 	for (size_t i = 0; i < ourFormats.size(); ++i)
 	{

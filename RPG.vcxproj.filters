@@ -144,7 +144,13 @@
     <FxCompile Include="VsBasic.hlsl">
       <Filter>shaders</Filter>
     </FxCompile>
-    <FxCompile Include="PsBasic.hlsl">
+    <FxCompile Include="PsGBuffer.hlsl">
+      <Filter>shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="PsGBufferWorldPosition.hlsl">
+      <Filter>shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="VsFullscreen.hlsl">
       <Filter>shaders</Filter>
     </FxCompile>
   </ItemGroup>

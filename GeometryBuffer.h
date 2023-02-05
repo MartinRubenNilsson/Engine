@@ -14,8 +14,8 @@ public:
 private:
 	static constexpr std::array ourFormats =
 	{
-		DXGI_FORMAT_R32G32B32A32_FLOAT, // Position
-		DXGI_FORMAT_R32G32B32A32_FLOAT, // Normal
+		DXGI_FORMAT_R32G32B32A32_FLOAT, // World position
+		DXGI_FORMAT_R32G32B32A32_FLOAT, // World normal
 	};
 
 	static_assert(ourFormats.size() <= D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT);

@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "InputLayoutManager.h"
+#include "Shader.h"
 
 InputLayoutManager::InputLayoutManager()
 {
@@ -10,7 +11,8 @@ InputLayoutManager::InputLayoutManager()
 			{ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 }
 		};
 
-		myInputLayouts.emplace(typeid(BasicVertex), InputLayout{ desc, LoadShaderBytecode("VsBasic.cso") });
+		if (auto shader = ShaderManager::Get().GetShader<VertexShader>("VsBasic.cso"))
+			myInputLayouts.emplace(typeid(BasicVertex), InputLayout{ desc, shader->GetBytecode() });
 	}
 }
 
@@ -29,10 +31,4 @@ InputLayoutManager::operator bool() const
 			return false;
 	}
 	return true;
-}
-
-std::string InputLayoutManager::LoadShaderBytecode(const fs::path& aPath)
-{
-	std::ifstream file{ aPath, std::ios::binary };
-	return { std::istreambuf_iterator{ file }, {} };
 }

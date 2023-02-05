@@ -1,18 +1,14 @@
 #include "pch.h"
 #include "Shader.h"
 
-Shader::Shader(const fs::path& aPath)
-	: myPath{ aPath }
-	, myBytecode{}
-{
-	std::ifstream file{ aPath, std::ios::binary };
-	myBytecode = { std::istreambuf_iterator{ file }, {} };
-}
+/*
+* class VertexShader
+*/
 
-VertexShader::VertexShader(const fs::path& aPath)
-	: Shader(aPath)
+VertexShader::VertexShader(const std::string& someBytecode)
+	: Shader(someBytecode)
 {
-	DX11_DEVICE->CreateVertexShader(myBytecode.data(), myBytecode.size(), NULL, &myShader);
+	DX11_DEVICE->CreateVertexShader(someBytecode.data(), someBytecode.size(), NULL, &myShader);
 }
 
 void VertexShader::SetShader() const
@@ -20,14 +16,17 @@ void VertexShader::SetShader() const
 	DX11_CONTEXT->VSSetShader(myShader.Get(), NULL, 0);
 }
 
-PixelShader::PixelShader(const fs::path& aPath)
-	: Shader(aPath)
+/*
+* class PixelShader
+*/
+
+PixelShader::PixelShader(const std::string& someBytecode)
+	: Shader(someBytecode)
 {
-	DX11_DEVICE->CreatePixelShader(myBytecode.data(), myBytecode.size(), NULL, &myShader);
+	DX11_DEVICE->CreatePixelShader(someBytecode.data(), someBytecode.size(), NULL, &myShader);
 }
 
 void PixelShader::SetShader() const
 {
 	DX11_CONTEXT->PSSetShader(myShader.Get(), NULL, 0);
 }
-

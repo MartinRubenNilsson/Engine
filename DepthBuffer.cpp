@@ -21,12 +21,12 @@ DepthBuffer::DepthBuffer(unsigned aWidth, unsigned aHeight)
 	myResult = DX11_DEVICE->CreateTexture2D(&textureDesc, NULL, &myTexture);
 	if (FAILED(myResult))
 		return;
-	myResult = DX11_DEVICE->CreateDepthStencilView(myTexture.Get(), &depthDesc, &myDepthStencil);
+	myResult = DX11_DEVICE->CreateDepthStencilView(myTexture.Get(), &depthDesc, &myDepth);
 	if (FAILED(myResult))
 		return;
 }
 
-void DepthBuffer::ClearDepthStencil()
+void DepthBuffer::ClearDepth()
 {
-	DX11_CONTEXT->ClearDepthStencilView(myDepthStencil.Get(), D3D11_CLEAR_DEPTH, 1.f, 0);
+	DX11_CONTEXT->ClearDepthStencilView(myDepth.Get(), D3D11_CLEAR_DEPTH, 1.f, 0);
 }
