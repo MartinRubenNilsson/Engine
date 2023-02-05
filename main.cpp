@@ -7,6 +7,7 @@
 #include "Scene.h"
 #include "GeometryBuffer.h"
 #include "FullscreenPass.h"
+#include "Scopes.h"
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
@@ -104,7 +105,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
         return EXIT_FAILURE;
 
     dx11.GetContext()->PSSetSamplers(0, 1, sampler.GetAddressOf());
-    dx11.GetContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+    ScopedPrimitiveTopology topology{ D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST };
 
     bool run = true;
     MSG msg{};
@@ -129,6 +131,16 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
         geometryBuffer.ClearRenderTargets();
         depthBuffer.ClearDepth();
 
+        // Set camera
+        {
+            auto& cameras = scene->GetCameras();
+            if (!cameras.empty())
+            {
+                auto& [camera, transform] = cameras.front();
+                camera.SetCamera(transform->GetWorldMatrix());
+            }
+        }
+
         // Shaders
         vsBasic->SetShader();
         psGBuffer->SetShader();
@@ -136,15 +148,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
         // Render scene
         geometryBuffer.SetRenderTargets(depthBuffer.GetView());
         {
-            auto& cameras = scene->GetCameras();
             auto& meshes = scene->GetMeshes();
-
-            if (!cameras.empty())
-            {
-                auto& [camera, transform] = cameras.front();
-                camera.SetCamera(transform->GetWorldMatrix());
-            }
-
             for (auto& [mesh, transforms] : meshes)
             {
                 for (auto& transform : transforms)

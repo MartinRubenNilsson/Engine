@@ -204,6 +204,7 @@
     <ClInclude Include="pch.h" />
     <ClInclude Include="RasterizerStateManager.h" />
     <ClInclude Include="Scene.h" />
+    <ClInclude Include="Scopes.h" />
     <ClInclude Include="Shader.h" />
     <ClInclude Include="Singleton.h" />
     <ClInclude Include="SwapChain.h" />
@@ -234,6 +235,7 @@
     </ClCompile>
     <ClCompile Include="RasterizerStateManager.cpp" />
     <ClCompile Include="Scene.cpp" />
+    <ClCompile Include="Scopes.cpp" />
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="SwapChain.cpp" />
     <ClCompile Include="Transform.cpp" />
