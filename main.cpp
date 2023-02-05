@@ -106,7 +106,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
 
     dx11.GetContext()->PSSetSamplers(0, 1, sampler.GetAddressOf());
 
-    ScopedPrimitiveTopology topology{ D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST };
+    ScopedTopology topology{ D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST };
 
     bool run = true;
     MSG msg{};
@@ -161,12 +161,10 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
 
         // Render from gbuffer to backbuffer
         swapChain.SetRenderTarget();
-        geometryBuffer.PSSetShaderResources(0);
         {
+            ScopedPsResources scopedResources{ 0, geometryBuffer };
             fullscreenPasses[pass].Draw();
         }
-        ID3D11ShaderResourceView* resources[] = { nullptr, nullptr };
-        dx11.GetContext()->PSSetShaderResources(0, 2, resources);
 
 
         /*

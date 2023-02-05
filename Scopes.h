@@ -12,13 +12,28 @@ private:
 	Scope& operator=(Scope&&) = delete;
 };
 
-class ScopedPrimitiveTopology : Scope
+class ScopedTopology : Scope
 {
 public:
-	ScopedPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY aNewTopology);
-	~ScopedPrimitiveTopology();
+	ScopedTopology(D3D11_PRIMITIVE_TOPOLOGY aTopology);
+	~ScopedTopology();
 
 private:
-	D3D11_PRIMITIVE_TOPOLOGY myOldTopology;
+	D3D11_PRIMITIVE_TOPOLOGY myPreviousTopology;
 };
 
+class ScopedPsResources : Scope
+{
+public:
+	ScopedPsResources(UINT aStartSlot, std::span<ID3D11ShaderResourceView* const> someResources);
+	~ScopedPsResources();
+
+	template <class T>
+	ScopedPsResources(UINT aStartSlot, T& t)
+		: ScopedPsResources(aStartSlot, t.GetShaderResources())
+	{}
+
+private:
+	unsigned myStartSlot;
+	std::vector<ID3D11ShaderResourceView*> myPreviousResources;
+};

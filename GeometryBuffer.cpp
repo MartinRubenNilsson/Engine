@@ -26,21 +26,17 @@ GeometryBuffer::GeometryBuffer(unsigned aWidth, unsigned aHeight)
 	resourceDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
 	resourceDesc.Texture2D.MipLevels = static_cast<UINT>(-1);
 
-	for (size_t i = 0; i < ourFormats.size(); ++i)
+	for (size_t i = 0; i < ourBufferCount; ++i)
 	{
 		textureDesc.Format = targetDesc.Format = resourceDesc.Format = ourFormats[i];
 
-		auto& texture = myTextures[i];
-		auto& target = myRenderTargets[i];
-		auto& resource = myShaderResources[i];
-
-		myResult = DX11_DEVICE->CreateTexture2D(&textureDesc, NULL, &texture);
+		myResult = DX11_DEVICE->CreateTexture2D(&textureDesc, NULL, &myTextures[i]);
 		if (FAILED(myResult))
 			return;
-		myResult = DX11_DEVICE->CreateRenderTargetView(texture.Get(), &targetDesc, &target);
+		myResult = DX11_DEVICE->CreateRenderTargetView(myTextures[i], &targetDesc, &myRenderTargets[i]);
 		if (FAILED(myResult))
 			return;
-		myResult = DX11_DEVICE->CreateShaderResourceView(texture.Get(), &resourceDesc, &resource);
+		myResult = DX11_DEVICE->CreateShaderResourceView(myTextures[i], &resourceDesc, &myShaderResources[i]);
 		if (FAILED(myResult))
 			return;
 	}
@@ -49,18 +45,36 @@ GeometryBuffer::GeometryBuffer(unsigned aWidth, unsigned aHeight)
 	myHeight = aHeight;
 }
 
+GeometryBuffer::~GeometryBuffer()
+{
+	for (auto texture : myTextures)
+	{
+		if (texture)
+			texture->Release();
+	}
+
+	for (auto target : myRenderTargets)
+	{
+		if (target)
+			target->Release();
+	}
+
+	for (auto resource : myShaderResources)
+	{
+		if (resource)
+			resource->Release();
+	}
+}
+
 void GeometryBuffer::ClearRenderTargets(const Color& aColor)
 {
 	for (auto& renderTarget : myRenderTargets)
-		DX11_CONTEXT->ClearRenderTargetView(renderTarget.Get(), aColor);
+		DX11_CONTEXT->ClearRenderTargetView(renderTarget, aColor);
 }
 
 void GeometryBuffer::SetRenderTargets(ID3D11DepthStencilView* aDepthStencil) const
 {
-	ID3D11RenderTargetView* renderTargets[ourBufferCount];
-	std::ranges::transform(myRenderTargets, renderTargets, &ComPtr<ID3D11RenderTargetView>::Get);
-
-	DX11_CONTEXT->OMSetRenderTargets(ourBufferCount, renderTargets, aDepthStencil);
+	DX11_CONTEXT->OMSetRenderTargets(ourBufferCount, myRenderTargets, aDepthStencil);
 
 	Viewport viewport{};
 	viewport.width = static_cast<float>(myWidth);
@@ -70,20 +84,4 @@ void GeometryBuffer::SetRenderTargets(ID3D11DepthStencilView* aDepthStencil) con
 	viewports.fill(viewport);
 
 	DX11_CONTEXT->RSSetViewports(ourBufferCount, viewports.data());
-}
-
-void GeometryBuffer::VSSetShaderResources(unsigned aStartSlot) const
-{
-	ID3D11ShaderResourceView* shaderResources[ourBufferCount];
-	std::ranges::transform(myShaderResources, shaderResources, &ComPtr<ID3D11ShaderResourceView>::Get);
-
-	DX11_CONTEXT->VSSetShaderResources(aStartSlot, ourBufferCount, shaderResources);
-}
-
-void GeometryBuffer::PSSetShaderResources(unsigned aStartSlot) const
-{
-	ID3D11ShaderResourceView* shaderResources[ourBufferCount];
-	std::ranges::transform(myShaderResources, shaderResources, &ComPtr<ID3D11ShaderResourceView>::Get);
-
-	DX11_CONTEXT->PSSetShaderResources(aStartSlot, ourBufferCount, shaderResources);
 }
