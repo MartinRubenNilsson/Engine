@@ -73,16 +73,16 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
     if (!scene)
         return EXIT_FAILURE;
 
-    auto vsBasic = DX11_GET_VERTEX_SHADER("VsBasic.cso");
-    auto psGBuffer = DX11_GET_PIXEL_SHADER("PsGBuffer.cso");
+    auto vsBasic = DX11_VERTEX_SHADER("VsBasic.cso");
+    auto psGBuffer = DX11_PIXEL_SHADER("PsGBuffer.cso");
     if (!vsBasic || !psGBuffer)
         return EXIT_FAILURE;
 
     FullscreenPass fullscreenPasses[] =
     {
-        DX11_GET_PIXEL_SHADER("PsLightAmbient.cso"),
-        DX11_GET_PIXEL_SHADER("PsGBufferWorldPosition.cso"),
-        DX11_GET_PIXEL_SHADER("PsGBufferWorldNormal.cso"),
+        DX11_PIXEL_SHADER("PsLightAmbient.cso"),
+        DX11_PIXEL_SHADER("PsGBufferWorldPosition.cso"),
+        DX11_PIXEL_SHADER("PsGBufferWorldNormal.cso"),
     };
 
     if (!std::ranges::all_of(fullscreenPasses, &FullscreenPass::operator bool))

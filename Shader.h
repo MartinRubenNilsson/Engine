@@ -73,5 +73,5 @@ inline std::shared_ptr<ShaderType> ShaderManager::GetShader(const fs::path& aPat
 	return shader;
 }
 
-#define DX11_GET_VERTEX_SHADER(aPath) ShaderManager::Get().GetShader<VertexShader>(aPath)
-#define DX11_GET_PIXEL_SHADER(aPath) ShaderManager::Get().GetShader<PixelShader>(aPath)
+#define DX11_VERTEX_SHADER(aPath) ShaderManager::Get().GetShader<VertexShader>(aPath)
+#define DX11_PIXEL_SHADER(aPath) ShaderManager::Get().GetShader<PixelShader>(aPath)

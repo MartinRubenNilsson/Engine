@@ -2,7 +2,7 @@
 #include "FullscreenPass.h"
 
 FullscreenPass::FullscreenPass(std::shared_ptr<PixelShader> aPixelShader)
-	: myVertexShader{ DX11_GET_VERTEX_SHADER(VertexTraits<FullscreenVertex>::shader)}
+	: myVertexShader{ DX11_VERTEX_SHADER(VertexTraits<FullscreenVertex>::shader)}
 	, myPixelShader{ aPixelShader }
 {
 }
