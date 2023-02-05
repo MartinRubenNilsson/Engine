@@ -43,3 +43,24 @@ GeometryBuffer::GeometryBuffer(unsigned aWidth, unsigned aHeight)
 			return;
 	}
 }
+
+void GeometryBuffer::SetRenderTargets(ID3D11DepthStencilView* aDepth) const
+{
+	ID3D11RenderTargetView* renderTargets[ourFormats.size()];
+	std::ranges::transform(myRenderTargets, renderTargets, &ComPtr<ID3D11RenderTargetView>::Get);
+	DX11_CONTEXT->OMSetRenderTargets(static_cast<UINT>(ourFormats.size()), renderTargets, aDepth);
+}
+
+void GeometryBuffer::VSSetShaderResources(unsigned aStartSlot) const
+{
+	ID3D11ShaderResourceView* shaderResources[ourFormats.size()];
+	std::ranges::transform(myShaderResources, shaderResources, &ComPtr<ID3D11ShaderResourceView>::Get);
+	DX11_CONTEXT->VSSetShaderResources(aStartSlot, static_cast<UINT>(ourFormats.size()), shaderResources);
+}
+
+void GeometryBuffer::PSSetShaderResources(unsigned aStartSlot) const
+{
+	ID3D11ShaderResourceView* shaderResources[ourFormats.size()];
+	std::ranges::transform(myShaderResources, shaderResources, &ComPtr<ID3D11ShaderResourceView>::Get);
+	DX11_CONTEXT->PSSetShaderResources(aStartSlot, static_cast<UINT>(ourFormats.size()), shaderResources);
+}
