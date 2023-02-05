@@ -2,33 +2,41 @@
 #include "InputLayoutManager.h"
 #include "Shader.h"
 
-InputLayoutManager::InputLayoutManager()
-{
-	{
-		D3D11_INPUT_ELEMENT_DESC desc[] =
-		{
-			{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-			{ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 }
-		};
-
-		if (auto shader = ShaderManager::Get().GetShader<VertexShader>("VsBasic.cso"))
-			myInputLayouts.emplace(typeid(BasicVertex), InputLayout{ desc, shader->GetBytecode() });
-	}
-}
-
 void InputLayoutManager::SetInputLayout(std::type_index aVertexType) const
 {
 	auto itr = myInputLayouts.find(aVertexType);
 	if (itr != myInputLayouts.end())
-		itr->second.SetInputLayout();
+		DX11_CONTEXT->IASetInputLayout(itr->second.Get());
 }
 
-InputLayoutManager::operator bool() const
+bool InputLayoutManager::CreateInputLayoutInternal(
+	std::type_index aVertexType,
+	std::span<const D3D11_INPUT_ELEMENT_DESC> someElements,
+	const fs::path& aVertexShaderPath
+)
 {
-	for (auto& [vertexType, inputLayout] : myInputLayouts)
-	{
-		if (!inputLayout)
-			return false;
-	}
+	if (myInputLayouts.contains(aVertexType))
+		return false;
+
+	auto vertexShader = ShaderManager::Get().GetShader<VertexShader>(aVertexShaderPath);
+	if (!vertexShader)
+		return false;
+
+	const auto& bytecode = vertexShader->GetBytecode();
+
+	ComPtr<ID3D11InputLayout> inputLayout{};
+
+	DX11_DEVICE->CreateInputLayout(
+		someElements.data(),
+		static_cast<UINT>(someElements.size()),
+		bytecode.data(),
+		bytecode.size(),
+		&inputLayout
+	);
+
+	if (!inputLayout)
+		return false;
+
+	myInputLayouts.emplace(aVertexType, inputLayout);
 	return true;
 }

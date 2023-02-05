@@ -10,9 +10,6 @@
       <Filter>graphics</Filter>
     </ClInclude>
     <ClInclude Include="Debug.h" />
-    <ClInclude Include="InputLayout.h">
-      <Filter>graphics</Filter>
-    </ClInclude>
     <ClInclude Include="Shader.h">
       <Filter>graphics</Filter>
     </ClInclude>
@@ -71,9 +68,6 @@
       <Filter>graphics</Filter>
     </ClCompile>
     <ClCompile Include="Debug.cpp" />
-    <ClCompile Include="InputLayout.cpp">
-      <Filter>graphics</Filter>
-    </ClCompile>
     <ClCompile Include="Shader.cpp">
       <Filter>graphics</Filter>
     </ClCompile>

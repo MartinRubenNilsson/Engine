@@ -19,28 +19,16 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
     if (!dx11)
         return EXIT_FAILURE;
 
-    RasterizerStateManager rasterizerStateMgr{};
-    ShaderManager shaderMgr{};
-
-    if (auto vsBasic = shaderMgr.GetShader<VertexShader>("VsBasic.cso"))
-        vsBasic->SetShader();
-    else
-        return EXIT_FAILURE;
-
-    if (auto psBasic = shaderMgr.GetShader<PixelShader>("PsGBuffer.cso"))
-        psBasic->SetShader();
-    else
-        return EXIT_FAILURE;
-
     ConstantBufferManager constantBufferMgr{};
     if (!constantBufferMgr)
         return EXIT_FAILURE;
 
     InputLayoutManager inputLayoutMgr{};
-    if (!inputLayoutMgr)
-        return EXIT_FAILURE;
+    ShaderManager shaderMgr{};
+    RasterizerStateManager rasterizerStateMgr{};
 
-    
+    if (!inputLayoutMgr.CreateInputLayout<BasicVertex>())
+        return EXIT_FAILURE;
 
     WindowClass windowClass{ WndProc };
 	Window window{ windowClass };
@@ -77,6 +65,16 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
     dx11.GetContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
     swapChain.SetRenderTarget(depthBuffer.GetDepth());
     dx11.GetContext()->RSSetViewports(1, Viewport{ window.GetClientRect() }.Get11());
+    // todo: add set viewports to GeometryBuffer
+
+    auto vsBasic = shaderMgr.GetShader<VertexShader>("VsBasic.cso");
+    auto psGBuffer = shaderMgr.GetShader<PixelShader>("PsGBuffer.cso");
+
+    if (!vsBasic || !psGBuffer)
+        return EXIT_FAILURE;
+
+    vsBasic->SetShader();
+    psGBuffer->SetShader();
 
     bool run = true;
     MSG msg{};
