@@ -162,7 +162,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
         // Render from gbuffer to backbuffer
         swapChain.SetRenderTarget();
         {
-            ScopedPsResources scopedResources{ 0, geometryBuffer };
+            ScopedResourcesPs resources{ 0, geometryBuffer };
             fullscreenPasses[pass].Draw();
         }
 

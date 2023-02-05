@@ -4,8 +4,6 @@ class Scope
 {
 protected:
 	Scope() = default;
-
-private:
 	Scope(const Scope&) = delete;
 	Scope& operator=(const Scope&) = delete;
 	Scope(Scope&&) = delete;
@@ -22,15 +20,15 @@ private:
 	D3D11_PRIMITIVE_TOPOLOGY myPreviousTopology;
 };
 
-class ScopedPsResources : Scope
+class ScopedResourcesPs : Scope
 {
 public:
-	ScopedPsResources(UINT aStartSlot, std::span<ID3D11ShaderResourceView* const> someResources);
-	~ScopedPsResources();
+	ScopedResourcesPs(UINT aStartSlot, std::span<ID3D11ShaderResourceView* const> someResources);
+	~ScopedResourcesPs();
 
 	template <class T>
-	ScopedPsResources(UINT aStartSlot, T& t)
-		: ScopedPsResources(aStartSlot, t.GetShaderResources())
+	ScopedResourcesPs(UINT aStartSlot, T& t)
+		: ScopedResourcesPs(aStartSlot, t.GetShaderResources())
 	{}
 
 private:

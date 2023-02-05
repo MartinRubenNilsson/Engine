@@ -17,10 +17,10 @@ ScopedTopology::~ScopedTopology()
 }
 
 /*
-* class ScopedPsResources
+* class ScopedResourcesPs
 */
 
-ScopedPsResources::ScopedPsResources(UINT aStartSlot, std::span<ID3D11ShaderResourceView* const> someResources)
+ScopedResourcesPs::ScopedResourcesPs(UINT aStartSlot, std::span<ID3D11ShaderResourceView* const> someResources)
 {
 	assert(aStartSlot < D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT);
 	assert(aStartSlot + someResources.size() < D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT);
@@ -32,7 +32,7 @@ ScopedPsResources::ScopedPsResources(UINT aStartSlot, std::span<ID3D11ShaderReso
 	DX11_CONTEXT->PSSetShaderResources(myStartSlot, (UINT)someResources.size(), someResources.data());
 }
 
-ScopedPsResources::~ScopedPsResources()
+ScopedResourcesPs::~ScopedResourcesPs()
 {
 	DX11_CONTEXT->PSSetShaderResources(myStartSlot, (UINT)myPreviousResources.size(), myPreviousResources.data());
 
