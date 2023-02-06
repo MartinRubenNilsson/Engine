@@ -20,6 +20,16 @@ private:
 	D3D11_PRIMITIVE_TOPOLOGY myPreviousTopology;
 };
 
+class ScopedRasterizerState : Scope
+{
+public:
+	ScopedRasterizerState(const D3D11_RASTERIZER_DESC& aDesc);
+	~ScopedRasterizerState();
+
+private:
+	D3D11_RASTERIZER_DESC myPreviousDesc;
+};
+
 class ScopedDepthStencilState : Scope
 {
 public:

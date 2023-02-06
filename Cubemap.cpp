@@ -63,11 +63,15 @@ void Cubemap::Draw() const
 	if (!operator bool())
 		return;
 
+	CD3D11_RASTERIZER_DESC rasterizerDesc{ CD3D11_DEFAULT{} };
+	rasterizerDesc.CullMode = D3D11_CULL_NONE;
+
 	CD3D11_DEPTH_STENCIL_DESC depthStencilDesc{ CD3D11_DEFAULT{} };
 	depthStencilDesc.DepthFunc = D3D11_COMPARISON_LESS_EQUAL;
 	
 	ScopedPrimitiveTopology topology{ D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP };
+	ScopedRasterizerState rasterizer{ rasterizerDesc };
 	ScopedDepthStencilState depthStencil{ depthStencilDesc, 0 };
 
-
+	// todo: draw
 }

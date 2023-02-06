@@ -19,6 +19,22 @@ ScopedPrimitiveTopology::~ScopedPrimitiveTopology()
 }
 
 /*
+* class ScopedRasterizerState
+*/
+
+ScopedRasterizerState::ScopedRasterizerState(const D3D11_RASTERIZER_DESC& aDesc)
+	: myPreviousDesc{ CD3D11_RASTERIZER_DESC{ CD3D11_DEFAULT{} } }
+{
+	StateManager::Get().GetRasterizerState(myPreviousDesc);
+	StateManager::Get().SetRasterizerState(aDesc);
+}
+
+ScopedRasterizerState::~ScopedRasterizerState()
+{
+	StateManager::Get().SetRasterizerState(myPreviousDesc);
+}
+
+/*
 * class ScopedDepthStencilState
 */
 
