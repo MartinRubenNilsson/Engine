@@ -35,31 +35,26 @@ Window::Window(const WNDCLASS& aClass)
 		NULL,
 		aClass.hInstance,
 		NULL
-	) }
+	), DestroyWindow }
 {
-}
-
-Window::~Window()
-{
-	DestroyWindow(myWindow);
 }
 
 void Window::SetTitle(std::wstring_view aString)
 {
-	SetWindowText(myWindow, aString.data());
+	SetWindowText(myWindow.get(), aString.data());
 }
 
 std::wstring Window::GetTitle() const
 {
 	std::wstring title{};
-	title.resize(GetWindowTextLength(myWindow) + 1);
-	title.resize(GetWindowText(myWindow, title.data(), static_cast<int>(title.size())));
+	title.resize(GetWindowTextLength(myWindow.get()) + 1);
+	title.resize(GetWindowText(myWindow.get(), title.data(), static_cast<int>(title.size())));
 	return title;
 }
 
 RECT Window::GetClientRect() const
 {
 	RECT rect{};
-	::GetClientRect(myWindow, &rect);
+	::GetClientRect(myWindow.get(), &rect);
 	return rect;
 }
