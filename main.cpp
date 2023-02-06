@@ -9,6 +9,7 @@
 #include "FullscreenPass.h"
 #include "Scopes.h"
 #include "Image.h"
+#include "Cubemap.h"
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
@@ -114,8 +115,18 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
 
     dx11.GetContext()->RSSetViewports(8, viewports.data());
 
-    Image testImage{ "image/test.png" };
-    if (!testImage)
+    Image cubemapFaces[]
+    {
+        { "cubemap/Yokohama3/posx.jpg", 4 },
+        { "cubemap/Yokohama3/negx.jpg", 4 },
+        { "cubemap/Yokohama3/posy.jpg", 4 },
+        { "cubemap/Yokohama3/negy.jpg", 4 },
+        { "cubemap/Yokohama3/posz.jpg", 4 },
+        { "cubemap/Yokohama3/negz.jpg", 4 },
+    };
+
+    Cubemap cubemap{ cubemapFaces };
+    if (!cubemap)
         return EXIT_FAILURE;
 
     bool run = true;

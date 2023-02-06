@@ -63,6 +63,9 @@
       <Filter>graphics</Filter>
     </ClInclude>
     <ClInclude Include="Image.h" />
+    <ClInclude Include="Cubemap.h">
+      <Filter>graphics</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
@@ -126,7 +129,12 @@
     <ClCompile Include="Scopes.cpp">
       <Filter>graphics</Filter>
     </ClCompile>
-    <ClCompile Include="Image.cpp" />
+    <ClCompile Include="Cubemap.cpp">
+      <Filter>graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Image.cpp">
+      <Filter>graphics</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="graphics">
