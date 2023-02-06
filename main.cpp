@@ -103,7 +103,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
 
     dx11.GetContext()->PSSetSamplers(0, 1, sampler.GetAddressOf());
 
-    ScopedTopology topology{ D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST };
+    ScopedPrimitiveTopology topology{ D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST };
 
     Viewport viewport{};
     viewport.width = static_cast<float>(width);

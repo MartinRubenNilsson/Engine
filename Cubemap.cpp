@@ -63,5 +63,11 @@ void Cubemap::Draw() const
 	if (!operator bool())
 		return;
 
-	ScopedTopology topology{ D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP };
+	CD3D11_DEPTH_STENCIL_DESC depthStencilDesc{ CD3D11_DEFAULT{} };
+	depthStencilDesc.DepthFunc = D3D11_COMPARISON_LESS_EQUAL;
+	
+	ScopedPrimitiveTopology topology{ D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP };
+	ScopedDepthStencilState depthStencil{ depthStencilDesc, 0 };
+
+
 }

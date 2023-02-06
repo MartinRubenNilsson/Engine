@@ -10,14 +10,25 @@ protected:
 	Scope& operator=(Scope&&) = delete;
 };
 
-class ScopedTopology : Scope
+class ScopedPrimitiveTopology : Scope
 {
 public:
-	ScopedTopology(D3D11_PRIMITIVE_TOPOLOGY aTopology);
-	~ScopedTopology();
+	ScopedPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY aTopology);
+	~ScopedPrimitiveTopology();
 
 private:
 	D3D11_PRIMITIVE_TOPOLOGY myPreviousTopology;
+};
+
+class ScopedDepthStencilState : Scope
+{
+public:
+	ScopedDepthStencilState(const D3D11_DEPTH_STENCIL_DESC& aDesc, UINT aStencilRef);
+	~ScopedDepthStencilState();
+
+private:
+	D3D11_DEPTH_STENCIL_DESC myPreviousDesc;
+	UINT myPreviousStencilRef;
 };
 
 class ScopedTargets : Scope

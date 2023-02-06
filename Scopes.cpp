@@ -1,19 +1,38 @@
 #include "pch.h"
 #include "Scopes.h"
+#include "StateManager.h"
 
 /*
-* class ScopedTopology
+* class ScopedPrimitiveTopology
 */
 
-ScopedTopology::ScopedTopology(D3D11_PRIMITIVE_TOPOLOGY aTopology)
+ScopedPrimitiveTopology::ScopedPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY aTopology)
+	: myPreviousTopology{ D3D_PRIMITIVE_TOPOLOGY_UNDEFINED }
 {
 	DX11_CONTEXT->IAGetPrimitiveTopology(&myPreviousTopology);
 	DX11_CONTEXT->IASetPrimitiveTopology(aTopology);
 }
 
-ScopedTopology::~ScopedTopology()
+ScopedPrimitiveTopology::~ScopedPrimitiveTopology()
 {
 	DX11_CONTEXT->IASetPrimitiveTopology(myPreviousTopology);
+}
+
+/*
+* class ScopedDepthStencilState
+*/
+
+ScopedDepthStencilState::ScopedDepthStencilState(const D3D11_DEPTH_STENCIL_DESC& aDesc, UINT aStencilRef)
+	: myPreviousDesc{ CD3D11_DEPTH_STENCIL_DESC{ CD3D11_DEFAULT{} } }
+	, myPreviousStencilRef{}
+{
+	StateManager::Get().GetDepthStencilState(myPreviousDesc, myPreviousStencilRef);
+	StateManager::Get().SetDepthStencilState(aDesc, aStencilRef);
+}
+
+ScopedDepthStencilState::~ScopedDepthStencilState()
+{
+	StateManager::Get().SetDepthStencilState(myPreviousDesc, myPreviousStencilRef);
 }
 
 /*
