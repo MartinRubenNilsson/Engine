@@ -8,6 +8,7 @@
 #include "GeometryBuffer.h"
 #include "FullscreenPass.h"
 #include "Scopes.h"
+#include "Image.h"
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
@@ -112,6 +113,10 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
     viewports.fill(viewport);
 
     dx11.GetContext()->RSSetViewports(8, viewports.data());
+
+    Image testImage{ "image/test.png" };
+    if (!testImage)
+        return EXIT_FAILURE;
 
     bool run = true;
     MSG msg{};

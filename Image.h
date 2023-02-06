@@ -3,22 +3,23 @@
 class Image
 {
 public:
-	Image(const fs::path& aPath, int aDesiredChannels = 0);
+	Image(const fs::path& aPath, unsigned aDesiredChannels = 0);
 
-	const void* GetData() const { return myData.get(); }
-	int GetWidth() const { return myWidth; }
-	int GetHeight() const { return myHeight; }
-	int GetChannelsInFile() const { return myChannelsInFile; }
-	int GetChannels() const { return myChannels; }
+	const void* GetData() const	{ return myData.get(); }
+
+	unsigned GetWidth() const			{ return (unsigned)myWidth; }
+	unsigned GetHeight() const			{ return (unsigned)myHeight; }
+	unsigned GetChannelsInFile() const	{ return (unsigned)myChannelsInFile; }
+	unsigned GetChannels() const		{ return myChannels; }
 
 	operator bool() const { return myData.operator bool(); }
 
 private:
 	using Element = unsigned char;
-	using Deleter = decltype(stbi_image_free);
+	using Deleter = void(void*);
 
-	int myWidth, myHeight;
-	int myChannelsInFile, myChannels;
+	int myWidth, myHeight, myChannelsInFile;
 	std::unique_ptr<Element, Deleter*> myData;
+	unsigned myChannels;
 };
 
