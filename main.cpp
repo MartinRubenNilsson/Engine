@@ -150,7 +150,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
         geometryBuffer.ClearRenderTargets();
         depthBuffer.ClearDepthStencil();
 
-        ScopedTargets scopedSwapChain{ swapChain };
+        ScopedRenderTargets scopedSwapChain{ swapChain };
 
         // Set camera
         {
@@ -168,7 +168,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
 
         // Render scene
         {
-            ScopedTargets scopedGeometryBuffer{ geometryBuffer, depthBuffer };
+            ScopedRenderTargets scopedGeometryBuffer{ geometryBuffer, depthBuffer };
 
             auto& meshes = scene->GetMeshes();
             for (auto& [mesh, transforms] : meshes)
@@ -184,7 +184,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
         static int pass{};
         
         {
-            ScopedResourcesPs resources{ 0, geometryBuffer };
+            ScopedPixelShaderResources resources{ 0, geometryBuffer };
             fullscreenPasses[pass].Draw();
         }
 

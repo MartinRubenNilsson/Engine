@@ -6,10 +6,11 @@ public:
 	SwapChain(HWND);
 
 	void ClearRenderTargets(const Color& aColor = { 0.f, 0.f, 0.f, 0.f });
-	auto GetRenderTargets() const { return std::span(myRenderTarget.GetAddressOf(), 1); }
 	void Present() const;
 
 	void GetDimensions(unsigned& aWidth, unsigned& aHeight) const;
+
+	operator std::span<ID3D11RenderTargetView* const>() const;
 
 	operator bool() const { return SUCCEEDED(myResult); }
 

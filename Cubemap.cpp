@@ -72,6 +72,12 @@ void Cubemap::Draw() const
 	ScopedPrimitiveTopology topology{ D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP };
 	ScopedRasterizerState rasterizer{ rasterizerDesc };
 	ScopedDepthStencilState depthStencil{ depthStencilDesc, 0 };
+	ScopedPixelShaderResources resources{ 0, *this };
 
 	// todo: draw
+}
+
+Cubemap::operator std::span<ID3D11ShaderResourceView* const>() const
+{
+	return { myShaderResource.GetAddressOf(), 1 };
 }

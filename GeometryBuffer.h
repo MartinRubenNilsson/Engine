@@ -7,8 +7,9 @@ public:
 	~GeometryBuffer();
 
 	void ClearRenderTargets(const Color& aColor = { 0.f, 0.f, 0.f, 0.f });
-	auto GetRenderTargets() const { return std::span(myRenderTargets); }
-	auto GetShaderResources() const { return std::span(myShaderResources); }
+
+	operator std::span<ID3D11RenderTargetView* const>() const { return myRenderTargets; }
+	operator std::span<ID3D11ShaderResourceView* const>() const { return myShaderResources; }
 
 	operator bool() const { return SUCCEEDED(myResult); }
 

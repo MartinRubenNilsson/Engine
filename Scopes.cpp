@@ -52,10 +52,10 @@ ScopedDepthStencilState::~ScopedDepthStencilState()
 }
 
 /*
-* class ScopedTargets
+* class ScopedRenderTargets
 */
 
-ScopedTargets::ScopedTargets(std::span<ID3D11RenderTargetView* const> someTargets, ID3D11DepthStencilView* aDepthStencil)
+ScopedRenderTargets::ScopedRenderTargets(std::span<ID3D11RenderTargetView* const> someTargets, ID3D11DepthStencilView* aDepthStencil)
 	: myPreviousTargets{ someTargets.size(), nullptr }
 	, myPreviousDepthStencil{ nullptr }
 {
@@ -65,7 +65,7 @@ ScopedTargets::ScopedTargets(std::span<ID3D11RenderTargetView* const> someTarget
 	DX11_CONTEXT->OMSetRenderTargets((UINT)someTargets.size(), someTargets.data(), aDepthStencil);
 }
 
-ScopedTargets::~ScopedTargets()
+ScopedRenderTargets::~ScopedRenderTargets()
 {
 	DX11_CONTEXT->OMSetRenderTargets((UINT)myPreviousTargets.size(), myPreviousTargets.data(), myPreviousDepthStencil);
 
@@ -101,17 +101,17 @@ ScopedResources::~ScopedResources()
 }
 
 /*
-* class ScopedResourcesPs
+* class ScopedPixelShaderResources
 */
 
-ScopedResourcesPs::ScopedResourcesPs(UINT aStartSlot, std::span<ID3D11ShaderResourceView* const> someResources)
+ScopedPixelShaderResources::ScopedPixelShaderResources(UINT aStartSlot, std::span<ID3D11ShaderResourceView* const> someResources)
 	: ScopedResources(aStartSlot, someResources)
 {
 	DX11_CONTEXT->PSGetShaderResources(myStartSlot, (UINT)myPreviousResources.size(), myPreviousResources.data());
-	DX11_CONTEXT->PSSetShaderResources(myStartSlot, (UINT)someResources.size(), someResources.data());
+	DX11_CONTEXT->PSSetShaderResources(aStartSlot, (UINT)someResources.size(), someResources.data());
 }
 
-ScopedResourcesPs::~ScopedResourcesPs()
+ScopedPixelShaderResources::~ScopedPixelShaderResources()
 {
 	DX11_CONTEXT->PSSetShaderResources(myStartSlot, (UINT)myPreviousResources.size(), myPreviousResources.data());
 }

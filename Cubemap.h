@@ -8,7 +8,7 @@ public:
 
 	void Draw() const;
 
-	//auto GetShaderResources() const { return std::span(myShaderResource.GetAddressOf(), 1); }
+	operator std::span<ID3D11ShaderResourceView* const>() const;
 
 	operator bool() const { return SUCCEEDED(myResult); }
 

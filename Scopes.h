@@ -41,21 +41,11 @@ private:
 	UINT myPreviousStencilRef;
 };
 
-class ScopedTargets : Scope
+class ScopedRenderTargets : Scope
 {
 public:
-	ScopedTargets(std::span<ID3D11RenderTargetView* const> someTargets, ID3D11DepthStencilView* aDepthStencil = nullptr);
-	~ScopedTargets();
-
-	template <class T>
-	ScopedTargets(T& t)
-		: ScopedTargets(t.GetRenderTargets())
-	{}
-
-	template <class T, class U>
-	ScopedTargets(T& t, U& u)
-		: ScopedTargets(t.GetRenderTargets(), u.GetDepthStencil())
-	{}
+	ScopedRenderTargets(std::span<ID3D11RenderTargetView* const> someTargets, ID3D11DepthStencilView* aDepthStencil = nullptr);
+	~ScopedRenderTargets();
 
 private:
 	std::vector<ID3D11RenderTargetView*> myPreviousTargets;
@@ -72,14 +62,9 @@ protected:
 	std::vector<ID3D11ShaderResourceView*> myPreviousResources;
 };
 
-class ScopedResourcesPs : ScopedResources
+class ScopedPixelShaderResources : ScopedResources
 {
 public:
-	ScopedResourcesPs(UINT aStartSlot, std::span<ID3D11ShaderResourceView* const> someResources);
-	~ScopedResourcesPs();
-
-	template <class T>
-	ScopedResourcesPs(UINT aStartSlot, T& t)
-		: ScopedResourcesPs(aStartSlot, t.GetShaderResources())
-	{}
+	ScopedPixelShaderResources(UINT aStartSlot, std::span<ID3D11ShaderResourceView* const> someResources);
+	~ScopedPixelShaderResources();
 };
