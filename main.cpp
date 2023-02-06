@@ -3,7 +3,7 @@
 #include "DearImGui.h"
 #include "SwapChain.h"
 #include "DepthBuffer.h"
-#include "RasterizerStateManager.h"
+#include "StateManager.h"
 #include "Scene.h"
 #include "GeometryBuffer.h"
 #include "FullscreenPass.h"
@@ -33,6 +33,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
     if (!constantBufferMgr)
         return EXIT_FAILURE;
 
+    StateManager stateMgr{};
     ShaderManager shaderMgr{};
 
     InputLayoutManager inputLayoutMgr{};
@@ -40,8 +41,6 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
         return EXIT_FAILURE;
     if (!inputLayoutMgr.RegisterInputLayout<FullscreenVertex>())
         return EXIT_FAILURE;
-
-    RasterizerStateManager rasterizerStateMgr{};
 
     WindowClass windowClass{ WndProc };
 	Window window{ windowClass };
@@ -179,6 +178,9 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
             }
         }
 
+        // Render cubemap
+        cubemap.Draw();
+
         static int pass{};
         
         {
@@ -202,25 +204,6 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
             ImGui::End();
 
             scene->ImGui();
-
-            static bool showRasterizer = false;
-
-            if (ImGui::BeginMainMenuBar())
-            {
-                if (ImGui::BeginMenu("DirectX"))
-                {
-                    ImGui::MenuItem("Rasterizer", NULL, &showRasterizer);
-                    ImGui::EndMenu();
-                }
-                ImGui::EndMainMenuBar();
-            }
-
-            if (showRasterizer)
-            {
-                if (ImGui::Begin("Rasterizer", &showRasterizer))
-                    ImGui::RasterizerStateManager(rasterizerStateMgr);
-                ImGui::End();
-            }
 
             imGui.Render();
         }

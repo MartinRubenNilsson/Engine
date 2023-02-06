@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "Cubemap.h"
+#include "Scopes.h"
 
 Cubemap::Cubemap(std::span<const Image, 6> someFaces)
 	: myResult{ E_FAIL }
@@ -55,4 +56,12 @@ Cubemap::Cubemap(std::span<const Image, 6> someFaces)
 
 	myWidth = width;
 	myHeight = height;
+}
+
+void Cubemap::Draw() const
+{
+	if (!operator bool())
+		return;
+
+	ScopedTopology topology{ D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP };
 }

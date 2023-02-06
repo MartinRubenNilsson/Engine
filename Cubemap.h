@@ -6,7 +6,9 @@ class Cubemap
 public:
 	Cubemap(std::span<const Image, 6> someFaces);
 
-	auto GetShaderResources() const { return std::span(myShaderResource.GetAddressOf(), 1); }
+	void Draw() const;
+
+	//auto GetShaderResources() const { return std::span(myShaderResource.GetAddressOf(), 1); }
 
 	operator bool() const { return SUCCEEDED(myResult); }
 

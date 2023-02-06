@@ -50,7 +50,7 @@
     <ClInclude Include="InputLayoutManager.h">
       <Filter>graphics\managers</Filter>
     </ClInclude>
-    <ClInclude Include="RasterizerStateManager.h">
+    <ClInclude Include="StateManager.h">
       <Filter>graphics\managers</Filter>
     </ClInclude>
     <ClInclude Include="GeometryBuffer.h">
@@ -117,7 +117,7 @@
     <ClCompile Include="InputLayoutManager.cpp">
       <Filter>graphics\managers</Filter>
     </ClCompile>
-    <ClCompile Include="RasterizerStateManager.cpp">
+    <ClCompile Include="StateManager.cpp">
       <Filter>graphics\managers</Filter>
     </ClCompile>
     <ClCompile Include="GeometryBuffer.cpp">
@@ -132,9 +132,7 @@
     <ClCompile Include="Cubemap.cpp">
       <Filter>graphics</Filter>
     </ClCompile>
-    <ClCompile Include="Image.cpp">
-      <Filter>graphics</Filter>
-    </ClCompile>
+    <ClCompile Include="Image.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="graphics">
@@ -178,6 +176,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="ShaderCommon.hlsli">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="CubeStrip.hlsli">
       <Filter>shaders</Filter>
     </None>
   </ItemGroup>
