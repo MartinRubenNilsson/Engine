@@ -259,6 +259,9 @@
     <ClInclude Include="External\imgui\ImGuizmo.h">
       <Filter>imgui</Filter>
     </ClInclude>
+    <ClInclude Include="External\stb\stb_image.h">
+      <Filter>stb</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="External\imgui\imgui.cpp">
@@ -304,6 +307,9 @@
     </Filter>
     <Filter Include="assimp">
       <UniqueIdentifier>{3192f0f0-aac5-4132-b1b9-9a58c9da5b2c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="stb">
+      <UniqueIdentifier>{2a195ce7-669e-4307-b684-0650f83e5f01}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
