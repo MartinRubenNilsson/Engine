@@ -15,26 +15,25 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
 {
+    // Set current path
     {
         char moduleFileName[MAX_PATH];
         GetModuleFileNameA(GetModuleHandleA(NULL), moduleFileName, MAX_PATH);
-
         fs::path modulePath{ moduleFileName };
-        modulePath.remove_filename();
-
-        fs::current_path(modulePath);
+        fs::current_path(modulePath.remove_filename());
     }
 
     DX11 dx11{};
     if (!dx11)
         return EXIT_FAILURE;
 
+    StateManager stateMgr{};
+    ShaderManager shaderMgr{};
+
     ConstantBufferManager constantBufferMgr{};
     if (!constantBufferMgr)
         return EXIT_FAILURE;
 
-    StateManager stateMgr{};
-    ShaderManager shaderMgr{};
 
     InputLayoutManager inputLayoutMgr{};
     if (!inputLayoutMgr.RegisterInputLayout<BasicVertex>())

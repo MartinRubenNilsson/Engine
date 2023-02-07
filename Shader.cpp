@@ -8,7 +8,7 @@
 VertexShader::VertexShader(const std::string& someBytecode)
 	: Shader(someBytecode)
 {
-	DX11_DEVICE->CreateVertexShader(someBytecode.data(), someBytecode.size(), NULL, &myShader);
+	DX11_DEVICE->CreateVertexShader(myBytecode.data(), myBytecode.size(), NULL, &myShader);
 }
 
 void VertexShader::SetShader() const
@@ -23,7 +23,7 @@ void VertexShader::SetShader() const
 PixelShader::PixelShader(const std::string& someBytecode)
 	: Shader(someBytecode)
 {
-	DX11_DEVICE->CreatePixelShader(someBytecode.data(), someBytecode.size(), NULL, &myShader);
+	DX11_DEVICE->CreatePixelShader(myBytecode.data(), myBytecode.size(), NULL, &myShader);
 }
 
 void PixelShader::SetShader() const

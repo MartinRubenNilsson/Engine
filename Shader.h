@@ -64,9 +64,11 @@ inline std::shared_ptr<ShaderType> ShaderManager::GetShader(const fs::path& aPat
 		return nullptr;
 
 	std::string bytecode = { std::istreambuf_iterator{ file }, {} };
+	if (bytecode.empty())
+		return nullptr;
 
 	auto shader{ std::make_shared<ShaderType>(bytecode) };
-	if (!*shader)
+	if (!shader->operator bool())
 		return nullptr;
 
 	myShaders.emplace(aPath, shader);
@@ -75,3 +77,4 @@ inline std::shared_ptr<ShaderType> ShaderManager::GetShader(const fs::path& aPat
 
 #define DX11_VERTEX_SHADER(aPath) ShaderManager::Get().GetShader<VertexShader>(aPath)
 #define DX11_PIXEL_SHADER(aPath) ShaderManager::Get().GetShader<PixelShader>(aPath)
+
