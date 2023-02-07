@@ -63,8 +63,8 @@ void Cubemap::DrawSkybox() const
 	if (!operator bool())
 		return;
 
-	auto vertexShader{ DX11_VERTEX_SHADER("VsSkybox.cso") };
-	auto pixelShader{ DX11_PIXEL_SHADER("PsSkybox.cso") };
+	auto vertexShader{ VERTEX_SHADER("VsSkybox.cso") };
+	auto pixelShader{ PIXEL_SHADER("PsSkybox.cso") };
 
 	if (!vertexShader || !pixelShader)
 		return;

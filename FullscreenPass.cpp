@@ -11,7 +11,7 @@ void FullscreenPass::Draw() const
 	if (!operator bool())
 		return;
 
-	auto vertexShader{ DX11_VERTEX_SHADER(VertexTraits<FullscreenVertex>::shader) };
+	auto vertexShader{ VERTEX_SHADER(VertexTraits<FullscreenVertex>::shader) };
 	if (!vertexShader)
 		return;
 
