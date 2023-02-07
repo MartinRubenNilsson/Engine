@@ -6,8 +6,7 @@ SwapChain::SwapChain(HWND hWnd)
 	, mySwapChain{}
 	, myBackBuffer{}
 	, myRenderTarget{}
-	, myWidth{}
-	, myHeight{}
+	, myWidth{}, myHeight{}
 {
 	DXGI_SWAP_CHAIN_DESC swapChainDesc{};
 	swapChainDesc.BufferDesc.RefreshRate.Numerator = 60;

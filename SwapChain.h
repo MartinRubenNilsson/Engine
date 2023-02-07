@@ -19,7 +19,6 @@ private:
 	ComPtr<IDXGISwapChain> mySwapChain;
 	ComPtr<ID3D11Texture2D> myBackBuffer;
 	ComPtr<ID3D11RenderTargetView> myRenderTarget;
-	unsigned myWidth;
-	unsigned myHeight;
+	unsigned myWidth, myHeight;
 };
 
