@@ -35,6 +35,23 @@ ScopedRasterizerState::~ScopedRasterizerState()
 }
 
 /*
+* class ScopedSamplerStates
+*/
+
+ScopedSamplerStates::ScopedSamplerStates(UINT aStartSlot, std::span<const D3D11_SAMPLER_DESC> someDescs)
+	: myStartSlot{ aStartSlot }
+	, myPreviousDescs{ someDescs.size(), CD3D11_SAMPLER_DESC{ CD3D11_DEFAULT{} } }
+{
+	StateManager::Get().GetSamplerStates(myStartSlot, myPreviousDescs);
+	StateManager::Get().SetSamplerStates(aStartSlot, someDescs);
+}
+
+ScopedSamplerStates::~ScopedSamplerStates()
+{
+	StateManager::Get().SetSamplerStates(myStartSlot, myPreviousDescs);
+}
+
+/*
 * class ScopedDepthStencilState
 */
 

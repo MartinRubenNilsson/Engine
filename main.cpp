@@ -89,21 +89,11 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
     if (!std::ranges::all_of(fullscreenPasses, &FullscreenPass::operator bool))
         return EXIT_FAILURE;
 
-    D3D11_SAMPLER_DESC samplerDesc{};
-    samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
-    samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
-    samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
-    samplerDesc.MaxAnisotropy = 1;
-    samplerDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
-
-    ComPtr<ID3D11SamplerState> sampler{};
-    dx11.GetDevice()->CreateSamplerState(&samplerDesc, &sampler);
-    if (!sampler)
-        return EXIT_FAILURE;
-
-    dx11.GetContext()->PSSetSamplers(0, 1, sampler.GetAddressOf());
+    std::array<D3D11_SAMPLER_DESC, 1> samplerDescs{};
+    samplerDescs.fill(CD3D11_SAMPLER_DESC{ CD3D11_DEFAULT{} });
 
     ScopedPrimitiveTopology topology{ D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST };
+    ScopedSamplerStates samplers{ 0, samplerDescs };
 
     Viewport viewport{};
     viewport.width = static_cast<float>(width);
@@ -128,11 +118,14 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
     if (!cubemap)
         return EXIT_FAILURE;
 
+    static int pass{};
+
     bool run = true;
     MSG msg{};
 
     while (run)
     {
+        // Message loop
         while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
         {
             if (msg.message == WM_QUIT)
@@ -142,17 +135,11 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
             DispatchMessage(&msg);
         }
 
-        /*
-        * Begin rendering
-        */
-
+        // Rendering
         swapChain.ClearRenderTargets();
         geometryBuffer.ClearRenderTargets();
         depthBuffer.ClearDepthStencil();
-
         ScopedRenderTargets swapChainScope{ swapChain };
-
-        // Set camera
         {
             auto& cameras = scene->GetCameras();
             if (!cameras.empty())
@@ -161,49 +148,30 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
                 camera.SetCamera(transform->GetWorldMatrix());
             }
         }
-
-        // Shaders
         vsBasic->SetShader();
         psGBuffer->SetShader();
-
-        // Render scene
         {
             ScopedRenderTargets geometryBufferScope{ geometryBuffer, depthBuffer };
 
-            auto& meshes = scene->GetMeshes();
-            for (auto& [mesh, transforms] : meshes)
+            for (auto& [mesh, transforms] : scene->GetMeshes())
             {
                 for (auto& transform : transforms)
                     mesh.Draw(transform->GetWorldMatrix());
             }
         }
-
-        static int pass{};
-        
         {
             ScopedPixelShaderResources resources{ 0, geometryBuffer };
             fullscreenPasses[pass].Draw();
         }
-
         cubemap.Draw();
-
-
-        /*
-        * End rendering
-        */
 
         // ImGui
         {
             imGui.NewFrame();
-
             if (ImGui::Begin("Buffer"))
-            {
                 ImGui::SliderInt("Buffer", &pass, 0, static_cast<int>(std::size(fullscreenPasses)) - 1);
-            }
             ImGui::End();
-
             scene->ImGui();
-
             imGui.Render();
         }
 

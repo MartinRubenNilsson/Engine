@@ -30,6 +30,17 @@ private:
 	D3D11_RASTERIZER_DESC myPreviousDesc;
 };
 
+class ScopedSamplerStates : Scope
+{
+public:
+	ScopedSamplerStates(UINT aStartSlot, std::span<const D3D11_SAMPLER_DESC> someDescs);
+	~ScopedSamplerStates();
+
+private:
+	UINT myStartSlot;
+	std::vector<D3D11_SAMPLER_DESC> myPreviousDescs;
+};
+
 class ScopedDepthStencilState : Scope
 {
 public:
