@@ -105,12 +105,12 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
 
     Image cubemapFaces[]
     {
-        { "cubemap/Yokohama3/posx.jpg", 4 },
-        { "cubemap/Yokohama3/negx.jpg", 4 },
-        { "cubemap/Yokohama3/posy.jpg", 4 },
-        { "cubemap/Yokohama3/negy.jpg", 4 },
-        { "cubemap/Yokohama3/posz.jpg", 4 },
-        { "cubemap/Yokohama3/negz.jpg", 4 },
+        { "cubemap/Sorsele/posx.jpg", 4 },
+        { "cubemap/Sorsele/negx.jpg", 4 },
+        { "cubemap/Sorsele/posy.jpg", 4 },
+        { "cubemap/Sorsele/negy.jpg", 4 },
+        { "cubemap/Sorsele/posz.jpg", 4 },
+        { "cubemap/Sorsele/negz.jpg", 4 },
     };
 
     Cubemap cubemap{ cubemapFaces };

@@ -6,7 +6,7 @@ SkyboxPixel main(uint id : SV_VertexID)
     // https://stackoverflow.com/questions/28375338/cube-using-single-gl-triangle-strip
     // The z-axis has been inverted compared to the answer from stackoverflow, since DX11 is left-handed
 
-    static const float3 SkyboxVertices[] =
+    static const float3 skyboxVertices[] =
     {
         -1,  1, -1, // Front-top-left
          1,  1, -1, // Front-top-right
@@ -27,10 +27,8 @@ SkyboxPixel main(uint id : SV_VertexID)
     // By setting z=w=1 in pixelPosition, we ensure that the skybox always lie on the far plane 
     
     SkyboxPixel pixel;
-    pixel.localPosition = SkyboxVertices[id];
-    pixel.pixelPosition = mul(WorldToClipMatrix, float4(pixel.localPosition, 0.f));
-    pixel.pixelPosition.z = 1.f;
-    pixel.pixelPosition.w = 1.f;
+    pixel.localPosition = skyboxVertices[id];
+    pixel.pixelPosition = mul(WorldToClipMatrix, float4(pixel.localPosition, 0.f)).xyww;
     
     return pixel;
 }
