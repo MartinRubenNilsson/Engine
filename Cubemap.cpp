@@ -58,23 +58,34 @@ Cubemap::Cubemap(std::span<const Image, 6> someFaces)
 	myHeight = height;
 }
 
-void Cubemap::Draw() const
+void Cubemap::DrawSkybox() const
 {
 	if (!operator bool())
 		return;
 
+	auto vertexShader{ DX11_VERTEX_SHADER("VsSkybox.cso") };
+	auto pixelShader{ DX11_PIXEL_SHADER("PsSkybox.cso") };
+
+	if (!vertexShader || !pixelShader)
+		return;
+
+	vertexShader->SetShader();
+	pixelShader->SetShader();
+
+	DX11_SET_INPUT_LAYOUT(typeid(FullscreenVertex));
+
 	CD3D11_RASTERIZER_DESC rasterizerDesc{ CD3D11_DEFAULT{} };
-	rasterizerDesc.CullMode = D3D11_CULL_NONE;
+	rasterizerDesc.CullMode = D3D11_CULL_FRONT; // Since the skybox surrounds us
 
 	CD3D11_DEPTH_STENCIL_DESC depthStencilDesc{ CD3D11_DEFAULT{} };
-	depthStencilDesc.DepthFunc = D3D11_COMPARISON_LESS_EQUAL;
+	depthStencilDesc.DepthFunc = D3D11_COMPARISON_LESS_EQUAL; // Otherwise z=1 will fail the depth test
 	
 	ScopedPrimitiveTopology topology{ D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP };
 	ScopedRasterizerState rasterizer{ rasterizerDesc };
 	ScopedDepthStencilState depthStencil{ depthStencilDesc, 0 };
 	ScopedPixelShaderResources resources{ 0, *this };
 
-	// todo: draw
+	DX11_CONTEXT->Draw(14, 0);
 }
 
 Cubemap::operator std::span<ID3D11ShaderResourceView* const>() const

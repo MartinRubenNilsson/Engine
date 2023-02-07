@@ -6,7 +6,7 @@ class Cubemap
 public:
 	Cubemap(std::span<const Image, 6> someFaces);
 
-	void Draw() const;
+	void DrawSkybox() const;
 
 	operator std::span<ID3D11ShaderResourceView* const>() const;
 

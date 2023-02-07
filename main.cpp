@@ -151,7 +151,6 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
         psGBuffer->SetShader();
         {
             ScopedRenderTargets geometryBufferScope{ geometryBuffer, depthBuffer };
-
             for (auto& [mesh, transforms] : scene->GetMeshes())
             {
                 for (auto& transform : transforms)
@@ -162,7 +161,10 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
             ScopedPixelShaderResources resources{ 0, geometryBuffer };
             fullscreenPasses[pass].Draw();
         }
-        cubemap.Draw();
+        {
+            ScopedRenderTargets skyboxScope{ swapChain, depthBuffer };
+            cubemap.DrawSkybox();
+        }
 
         // ImGui
         {
