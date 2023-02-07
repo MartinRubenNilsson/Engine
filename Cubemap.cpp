@@ -43,7 +43,7 @@ Cubemap::Cubemap(std::span<const Image, 6> someFaces)
 	for (size_t i = 0; i < 6; ++i)
 	{
 		data[i].pSysMem = someFaces[i].GetData();
-		data[i].SysMemPitch = width;
+		data[i].SysMemPitch = width * 4;
 		data[i].SysMemSlicePitch = 0;
 	}
 
