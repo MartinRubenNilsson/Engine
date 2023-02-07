@@ -88,20 +88,16 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
     if (!std::ranges::all_of(fullscreenPasses, &FullscreenPass::operator bool))
         return EXIT_FAILURE;
 
-    std::array<D3D11_SAMPLER_DESC, 1> samplerDescs{};
-    samplerDescs.fill(CD3D11_SAMPLER_DESC{ CD3D11_DEFAULT{} });
-
-    ScopedPrimitiveTopology topology{ D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST };
-    ScopedSamplerStates samplers{ 0, samplerDescs };
+    D3D11_SAMPLER_DESC samplerDesc{ CD3D11_SAMPLER_DESC{ CD3D11_DEFAULT{} } };
 
     Viewport viewport{};
     viewport.width = static_cast<float>(width);
     viewport.height = static_cast<float>(height);
+    std::vector<D3D11_VIEWPORT> viewports{ 8, viewport };
 
-    std::array<D3D11_VIEWPORT, 8> viewports{};
-    viewports.fill(viewport);
-
-    dx11.GetContext()->RSSetViewports(8, viewports.data());
+    ScopedPrimitiveTopology topologyScope{ D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST };
+    ScopedSamplerStates samplersScope{ 0, { &samplerDesc, 1 } };
+    ScopedViewports viewportsScope{ viewports };
 
     Image cubemapFaces[]
     {

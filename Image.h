@@ -23,4 +23,3 @@ private:
 	unsigned myChannels;
 };
 
-// Todo: Make ImageManager

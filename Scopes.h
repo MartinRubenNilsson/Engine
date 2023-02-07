@@ -63,6 +63,16 @@ private:
 	ID3D11DepthStencilView* myPreviousDepthStencil;
 };
 
+class ScopedViewports : Scope
+{
+public:
+	ScopedViewports(std::span<const D3D11_VIEWPORT> someViewports);
+	~ScopedViewports();
+
+private:
+	std::vector<D3D11_VIEWPORT> myPreviousViewports;
+};
+
 class ScopedResources : Scope
 {
 protected:

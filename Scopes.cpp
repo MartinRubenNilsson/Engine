@@ -97,6 +97,27 @@ ScopedRenderTargets::~ScopedRenderTargets()
 }
 
 /*
+* class ScopedViewports
+*/
+
+ScopedViewports::ScopedViewports(std::span<const D3D11_VIEWPORT> someViewports)
+	: myPreviousViewports{ D3D11_VIEWPORT_AND_SCISSORRECT_OBJECT_COUNT_PER_PIPELINE }
+{
+	assert(someViewports.size() <= D3D11_VIEWPORT_AND_SCISSORRECT_OBJECT_COUNT_PER_PIPELINE);
+
+	UINT previousViewportCount{ D3D11_VIEWPORT_AND_SCISSORRECT_OBJECT_COUNT_PER_PIPELINE };
+	DX11_CONTEXT->RSGetViewports(&previousViewportCount, myPreviousViewports.data());
+	myPreviousViewports.resize(previousViewportCount);
+
+	DX11_CONTEXT->RSSetViewports((UINT)someViewports.size(), someViewports.data());
+}
+
+ScopedViewports::~ScopedViewports()
+{
+	DX11_CONTEXT->RSSetViewports((UINT)myPreviousViewports.size(), myPreviousViewports.data());
+}
+
+/*
 * class ScopedResources
 */
 
