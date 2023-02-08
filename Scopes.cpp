@@ -19,6 +19,32 @@ ScopedPrimitiveTopology::~ScopedPrimitiveTopology()
 }
 
 /*
+* class ScopedShader
+*/
+
+ScopedShader::ScopedShader(std::shared_ptr<const Shader> aShader)
+{
+	if (!aShader)
+		return;
+
+	if (auto vs = std::dynamic_pointer_cast<const VertexShader>(aShader))
+		myPreviousShader = std::make_shared<VertexShader>(*vs);
+	else if (auto ps = std::dynamic_pointer_cast<const PixelShader>(aShader))
+		myPreviousShader = std::make_shared<PixelShader>(*ps);
+	else
+		assert(false);
+
+	myPreviousShader->GetShader();
+	aShader->SetShader();
+}
+
+ScopedShader::~ScopedShader()
+{
+	if (myPreviousShader)
+		myPreviousShader->SetShader();
+}
+
+/*
 * class ScopedRasterizerState
 */
 

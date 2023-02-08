@@ -5,10 +5,9 @@
 * class VertexShader
 */
 
-VertexShader::VertexShader(const std::string& someBytecode)
-	: Shader(someBytecode)
+VertexShader::VertexShader(std::string_view someBytecode)
 {
-	DX11_DEVICE->CreateVertexShader(myBytecode.data(), myBytecode.size(), NULL, &myShader);
+	DX11_DEVICE->CreateVertexShader(someBytecode.data(), someBytecode.size(), NULL, &myShader);
 }
 
 void VertexShader::SetShader() const
@@ -16,17 +15,26 @@ void VertexShader::SetShader() const
 	DX11_CONTEXT->VSSetShader(myShader.Get(), NULL, 0);
 }
 
+void VertexShader::GetShader()
+{
+	DX11_CONTEXT->VSGetShader(&myShader, NULL, NULL);
+}
+
 /*
 * class PixelShader
 */
 
-PixelShader::PixelShader(const std::string& someBytecode)
-	: Shader(someBytecode)
+PixelShader::PixelShader(std::string_view someBytecode)
 {
-	DX11_DEVICE->CreatePixelShader(myBytecode.data(), myBytecode.size(), NULL, &myShader);
+	DX11_DEVICE->CreatePixelShader(someBytecode.data(), someBytecode.size(), NULL, &myShader);
 }
 
 void PixelShader::SetShader() const
 {
 	DX11_CONTEXT->PSSetShader(myShader.Get(), NULL, 0);
+}
+
+void PixelShader::GetShader()
+{
+	DX11_CONTEXT->PSGetShader(&myShader, NULL, NULL);
 }

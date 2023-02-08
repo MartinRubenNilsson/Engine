@@ -64,15 +64,6 @@ void Cubemap::DrawSkybox() const
 	if (!operator bool())
 		return;
 
-	auto vertexShader{ VERTEX_SHADER("VsSkybox.cso") };
-	auto pixelShader{ PIXEL_SHADER("PsSkybox.cso") };
-
-	if (!vertexShader || !pixelShader)
-		return;
-
-	vertexShader->SetShader();
-	pixelShader->SetShader();
-
 	InputLayoutManager::Get().SetInputLayout(typeid(EmptyVertex));
 
 	CD3D11_RASTERIZER_DESC rasterizerDesc{ CD3D11_DEFAULT{} };
@@ -82,6 +73,8 @@ void Cubemap::DrawSkybox() const
 	depthStencilDesc.DepthFunc = D3D11_COMPARISON_LESS_EQUAL; // Otherwise z=1 will fail the depth test
 	
 	ScopedPrimitiveTopology topology{ D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP };
+	ScopedShader vertexShader{ VERTEX_SHADER("VsSkybox.cso") };
+	ScopedShader pixelShader{ PIXEL_SHADER("PsSkybox.cso") };
 	ScopedRasterizerState rasterizer{ rasterizerDesc };
 	ScopedDepthStencilState depthStencil{ depthStencilDesc, 0 };
 	ScopedPixelShaderResources resources{ 0, *this };

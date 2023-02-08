@@ -20,6 +20,16 @@ private:
 	D3D11_PRIMITIVE_TOPOLOGY myPreviousTopology;
 };
 
+class ScopedShader : Scope
+{
+public:
+	ScopedShader(std::shared_ptr<const Shader> aShader);
+	~ScopedShader();
+
+private:
+	std::shared_ptr<Shader> myPreviousShader;
+};
+
 class ScopedRasterizerState : Scope
 {
 public:

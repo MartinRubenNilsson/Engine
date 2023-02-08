@@ -3,13 +3,13 @@
 class FullscreenPass
 {
 public:
-	FullscreenPass(std::shared_ptr<PixelShader>);
+	FullscreenPass(std::shared_ptr<const PixelShader>);
 
 	void Draw() const;
 
 	operator bool() const { return myPixelShader.operator bool(); };
 
 private:
-	std::shared_ptr<PixelShader> myPixelShader;
+	std::shared_ptr<const PixelShader> myPixelShader;
 };
 

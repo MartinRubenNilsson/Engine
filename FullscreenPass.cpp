@@ -2,7 +2,7 @@
 #include "FullscreenPass.h"
 #include "InputLayoutManager.h"
 
-FullscreenPass::FullscreenPass(std::shared_ptr<PixelShader> aPixelShader)
+FullscreenPass::FullscreenPass(std::shared_ptr<const PixelShader> aPixelShader)
 	: myPixelShader{ aPixelShader }
 {
 }

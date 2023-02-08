@@ -6,24 +6,17 @@ public:
 	virtual ~Shader() = default;
 
 	virtual void SetShader() const = 0;
+	virtual void GetShader() = 0;
 	virtual operator bool() const = 0;
-
-	std::string_view GetBytecode() const { return myBytecode; }
-
-protected:
-	Shader(const std::string& someBytecode)
-		: myBytecode{ someBytecode }
-	{}
-
-	std::string myBytecode;
 };
 
 class VertexShader : public Shader
 {
 public:
-	VertexShader(const std::string& someBytecode);
+	VertexShader(std::string_view someBytecode);
 
 	void SetShader() const override;
+	void GetShader() override;
 	operator bool() const override { return myShader; }
 
 private:
@@ -33,9 +26,10 @@ private:
 class PixelShader : public Shader
 {
 public:
-	PixelShader(const std::string& someBytecode);
+	PixelShader(std::string_view someBytecode);
 
 	void SetShader() const override;
+	void GetShader() override;
 	operator bool() const override { return myShader; }
 
 private:
@@ -46,14 +40,14 @@ class ShaderManager : public Singleton<ShaderManager>
 {
 public:
 	template <class ShaderType>
-	std::shared_ptr<ShaderType> GetShader(const fs::path& aPath);
+	std::shared_ptr<const ShaderType> GetShader(const fs::path& aPath);
 
 private:
 	std::unordered_map<fs::path, std::shared_ptr<Shader>> myShaders;
 };
 
 template<class ShaderType>
-inline std::shared_ptr<ShaderType> ShaderManager::GetShader(const fs::path& aPath)
+inline std::shared_ptr<const ShaderType> ShaderManager::GetShader(const fs::path& aPath)
 {
 	auto itr = myShaders.find(aPath);
 	if (itr != myShaders.end())
