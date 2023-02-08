@@ -1,6 +1,43 @@
 #include "pch.h"
 #include "InputLayoutManager.h"
-#include "Shader.h"
+
+namespace
+{
+	auto CreateInputLayout(std::span<const D3D11_INPUT_ELEMENT_DESC> someElements, std::string_view someBytecode)
+	{
+		ComPtr<ID3D11InputLayout> layout{};
+		DX11_DEVICE->CreateInputLayout(
+			someElements.data(), (UINT)someElements.size(),
+			someBytecode.data(), someBytecode.size(),
+			&layout
+		);
+
+		return layout;
+	}
+
+	std::string LoadBytecode(const fs::path& aPath)
+	{
+		std::ifstream file{ aPath, std::ios::binary };
+		return { std::istreambuf_iterator{ file }, {} };
+	}
+
+	template <class VertexType>
+	auto CreateInputLayout()
+	{
+		std::string bytecode = LoadBytecode(VertexType::Shader);
+		return !bytecode.empty() ? CreateInputLayout(VertexType::Elements, bytecode) : nullptr;
+	}
+}
+
+#define PAIR(VertexType) { typeid(VertexType), CreateInputLayout<VertexType>() }
+
+InputLayoutManager::InputLayoutManager()
+	: myInputLayouts
+	{
+		PAIR(EmptyVertex),
+		PAIR(BasicVertex),
+	}
+{}
 
 void InputLayoutManager::SetInputLayout(std::type_index aVertexType) const
 {
@@ -9,34 +46,7 @@ void InputLayoutManager::SetInputLayout(std::type_index aVertexType) const
 		DX11_CONTEXT->IASetInputLayout(itr->second.Get());
 }
 
-bool InputLayoutManager::CreateInputLayout(
-	std::type_index aVertexType,
-	std::span<const D3D11_INPUT_ELEMENT_DESC> someElements,
-	const fs::path& aVertexShaderPath
-)
+InputLayoutManager::operator bool() const
 {
-	if (myInputLayouts.contains(aVertexType))
-		return false;
-
-	auto vertexShader = ShaderManager::Get().GetShader<VertexShader>(aVertexShaderPath);
-	if (!vertexShader)
-		return false;
-
-	const auto& bytecode = vertexShader->GetBytecode();
-
-	ComPtr<ID3D11InputLayout> inputLayout{};
-
-	DX11_DEVICE->CreateInputLayout(
-		someElements.data(),
-		static_cast<UINT>(someElements.size()),
-		bytecode.data(),
-		bytecode.size(),
-		&inputLayout
-	);
-
-	if (!inputLayout)
-		return false;
-
-	myInputLayouts.emplace(aVertexType, inputLayout);
-	return true;
+	return std::ranges::all_of(myInputLayouts, &decltype(myInputLayouts)::value_type::second);
 }

@@ -66,6 +66,9 @@
     <ClInclude Include="Cubemap.h">
       <Filter>graphics</Filter>
     </ClInclude>
+    <ClInclude Include="Vertices.h">
+      <Filter>graphics</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />

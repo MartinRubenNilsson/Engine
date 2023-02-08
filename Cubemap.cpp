@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "Cubemap.h"
 #include "Scopes.h"
+#include "InputLayoutManager.h"
 
 Cubemap::Cubemap(std::span<const Image, 6> someFaces)
 	: myResult{ E_FAIL }
@@ -42,7 +43,7 @@ Cubemap::Cubemap(std::span<const Image, 6> someFaces)
 	D3D11_SUBRESOURCE_DATA data[6]{};
 	for (size_t i = 0; i < 6; ++i)
 	{
-		data[i].pSysMem = someFaces[i].GetData();
+		data[i].pSysMem = someFaces[i].Data();
 		data[i].SysMemPitch = width * 4;
 		data[i].SysMemSlicePitch = 0;
 	}
@@ -72,7 +73,7 @@ void Cubemap::DrawSkybox() const
 	vertexShader->SetShader();
 	pixelShader->SetShader();
 
-	DX11_SET_INPUT_LAYOUT(typeid(FullscreenVertex));
+	InputLayoutManager::Get().SetInputLayout(typeid(EmptyVertex));
 
 	CD3D11_RASTERIZER_DESC rasterizerDesc{ CD3D11_DEFAULT{} };
 	rasterizerDesc.CullMode = D3D11_CULL_FRONT; // Since the skybox surrounds us

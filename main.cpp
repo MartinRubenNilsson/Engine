@@ -4,6 +4,7 @@
 #include "SwapChain.h"
 #include "DepthBuffer.h"
 #include "StateManager.h"
+#include "InputLayoutManager.h"
 #include "Scene.h"
 #include "GeometryBuffer.h"
 #include "FullscreenPass.h"
@@ -27,19 +28,18 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
     if (!dx11)
         return EXIT_FAILURE;
 
-    StateManager stateMgr{};
-    ShaderManager shaderMgr{};
-
     ConstantBufferManager constantBufferMgr{};
     if (!constantBufferMgr)
         return EXIT_FAILURE;
 
-
     InputLayoutManager inputLayoutMgr{};
-    if (!inputLayoutMgr.RegisterInputLayout<BasicVertex>())
+    if (!inputLayoutMgr)
         return EXIT_FAILURE;
-    if (!inputLayoutMgr.RegisterInputLayout<FullscreenVertex>())
-        return EXIT_FAILURE;
+
+    StateManager stateMgr{};
+    ShaderManager shaderMgr{};
+
+
 
     WindowClass windowClass{ WndProc };
 	Window window{ windowClass };
@@ -113,6 +113,10 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
     if (!cubemap)
         return EXIT_FAILURE;
 
+    
+
+    //Camera camera{}
+
     static int pass{};
 
     bool run = true;
@@ -146,6 +150,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
         vsBasic->SetShader();
         psGBuffer->SetShader();
         {
+            inputLayoutMgr.SetInputLayout(typeid(BasicVertex));
             ScopedRenderTargets geometryBufferScope{ geometryBuffer, depthBuffer };
             for (auto& [mesh, transforms] : scene->GetMeshes())
             {

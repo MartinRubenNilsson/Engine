@@ -212,6 +212,7 @@
     <ClInclude Include="SwapChain.h" />
     <ClInclude Include="Transform.h" />
     <ClInclude Include="VertexBuffer.h" />
+    <ClInclude Include="Vertices.h" />
     <ClInclude Include="Window.h" />
   </ItemGroup>
   <ItemGroup>
