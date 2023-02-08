@@ -129,7 +129,9 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
         swapChain.ClearRenderTargets();
         geometryBuffer.ClearRenderTargets();
         depthBuffer.ClearDepthStencil();
+
         ScopedRenderTargets swapChainScope{ swapChain };
+
         {
             auto& cameras = scene->GetCameras();
             if (!cameras.empty())
@@ -138,8 +140,9 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
                 camera.SetCamera(transform->GetWorldMatrix());
             }
         }
+
         {
-            inputLayoutMgr.SetInputLayout(typeid(BasicVertex));
+            ScopedInputLayout layout{ typeid(BasicVertex) };
             ScopedShader vs{ VERTEX_SHADER("VsBasic.cso") };
             ScopedShader ps{ PIXEL_SHADER("PsGBuffer.cso") };
             ScopedRenderTargets geometryBufferScope{ geometryBuffer, depthBuffer };

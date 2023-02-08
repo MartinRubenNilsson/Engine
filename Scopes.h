@@ -20,6 +20,16 @@ private:
 	D3D11_PRIMITIVE_TOPOLOGY myPreviousTopology;
 };
 
+class ScopedInputLayout : Scope
+{
+public:
+	ScopedInputLayout(std::type_index aVertexType);
+	~ScopedInputLayout();
+
+private:
+	ComPtr<ID3D11InputLayout> myPreviousLayout;
+};
+
 class ScopedShader : Scope
 {
 public:

@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "Scopes.h"
+#include "InputLayoutManager.h"
 #include "StateManager.h"
 
 /*
@@ -16,6 +17,21 @@ ScopedPrimitiveTopology::ScopedPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY aTopol
 ScopedPrimitiveTopology::~ScopedPrimitiveTopology()
 {
 	DX11_CONTEXT->IASetPrimitiveTopology(myPreviousTopology);
+}
+
+/*
+* class ScopedInputLayout
+*/
+
+ScopedInputLayout::ScopedInputLayout(std::type_index aVertexType)
+{
+	DX11_CONTEXT->IAGetInputLayout(&myPreviousLayout);
+	InputLayoutManager::Get().SetInputLayout(aVertexType);
+}
+
+ScopedInputLayout::~ScopedInputLayout()
+{
+	DX11_CONTEXT->IASetInputLayout(myPreviousLayout.Get());
 }
 
 /*

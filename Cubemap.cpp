@@ -1,7 +1,6 @@
 #include "pch.h"
 #include "Cubemap.h"
 #include "Scopes.h"
-#include "InputLayoutManager.h"
 
 Cubemap::Cubemap(std::span<const Image, 6> someFaces)
 	: myResult{ E_FAIL }
@@ -64,8 +63,6 @@ void Cubemap::DrawSkybox() const
 	if (!operator bool())
 		return;
 
-	InputLayoutManager::Get().SetInputLayout(typeid(EmptyVertex));
-
 	CD3D11_RASTERIZER_DESC rasterizerDesc{ CD3D11_DEFAULT{} };
 	rasterizerDesc.CullMode = D3D11_CULL_FRONT; // Since the skybox surrounds us
 
@@ -73,11 +70,12 @@ void Cubemap::DrawSkybox() const
 	depthStencilDesc.DepthFunc = D3D11_COMPARISON_LESS_EQUAL; // Otherwise z=1 will fail the depth test
 	
 	ScopedPrimitiveTopology topology{ D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP };
-	ScopedShader vertexShader{ VERTEX_SHADER("VsSkybox.cso") };
-	ScopedShader pixelShader{ PIXEL_SHADER("PsSkybox.cso") };
+	ScopedInputLayout layout{ typeid(EmptyVertex) };
+	ScopedPixelShaderResources resources{ 0, *this };
+	ScopedShader vs{ VERTEX_SHADER("VsSkybox.cso") };
+	ScopedShader ps{ PIXEL_SHADER("PsSkybox.cso") };
 	ScopedRasterizerState rasterizer{ rasterizerDesc };
 	ScopedDepthStencilState depthStencil{ depthStencilDesc, 0 };
-	ScopedPixelShaderResources resources{ 0, *this };
 
 	DX11_CONTEXT->Draw(14, 0);
 }
