@@ -12,14 +12,9 @@ void FullscreenPass::Draw() const
 	if (!operator bool())
 		return;
 
-	auto vertexShader{ VERTEX_SHADER("VsFullscreen.cso")};
-	if (!vertexShader)
-		return;
-
 	InputLayoutManager::Get().SetInputLayout(typeid(EmptyVertex));
-
-	vertexShader->SetShader();
-	myPixelShader->SetShader();
+	ScopedShader vertexShader{ VERTEX_SHADER("VsFullscreen.cso") };
+	ScopedShader pixelShader{ myPixelShader };
 
 	DX11_CONTEXT->Draw(3, 0);
 }

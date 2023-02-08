@@ -39,8 +39,6 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
     StateManager stateMgr{};
     ShaderManager shaderMgr{};
 
-
-
     WindowClass windowClass{ WndProc };
 	Window window{ windowClass };
 	if (!window)
@@ -71,11 +69,6 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
 
     auto scene = sceneMgr.GetScene("mesh/test_00.fbx");
     if (!scene)
-        return EXIT_FAILURE;
-
-    auto vsBasic = VERTEX_SHADER("VsBasic.cso");
-    auto psGBuffer = PIXEL_SHADER("PsGBuffer.cso");
-    if (!vsBasic || !psGBuffer)
         return EXIT_FAILURE;
 
     FullscreenPass fullscreenPasses[] =
@@ -113,8 +106,6 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
     if (!cubemap)
         return EXIT_FAILURE;
 
-    
-
     //Camera camera{}
 
     static int pass{};
@@ -147,11 +138,12 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
                 camera.SetCamera(transform->GetWorldMatrix());
             }
         }
-        vsBasic->SetShader();
-        psGBuffer->SetShader();
         {
             inputLayoutMgr.SetInputLayout(typeid(BasicVertex));
+            ScopedShader vs{ VERTEX_SHADER("VsBasic.cso") };
+            ScopedShader ps{ PIXEL_SHADER("PsGBuffer.cso") };
             ScopedRenderTargets geometryBufferScope{ geometryBuffer, depthBuffer };
+
             for (auto& [mesh, transforms] : scene->GetMeshes())
             {
                 for (auto& transform : transforms)

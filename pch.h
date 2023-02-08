@@ -53,3 +53,4 @@ using namespace DirectX::SimpleMath;
 #include "ConstantBufferManager.h"
 #include "Vertices.h"
 #include "Shader.h"
+#include "Scopes.h"
