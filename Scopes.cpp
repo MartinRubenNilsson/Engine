@@ -160,38 +160,45 @@ ScopedViewports::~ScopedViewports()
 }
 
 /*
-* class ScopedResources
+* class ScopedShaderResources
 */
 
-ScopedResources::ScopedResources(UINT aStartSlot, std::span<ID3D11ShaderResourceView* const> someResources)
-	: myStartSlot{ aStartSlot }
+ScopedShaderResources::ScopedShaderResources(ShaderStage aStage, UINT aStartSlot, std::span<ID3D11ShaderResourceView* const> someResources)
+	: myStage{ aStage }
+	, myStartSlot{ aStartSlot }
 	, myPreviousResources{ someResources.size(), nullptr }
 {
 	assert(aStartSlot < D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT);
 	assert(aStartSlot + someResources.size() <= D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT);
+
+	switch (aStage)
+	{
+	case ShaderStage::Vertex:
+		DX11_CONTEXT->VSGetShaderResources(myStartSlot, (UINT)myPreviousResources.size(), myPreviousResources.data());
+		DX11_CONTEXT->VSSetShaderResources(aStartSlot, (UINT)someResources.size(), someResources.data());
+		break;
+	case ShaderStage::Pixel:
+		DX11_CONTEXT->PSGetShaderResources(myStartSlot, (UINT)myPreviousResources.size(), myPreviousResources.data());
+		DX11_CONTEXT->PSSetShaderResources(aStartSlot, (UINT)someResources.size(), someResources.data());
+		break;
+	}
 }
 
-ScopedResources::~ScopedResources()
+ScopedShaderResources::~ScopedShaderResources()
 {
+	switch (myStage)
+	{
+	case ShaderStage::Vertex:
+		DX11_CONTEXT->VSSetShaderResources(myStartSlot, (UINT)myPreviousResources.size(), myPreviousResources.data());
+		break;
+	case ShaderStage::Pixel:
+		DX11_CONTEXT->PSSetShaderResources(myStartSlot, (UINT)myPreviousResources.size(), myPreviousResources.data());
+		break;
+	}
+
 	for (ID3D11ShaderResourceView* resource : myPreviousResources)
 	{
 		if (resource)
 			resource->Release();
 	}
-}
-
-/*
-* class ScopedPixelShaderResources
-*/
-
-ScopedPixelShaderResources::ScopedPixelShaderResources(UINT aStartSlot, std::span<ID3D11ShaderResourceView* const> someResources)
-	: ScopedResources(aStartSlot, someResources)
-{
-	DX11_CONTEXT->PSGetShaderResources(myStartSlot, (UINT)myPreviousResources.size(), myPreviousResources.data());
-	DX11_CONTEXT->PSSetShaderResources(aStartSlot, (UINT)someResources.size(), someResources.data());
-}
-
-ScopedPixelShaderResources::~ScopedPixelShaderResources()
-{
-	DX11_CONTEXT->PSSetShaderResources(myStartSlot, (UINT)myPreviousResources.size(), myPreviousResources.data());
 }

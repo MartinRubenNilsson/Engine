@@ -93,19 +93,21 @@ private:
 	std::vector<D3D11_VIEWPORT> myPreviousViewports;
 };
 
-class ScopedResources : Scope
+enum class ShaderStage
 {
-protected:
-	ScopedResources(UINT aStartSlot, std::span<ID3D11ShaderResourceView* const> someResources);
-	~ScopedResources();
+	Vertex,
+	Pixel
+};
 
+class ScopedShaderResources : Scope
+{
+public:
+	ScopedShaderResources(ShaderStage aStage, UINT aStartSlot, std::span<ID3D11ShaderResourceView* const> someResources);
+	~ScopedShaderResources();
+
+private:
+	ShaderStage myStage;
 	unsigned myStartSlot;
 	std::vector<ID3D11ShaderResourceView*> myPreviousResources;
 };
 
-class ScopedPixelShaderResources : ScopedResources
-{
-public:
-	ScopedPixelShaderResources(UINT aStartSlot, std::span<ID3D11ShaderResourceView* const> someResources);
-	~ScopedPixelShaderResources();
-};

@@ -154,7 +154,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
             }
         }
         {
-            ScopedPixelShaderResources resources{ 0, geometryBuffer };
+            ScopedShaderResources resources{ ShaderStage::Pixel, 0, geometryBuffer };
             fullscreenPasses[pass].Draw();
         }
         {
