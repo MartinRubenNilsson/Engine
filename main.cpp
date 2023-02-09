@@ -107,9 +107,14 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
     if (!scene)
         return EXIT_FAILURE;
 
-    //Camera camera{}
+    PerspectiveCamera perspective{};
+    perspective.fovY = 1.04719755119f; // 60 degrees
+    perspective.aspect = viewport.AspectRatio();
+    Camera camera{ perspective };
 
-    static int pass{};
+    Matrix cameraTransform;
+    const float cameraDistance = 7.f;
+    cameraTransform.Translation({ 0.f, 0.f, -cameraDistance });
 
     bool run = true;
     MSG msg{};
@@ -133,14 +138,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
 
         ScopedRenderTargets swapChainScope{ swapChain };
 
-        {
-            auto& cameras = scene->GetCameras();
-            if (!cameras.empty())
-            {
-                auto& [camera, transform] = cameras.front();
-                camera.SetCamera(transform->GetWorldMatrix());
-            }
-        }
+        camera.SetCamera(cameraTransform);
 
         {
             ScopedInputLayout layout{ typeid(BasicVertex) };
@@ -154,6 +152,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
                     mesh.Draw(transform->GetWorldMatrix());
             }
         }
+        static int pass{};
         {
             ScopedShaderResources resources{ ShaderStage::Pixel, 0, geometryBuffer };
             fullscreenPasses[pass].Draw();
@@ -166,9 +165,13 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
         // ImGui
         {
             imGui.NewFrame();
+
             if (ImGui::Begin("Buffer"))
                 ImGui::SliderInt("Buffer", &pass, 0, static_cast<int>(std::size(fullscreenPasses)) - 1);
             ImGui::End();
+
+            ImGui::ViewManipulate(camera, cameraTransform, cameraDistance, {}, { 150.f, 150.f }, 0);
+
             scene->ImGui();
             imGui.Render();
         }

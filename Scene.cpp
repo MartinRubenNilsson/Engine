@@ -42,10 +42,6 @@ void Scene::ImGui()
 
     auto& [camera, transform] = myCameras.front();
 
-    if (ImGui::Begin("Camera"))
-        ImGui::CameraEdit(camera);
-    ImGui::End();
-
     if (selection)
     {
         auto operation = ImGuizmo::TRANSLATE | ImGuizmo::ROTATE | ImGuizmo::SCALE;

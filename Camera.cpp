@@ -5,12 +5,12 @@ using namespace DirectX;
 
 Matrix PerspectiveCamera::GetProjectionMatrix() const
 {
-	return XMMatrixPerspectiveFovLH(fovY, aspect, nearZ, std::max(nearZ + 0.01f, farZ));
+	return XMMatrixPerspectiveFovLH(fovY, aspect, nearZ, farZ);
 }
 
 Matrix OrthographicCamera::GetProjectionMatrix() const
 {
-	return XMMatrixOrthographicLH(width, height, nearZ, std::max(nearZ + 0.01f, farZ));
+	return XMMatrixOrthographicLH(width, height, nearZ, farZ);
 }
 
 /*
@@ -23,13 +23,13 @@ Camera::Camera()
 }
 
 Camera::Camera(const PerspectiveCamera& aCamera)
-	: myLocalViewMatrix{ XMMatrixLookToLH(Vector3::Zero, Vector3::Forward, Vector3::Up) }
+	: myLocalViewMatrix{ XMMatrixLookToLH(Vector3::Zero, Vector3::Backward, Vector3::Up) } // Vector3 is RH
 	, myCamera{ aCamera }
 {
 }
 
 Camera::Camera(const OrthographicCamera& aCamera)
-	: myLocalViewMatrix{ XMMatrixLookToLH(Vector3::Zero, Vector3::Forward, Vector3::Up) }
+	: myLocalViewMatrix{ XMMatrixLookToLH(Vector3::Zero, Vector3::Backward, Vector3::Up) } // Vector3 is RH
 	, myCamera{ aCamera }
 {
 }
@@ -136,6 +136,7 @@ void ImGui::CameraEdit(class Camera& aCamera)
 		DragFloat("Aspect", &camera.aspect, 0.01f);
 		DragFloat("Near Z", &camera.nearZ, 0.1f);
 		DragFloat("Far Z", &camera.farZ);
+
 		aCamera.SetPerspective(camera);
 	}
 
@@ -146,6 +147,7 @@ void ImGui::CameraEdit(class Camera& aCamera)
 		DragFloat("Height", &camera.height, 0.01f);
 		DragFloat("Near Z", &camera.nearZ, 0.1f);
 		DragFloat("Far Z", &camera.farZ);
+
 		aCamera.SetOrthographic(camera);
 	}
 }
@@ -169,16 +171,19 @@ void ImGui::DrawGrid(const Camera& aCamera, const Matrix& aCameraTransform, cons
 	ImGuizmo::DrawGrid(&view._11, &proj._11, &aGridTransform._11, aGridSize);
 }
 
-bool ImGui::Manipulate(
-	const Camera& aCamera,
-	const Matrix& aCameraTransform,
-	ImGuizmo::OPERATION anOperation,
-	ImGuizmo::MODE aMode,
-	Matrix& aTransform
-)
+bool ImGui::Manipulate(const Camera& aCamera, const Matrix& aCameraTransform, ImGuizmo::OPERATION anOperation, ImGuizmo::MODE aMode, Matrix& aTransform)
 {
 	Matrix view = aCameraTransform.Invert() * aCamera.GetLocalViewMatrix();
 	Matrix proj = aCamera.GetProjectionMatrix();
 	ImGuizmo::SetOrthographic(aCamera.IsOrthographic());
 	return ImGuizmo::Manipulate(&view._11, &proj._11, anOperation, aMode, &aTransform._11);
+}
+
+void ImGui::ViewManipulate(const Camera& aCamera, Matrix& aCameraTransform, float aLength, ImVec2 aPosition, ImVec2 aSize, ImU32 aBackgroundColor)
+{
+	// https://github.com/CedricGuillemet/ImGuizmo/issues/107
+	constexpr static Matrix inversionMatrix{ 1.f, 0, 0, 0, 0, 1.f, 0, 0, 0, 0, -1.f, 0, 0, 0, 0, 1.f };
+	Matrix view = inversionMatrix * aCameraTransform.Invert() * aCamera.GetLocalViewMatrix() * inversionMatrix;
+	ImGuizmo::ViewManipulate(&view._11, aLength, aPosition, aSize, aBackgroundColor);
+	aCameraTransform = inversionMatrix * aCamera.GetLocalViewMatrix() * view.Invert() * inversionMatrix;
 }
