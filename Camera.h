@@ -1,44 +1,49 @@
 #pragma once
 
+struct PerspectiveCamera
+{
+	float fovY = 1.570796327f; // pi/2
+	float aspect = 1.f;
+	float nearZ = 0.01f;
+	float farZ = 1000.f;
 
+	Matrix GetProjectionMatrix() const;
+};
+
+struct OrthographicCamera
+{
+	float width = 10.f;
+	float height = 10.f;
+	float nearZ = 0.01f;
+	float farZ = 1000.f;
+
+	Matrix GetProjectionMatrix() const;
+};
 
 class Camera
 {
 public:
+	Camera();
+	Camera(const PerspectiveCamera&);
+	Camera(const OrthographicCamera&);
 	Camera(const aiCamera&);
 
 	void SetCamera(const Matrix& aTransform) const;
 
-	void ToPerspective(float aDepth = 10.f);
-	void ToOrthographic(float aDepth = 10.f);
-
-	const Matrix& GetLocalViewMatrix() const { return myLocalViewMatrix; }
-	Matrix GetWorldViewMatrix(const Matrix& aTransform) const;
-
+	const Matrix& GetLocalViewMatrix() const;
 	Matrix GetProjectionMatrix() const;
 
-	void SetVerticalFov(float aFov);
-	float GetVerticalFov() const { return myVerticalFov; }
-	void SetOrthograpicHeight(float aHeight);
-	float GetOrthographicHeight() const { return myOrthographicHeight; }
-	void SetAspectRatio(float aRatio);
-	float GetAspectRatio() const { return myAspectRatio; }
-	void SetClipPlanes(float aNear, float aFar);
-	void GetClipPlanes(float& aNear, float& aFar) const;
+	void SetPerspective(const PerspectiveCamera&);
+	PerspectiveCamera GetPerspective() const;
+	void SetOrthographic(const OrthographicCamera&);
+	OrthographicCamera GetOrthographic() const;
 
-	bool IsPerspective() const { return myOrthographicHeight == 0.f; }
-	bool IsOrthographic() const { return !IsPerspective(); }
+	bool IsPerspective() const;
+	bool IsOrthographic() const;
 
 private:
-	Matrix GetPerspectiveMatrix() const;
-	Matrix GetOrthographicMatrix() const;
-
 	Matrix myLocalViewMatrix;
-	float myVerticalFov;
-	float myOrthographicHeight;
-	float myAspectRatio;
-	float myNearClipPlane;
-	float myFarClipPlane;
+	std::variant<PerspectiveCamera, OrthographicCamera> myCamera;
 };
 
 namespace ImGui

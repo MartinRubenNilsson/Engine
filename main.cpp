@@ -11,6 +11,7 @@
 #include "Scopes.h"
 #include "Image.h"
 #include "Cubemap.h"
+#include "Camera.h"
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
@@ -24,27 +25,31 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
         fs::current_path(modulePath.remove_filename());
     }
 
+    WindowClass windowClass{ WndProc };
+    Window window{ windowClass };
+    if (!window)
+        return EXIT_FAILURE;
+
+    window.SetTitle(L"Model Viewer");
+
     DX11 dx11{};
     if (!dx11)
         return EXIT_FAILURE;
 
-    ConstantBufferManager constantBufferMgr{};
-    if (!constantBufferMgr)
+    DearImGui imGui{ window.GetHandle(), dx11.GetDevice(), dx11.GetContext() };
+    if (!imGui)
         return EXIT_FAILURE;
 
     InputLayoutManager inputLayoutMgr{};
     if (!inputLayoutMgr)
         return EXIT_FAILURE;
 
+    ConstantBufferManager constantBufferMgr{};
+    if (!constantBufferMgr)
+        return EXIT_FAILURE;
+
     StateManager stateMgr{};
     ShaderManager shaderMgr{};
-
-    WindowClass windowClass{ WndProc };
-	Window window{ windowClass };
-	if (!window)
-		return EXIT_FAILURE;
-
-    window.SetTitle(L"Model Viewer");
 
     SwapChain swapChain{ window.GetHandle() };
     if (!swapChain)
@@ -59,16 +64,6 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
 
     DepthBuffer depthBuffer{ width, height };
     if (!depthBuffer)
-        return EXIT_FAILURE;
-
-    DearImGui imGui{ window.GetHandle(), dx11.GetDevice(), dx11.GetContext() };
-    if (!imGui)
-        return EXIT_FAILURE;
-
-    SceneManager sceneMgr{};
-
-    auto scene = sceneMgr.GetScene("mesh/test_00.fbx");
-    if (!scene)
         return EXIT_FAILURE;
 
     FullscreenPass fullscreenPasses[] =
@@ -104,6 +99,12 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
 
     Cubemap cubemap{ cubemapFaces };
     if (!cubemap)
+        return EXIT_FAILURE;
+
+    SceneManager sceneMgr{};
+
+    auto scene = sceneMgr.GetScene("mesh/test_00.fbx");
+    if (!scene)
         return EXIT_FAILURE;
 
     //Camera camera{}

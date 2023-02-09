@@ -17,6 +17,7 @@
 #include <string_view>
 #include <type_traits>
 #include <typeindex>
+#include <variant>
 #include <vector>
 namespace fs = std::filesystem;
 

@@ -3,143 +3,150 @@
 
 using namespace DirectX;
 
-namespace
+Matrix PerspectiveCamera::GetProjectionMatrix() const
 {
-	XMVECTOR AiToXm(const aiVector3D& aiVector)
-	{
-		XMFLOAT3 xmVector{ aiVector.x, aiVector.y, aiVector.z };
-		return XMLoadFloat3(&xmVector);
-	}
+	return XMMatrixPerspectiveFovLH(fovY, aspect, nearZ, std::max(nearZ + 0.01f, farZ));
+}
 
-	XMMATRIX LookTo(const aiVector3D& position, const aiVector3D& direction, const aiVector3D& up)
-	{
-		return XMMatrixLookToLH(
-			AiToXm(position),
-			XMVector3Normalize(AiToXm(direction)),
-			XMVector3Normalize(AiToXm(up))
-		);
-	}
+Matrix OrthographicCamera::GetProjectionMatrix() const
+{
+	return XMMatrixOrthographicLH(width, height, nearZ, std::max(nearZ + 0.01f, farZ));
+}
+
+/*
+* class Camera
+*/
+
+Camera::Camera()
+	: Camera(PerspectiveCamera{})
+{
+}
+
+Camera::Camera(const PerspectiveCamera& aCamera)
+	: myLocalViewMatrix{ XMMatrixLookToLH(Vector3::Zero, Vector3::Forward, Vector3::Up) }
+	, myCamera{ aCamera }
+{
+}
+
+Camera::Camera(const OrthographicCamera& aCamera)
+	: myLocalViewMatrix{ XMMatrixLookToLH(Vector3::Zero, Vector3::Forward, Vector3::Up) }
+	, myCamera{ aCamera }
+{
 }
 
 Camera::Camera(const aiCamera& aCamera)
-	: myLocalViewMatrix{ LookTo(aCamera.mPosition, aCamera.mLookAt, aCamera.mUp) }
-	, myVerticalFov{ 2.f * atan(tan(aCamera.mHorizontalFOV) / aCamera.mAspect) }
-	, myOrthographicHeight{ 2.f * aCamera.mOrthographicWidth / aCamera.mAspect }
-	, myAspectRatio{ aCamera.mAspect }
-	, myNearClipPlane{ aCamera.mClipPlaneNear }
-	, myFarClipPlane{ aCamera.mClipPlaneFar }
 {
+	if (aCamera.mOrthographicWidth == 0.f)
+	{
+		PerspectiveCamera camera{};
+		camera.fovY = 2.f * atan(tan(aCamera.mHorizontalFOV) / aCamera.mAspect);
+		camera.aspect = aCamera.mAspect;
+		camera.nearZ = aCamera.mClipPlaneNear;
+		camera.farZ = aCamera.mClipPlaneFar;
+
+		*this = Camera(camera);
+	}
+	else
+	{
+		OrthographicCamera camera{};
+		camera.width = 2.f * aCamera.mOrthographicWidth;
+		camera.height = camera.width / aCamera.mAspect;;
+		camera.nearZ = aCamera.mClipPlaneNear;
+		camera.farZ = aCamera.mClipPlaneFar;
+
+		*this = Camera(camera);
+	}
+
+	myLocalViewMatrix = XMMatrixLookToLH(
+		{ aCamera.mPosition.x, aCamera.mPosition.y, aCamera.mPosition.z },
+		XMVector3Normalize({ aCamera.mLookAt.x, aCamera.mLookAt.y, aCamera.mLookAt.z }),
+		XMVector3Normalize({ aCamera.mUp.x, aCamera.mUp.y, aCamera.mUp.z })
+	);
 }
 
 void Camera::SetCamera(const Matrix& aTransform) const
 {
 	CameraBuffer buffer{};
 	//buffer.cameraMatrix = aTransform;
-	buffer.worldToClipMatrix = GetWorldViewMatrix(aTransform) * GetProjectionMatrix();
+	buffer.worldToClipMatrix = aTransform.Invert() * myLocalViewMatrix * GetProjectionMatrix();
 
 	DX11_WRITE_CONSTANT_BUFFER(buffer);
 }
 
-void Camera::ToPerspective(float aDepth)
+const Matrix& Camera::GetLocalViewMatrix() const
 {
-	if (!IsPerspective())
-	{
-		myVerticalFov = 2.f * atan(myOrthographicHeight / (aDepth * 2.f));
-		myOrthographicHeight = 0.f;
-	}
-}
-
-void Camera::ToOrthographic(float aDepth)
-{
-	if (IsPerspective())
-	{
-		myOrthographicHeight = aDepth * 2.f * tan(myVerticalFov / 2.f);
-		myVerticalFov = 0.f;
-	}
-}
-
-Matrix Camera::GetWorldViewMatrix(const Matrix& aTransform) const
-{
-	return aTransform.Invert() * myLocalViewMatrix;
+	return myLocalViewMatrix;
 }
 
 Matrix Camera::GetProjectionMatrix() const
 {
-	return IsPerspective() ? GetPerspectiveMatrix() : GetOrthographicMatrix();
+	if (std::holds_alternative<PerspectiveCamera>(myCamera))
+		return std::get<PerspectiveCamera>(myCamera).GetProjectionMatrix();
+	if (std::holds_alternative<OrthographicCamera>(myCamera))
+		return std::get<OrthographicCamera>(myCamera).GetProjectionMatrix();
+	return Matrix::Identity;
 }
 
-void Camera::SetVerticalFov(float aFov)
+void Camera::SetPerspective(const PerspectiveCamera& aCamera)
 {
-	if (IsPerspective())
-		myVerticalFov = std::clamp(aFov, 0.01f, XM_PI - 0.01f);
+	myCamera = aCamera;
 }
 
-void Camera::SetOrthograpicHeight(float aHeight)
+PerspectiveCamera Camera::GetPerspective() const
 {
-	if (!IsPerspective())
-		myOrthographicHeight = std::max(aHeight, 0.01f);
+	return IsPerspective() ? std::get<PerspectiveCamera>(myCamera) : PerspectiveCamera{};
 }
 
-void Camera::SetAspectRatio(float aRatio)
+void Camera::SetOrthographic(const OrthographicCamera& aCamera)
 {
-	myAspectRatio = std::max(aRatio, 0.01f);
+	myCamera = aCamera;
 }
 
-void Camera::SetClipPlanes(float aNear, float aFar)
+OrthographicCamera Camera::GetOrthographic() const
 {
-	myNearClipPlane = std::max(aNear, 0.01f);
-	myFarClipPlane = std::max(aFar, aNear + 0.01f);
+	return IsOrthographic() ? std::get<OrthographicCamera>(myCamera) : OrthographicCamera{};
 }
 
-void Camera::GetClipPlanes(float& aNear, float& aFar) const
+bool Camera::IsPerspective() const
 {
-	aNear = myNearClipPlane;
-	aFar = myFarClipPlane;
+	return std::holds_alternative<PerspectiveCamera>(myCamera);
 }
 
-Matrix Camera::GetPerspectiveMatrix() const
+bool Camera::IsOrthographic() const
 {
-	return XMMatrixPerspectiveFovLH(myVerticalFov, myAspectRatio, myNearClipPlane, myFarClipPlane);
+	return std::holds_alternative<OrthographicCamera>(myCamera);
 }
 
-Matrix Camera::GetOrthographicMatrix() const
-{
-	return XMMatrixOrthographicLH(myOrthographicHeight, myOrthographicHeight / myAspectRatio, myNearClipPlane, myFarClipPlane);
-}
+/*
+* namespace ImGui
+*/
 
 void ImGui::CameraEdit(class Camera& aCamera)
 {
 	{
 		int orthographic = aCamera.IsOrthographic();
 		if (Combo("Projection", &orthographic, "Perspective\0Orthographic\0\0"))
-			orthographic ? aCamera.ToOrthographic() : aCamera.ToPerspective();
+			orthographic ? aCamera.SetOrthographic({}) : aCamera.SetPerspective({});
 	}
 
 	if (aCamera.IsPerspective())
 	{
-		float fov{ aCamera.GetVerticalFov() };
-		DragFloat("Vertical FoV", &fov, 0.01f);
-		aCamera.SetVerticalFov(fov);
-	}
-	else
-	{
-		float height{ aCamera.GetOrthographicHeight() };
-		DragFloat("Ortho Height", &height, 0.1f);
-		aCamera.SetOrthograpicHeight(height);
+		auto camera = aCamera.GetPerspective();
+		DragFloat("FoV", &camera.fovY, 0.01f);
+		DragFloat("Aspect", &camera.aspect, 0.01f);
+		DragFloat("Near Z", &camera.nearZ, 0.1f);
+		DragFloat("Far Z", &camera.farZ);
+		aCamera.SetPerspective(camera);
 	}
 
+	if (aCamera.IsOrthographic())
 	{
-		float aspectRatio{ aCamera.GetAspectRatio() };
-		DragFloat("Aspect Ratio", &aspectRatio, 0.01f);
-		aCamera.SetAspectRatio(aspectRatio);
-	}
-
-	{
-		float nearPlane, farPlane;
-		aCamera.GetClipPlanes(nearPlane, farPlane);
-		DragFloat("Near Plane", &nearPlane, 0.1f);
-		DragFloat("Far Plane", &farPlane);
-		aCamera.SetClipPlanes(nearPlane, farPlane);
+		auto camera = aCamera.GetOrthographic();
+		DragFloat("Width", &camera.width, 0.01f);
+		DragFloat("Height", &camera.height, 0.01f);
+		DragFloat("Near Z", &camera.nearZ, 0.1f);
+		DragFloat("Far Z", &camera.farZ);
+		aCamera.SetOrthographic(camera);
 	}
 }
 
@@ -148,7 +155,7 @@ void ImGui::DrawCubes(const Camera& aCamera, const Matrix& aCameraTransform, std
 	if (someCubeTransforms.empty())
 		return;
 
-	Matrix view = aCamera.GetWorldViewMatrix(aCameraTransform);
+	Matrix view = aCameraTransform.Invert() * aCamera.GetLocalViewMatrix();
 	Matrix proj = aCamera.GetProjectionMatrix();
 	ImGuizmo::SetOrthographic(aCamera.IsOrthographic());
 	ImGuizmo::DrawCubes(&view._11, &proj._11, &someCubeTransforms.front()._11, static_cast<int>(someCubeTransforms.size()));
@@ -156,7 +163,7 @@ void ImGui::DrawCubes(const Camera& aCamera, const Matrix& aCameraTransform, std
 
 void ImGui::DrawGrid(const Camera& aCamera, const Matrix& aCameraTransform, const Matrix& aGridTransform, float aGridSize)
 {
-	Matrix view = aCamera.GetWorldViewMatrix(aCameraTransform);
+	Matrix view = aCameraTransform.Invert() * aCamera.GetLocalViewMatrix();
 	Matrix proj = aCamera.GetProjectionMatrix();
 	ImGuizmo::SetOrthographic(aCamera.IsOrthographic());
 	ImGuizmo::DrawGrid(&view._11, &proj._11, &aGridTransform._11, aGridSize);
@@ -170,7 +177,7 @@ bool ImGui::Manipulate(
 	Matrix& aTransform
 )
 {
-	Matrix view = aCamera.GetWorldViewMatrix(aCameraTransform);
+	Matrix view = aCameraTransform.Invert() * aCamera.GetLocalViewMatrix();
 	Matrix proj = aCamera.GetProjectionMatrix();
 	ImGuizmo::SetOrthographic(aCamera.IsOrthographic());
 	return ImGuizmo::Manipulate(&view._11, &proj._11, anOperation, aMode, &aTransform._11);
