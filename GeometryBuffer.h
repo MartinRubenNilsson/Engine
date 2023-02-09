@@ -26,7 +26,6 @@ private:
 	ID3D11Texture2D* myTextures[ourFormats.size()];
 	ID3D11RenderTargetView* myRenderTargets[ourFormats.size()];
 	ID3D11ShaderResourceView* myShaderResources[ourFormats.size()];
-	unsigned myWidth;
-	unsigned myHeight;
+	unsigned myWidth, myHeight;
 };
 

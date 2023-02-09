@@ -114,28 +114,25 @@ ScopedDepthStencilState::~ScopedDepthStencilState()
 * class ScopedRenderTargets
 */
 
-ScopedRenderTargets::ScopedRenderTargets(std::span<ID3D11RenderTargetView* const> someTargets, ID3D11DepthStencilView* aDepthStencil)
+ScopedRenderTargets::ScopedRenderTargets(std::span<ID3D11RenderTargetView* const> someTargets, DepthStencil aDepthStencil)
 	: myPreviousTargets{ someTargets.size(), nullptr }
-	, myPreviousDepthStencil{ nullptr }
+	, myPreviousDepthStencil{}
 {
 	assert(someTargets.size() <= D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT);
 
 	DX11_CONTEXT->OMGetRenderTargets((UINT)myPreviousTargets.size(), myPreviousTargets.data(), &myPreviousDepthStencil);
-	DX11_CONTEXT->OMSetRenderTargets((UINT)someTargets.size(), someTargets.data(), aDepthStencil);
+	DX11_CONTEXT->OMSetRenderTargets((UINT)someTargets.size(), someTargets.data(), aDepthStencil.Get());
 }
 
 ScopedRenderTargets::~ScopedRenderTargets()
 {
-	DX11_CONTEXT->OMSetRenderTargets((UINT)myPreviousTargets.size(), myPreviousTargets.data(), myPreviousDepthStencil);
+	DX11_CONTEXT->OMSetRenderTargets((UINT)myPreviousTargets.size(), myPreviousTargets.data(), myPreviousDepthStencil.Get());
 
 	for (ID3D11RenderTargetView* target : myPreviousTargets)
 	{
 		if (target)
 			target->Release();
 	}
-
-	if (myPreviousDepthStencil)
-		myPreviousDepthStencil->Release();
 }
 
 /*

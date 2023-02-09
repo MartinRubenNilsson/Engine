@@ -2,7 +2,6 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <ClInclude Include="pch.h" />
-    <ClInclude Include="Window.h" />
     <ClInclude Include="SwapChain.h">
       <Filter>graphics</Filter>
     </ClInclude>
@@ -69,12 +68,19 @@
     <ClInclude Include="Vertices.h">
       <Filter>graphics</Filter>
     </ClInclude>
-    <ClInclude Include="Drop.h" />
+    <ClInclude Include="Window.h">
+      <Filter>windows</Filter>
+    </ClInclude>
+    <ClInclude Include="Drop.h">
+      <Filter>windows</Filter>
+    </ClInclude>
+    <ClInclude Include="Material.h">
+      <Filter>objects</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
     <ClCompile Include="pch.cpp" />
-    <ClCompile Include="Window.cpp" />
     <ClCompile Include="DX11.cpp">
       <Filter>graphics</Filter>
     </ClCompile>
@@ -137,7 +143,15 @@
       <Filter>graphics</Filter>
     </ClCompile>
     <ClCompile Include="Image.cpp" />
-    <ClCompile Include="Drop.cpp" />
+    <ClCompile Include="Window.cpp">
+      <Filter>windows</Filter>
+    </ClCompile>
+    <ClCompile Include="Drop.cpp">
+      <Filter>windows</Filter>
+    </ClCompile>
+    <ClCompile Include="Material.cpp">
+      <Filter>objects</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="graphics">
@@ -157,6 +171,9 @@
     </Filter>
     <Filter Include="graphics\managers">
       <UniqueIdentifier>{c18edbf6-ced2-448f-a66c-4b49888979aa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="windows">
+      <UniqueIdentifier>{bffff0c7-e125-46a2-aa9e-59024fddbf31}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

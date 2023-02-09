@@ -11,46 +11,16 @@ Scene::Scene(const aiScene& aScene)
     , myMeshes{}
     , myCameras{}
 {
+    LoadMaterials({ aScene.mMaterials, aScene.mNumMaterials });
     LoadMeshes({ aScene.mMeshes, aScene.mNumMeshes });
     LoadHierarchy(myRootTransform, aScene.mRootNode);
     LoadCameras({ aScene.mCameras, aScene.mNumCameras });
 }
 
-void Scene::ImGui()
+void Scene::LoadMaterials(std::span<aiMaterial*> someMaterials)
 {
-    static Transform::Ptr selection;
-
-    if (ImGui::Begin("Hierarchy"))
-        ImGui::Hierarchy(myRootTransform, selection);
-    ImGui::End();
-
-    if (selection)
-    {
-        if (ImGui::Begin("Inspector"))
-        {
-            if (ImGui::CollapsingHeader("Transform"))
-            {
-                ImGui::DragTransform(selection);
-                ImGui::ResetTransformButton("Reset", selection);
-            }
-        }
-        ImGui::End();
-    }
-
-    if (myCameras.empty())
-        return;
-
-    auto& [camera, transform] = myCameras.front();
-
-    if (selection)
-    {
-        auto operation = ImGuizmo::TRANSLATE | ImGuizmo::ROTATE | ImGuizmo::SCALE;
-        auto mode = ImGuizmo::LOCAL;
-
-        Matrix m = selection->GetWorldMatrix();
-        ImGui::Manipulate(camera, transform->GetWorldMatrix(), operation, mode, m);
-        selection->SetWorldMatrix(m);
-    }
+    for (aiMaterial* material : someMaterials)
+        myMaterials.emplace_back(*material);
 }
 
 void Scene::LoadMeshes(std::span<aiMesh*> someMeshes)
@@ -82,7 +52,7 @@ void Scene::LoadCameras(std::span<aiCamera*> someCameras)
 * class SceneManager
 */
 
-std::shared_ptr<Scene> SceneManager::GetScene(const fs::path& aPath)
+std::shared_ptr<const Scene> SceneManager::GetScene(const fs::path& aPath)
 {
     auto itr = myScenes.find(aPath);
     if (itr != myScenes.end())
@@ -91,10 +61,11 @@ std::shared_ptr<Scene> SceneManager::GetScene(const fs::path& aPath)
     Assimp::Importer importer{};
     unsigned flags = aiProcess_ConvertToLeftHanded | aiProcessPreset_TargetRealtime_MaxQuality;
 
-    if (const aiScene* scene = importer.ReadFile(aPath.string().c_str(), flags))
+    if (const aiScene* importedScene = importer.ReadFile(aPath.string().c_str(), flags))
     {
-        itr = myScenes.emplace(aPath, std::make_shared<Scene>(*scene)).first;
-        return itr->second;
+        auto scene = std::make_shared<Scene>(*importedScene);
+        myScenes.emplace(aPath, scene);
+        return scene;
     }
 
     return nullptr;

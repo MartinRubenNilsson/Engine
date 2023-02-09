@@ -75,12 +75,14 @@ private:
 class ScopedRenderTargets : Scope
 {
 public:
-	ScopedRenderTargets(std::span<ID3D11RenderTargetView* const> someTargets, ID3D11DepthStencilView* aDepthStencil = nullptr);
+	using DepthStencil = ComPtr<ID3D11DepthStencilView>;
+
+	ScopedRenderTargets(std::span<ID3D11RenderTargetView* const> someTargets, DepthStencil aDepthStencil = nullptr);
 	~ScopedRenderTargets();
 
 private:
 	std::vector<ID3D11RenderTargetView*> myPreviousTargets;
-	ID3D11DepthStencilView* myPreviousDepthStencil;
+	DepthStencil myPreviousDepthStencil;
 };
 
 class ScopedViewports : Scope

@@ -16,8 +16,11 @@
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
-std::unique_ptr<Drop> TheDrop;
-std::shared_ptr<Scene> TheScene;
+namespace
+{
+    std::unique_ptr<Drop> theDrop;
+    std::shared_ptr<const Scene> theScene;
+}
 
 int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
 {
@@ -132,10 +135,10 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
         }
 
         // Drag and drop
-        if (TheDrop)
+        if (theDrop)
         {
-            TheScene = sceneMgr.GetScene(TheDrop->GetPaths().front());
-            TheDrop = nullptr;
+            theScene = sceneMgr.GetScene(theDrop->GetPaths().front());
+            theDrop = nullptr;
         }
 
         // Rendering
@@ -147,14 +150,14 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
 
         camera.SetCamera(cameraTransform);
 
-        if (TheScene)
+        if (theScene)
         {
             ScopedInputLayout layout{ typeid(BasicVertex) };
             ScopedShader vs{ VERTEX_SHADER("VsBasic.cso") };
             ScopedShader ps{ PIXEL_SHADER("PsGBuffer.cso") };
             ScopedRenderTargets geometryBufferScope{ geometryBuffer, depthBuffer };
 
-            for (auto& [mesh, transforms] : TheScene->GetMeshes())
+            for (auto& [mesh, transforms] : theScene->GetMeshes())
             {
                 for (auto& transform : transforms)
                     mesh.Draw(transform->GetWorldMatrix());
@@ -182,8 +185,37 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
 
             ImGui::ViewManipulate(camera, cameraTransform, cameraDistance, {}, { 150.f, 150.f }, 0);
 
-            if (TheScene)
-                TheScene->ImGui();
+            if (theScene)
+            {
+                static Transform::Ptr selection;
+
+                if (ImGui::Begin("Hierarchy"))
+                    ImGui::Hierarchy(theScene->GetRootTransform(), selection);
+                ImGui::End();
+
+                if (selection)
+                {
+                    if (ImGui::Begin("Inspector"))
+                    {
+                        if (ImGui::CollapsingHeader("Transform"))
+                        {
+                            ImGui::DragTransform(selection);
+                            ImGui::ResetTransformButton("Reset", selection);
+                        }
+                    }
+                    ImGui::End();
+                }
+
+                if (selection)
+                {
+                    auto operation = ImGuizmo::TRANSLATE | ImGuizmo::ROTATE | ImGuizmo::SCALE;
+                    auto mode = ImGuizmo::LOCAL;
+
+                    Matrix m = selection->GetWorldMatrix();
+                    ImGui::Manipulate(camera, cameraTransform, operation, mode, m);
+                    selection->SetWorldMatrix(m);
+                }
+            }
 
             imGui.Render();
         }
@@ -204,7 +236,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
     switch (msg)
     {
     case WM_DROPFILES:
-        TheDrop = std::make_unique<Drop>((HDROP)wParam);
+        theDrop = std::make_unique<Drop>((HDROP)wParam);
         break;
     case WM_DESTROY:
         PostQuitMessage(EXIT_SUCCESS);
