@@ -69,6 +69,7 @@
     <ClInclude Include="Vertices.h">
       <Filter>graphics</Filter>
     </ClInclude>
+    <ClInclude Include="Drop.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
@@ -136,6 +137,7 @@
       <Filter>graphics</Filter>
     </ClCompile>
     <ClCompile Include="Image.cpp" />
+    <ClCompile Include="Drop.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="graphics">

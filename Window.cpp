@@ -23,7 +23,8 @@ WindowClass::~WindowClass()
 // Window
 
 Window::Window(const WNDCLASS& aClass)
-	: myWindow{ CreateWindow(
+	: myWindow{ CreateWindowEx(
+		WS_EX_ACCEPTFILES,
 		aClass.lpszClassName,
 		NULL,
 		WS_OVERLAPPEDWINDOW | WS_VISIBLE,

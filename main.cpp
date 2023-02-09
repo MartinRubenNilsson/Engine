@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "Window.h"
+#include "Drop.h"
 #include "DearImGui.h"
 #include "SwapChain.h"
 #include "DepthBuffer.h"
@@ -14,6 +15,9 @@
 #include "Camera.h"
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+
+std::unique_ptr<Drop> TheDrop;
+std::shared_ptr<Scene> TheScene;
 
 int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
 {
@@ -103,10 +107,6 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
 
     SceneManager sceneMgr{};
 
-    auto scene = sceneMgr.GetScene("mesh/test_00.fbx");
-    if (!scene)
-        return EXIT_FAILURE;
-
     PerspectiveCamera perspective{};
     perspective.fovY = 1.04719755119f; // 60 degrees
     perspective.aspect = viewport.AspectRatio();
@@ -131,6 +131,13 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
             DispatchMessage(&msg);
         }
 
+        // Drag and drop
+        if (TheDrop)
+        {
+            TheScene = sceneMgr.GetScene(TheDrop->GetPaths().front());
+            TheDrop = nullptr;
+        }
+
         // Rendering
         swapChain.ClearRenderTargets();
         geometryBuffer.ClearRenderTargets();
@@ -140,19 +147,22 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
 
         camera.SetCamera(cameraTransform);
 
+        if (TheScene)
         {
             ScopedInputLayout layout{ typeid(BasicVertex) };
             ScopedShader vs{ VERTEX_SHADER("VsBasic.cso") };
             ScopedShader ps{ PIXEL_SHADER("PsGBuffer.cso") };
             ScopedRenderTargets geometryBufferScope{ geometryBuffer, depthBuffer };
 
-            for (auto& [mesh, transforms] : scene->GetMeshes())
+            for (auto& [mesh, transforms] : TheScene->GetMeshes())
             {
                 for (auto& transform : transforms)
                     mesh.Draw(transform->GetWorldMatrix());
             }
         }
+
         static int pass{};
+
         {
             ScopedShaderResources resources{ ShaderStage::Pixel, 0, geometryBuffer };
             fullscreenPasses[pass].Draw();
@@ -172,7 +182,9 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
 
             ImGui::ViewManipulate(camera, cameraTransform, cameraDistance, {}, { 150.f, 150.f }, 0);
 
-            scene->ImGui();
+            if (TheScene)
+                TheScene->ImGui();
+
             imGui.Render();
         }
 
@@ -191,6 +203,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
     switch (msg)
     {
+    case WM_DROPFILES:
+        TheDrop = std::make_unique<Drop>((HDROP)wParam);
+        break;
     case WM_DESTROY:
         PostQuitMessage(EXIT_SUCCESS);
         break;
