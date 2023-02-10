@@ -61,7 +61,8 @@ void SwapChain::GetDimensions(unsigned& aWidth, unsigned& aHeight) const
 	aHeight = myHeight;
 }
 
-SwapChain::operator std::span<ID3D11RenderTargetView* const>() const
+SwapChain::operator std::span<const RenderTargetPtr>() const
 {
-	return { myRenderTarget.GetAddressOf(), 1 };
+	return { std::addressof(myRenderTarget), 1 };
 }
+

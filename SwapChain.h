@@ -10,15 +10,15 @@ public:
 
 	void GetDimensions(unsigned& aWidth, unsigned& aHeight) const;
 
-	operator std::span<ID3D11RenderTargetView* const>() const;
+	operator std::span<const RenderTargetPtr>() const;
 
 	operator bool() const { return SUCCEEDED(myResult); }
 
 private:
 	HRESULT myResult;
-	ComPtr<IDXGISwapChain> mySwapChain;
-	ComPtr<ID3D11Texture2D> myBackBuffer;
-	ComPtr<ID3D11RenderTargetView> myRenderTarget;
+	SwapChainPtr mySwapChain;
+	TexturePtr myBackBuffer;
+	RenderTargetPtr myRenderTarget;
 	unsigned myWidth, myHeight;
 };
 

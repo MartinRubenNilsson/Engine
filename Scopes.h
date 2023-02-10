@@ -75,14 +75,14 @@ private:
 class ScopedRenderTargets : Scope
 {
 public:
-	using DepthStencil = ComPtr<ID3D11DepthStencilView>;
-
-	ScopedRenderTargets(std::span<ID3D11RenderTargetView* const> someTargets, DepthStencil aDepthStencil = nullptr);
+	ScopedRenderTargets(std::span<const RenderTargetPtr> someTargets, DepthStencilPtr aDepthStencil = nullptr);
 	~ScopedRenderTargets();
 
 private:
-	std::vector<ID3D11RenderTargetView*> myPreviousTargets;
-	DepthStencil myPreviousDepthStencil;
+	static constexpr UINT ourMaxCount = D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT;
+
+	RenderTargetPtr myPreviousTargets[ourMaxCount];
+	DepthStencilPtr myPreviousDepthStencil;
 };
 
 class ScopedViewports : Scope
@@ -104,12 +104,15 @@ enum class ShaderStage
 class ScopedShaderResources : Scope
 {
 public:
-	ScopedShaderResources(ShaderStage aStage, UINT aStartSlot, std::span<ID3D11ShaderResourceView* const> someResources);
+	ScopedShaderResources(ShaderStage aStage, UINT aStartSlot, std::span<const ShaderResourcePtr> someResources);
 	~ScopedShaderResources();
 
 private:
-	ShaderStage myStage;
-	unsigned myStartSlot;
-	std::vector<ID3D11ShaderResourceView*> myPreviousResources;
+	static constexpr UINT ourMaxCount = D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT;
+
+	UINT myStartSlot;
+	std::vector<ShaderResourcePtr> myPreviousResources;
+	decltype(&ID3D11DeviceContext::VSSetShaderResources) mySetter;
+	decltype(&ID3D11DeviceContext::VSGetShaderResources) myGetter;
 };
 

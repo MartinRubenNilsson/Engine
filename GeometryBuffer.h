@@ -4,12 +4,11 @@ class GeometryBuffer
 {
 public:
 	GeometryBuffer(unsigned aWidth, unsigned aHeight);
-	~GeometryBuffer();
 
 	void ClearRenderTargets(const Color& aColor = { 0.f, 0.f, 0.f, 0.f });
 
-	operator std::span<ID3D11RenderTargetView* const>() const { return myRenderTargets; }
-	operator std::span<ID3D11ShaderResourceView* const>() const { return myShaderResources; }
+	operator std::span<const RenderTargetPtr>() const { return myRenderTargets; }
+	operator std::span<const ShaderResourcePtr>() const { return myShaderResources; }
 
 	operator bool() const { return SUCCEEDED(myResult); }
 
@@ -18,14 +17,15 @@ private:
 	{
 		DXGI_FORMAT_R32G32B32A32_FLOAT, // World position
 		DXGI_FORMAT_R32G32B32A32_FLOAT, // World normal
+		DXGI_FORMAT_R8G8B8A8_UNORM_SRGB, // Diffuse
 	};
 
 	static_assert(ourFormats.size() <= D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT);
 
 	HRESULT myResult;
-	ID3D11Texture2D* myTextures[ourFormats.size()];
-	ID3D11RenderTargetView* myRenderTargets[ourFormats.size()];
-	ID3D11ShaderResourceView* myShaderResources[ourFormats.size()];
+	TexturePtr myTextures[ourFormats.size()];
+	RenderTargetPtr myRenderTargets[ourFormats.size()];
+	ShaderResourcePtr myShaderResources[ourFormats.size()];
 	unsigned myWidth, myHeight;
 };
 

@@ -63,7 +63,10 @@ std::shared_ptr<const Scene> SceneManager::GetScene(const fs::path& aPath)
 
     if (const aiScene* importedScene = importer.ReadFile(aPath.string().c_str(), flags))
     {
+        fs::path currentPath = fs::current_path();
+        fs::current_path(aPath.parent_path());
         auto scene = std::make_shared<Scene>(*importedScene);
+        fs::current_path(currentPath);
         myScenes.emplace(aPath, scene);
         return scene;
     }

@@ -114,25 +114,30 @@ ScopedDepthStencilState::~ScopedDepthStencilState()
 * class ScopedRenderTargets
 */
 
-ScopedRenderTargets::ScopedRenderTargets(std::span<ID3D11RenderTargetView* const> someTargets, DepthStencil aDepthStencil)
-	: myPreviousTargets{ someTargets.size(), nullptr }
+ScopedRenderTargets::ScopedRenderTargets(std::span<const RenderTargetPtr> someTargets, DepthStencilPtr aDepthStencil)
+	: myPreviousTargets{}
 	, myPreviousDepthStencil{}
 {
-	assert(someTargets.size() <= D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT);
+	assert(someTargets.size() <= ourMaxCount);
 
-	DX11_CONTEXT->OMGetRenderTargets((UINT)myPreviousTargets.size(), myPreviousTargets.data(), &myPreviousDepthStencil);
-	DX11_CONTEXT->OMSetRenderTargets((UINT)someTargets.size(), someTargets.data(), aDepthStencil.Get());
+	{
+		ID3D11RenderTargetView* views[ourMaxCount]{};
+		DX11_CONTEXT->OMGetRenderTargets(ourMaxCount, views, myPreviousDepthStencil.ReleaseAndGetAddressOf());
+		std::ranges::copy(views, myPreviousTargets);
+	}
+	
+	{
+		ID3D11RenderTargetView* views[ourMaxCount]{};
+		std::ranges::transform(someTargets, views, &RenderTargetPtr::Get);
+		DX11_CONTEXT->OMSetRenderTargets(ourMaxCount, views, aDepthStencil.Get());
+	}
 }
 
 ScopedRenderTargets::~ScopedRenderTargets()
 {
-	DX11_CONTEXT->OMSetRenderTargets((UINT)myPreviousTargets.size(), myPreviousTargets.data(), myPreviousDepthStencil.Get());
-
-	for (ID3D11RenderTargetView* target : myPreviousTargets)
-	{
-		if (target)
-			target->Release();
-	}
+	ID3D11RenderTargetView* views[ourMaxCount]{};
+	std::ranges::transform(myPreviousTargets, views, &RenderTargetPtr::Get);
+	DX11_CONTEXT->OMSetRenderTargets(ourMaxCount, views, myPreviousDepthStencil.Get());
 }
 
 /*
@@ -160,42 +165,45 @@ ScopedViewports::~ScopedViewports()
 * class ScopedShaderResources
 */
 
-ScopedShaderResources::ScopedShaderResources(ShaderStage aStage, UINT aStartSlot, std::span<ID3D11ShaderResourceView* const> someResources)
-	: myStage{ aStage }
-	, myStartSlot{ aStartSlot }
-	, myPreviousResources{ someResources.size(), nullptr }
+ScopedShaderResources::ScopedShaderResources(ShaderStage aStage, UINT aStartSlot, std::span<const ShaderResourcePtr> someResources)
+	: myStartSlot{ aStartSlot }
+	, myPreviousResources{ someResources.size() }
+	, mySetter{}
+	, myGetter{}
 {
-	assert(aStartSlot < D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT);
-	assert(aStartSlot + someResources.size() <= D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT);
+	assert(aStartSlot < ourMaxCount);
+	assert(aStartSlot + someResources.size() <= ourMaxCount);
 
 	switch (aStage)
 	{
 	case ShaderStage::Vertex:
-		DX11_CONTEXT->VSGetShaderResources(myStartSlot, (UINT)myPreviousResources.size(), myPreviousResources.data());
-		DX11_CONTEXT->VSSetShaderResources(aStartSlot, (UINT)someResources.size(), someResources.data());
+		mySetter = &ID3D11DeviceContext::VSSetShaderResources;
+		myGetter = &ID3D11DeviceContext::VSGetShaderResources;
 		break;
 	case ShaderStage::Pixel:
-		DX11_CONTEXT->PSGetShaderResources(myStartSlot, (UINT)myPreviousResources.size(), myPreviousResources.data());
-		DX11_CONTEXT->PSSetShaderResources(aStartSlot, (UINT)someResources.size(), someResources.data());
+		mySetter = &ID3D11DeviceContext::PSSetShaderResources;
+		myGetter = &ID3D11DeviceContext::PSGetShaderResources;
 		break;
+	default:
+		assert(false);
+	}
+
+	{
+		std::vector<ID3D11ShaderResourceView*> views{ myPreviousResources.size() };
+		std::invoke(myGetter, DX11_CONTEXT, myStartSlot, (UINT)views.size(), views.data());
+		std::ranges::copy(views, myPreviousResources.begin());
+	}
+
+	{
+		std::vector<ID3D11ShaderResourceView*> views{ someResources.size() };
+		std::ranges::transform(someResources, views.begin(), &ShaderResourcePtr::Get);
+		std::invoke(mySetter, DX11_CONTEXT, aStartSlot, (UINT)views.size(), views.data());
 	}
 }
 
 ScopedShaderResources::~ScopedShaderResources()
 {
-	switch (myStage)
-	{
-	case ShaderStage::Vertex:
-		DX11_CONTEXT->VSSetShaderResources(myStartSlot, (UINT)myPreviousResources.size(), myPreviousResources.data());
-		break;
-	case ShaderStage::Pixel:
-		DX11_CONTEXT->PSSetShaderResources(myStartSlot, (UINT)myPreviousResources.size(), myPreviousResources.data());
-		break;
-	}
-
-	for (ID3D11ShaderResourceView* resource : myPreviousResources)
-	{
-		if (resource)
-			resource->Release();
-	}
+	std::vector<ID3D11ShaderResourceView*> views{ myPreviousResources.size() };
+	std::ranges::transform(myPreviousResources, views.begin(), &ShaderResourcePtr::Get);
+	std::invoke(mySetter, DX11_CONTEXT, myStartSlot, (UINT)views.size(), views.data());
 }

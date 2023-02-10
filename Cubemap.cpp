@@ -80,7 +80,7 @@ void Cubemap::DrawSkybox() const
 	DX11_CONTEXT->Draw(14, 0);
 }
 
-Cubemap::operator std::span<ID3D11ShaderResourceView* const>() const
+Cubemap::operator std::span<const ShaderResourcePtr>() const
 {
-	return { myShaderResource.GetAddressOf(), 1 };
+	return { std::addressof(myShaderResource), 1 };
 }

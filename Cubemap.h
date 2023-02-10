@@ -8,14 +8,14 @@ public:
 
 	void DrawSkybox() const;
 
-	operator std::span<ID3D11ShaderResourceView* const>() const;
+	operator std::span<const ShaderResourcePtr>() const;
 
 	operator bool() const { return SUCCEEDED(myResult); }
 
 private:
 	HRESULT myResult;
-	ComPtr<ID3D11Texture2D> myTexture;
-	ComPtr<ID3D11ShaderResourceView> myShaderResource;
+	TexturePtr myTexture;
+	ShaderResourcePtr myShaderResource;
 	unsigned myWidth, myHeight;
 };
 

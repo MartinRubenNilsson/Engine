@@ -33,10 +33,10 @@ GeometryBuffer::GeometryBuffer(unsigned aWidth, unsigned aHeight)
 		myResult = DX11_DEVICE->CreateTexture2D(&textureDesc, NULL, &myTextures[i]);
 		if (FAILED(myResult))
 			return;
-		myResult = DX11_DEVICE->CreateRenderTargetView(myTextures[i], &targetDesc, &myRenderTargets[i]);
+		myResult = DX11_DEVICE->CreateRenderTargetView(myTextures[i].Get(), &targetDesc, &myRenderTargets[i]);
 		if (FAILED(myResult))
 			return;
-		myResult = DX11_DEVICE->CreateShaderResourceView(myTextures[i], &resourceDesc, &myShaderResources[i]);
+		myResult = DX11_DEVICE->CreateShaderResourceView(myTextures[i].Get(), &resourceDesc, &myShaderResources[i]);
 		if (FAILED(myResult))
 			return;
 	}
@@ -45,29 +45,8 @@ GeometryBuffer::GeometryBuffer(unsigned aWidth, unsigned aHeight)
 	myHeight = aHeight;
 }
 
-GeometryBuffer::~GeometryBuffer()
-{
-	for (auto texture : myTextures)
-	{
-		if (texture)
-			texture->Release();
-	}
-
-	for (auto target : myRenderTargets)
-	{
-		if (target)
-			target->Release();
-	}
-
-	for (auto resource : myShaderResources)
-	{
-		if (resource)
-			resource->Release();
-	}
-}
-
 void GeometryBuffer::ClearRenderTargets(const Color& aColor)
 {
-	for (ID3D11RenderTargetView* target : myRenderTargets)
-		DX11_CONTEXT->ClearRenderTargetView(target, aColor);
+	for (const auto& target : myRenderTargets)
+		DX11_CONTEXT->ClearRenderTargetView(target.Get(), aColor);
 }

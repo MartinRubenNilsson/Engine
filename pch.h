@@ -36,6 +36,12 @@ using Microsoft::WRL::ComPtr;
 #include <directxtk/simplemath/SimpleMath.h>
 using namespace DirectX::SimpleMath;
 
+using SwapChainPtr = ComPtr<IDXGISwapChain>;
+using TexturePtr = ComPtr<ID3D11Texture2D>;
+using RenderTargetPtr = ComPtr<ID3D11RenderTargetView>;
+using DepthStencilPtr = ComPtr<ID3D11DepthStencilView>;
+using ShaderResourcePtr = ComPtr<ID3D11ShaderResourceView>;
+
 // imgui
 #include <imgui/imgui_impl_win32.h>
 #include <imgui/imgui_impl_dx11.h>
