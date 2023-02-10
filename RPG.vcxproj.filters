@@ -201,6 +201,9 @@
     <FxCompile Include="PsSkybox.hlsl">
       <Filter>shaders</Filter>
     </FxCompile>
+    <FxCompile Include="PsGBufferDiffuse.hlsl">
+      <Filter>shaders</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="ShaderCommon.hlsli">

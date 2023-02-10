@@ -8,6 +8,7 @@
 
 Scene::Scene(const aiScene& aScene)
     : myRootTransform{ Transform::Create() }
+    , myMaterials{}
     , myMeshes{}
     , myCameras{}
 {
@@ -61,15 +62,17 @@ std::shared_ptr<const Scene> SceneManager::GetScene(const fs::path& aPath)
     Assimp::Importer importer{};
     unsigned flags = aiProcess_ConvertToLeftHanded | aiProcessPreset_TargetRealtime_MaxQuality;
 
-    if (const aiScene* importedScene = importer.ReadFile(aPath.string().c_str(), flags))
-    {
-        fs::path currentPath = fs::current_path();
-        fs::current_path(aPath.parent_path());
-        auto scene = std::make_shared<Scene>(*importedScene);
-        fs::current_path(currentPath);
-        myScenes.emplace(aPath, scene);
-        return scene;
-    }
+    const aiScene* importedScene = importer.ReadFile(aPath.string().c_str(), flags);
+    if (!importedScene)
+        return nullptr;
 
-    return nullptr;
+    fs::path currentPath = fs::current_path();
+    fs::current_path(aPath.parent_path());
+
+    auto scene = std::make_shared<Scene>(*importedScene);
+    myScenes.emplace(aPath, scene);
+
+    fs::current_path(currentPath);
+
+    return scene;
 }

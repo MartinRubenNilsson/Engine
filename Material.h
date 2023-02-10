@@ -5,9 +5,9 @@ class Material
 public:
 	Material(const aiMaterial&);
 
-private:
-	void CreateShaderResources();
+	operator std::span<const ShaderResourcePtr>() const { return myShaderResources; }
 
+private:
 	enum TextureType
 	{
 		Diffuse,
@@ -15,7 +15,7 @@ private:
 	};
 
 	std::string myName;
-	ComPtr<ID3D11Texture2D> myTextures[Count];
-	ComPtr<ID3D11ShaderResourceView> myShaderResources[Count];
+	TexturePtr myTextures[Count];
+	ShaderResourcePtr myShaderResources[Count];
 };
 

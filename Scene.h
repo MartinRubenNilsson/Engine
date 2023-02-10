@@ -10,6 +10,7 @@ public:
 	Scene(const aiScene&);
 
 	auto GetRootTransform() const { return myRootTransform; }
+	const auto& GetMaterials() const { return myMaterials; }
 	const auto& GetMeshes() const { return myMeshes; }
 	const auto& GetCameras() const { return myCameras; }
 

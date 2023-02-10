@@ -78,6 +78,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
         PIXEL_SHADER("PsLightAmbient.cso"),
         PIXEL_SHADER("PsGBufferWorldPosition.cso"),
         PIXEL_SHADER("PsGBufferWorldNormal.cso"),
+        PIXEL_SHADER("PsGBufferDiffuse.cso"),
     };
 
     if (!std::ranges::all_of(fullscreenPasses, &FullscreenPass::operator bool))
@@ -116,7 +117,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
     Camera camera{ perspective };
 
     Matrix cameraTransform;
-    const float cameraDistance = 7.f;
+    const float cameraDistance = 20.f;
     cameraTransform.Translation({ 0.f, 0.f, -cameraDistance });
 
     bool run = true;
@@ -157,10 +158,16 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
             ScopedShader ps{ PIXEL_SHADER("PsGBuffer.cso") };
             ScopedRenderTargets geometryBufferScope{ geometryBuffer, depthBuffer };
 
-            for (auto& [mesh, transforms] : theScene->GetMeshes())
+            auto& materials = theScene->GetMaterials();
+            auto& meshes = theScene->GetMeshes();
+
+            for (auto& [mesh, transforms] : meshes)
             {
                 for (auto& transform : transforms)
+                {
+                    ScopedShaderResources resources{ ShaderStage::Pixel, 10, materials[mesh.GetMaterialIndex()] };
                     mesh.Draw(transform->GetWorldMatrix());
+                }
             }
         }
 
@@ -192,19 +199,6 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
                 if (ImGui::Begin("Hierarchy"))
                     ImGui::Hierarchy(theScene->GetRootTransform(), selection);
                 ImGui::End();
-
-                if (selection)
-                {
-                    if (ImGui::Begin("Inspector"))
-                    {
-                        if (ImGui::CollapsingHeader("Transform"))
-                        {
-                            ImGui::DragTransform(selection);
-                            ImGui::ResetTransformButton("Reset", selection);
-                        }
-                    }
-                    ImGui::End();
-                }
 
                 if (selection)
                 {

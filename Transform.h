@@ -55,7 +55,6 @@ private:
 namespace ImGui
 {
 	bool DragTransform(Transform::Ptr aTransform);
-	bool ResetTransformButton(const char* aLabel, Transform::Ptr aTransform);
 	bool Hierarchy(Transform::Ptr aTransform, Transform::Ptr& aSelection);
 }
 

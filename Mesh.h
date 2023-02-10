@@ -9,20 +9,15 @@ public:
 
 	void Draw(const Matrix& aTransform) const;
 
-	std::string_view GetName() const;
-	size_t GetVertexCount() const;
-	size_t GetIndexCount() const;
+	std::string_view GetName() const { return myName; }
+	unsigned GetMaterialIndex() const { return myMaterialIndex; }
 
-	operator bool() const { return myImpl.operator bool(); };
+	operator bool() const { return myVertexBuffer && myIndexBuffer; }
 
 private:
-	struct Impl
-	{
-		std::string name;
-		VertexBuffer vertexBuffer;
-		IndexBuffer indexBuffer;
-	};
-
-	std::shared_ptr<Impl> myImpl;
+	std::string myName;
+	unsigned myMaterialIndex;
+	std::unique_ptr<VertexBuffer> myVertexBuffer;
+	std::unique_ptr<IndexBuffer> myIndexBuffer;
 };
 

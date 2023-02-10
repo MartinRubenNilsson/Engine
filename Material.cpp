@@ -4,6 +4,8 @@
 
 Material::Material(const aiMaterial& aMaterial)
     : myName{ aMaterial.GetName().C_Str() }
+    , myTextures{}
+    , myShaderResources{}
 {
     std::vector<std::pair<aiTextureType, aiString>> textures{};
 
@@ -12,7 +14,7 @@ Material::Material(const aiMaterial& aMaterial)
         for (unsigned index = 0; index < aMaterial.GetTextureCount(type); ++index)
         {
             aiString path{};
-            if (aMaterial.GetTexture(type, index, &path) == aiReturn_SUCCESS)
+            if (aMaterial.GetTexture(type, 0, &path) == aiReturn_SUCCESS)
                 textures.emplace_back(type, path);
         }
     }
@@ -28,7 +30,6 @@ Material::Material(const aiMaterial& aMaterial)
         desc.Height = image.GetHeight();
         desc.MipLevels = 1;
         desc.ArraySize = 1;
-        desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
         desc.SampleDesc.Count = 1;
         desc.SampleDesc.Quality = 0;
         desc.Usage = D3D11_USAGE_IMMUTABLE;
@@ -36,24 +37,23 @@ Material::Material(const aiMaterial& aMaterial)
         desc.CPUAccessFlags = 0;
         desc.MiscFlags = 0;
 
-        if (type == aiTextureType_DIFFUSE)
-            desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
-
         D3D11_SUBRESOURCE_DATA data{};
         data.pSysMem = image.Data();
         data.SysMemPitch = desc.Width * 4;
         data.SysMemSlicePitch = 0;
 
-        // todo
-        desc;
-        data;
+        switch (type)
+        {
+        case aiTextureType_DIFFUSE:
+            desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
+            DX11_DEVICE->CreateTexture2D(&desc, &data, &myTextures[Diffuse]);
+            break;
+        default:
+            desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+            break;
+        }
     }
 
-    Debug::Println("Fuck");
-}
-
-void Material::CreateShaderResources()
-{
     for (size_t i = 0; i < Count; ++i)
     {
         if (myTextures[i])

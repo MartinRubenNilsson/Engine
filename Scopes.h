@@ -79,9 +79,9 @@ public:
 	~ScopedRenderTargets();
 
 private:
-	static constexpr UINT ourMaxCount = D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT;
+	static constexpr UINT ourCount = D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT;
 
-	RenderTargetPtr myPreviousTargets[ourMaxCount];
+	RenderTargetPtr myPreviousTargets[ourCount];
 	DepthStencilPtr myPreviousDepthStencil;
 };
 
@@ -108,8 +108,6 @@ public:
 	~ScopedShaderResources();
 
 private:
-	static constexpr UINT ourMaxCount = D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT;
-
 	UINT myStartSlot;
 	std::vector<ShaderResourcePtr> myPreviousResources;
 	decltype(&ID3D11DeviceContext::VSSetShaderResources) mySetter;

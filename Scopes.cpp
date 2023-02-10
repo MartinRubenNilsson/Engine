@@ -118,26 +118,26 @@ ScopedRenderTargets::ScopedRenderTargets(std::span<const RenderTargetPtr> someTa
 	: myPreviousTargets{}
 	, myPreviousDepthStencil{}
 {
-	assert(someTargets.size() <= ourMaxCount);
+	assert(someTargets.size() <= ourCount);
 
 	{
-		ID3D11RenderTargetView* views[ourMaxCount]{};
-		DX11_CONTEXT->OMGetRenderTargets(ourMaxCount, views, myPreviousDepthStencil.ReleaseAndGetAddressOf());
+		ID3D11RenderTargetView* views[ourCount]{};
+		DX11_CONTEXT->OMGetRenderTargets(ourCount, views, myPreviousDepthStencil.ReleaseAndGetAddressOf());
 		std::ranges::copy(views, myPreviousTargets);
 	}
 	
 	{
-		ID3D11RenderTargetView* views[ourMaxCount]{};
+		ID3D11RenderTargetView* views[ourCount]{};
 		std::ranges::transform(someTargets, views, &RenderTargetPtr::Get);
-		DX11_CONTEXT->OMSetRenderTargets(ourMaxCount, views, aDepthStencil.Get());
+		DX11_CONTEXT->OMSetRenderTargets(ourCount, views, aDepthStencil.Get());
 	}
 }
 
 ScopedRenderTargets::~ScopedRenderTargets()
 {
-	ID3D11RenderTargetView* views[ourMaxCount]{};
+	ID3D11RenderTargetView* views[ourCount]{};
 	std::ranges::transform(myPreviousTargets, views, &RenderTargetPtr::Get);
-	DX11_CONTEXT->OMSetRenderTargets(ourMaxCount, views, myPreviousDepthStencil.Get());
+	DX11_CONTEXT->OMSetRenderTargets(ourCount, views, myPreviousDepthStencil.Get());
 }
 
 /*
@@ -171,8 +171,8 @@ ScopedShaderResources::ScopedShaderResources(ShaderStage aStage, UINT aStartSlot
 	, mySetter{}
 	, myGetter{}
 {
-	assert(aStartSlot < ourMaxCount);
-	assert(aStartSlot + someResources.size() <= ourMaxCount);
+	assert(aStartSlot < D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT);
+	assert(aStartSlot + someResources.size() <= D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT);
 
 	switch (aStage)
 	{

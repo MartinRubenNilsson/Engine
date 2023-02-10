@@ -136,14 +136,6 @@ bool ImGui::DragTransform(Transform::Ptr aTransform)
 * ImGui
 */
 
-bool ImGui::ResetTransformButton(const char* aLabel, Transform::Ptr aTransform)
-{
-	const bool pushed = ImGui::Button(aLabel);
-	if (pushed)
-		aTransform->Reset();
-	return pushed;
-}
-
 bool ImGui::Hierarchy(Transform::Ptr aTransform, Transform::Ptr& aSelection)
 {
 	ImGuiTreeNodeFlags flags{ ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanAvailWidth };
