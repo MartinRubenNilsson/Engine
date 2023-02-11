@@ -43,7 +43,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
     if (!dx11)
         return EXIT_FAILURE;
 
-    DearImGui imGui{ window.GetHandle(), dx11.GetDevice(), dx11.GetContext() };
+    DearImGui imGui{ window, dx11.GetDevice(), dx11.GetContext() };
     if (!imGui)
         return EXIT_FAILURE;
 
@@ -58,7 +58,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
     StateManager stateMgr{};
     ShaderManager shaderMgr{};
 
-    SwapChain swapChain{ window.GetHandle() };
+    SwapChain swapChain{ window };
     if (!swapChain)
         return EXIT_FAILURE;
 

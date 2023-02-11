@@ -4,32 +4,74 @@
 
 Material::Material(const aiMaterial& aMaterial)
     : myName{ aMaterial.GetName().C_Str() }
-    , myTextures{}
-    , myShaderResources{}
 {
-    std::vector<std::pair<aiTextureType, aiString>> textures{};
+    LoadPaths(aMaterial);
+    LoadImages();
+    CreateTextures();
+    CreateShaderResources();
+}
 
-    for (aiTextureType type = aiTextureType_DIFFUSE; type < aiTextureType_UNKNOWN; type = static_cast<aiTextureType>(type + 1))
+void Material::LoadPaths(const aiMaterial& aMaterial)
+{
+    for (aiTextureType aiType = aiTextureType_DIFFUSE; aiType < aiTextureType_UNKNOWN; aiType = static_cast<aiTextureType>(aiType + 1))
     {
-        for (unsigned index = 0; index < aMaterial.GetTextureCount(type); ++index)
+        if (aMaterial.GetTextureCount(aiType) == 0)
+            continue;
+
+        aiString path{};
+        if (aMaterial.GetTexture(aiType, 0, &path) != aiReturn_SUCCESS)
+            continue;
+
+        TextureType type;
+
+        switch (aiType)
         {
-            aiString path{};
-            if (aMaterial.GetTexture(type, 0, &path) == aiReturn_SUCCESS)
-                textures.emplace_back(type, path);
+        case aiTextureType_DIFFUSE:
+            type = Diffuse;
+            break;
+        case aiTextureType_EMISSIVE:
+            type = Emissive;
+            break;
+        case aiTextureType_NORMALS:
+            type = Normal;
+            break;
+        case aiTextureType_METALNESS:
+            type = Metallic;
+            break;
+        case aiTextureType_SHININESS:
+            type = Roughness;
+            break;
+        default:
+            Debug::Println(std::format("Warning: Unrecognized texture type {}", TextureTypeToString(aiType)));
+            continue;
         }
-    }
 
-    for (auto& [type, path] : textures)
+        myPaths[type] = path.C_Str();
+    }
+}
+
+void Material::LoadImages()
+{
+    for (size_t type = 0; type < Count; ++type)
     {
-        Image image{ path.C_Str(), 4 };
-        if (!image)
+        if (!myPaths[type].empty())
+            myImages[type] = { myPaths[type], ourChannels[type] };
+    }
+}
+
+void Material::CreateTextures()
+{
+    for (size_t type = 0; type < Count; ++type)
+    {
+        if (!myImages[type])
             continue;
 
         D3D11_TEXTURE2D_DESC desc{};
-        desc.Width = image.GetWidth();
-        desc.Height = image.GetHeight();
+        desc.Width = myImages[type].GetWidth();
+        desc.Height = myImages[type].GetHeight();
         desc.MipLevels = 1;
         desc.ArraySize = 1;
+        desc.Format = ourFormats[type];
         desc.SampleDesc.Count = 1;
         desc.SampleDesc.Quality = 0;
         desc.Usage = D3D11_USAGE_IMMUTABLE;
@@ -38,25 +80,19 @@ Material::Material(const aiMaterial& aMaterial)
         desc.MiscFlags = 0;
 
         D3D11_SUBRESOURCE_DATA data{};
-        data.pSysMem = image.Data();
-        data.SysMemPitch = desc.Width * 4;
+        data.pSysMem = myImages[type].Data();
+        data.SysMemPitch = desc.Width * ourChannels[type];
         data.SysMemSlicePitch = 0;
 
-        switch (type)
-        {
-        case aiTextureType_DIFFUSE:
-            desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
-            DX11_DEVICE->CreateTexture2D(&desc, &data, &myTextures[Diffuse]);
-            break;
-        default:
-            desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-            break;
-        }
+        DX11_DEVICE->CreateTexture2D(&desc, &data, &myTextures[type]);
     }
+}
 
-    for (size_t i = 0; i < Count; ++i)
+void Material::CreateShaderResources()
+{
+    for (size_t type = 0; type < Count; ++type)
     {
-        if (myTextures[i])
-            DX11_DEVICE->CreateShaderResourceView(myTextures[i].Get(), NULL, &myShaderResources[i]);
+        if (myTextures[type])
+            DX11_DEVICE->CreateShaderResourceView(myTextures[type].Get(), NULL, &myShaderResources[type]);
     }
 }

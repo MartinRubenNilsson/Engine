@@ -14,8 +14,8 @@ public:
 	void SetTitle(std::wstring_view);
 	std::wstring GetTitle() const;
 	RECT GetClientRect() const;
-	HWND GetHandle() const { return myWindow.get(); }
 
+	operator HWND() const { return myWindow.get(); }
 	explicit operator bool() const { return myWindow.operator bool(); }
 
 private:

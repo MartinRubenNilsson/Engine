@@ -37,4 +37,3 @@ private:
 template <class Derived>
 Derived* Singleton<Derived>::ourInstance = nullptr;
 
-#define SINGLETON_CLASS(aClass) class aClass : public Singleton<aClass>
