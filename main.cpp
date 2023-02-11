@@ -165,7 +165,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
             {
                 for (auto& transform : transforms)
                 {
-                    ScopedShaderResources resources{ ShaderStage::Pixel, 10, materials[mesh.GetMaterialIndex()] };
+                    ScopedShaderResources resources{ ShaderType::Pixel, 10, materials[mesh.GetMaterialIndex()] };
                     mesh.Draw(transform->GetWorldMatrix());
                 }
             }
@@ -174,7 +174,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
         static int pass{};
 
         {
-            ScopedShaderResources resources{ ShaderStage::Pixel, 0, geometryBuffer };
+            ScopedShaderResources resources{ ShaderType::Pixel, 0, geometryBuffer };
             fullscreenPasses[pass].Draw();
         }
         {

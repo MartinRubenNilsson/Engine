@@ -71,7 +71,7 @@ void Cubemap::DrawSkybox() const
 	
 	ScopedPrimitiveTopology topology{ D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP };
 	ScopedInputLayout layout{ typeid(EmptyVertex) };
-	ScopedShaderResources resources{ ShaderStage::Pixel, 0, *this };
+	ScopedShaderResources resources{ ShaderType::Pixel, 0, *this };
 	ScopedShader vs{ VERTEX_SHADER("VsSkybox.cso") };
 	ScopedShader ps{ PIXEL_SHADER("PsSkybox.cso") };
 	ScopedRasterizerState rasterizer{ rasterizerDesc };

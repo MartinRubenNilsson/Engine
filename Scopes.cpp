@@ -121,15 +121,11 @@ ScopedDepthStencilState::~ScopedDepthStencilState()
 */
 
 ScopedRenderTargets::ScopedRenderTargets(std::span<const RenderTargetPtr> someTargets, DepthStencilPtr aDepthStencil)
-	: myPreviousTargets{}
-	, myPreviousDepthStencil{}
 {
-	assert(someTargets.size() <= ourCount);
-
 	{
 		ID3D11RenderTargetView* views[ourCount]{};
-		DX11_CONTEXT->OMGetRenderTargets(ourCount, views, myPreviousDepthStencil.ReleaseAndGetAddressOf());
-		std::ranges::copy(views, myPreviousTargets);
+		DX11_CONTEXT->OMGetRenderTargets(ourCount, views, &myPreviousDepthStencil);
+		std::ranges::copy(views, myPreviousTargets.begin());
 	}
 	
 	{
@@ -152,22 +148,23 @@ ScopedRenderTargets::~ScopedRenderTargets()
 
 ScopedViewports::ScopedViewports(std::span<const D3D11_VIEWPORT> someViewports)
 {
-	UINT prevCount{ (UINT)myPreviousViewports.size() };
-	UINT currCount{ std::min(prevCount, (UINT)someViewports.size()) };
+	UINT prevCount{ ourCount };
+	UINT currCount{ std::min(ourCount, (UINT)someViewports.size()) };
+
 	DX11_CONTEXT->RSGetViewports(&prevCount, myPreviousViewports.data());
 	DX11_CONTEXT->RSSetViewports(currCount, someViewports.data());
 }
 
 ScopedViewports::~ScopedViewports()
 {
-	DX11_CONTEXT->RSSetViewports((UINT)myPreviousViewports.size(), myPreviousViewports.data());
+	DX11_CONTEXT->RSSetViewports(ourCount, myPreviousViewports.data());
 }
 
 /*
 * class ScopedShaderResources
 */
 
-ScopedShaderResources::ScopedShaderResources(ShaderStage aStage, UINT aStartSlot, std::span<const ShaderResourcePtr> someResources)
+ScopedShaderResources::ScopedShaderResources(ShaderType aType, UINT aStartSlot, std::span<const ShaderResourcePtr> someResources)
 	: myStartSlot{ aStartSlot }
 	, myPreviousResources{ someResources.size() }
 	, mySetter{}
@@ -176,13 +173,13 @@ ScopedShaderResources::ScopedShaderResources(ShaderStage aStage, UINT aStartSlot
 	assert(aStartSlot < D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT);
 	assert(aStartSlot + someResources.size() <= D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT);
 
-	switch (aStage)
+	switch (aType)
 	{
-	case ShaderStage::Vertex:
+	case ShaderType::Vertex:
 		mySetter = &ID3D11DeviceContext::VSSetShaderResources;
 		myGetter = &ID3D11DeviceContext::VSGetShaderResources;
 		break;
-	case ShaderStage::Pixel:
+	case ShaderType::Pixel:
 		mySetter = &ID3D11DeviceContext::PSSetShaderResources;
 		myGetter = &ID3D11DeviceContext::PSGetShaderResources;
 		break;

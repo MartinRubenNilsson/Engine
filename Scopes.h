@@ -81,8 +81,8 @@ public:
 private:
 	static constexpr UINT ourCount = D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT;
 
-	RenderTargetPtr myPreviousTargets[ourCount];
-	DepthStencilPtr myPreviousDepthStencil;
+	std::array<RenderTargetPtr, ourCount> myPreviousTargets{};
+	DepthStencilPtr myPreviousDepthStencil{};
 };
 
 class ScopedViewports : Scope
@@ -92,19 +92,15 @@ public:
 	~ScopedViewports();
 
 private:
-	std::array<D3D11_VIEWPORT, D3D11_VIEWPORT_AND_SCISSORRECT_OBJECT_COUNT_PER_PIPELINE> myPreviousViewports{};
-};
+	static constexpr UINT ourCount = D3D11_VIEWPORT_AND_SCISSORRECT_OBJECT_COUNT_PER_PIPELINE;
 
-enum class ShaderStage
-{
-	Vertex,
-	Pixel
+	std::array<D3D11_VIEWPORT, ourCount> myPreviousViewports{};
 };
 
 class ScopedShaderResources : Scope
 {
 public:
-	ScopedShaderResources(ShaderStage aStage, UINT aStartSlot, std::span<const ShaderResourcePtr> someResources);
+	ScopedShaderResources(ShaderType aType, UINT aStartSlot, std::span<const ShaderResourcePtr> someResources);
 	~ScopedShaderResources();
 
 private:
