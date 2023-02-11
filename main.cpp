@@ -163,11 +163,10 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
 
             for (auto& [mesh, transforms] : meshes)
             {
+                ScopedShaderResources resources{ ShaderType::Pixel, 10, materials[mesh.GetMaterialIndex()] };
+
                 for (auto& transform : transforms)
-                {
-                    ScopedShaderResources resources{ ShaderType::Pixel, 10, materials[mesh.GetMaterialIndex()] };
                     mesh.Draw(transform->GetWorldMatrix());
-                }
             }
         }
 
@@ -194,10 +193,21 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
 
             if (theScene)
             {
+                ImGui::Begin("Materials");
+                for (const auto& material : theScene->GetMaterials())
+                {
+                    if (ImGui::TreeNode(material.GetName().data()))
+                    {
+                        ImGui::InspectMaterial(material);
+                        ImGui::TreePop();
+                    }
+                }
+                ImGui::End();
+
                 static Transform::Ptr selection;
 
-                if (ImGui::Begin("Hierarchy"))
-                    ImGui::Hierarchy(theScene->GetRootTransform(), selection);
+                ImGui::Begin("Hierarchy");
+                ImGui::Hierarchy(theScene->GetRootTransform(), selection);
                 ImGui::End();
 
                 if (selection)

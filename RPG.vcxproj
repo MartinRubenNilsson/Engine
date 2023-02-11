@@ -24,7 +24,7 @@
     <ProjectGuid>{47399816-f8de-4173-b08d-0929cd7c408f}</ProjectGuid>
     <RootNamespace>RPG</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
-    <ProjectName>RPG</ProjectName>
+    <ProjectName>ModelViewer</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">

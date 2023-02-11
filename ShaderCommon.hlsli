@@ -44,11 +44,15 @@ cbuffer MeshBuffer : register(b1)
 * Textures
 */
 
-Texture2D GBufferWorldPosition : register(t0);
-Texture2D GBufferWorldNormal : register(t1);
-Texture2D GBufferDiffuse : register(t2);
+Texture2D GBufferWorldPosition  : register(t0);
+Texture2D GBufferWorldNormal    : register(t1);
+Texture2D GBufferDiffuse        : register(t2);
 
-Texture2D MaterialDiffuse : register(t10);
+Texture2D MaterialDiffuse   : register(t10);
+Texture2D MaterialEmissive  : register(t11);
+Texture2D MaterialNormal    : register(t12);
+Texture2D MaterialMetallic  : register(t13);
+Texture2D MaterialRoughness : register(t14);
 
 /*
 * Samplers

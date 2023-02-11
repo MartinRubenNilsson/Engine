@@ -48,7 +48,7 @@ private:
 
 namespace ImGui
 {
-	void CameraEdit(Camera& aCamera);
+	void InspectCamera(Camera& aCamera);
 
 	void DrawCubes(const Camera& aCamera, const Matrix& aCameraTransform, std::span<const Matrix> someCubeTransforms);
 	void DrawGrid(const Camera& aCamera, const Matrix& aCameraTransform, const Matrix& aGridTransform, float aGridSize);

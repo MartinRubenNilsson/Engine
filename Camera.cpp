@@ -112,7 +112,7 @@ bool Camera::IsOrthographic() const
 * namespace ImGui
 */
 
-void ImGui::CameraEdit(class Camera& aCamera)
+void ImGui::InspectCamera(class Camera& aCamera)
 {
 	{
 		int orthographic = aCamera.IsOrthographic();
