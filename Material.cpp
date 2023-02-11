@@ -147,12 +147,12 @@ void ImGui::InspectMaterial(const Material& aMaterial)
 
         if (TreeNode(TextureTypeToString(type)))
         {
-            LabelText("Filename", aMaterial.GetPath(type).filename().string().c_str());
+            Text(aMaterial.GetPath(type).filename().string().c_str());
 
-            {
-                float width = GetContentRegionAvail().x;
-                Image(aMaterial.GetShaderResource(type).Get(), { width, width });
-            }
+            if (ShaderResourcePtr resource = aMaterial.GetShaderResource(type))
+                Image(resource.Get(), { GetContentRegionAvail().x, GetContentRegionAvail().x });
+            else
+                TextColored({ 1.f, 0.f, 0.f, 1.f }, "Failed to load texture!");
 
             TreePop();
         }
