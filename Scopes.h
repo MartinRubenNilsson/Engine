@@ -17,7 +17,7 @@ public:
 	~ScopedPrimitiveTopology();
 
 private:
-	D3D11_PRIMITIVE_TOPOLOGY myPreviousTopology;
+	D3D11_PRIMITIVE_TOPOLOGY myPreviousTopology{ D3D_PRIMITIVE_TOPOLOGY_UNDEFINED };
 };
 
 class ScopedInputLayout : Scope
@@ -27,7 +27,7 @@ public:
 	~ScopedInputLayout();
 
 private:
-	ComPtr<ID3D11InputLayout> myPreviousLayout;
+	ComPtr<ID3D11InputLayout> myPreviousLayout{};
 };
 
 class ScopedShader : Scope
@@ -37,7 +37,7 @@ public:
 	~ScopedShader();
 
 private:
-	std::shared_ptr<Shader> myPreviousShader;
+	std::shared_ptr<Shader> myPreviousShader{};
 };
 
 class ScopedRasterizerState : Scope
@@ -47,7 +47,7 @@ public:
 	~ScopedRasterizerState();
 
 private:
-	D3D11_RASTERIZER_DESC myPreviousDesc;
+	D3D11_RASTERIZER_DESC myPreviousDesc{ CD3D11_RASTERIZER_DESC{ CD3D11_DEFAULT{} } };
 };
 
 class ScopedSamplerStates : Scope
@@ -68,8 +68,8 @@ public:
 	~ScopedDepthStencilState();
 
 private:
-	D3D11_DEPTH_STENCIL_DESC myPreviousDesc;
-	UINT myPreviousStencilRef;
+	D3D11_DEPTH_STENCIL_DESC myPreviousDesc{ CD3D11_DEPTH_STENCIL_DESC{ CD3D11_DEFAULT{} } };
+	UINT myPreviousStencilRef{};
 };
 
 class ScopedRenderTargets : Scope
