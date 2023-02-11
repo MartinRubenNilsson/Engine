@@ -15,9 +15,9 @@ public:
 	explicit operator bool() const { return myVertexBuffer && myIndexBuffer; }
 
 private:
-	std::string myName;
-	unsigned myMaterialIndex;
-	std::unique_ptr<VertexBuffer> myVertexBuffer;
-	std::unique_ptr<IndexBuffer> myIndexBuffer;
+	std::string myName{};
+	unsigned myMaterialIndex{};
+	std::unique_ptr<VertexBuffer> myVertexBuffer{};
+	std::unique_ptr<IndexBuffer> myIndexBuffer{};
 };
 

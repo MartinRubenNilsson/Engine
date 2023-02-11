@@ -21,8 +21,6 @@ public:
 	std::string_view GetName() const { return myName; }
 
 	const fs::path& GetPath(TextureType) const;
-	const Image& GetImage(TextureType) const;
-	TexturePtr GetTexture(TextureType) const;
 	ShaderResourcePtr GetShaderResource(TextureType) const;
 
 	operator std::span<const ShaderResourcePtr>() const { return myShaderResources; }

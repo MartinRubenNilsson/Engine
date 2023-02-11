@@ -34,16 +34,6 @@ const fs::path& Material::GetPath(TextureType aType) const
     return myPaths.at(std::to_underlying(aType));
 }
 
-const Image& Material::GetImage(TextureType aType) const
-{
-    return myImages.at(std::to_underlying(aType));
-}
-
-TexturePtr Material::GetTexture(TextureType aType) const
-{
-    return myTextures.at(std::to_underlying(aType));
-}
-
 ShaderResourcePtr Material::GetShaderResource(TextureType aType) const
 {
     return myShaderResources.at(std::to_underlying(aType));
@@ -51,8 +41,10 @@ ShaderResourcePtr Material::GetShaderResource(TextureType aType) const
 
 void Material::LoadPaths(const aiMaterial& aMaterial)
 {
-    for (aiTextureType aiType = aiTextureType_DIFFUSE; aiType < aiTextureType_UNKNOWN; aiType = static_cast<aiTextureType>(aiType + 1))
+    for (int i = aiTextureType_DIFFUSE; i < aiTextureType_UNKNOWN; ++i)
     {
+        aiTextureType aiType{ static_cast<aiTextureType>(i) };
+
         if (aMaterial.GetTextureCount(aiType) == 0)
             continue;
 
@@ -92,8 +84,10 @@ void Material::LoadImages()
 {
     for (size_t i = 0; i < ourCount; ++i)
     {
-        if (!myPaths[i].empty())
-            myImages[i] = { myPaths[i], ourChannels[i] };
+        if (myPaths[i].empty())
+            continue;
+
+        myImages[i] = { myPaths[i], ourChannels[i] };
     }
 }
 
@@ -119,7 +113,7 @@ void Material::CreateTextures()
 
         D3D11_SUBRESOURCE_DATA data{};
         data.pSysMem = myImages[i].Data();
-        data.SysMemPitch = desc.Width * ourChannels[i];
+        data.SysMemPitch = desc.Width * myImages[i].GetChannels();
         data.SysMemSlicePitch = 0;
 
         DX11_DEVICE->CreateTexture2D(&desc, &data, &myTextures[i]);
@@ -130,8 +124,10 @@ void Material::CreateShaderResources()
 {
     for (size_t i = 0; i < ourCount; ++i)
     {
-        if (myTextures[i])
-            DX11_DEVICE->CreateShaderResourceView(myTextures[i].Get(), NULL, &myShaderResources[i]);
+        if (!myTextures[i])
+            continue;
+
+        DX11_DEVICE->CreateShaderResourceView(myTextures[i].Get(), NULL, &myShaderResources[i]);
     }
 }
 

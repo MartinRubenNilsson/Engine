@@ -4,21 +4,13 @@
 Mesh::Mesh(const aiMesh& aMesh)
 	: myName{ aMesh.mName.C_Str() }
 	, myMaterialIndex{ aMesh.mMaterialIndex }
-	, myVertexBuffer{}
-	, myIndexBuffer{}
 {
-	if (!aMesh.HasPositions())
-		return;
-	if (!aMesh.HasNormals())
-		return;
-	if (!aMesh.HasFaces())
-		return;
-	if (aMesh.mPrimitiveTypes != aiPrimitiveType_TRIANGLE)
-		return;
-	if (aMesh.GetNumUVChannels() != 1)
-		return;
-	if (aMesh.mNumUVComponents[0] != 2)
-		return;
+	assert(aMesh.HasPositions());
+	assert(aMesh.HasNormals());
+	assert(aMesh.HasFaces());
+	assert(aMesh.mPrimitiveTypes == aiPrimitiveType_TRIANGLE);
+	assert(aMesh.GetNumUVChannels() == 1);
+	assert(aMesh.mNumUVComponents[0] == 2);
 
 	std::vector<BasicVertex> vertices(aMesh.mNumVertices);
 	std::vector<unsigned> indices(3 * aMesh.mNumFaces);
