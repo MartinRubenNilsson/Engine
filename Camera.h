@@ -23,7 +23,7 @@ struct OrthographicCamera
 class Camera
 {
 public:
-	Camera();
+	Camera() = default;
 	Camera(const PerspectiveCamera&);
 	Camera(const OrthographicCamera&);
 	Camera(const aiCamera&);
@@ -42,8 +42,8 @@ public:
 	bool IsOrthographic() const;
 
 private:
-	Matrix myLocalViewMatrix;
-	std::variant<PerspectiveCamera, OrthographicCamera> myCamera;
+	Matrix myLocalViewMatrix{ DirectX::XMMatrixLookToLH({ 0, 0, 0 }, { 0, 0, 1 }, { 0, 1, 0 }) };
+	std::variant<PerspectiveCamera, OrthographicCamera> myCamera{};
 };
 
 namespace ImGui

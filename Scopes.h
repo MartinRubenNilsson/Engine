@@ -92,7 +92,7 @@ public:
 	~ScopedViewports();
 
 private:
-	std::vector<D3D11_VIEWPORT> myPreviousViewports;
+	std::array<D3D11_VIEWPORT, D3D11_VIEWPORT_AND_SCISSORRECT_OBJECT_COUNT_PER_PIPELINE> myPreviousViewports{};
 };
 
 enum class ShaderStage

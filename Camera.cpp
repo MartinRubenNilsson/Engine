@@ -17,20 +17,13 @@ Matrix OrthographicCamera::GetProjectionMatrix() const
 * class Camera
 */
 
-Camera::Camera()
-	: Camera(PerspectiveCamera{})
-{
-}
-
 Camera::Camera(const PerspectiveCamera& aCamera)
-	: myLocalViewMatrix{ XMMatrixLookToLH(Vector3::Zero, Vector3::Backward, Vector3::Up) } // Vector3 is RH
-	, myCamera{ aCamera }
+	: myCamera{ aCamera }
 {
 }
 
 Camera::Camera(const OrthographicCamera& aCamera)
-	: myLocalViewMatrix{ XMMatrixLookToLH(Vector3::Zero, Vector3::Backward, Vector3::Up) } // Vector3 is RH
-	, myCamera{ aCamera }
+	: myCamera{ aCamera }
 {
 }
 
@@ -80,11 +73,9 @@ const Matrix& Camera::GetLocalViewMatrix() const
 
 Matrix Camera::GetProjectionMatrix() const
 {
-	if (std::holds_alternative<PerspectiveCamera>(myCamera))
-		return std::get<PerspectiveCamera>(myCamera).GetProjectionMatrix();
-	if (std::holds_alternative<OrthographicCamera>(myCamera))
-		return std::get<OrthographicCamera>(myCamera).GetProjectionMatrix();
-	return Matrix::Identity;
+	return IsPerspective() ?
+		std::get<PerspectiveCamera>(myCamera).GetProjectionMatrix() :
+		std::get<OrthographicCamera>(myCamera).GetProjectionMatrix();
 }
 
 void Camera::SetPerspective(const PerspectiveCamera& aCamera)
@@ -184,6 +175,7 @@ void ImGui::ViewManipulate(const Camera& aCamera, Matrix& aCameraTransform, floa
 	// https://github.com/CedricGuillemet/ImGuizmo/issues/107
 	constexpr static Matrix inversionMatrix{ 1.f, 0, 0, 0, 0, 1.f, 0, 0, 0, 0, -1.f, 0, 0, 0, 0, 1.f };
 	Matrix view = inversionMatrix * aCameraTransform.Invert() * aCamera.GetLocalViewMatrix() * inversionMatrix;
+	ImGuizmo::SetOrthographic(aCamera.IsOrthographic());
 	ImGuizmo::ViewManipulate(&view._11, aLength, aPosition, aSize, aBackgroundColor);
 	aCameraTransform = inversionMatrix * aCamera.GetLocalViewMatrix() * view.Invert() * inversionMatrix;
 }

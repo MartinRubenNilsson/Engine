@@ -1,5 +1,11 @@
 #pragma once
 
+enum class ShaderType
+{
+	Vertex,
+	Pixel
+};
+
 class Shader
 {
 public:
@@ -7,33 +13,38 @@ public:
 
 	virtual void SetShader() const = 0;
 	virtual void GetShader() = 0;
+	virtual ShaderType GetType() const = 0;
 	virtual operator bool() const = 0;
 };
 
 class VertexShader : public Shader
 {
 public:
+	VertexShader() = default;
 	VertexShader(std::string_view someBytecode);
 
 	void SetShader() const override;
 	void GetShader() override;
+	ShaderType GetType() const override { return ShaderType::Vertex; }
 	operator bool() const override { return myShader; }
 
 private:
-	ComPtr<ID3D11VertexShader> myShader;
+	ComPtr<ID3D11VertexShader> myShader{};
 };
 
 class PixelShader : public Shader
 {
 public:
+	PixelShader() = default;
 	PixelShader(std::string_view someBytecode);
 
 	void SetShader() const override;
 	void GetShader() override;
+	ShaderType GetType() const override { return ShaderType::Pixel; }
 	operator bool() const override { return myShader; }
 
 private:
-	ComPtr<ID3D11PixelShader> myShader;
+	ComPtr<ID3D11PixelShader> myShader{};
 };
 
 class ShaderManager : public Singleton<ShaderManager>
@@ -43,7 +54,7 @@ public:
 	std::shared_ptr<const ShaderType> GetShader(const fs::path& aPath);
 
 private:
-	std::unordered_map<fs::path, std::shared_ptr<Shader>> myShaders;
+	std::unordered_map<fs::path, std::shared_ptr<Shader>> myShaders{};
 };
 
 template<class ShaderType>

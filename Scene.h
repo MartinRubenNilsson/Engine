@@ -20,10 +20,10 @@ private:
 	void LoadHierarchy(Transform::Ptr aTransform, aiNode* aNode);
 	void LoadCameras(std::span<aiCamera*>);
 
-	Transform::Ptr myRootTransform;
-	std::vector<Material> myMaterials;
-	std::vector<std::pair<Mesh, std::vector<Transform::Ptr>>> myMeshes;
-	std::vector<std::pair<Camera, Transform::Ptr>> myCameras;
+	Transform::Ptr myRootTransform{ Transform::Create() };
+	std::vector<Material> myMaterials{};
+	std::vector<std::pair<Mesh, std::vector<Transform::Ptr>>> myMeshes{};
+	std::vector<std::pair<Camera, Transform::Ptr>> myCameras{};
 };
 
 class SceneManager : public Singleton<SceneManager>

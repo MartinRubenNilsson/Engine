@@ -43,12 +43,18 @@ ScopedShader::ScopedShader(std::shared_ptr<const Shader> aShader)
 	if (!aShader)
 		return;
 
-	if (auto vs = std::dynamic_pointer_cast<const VertexShader>(aShader))
-		myPreviousShader = std::make_shared<VertexShader>(*vs);
-	else if (auto ps = std::dynamic_pointer_cast<const PixelShader>(aShader))
-		myPreviousShader = std::make_shared<PixelShader>(*ps);
-	else
+	switch (aShader->GetType())
+	{
+	case ShaderType::Vertex:
+		myPreviousShader = std::make_shared<VertexShader>();
+		break;
+	case ShaderType::Pixel:
+		myPreviousShader = std::make_shared<PixelShader>();
+		break;
+	default:
 		assert(false);
+		break;
+	}
 
 	myPreviousShader->GetShader();
 	aShader->SetShader();
@@ -145,15 +151,11 @@ ScopedRenderTargets::~ScopedRenderTargets()
 */
 
 ScopedViewports::ScopedViewports(std::span<const D3D11_VIEWPORT> someViewports)
-	: myPreviousViewports{ D3D11_VIEWPORT_AND_SCISSORRECT_OBJECT_COUNT_PER_PIPELINE }
 {
-	assert(someViewports.size() <= D3D11_VIEWPORT_AND_SCISSORRECT_OBJECT_COUNT_PER_PIPELINE);
-
-	UINT previousViewportCount{ D3D11_VIEWPORT_AND_SCISSORRECT_OBJECT_COUNT_PER_PIPELINE };
-	DX11_CONTEXT->RSGetViewports(&previousViewportCount, myPreviousViewports.data());
-	myPreviousViewports.resize(previousViewportCount);
-
-	DX11_CONTEXT->RSSetViewports((UINT)someViewports.size(), someViewports.data());
+	UINT prevCount{ (UINT)myPreviousViewports.size() };
+	UINT currCount{ std::min(prevCount, (UINT)someViewports.size()) };
+	DX11_CONTEXT->RSGetViewports(&prevCount, myPreviousViewports.data());
+	DX11_CONTEXT->RSSetViewports(currCount, someViewports.data());
 }
 
 ScopedViewports::~ScopedViewports()

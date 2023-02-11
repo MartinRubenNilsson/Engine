@@ -7,10 +7,6 @@
 */
 
 Scene::Scene(const aiScene& aScene)
-    : myRootTransform{ Transform::Create() }
-    , myMaterials{}
-    , myMeshes{}
-    , myCameras{}
 {
     LoadMaterials({ aScene.mMaterials, aScene.mNumMaterials });
     LoadMeshes({ aScene.mMeshes, aScene.mNumMeshes });

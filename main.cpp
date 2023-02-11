@@ -26,8 +26,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
 {
     // Set current path
     {
-        char moduleFileName[MAX_PATH];
-        GetModuleFileNameA(GetModuleHandleA(NULL), moduleFileName, MAX_PATH);
+        WCHAR moduleFileName[MAX_PATH];
+        GetModuleFileName(GetModuleHandle(NULL), moduleFileName, MAX_PATH);
         fs::path modulePath{ moduleFileName };
         fs::current_path(modulePath.remove_filename());
     }
