@@ -16,7 +16,7 @@ public:
 	RECT GetClientRect() const;
 	HWND GetHandle() const { return myWindow.get(); }
 
-	operator bool() const { return myWindow.operator bool(); }
+	explicit operator bool() const { return myWindow.operator bool(); }
 
 private:
 	using Element = std::remove_pointer_t<HWND>;

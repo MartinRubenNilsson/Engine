@@ -9,7 +9,7 @@ public:
 	void NewFrame();
 	void Render();
 
-	operator bool() const { return mySucceeded; }
+	explicit operator bool() const { return mySucceeded; }
 
 private:
 	bool mySucceeded;

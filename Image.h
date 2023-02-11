@@ -10,9 +10,9 @@ public:
 	unsigned GetChannelsInFile() const	{ return (unsigned)myChannelsInFile; }
 	unsigned GetChannels() const		{ return myChannels; }
 
-	const void* Data() const	{ return myData.get(); }
+	const void* Data() const { return myData.get(); }
 
-	operator bool() const { return myData.operator bool(); }
+	explicit operator bool() const { return myData.operator bool(); }
 
 private:
 	using Element = unsigned char;

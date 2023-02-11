@@ -10,7 +10,7 @@ public:
 	operator std::span<const RenderTargetPtr>() const { return myRenderTargets; }
 	operator std::span<const ShaderResourcePtr>() const { return myShaderResources; }
 
-	operator bool() const { return SUCCEEDED(myResult); }
+	explicit operator bool() const { return SUCCEEDED(myResult); }
 
 private:
 	static constexpr std::array ourFormats =

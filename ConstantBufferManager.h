@@ -21,7 +21,7 @@ public:
 	void WriteConstantBuffer(const CameraBuffer& aBuffer) { WriteConstantBuffer(Camera, &aBuffer); }
 	void WriteConstantBuffer(const MeshBuffer& aBuffer) { WriteConstantBuffer(Mesh, &aBuffer); }
 
-	operator bool() const;
+	explicit operator bool() const;
 
 private:
 	enum Slot : unsigned

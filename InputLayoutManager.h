@@ -7,7 +7,7 @@ public:
 
 	void SetInputLayout(std::type_index aVertexType) const;
 
-	operator bool() const;
+	explicit operator bool() const;
 
 private:
 	std::unordered_map<std::type_index, ComPtr<ID3D11InputLayout>> myInputLayouts;

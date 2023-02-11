@@ -8,7 +8,7 @@ public:
 	void SetIndexBuffer() const;
 	size_t GetIndexCount() const { return myIndexCount; }
 
-	operator bool() const { return myBuffer; }
+	explicit operator bool() const { return myBuffer; }
 
 private:
 	ComPtr<ID3D11Buffer> myBuffer;

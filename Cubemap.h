@@ -10,12 +10,12 @@ public:
 
 	operator std::span<const ShaderResourcePtr>() const;
 
-	operator bool() const { return SUCCEEDED(myResult); }
+	explicit operator bool() const { return SUCCEEDED(myResult); }
 
 private:
-	HRESULT myResult;
-	TexturePtr myTexture;
-	ShaderResourcePtr myShaderResource;
-	unsigned myWidth, myHeight;
+	HRESULT myResult{ E_FAIL };
+	TexturePtr myTexture{};
+	ShaderResourcePtr myShaderResource{};
+	unsigned myWidth{}, myHeight{};
 };
 

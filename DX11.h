@@ -8,12 +8,12 @@ public:
 	ID3D11Device* GetDevice() const { return myDevice.Get(); }
 	ID3D11DeviceContext* GetContext() const { return myContext.Get(); }
 
-	operator bool() const { return SUCCEEDED(myResult); }
+	explicit operator bool() const { return SUCCEEDED(myResult); }
 
 private:
-	ComPtr<ID3D11Device> myDevice;
-	ComPtr<ID3D11DeviceContext> myContext;
-	HRESULT myResult;
+	HRESULT myResult{ E_FAIL };
+	ComPtr<ID3D11Device> myDevice{};
+	ComPtr<ID3D11DeviceContext> myContext{};
 };
 
 #define DX11_DEVICE DX11::Get().GetDevice()

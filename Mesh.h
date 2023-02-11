@@ -12,7 +12,7 @@ public:
 	std::string_view GetName() const { return myName; }
 	unsigned GetMaterialIndex() const { return myMaterialIndex; }
 
-	operator bool() const { return myVertexBuffer && myIndexBuffer; }
+	explicit operator bool() const { return myVertexBuffer && myIndexBuffer; }
 
 private:
 	std::string myName;

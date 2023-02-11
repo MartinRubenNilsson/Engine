@@ -7,7 +7,7 @@ public:
 
 	void Draw() const;
 
-	operator bool() const { return myPixelShader.operator bool(); };
+	explicit operator bool() const { return myPixelShader.operator bool(); };
 
 private:
 	std::shared_ptr<const PixelShader> myPixelShader;

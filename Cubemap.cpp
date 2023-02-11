@@ -3,10 +3,6 @@
 #include "Scopes.h"
 
 Cubemap::Cubemap(std::span<const Image, 6> someFaces)
-	: myResult{ E_FAIL }
-	, myTexture{}
-	, myShaderResource{}
-	, myWidth{}, myHeight{}
 {
 	const unsigned width = someFaces[0].GetWidth();
 	const unsigned height = someFaces[0].GetHeight();

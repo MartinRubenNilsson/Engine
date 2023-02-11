@@ -14,7 +14,7 @@ public:
 	virtual void SetShader() const = 0;
 	virtual void GetShader() = 0;
 	virtual ShaderType GetType() const = 0;
-	virtual operator bool() const = 0;
+	virtual explicit operator bool() const = 0;
 };
 
 class VertexShader : public Shader
@@ -26,7 +26,7 @@ public:
 	void SetShader() const override;
 	void GetShader() override;
 	ShaderType GetType() const override { return ShaderType::Vertex; }
-	operator bool() const override { return myShader; }
+	explicit operator bool() const override { return myShader; }
 
 private:
 	ComPtr<ID3D11VertexShader> myShader{};
@@ -41,7 +41,7 @@ public:
 	void SetShader() const override;
 	void GetShader() override;
 	ShaderType GetType() const override { return ShaderType::Pixel; }
-	operator bool() const override { return myShader; }
+	explicit operator bool() const override { return myShader; }
 
 private:
 	ComPtr<ID3D11PixelShader> myShader{};

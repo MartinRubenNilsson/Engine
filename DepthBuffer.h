@@ -9,7 +9,7 @@ public:
 
 	operator ComPtr<ID3D11DepthStencilView>() const { return myDepthStencil; }
 
-	operator bool() const { return SUCCEEDED(myResult); }
+	explicit operator bool() const { return SUCCEEDED(myResult); }
 
 private:
 	HRESULT myResult;

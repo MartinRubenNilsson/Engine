@@ -12,7 +12,7 @@ public:
 	size_t GetVertexSize() const { return myVertexSize; }
 	size_t GetVertexCount() const { return myVertexCount; }
 
-	operator bool() const { return myBuffer; }
+	explicit operator bool() const { return myBuffer; }
 
 private:
 	VertexBuffer(std::type_index aVertexType, size_t aVertexSize, size_t aVertexCount, const void* someData);

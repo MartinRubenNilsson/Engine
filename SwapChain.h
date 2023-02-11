@@ -12,7 +12,7 @@ public:
 
 	operator std::span<const RenderTargetPtr>() const;
 
-	operator bool() const { return SUCCEEDED(myResult); }
+	explicit operator bool() const { return SUCCEEDED(myResult); }
 
 private:
 	HRESULT myResult;
