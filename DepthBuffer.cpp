@@ -26,7 +26,7 @@ DepthBuffer::DepthBuffer(unsigned aWidth, unsigned aHeight)
 		return;
 }
 
-void DepthBuffer::ClearDepthStencil()
+void DepthBuffer::Clear()
 {
 	DX11_CONTEXT->ClearDepthStencilView(myDepthStencil.Get(), D3D11_CLEAR_DEPTH, 1.f, 0);
 }

@@ -50,19 +50,21 @@ private:
 class ShaderManager : public Singleton<ShaderManager>
 {
 public:
-	template <class ShaderType>
-	std::shared_ptr<const ShaderType> GetShader(const fs::path& aPath);
+	template <class T>
+	std::shared_ptr<const T> GetShader(const fs::path& aPath);
 
 private:
 	std::unordered_map<fs::path, std::shared_ptr<Shader>> myShaders{};
 };
 
-template<class ShaderType>
-inline std::shared_ptr<const ShaderType> ShaderManager::GetShader(const fs::path& aPath)
+template<class T>
+inline std::shared_ptr<const T> ShaderManager::GetShader(const fs::path& aPath)
 {
+	static_assert(std::is_base_of_v<Shader, T>);
+
 	auto itr = myShaders.find(aPath);
 	if (itr != myShaders.end())
-		return std::dynamic_pointer_cast<ShaderType>(itr->second);
+		return std::dynamic_pointer_cast<T>(itr->second);
 
 	std::ifstream file{ aPath, std::ios::binary };
 	if (!file)
@@ -72,7 +74,7 @@ inline std::shared_ptr<const ShaderType> ShaderManager::GetShader(const fs::path
 	if (bytecode.empty())
 		return nullptr;
 
-	auto shader{ std::make_shared<ShaderType>(bytecode) };
+	auto shader{ std::make_shared<T>(bytecode) };
 	if (!shader->operator bool())
 		return nullptr;
 

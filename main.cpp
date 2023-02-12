@@ -2,12 +2,12 @@
 #include "Window.h"
 #include "Drop.h"
 #include "DearImGui.h"
-#include "SwapChain.h"
+#include "BackBuffer.h"
 #include "DepthBuffer.h"
+#include "GeometryBuffer.h"
 #include "StateManager.h"
 #include "InputLayoutManager.h"
 #include "Scene.h"
-#include "GeometryBuffer.h"
 #include "FullscreenPass.h"
 #include "Scopes.h"
 #include "Image.h"
@@ -58,18 +58,15 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
     StateManager stateMgr{};
     ShaderManager shaderMgr{};
 
-    SwapChain swapChain{ window };
-    if (!swapChain)
+    BackBuffer backBuffer{ window };
+    if (!backBuffer)
         return EXIT_FAILURE;
 
-    unsigned width, height;
-    swapChain.GetDimensions(width, height);
-
-    GeometryBuffer geometryBuffer{ width, height };
+    GeometryBuffer geometryBuffer{ backBuffer.GetWidth(), backBuffer.GetHeight() };
     if (!geometryBuffer)
         return EXIT_FAILURE;
 
-    DepthBuffer depthBuffer{ width, height };
+    DepthBuffer depthBuffer{ backBuffer.GetWidth(), backBuffer.GetHeight() };
     if (!depthBuffer)
         return EXIT_FAILURE;
 
@@ -88,8 +85,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
     D3D11_SAMPLER_DESC samplerDesc{ CD3D11_SAMPLER_DESC{ CD3D11_DEFAULT{} } };
 
     Viewport viewport{};
-    viewport.width = static_cast<float>(width);
-    viewport.height = static_cast<float>(height);
+    viewport.width = static_cast<float>(backBuffer.GetWidth());
+    viewport.height = static_cast<float>(backBuffer.GetHeight());
     std::vector<D3D11_VIEWPORT> viewports{ 8, viewport };
 
     ScopedPrimitiveTopology topologyScope{ D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST };
@@ -144,11 +141,11 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
         }
 
         // Rendering
-        swapChain.ClearRenderTargets();
-        geometryBuffer.ClearRenderTargets();
-        depthBuffer.ClearDepthStencil();
+        backBuffer.Clear();
+        geometryBuffer.Clear();
+        depthBuffer.Clear();
 
-        ScopedRenderTargets swapChainScope{ swapChain };
+        ScopedRenderTargets swapChainScope{ backBuffer };
 
         camera.SetCamera(cameraTransform);
 
@@ -178,7 +175,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
             fullscreenPasses[pass].Draw();
         }
         {
-            ScopedRenderTargets skyboxScope{ swapChain, depthBuffer };
+            ScopedRenderTargets skyboxScope{ backBuffer, depthBuffer };
             cubemap.DrawSkybox();
         }
 
@@ -225,7 +222,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
             imGui.Render();
         }
 
-        swapChain.Present();
+        backBuffer.Present();
     }
 
 	return static_cast<int>(msg.wParam);

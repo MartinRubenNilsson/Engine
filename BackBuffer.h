@@ -1,14 +1,15 @@
 #pragma once
 
-class SwapChain
+class BackBuffer
 {
 public:
-	SwapChain(HWND);
+	BackBuffer(HWND);
 
-	void ClearRenderTargets(const Color& aColor = { 0.f, 0.f, 0.f, 0.f });
 	void Present() const;
+	void Clear();
 
-	void GetDimensions(unsigned& aWidth, unsigned& aHeight) const;
+	unsigned GetWidth() const { return myWidth; }
+	unsigned GetHeight() const { return myHeight; }
 
 	operator std::span<const RenderTargetPtr>() const;
 
@@ -17,7 +18,7 @@ public:
 private:
 	HRESULT myResult{ E_FAIL };
 	ComPtr<IDXGISwapChain> mySwapChain{};
-	TexturePtr myBackBuffer{};
+	TexturePtr myTexture{};
 	RenderTargetPtr myRenderTarget{};
 	unsigned myWidth{}, myHeight{};
 };

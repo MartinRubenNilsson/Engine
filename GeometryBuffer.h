@@ -5,7 +5,7 @@ class GeometryBuffer
 public:
 	GeometryBuffer(unsigned aWidth, unsigned aHeight);
 
-	void ClearRenderTargets(const Color& aColor = { 0.f, 0.f, 0.f, 0.f });
+	void Clear();
 
 	operator std::span<const RenderTargetPtr>() const { return myRenderTargets; }
 	operator std::span<const ShaderResourcePtr>() const { return myShaderResources; }

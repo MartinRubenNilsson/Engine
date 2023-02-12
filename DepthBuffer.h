@@ -5,15 +5,15 @@ class DepthBuffer
 public:
 	DepthBuffer(unsigned aWidth, unsigned aHeight);
 
-	void ClearDepthStencil();
+	void Clear();
 
-	operator ComPtr<ID3D11DepthStencilView>() const { return myDepthStencil; }
+	operator DepthStencilPtr() const { return myDepthStencil; }
 
 	explicit operator bool() const { return SUCCEEDED(myResult); }
 
 private:
-	HRESULT myResult;
-	ComPtr<ID3D11Texture2D> myTexture;
-	ComPtr<ID3D11DepthStencilView> myDepthStencil;
+	HRESULT myResult{ E_FAIL };
+	TexturePtr myTexture{};
+	DepthStencilPtr myDepthStencil{};
 };
 

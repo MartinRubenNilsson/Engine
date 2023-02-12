@@ -41,8 +41,9 @@ GeometryBuffer::GeometryBuffer(unsigned aWidth, unsigned aHeight)
 	myHeight = aHeight;
 }
 
-void GeometryBuffer::ClearRenderTargets(const Color& aColor)
+void GeometryBuffer::Clear()
 {
+	static constexpr FLOAT color[]{ 0.f, 0.f, 0.f, 0.f };
 	for (const auto& target : myRenderTargets)
-		DX11_CONTEXT->ClearRenderTargetView(target.Get(), aColor);
+		DX11_CONTEXT->ClearRenderTargetView(target.Get(), color);
 }

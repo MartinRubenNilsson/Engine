@@ -2,9 +2,6 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <ClInclude Include="pch.h" />
-    <ClInclude Include="SwapChain.h">
-      <Filter>graphics</Filter>
-    </ClInclude>
     <ClInclude Include="DX11.h">
       <Filter>graphics</Filter>
     </ClInclude>
@@ -77,14 +74,14 @@
     <ClInclude Include="Material.h">
       <Filter>objects</Filter>
     </ClInclude>
+    <ClInclude Include="BackBuffer.h">
+      <Filter>graphics\buffers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
     <ClCompile Include="pch.cpp" />
     <ClCompile Include="DX11.cpp">
-      <Filter>graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="SwapChain.cpp">
       <Filter>graphics</Filter>
     </ClCompile>
     <ClCompile Include="Debug.cpp" />
@@ -151,6 +148,9 @@
     </ClCompile>
     <ClCompile Include="Material.cpp">
       <Filter>objects</Filter>
+    </ClCompile>
+    <ClCompile Include="BackBuffer.cpp">
+      <Filter>graphics\buffers</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
