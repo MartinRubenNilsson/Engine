@@ -201,7 +201,7 @@
     <FxCompile Include="PsGBuffer.hlsl">
       <Filter>shaders\gbuffer</Filter>
     </FxCompile>
-    <FxCompile Include="PsGBufferBaseColor.hlsl">
+    <FxCompile Include="PsGBufferAlbedo.hlsl">
       <Filter>shaders\gbuffer</Filter>
     </FxCompile>
     <FxCompile Include="PsGBufferWorldNormal.hlsl">

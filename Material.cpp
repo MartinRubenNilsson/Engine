@@ -6,7 +6,7 @@ const char* TextureTypeToString(TextureType aType)
 {
     static constexpr std::array strings
     {
-        "Base Color",
+        "Albedo",
         "Normal",
         "Metallic",
         "Roughness",
@@ -58,7 +58,7 @@ void Material::LoadPaths(const aiMaterial& aMaterial)
         switch (aiType)
         {
         case aiTextureType_DIFFUSE:
-            type = TextureType::BaseColor;
+            type = TextureType::Albedo;
             break;
         case aiTextureType_NORMALS:
             type = TextureType::Normal;
@@ -134,6 +134,8 @@ void Material::CreateShaderResources()
 
 void ImGui::InspectMaterial(const Material& aMaterial)
 {
+    const float availWidth = GetContentRegionAvail().x;
+
     for (size_t i = 0; i < std::to_underlying(TextureType::Count); ++i)
     {
         TextureType type{ i };
@@ -149,7 +151,7 @@ void ImGui::InspectMaterial(const Material& aMaterial)
                 Text(aMaterial.GetPath(type).filename().string().c_str());
 
                 if (ShaderResourcePtr resource = aMaterial.GetShaderResource(type))
-                    Image(resource.Get(), { GetContentRegionAvail().x, GetContentRegionAvail().x });
+                    Image(resource.Get(), { availWidth, availWidth });
                 else
                     TextColored({ 1.f, 0.f, 0.f, 1.f }, "Failed to load texture!");
             }

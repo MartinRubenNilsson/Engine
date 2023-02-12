@@ -23,7 +23,7 @@ float GGX_GeometryWithDenominator(float NdL, float NdV, float alpha)
     return 0.5 / lerp(2.0 * NdL * NdV, NdL + NdV, alpha);
 }
 
-float3 PbrShader(float3 L, float3 V, float3 N, float3 aBaseColor, float aMetallic, float aRoughness)
+float3 PbrShader(float3 L, float3 V, float3 N, float3 aAlbedo, float aMetallic, float aRoughness)
 {
     float3 H = normalize(L + V);
     
@@ -32,7 +32,7 @@ float3 PbrShader(float3 L, float3 V, float3 N, float3 aBaseColor, float aMetalli
     float NdL = max(dot(N, L), EPSILON);
     float NdV = max(dot(N, V), EPSILON);
     
-    float3 F0 = lerp(0.04, aBaseColor, aMetallic); // 0.04 approximates the specular color of dielectrics
+    float3 F0 = lerp(0.04, aAlbedo, aMetallic); // 0.04 approximates the specular color of dielectrics
     float alpha = aRoughness * aRoughness;
     
     float3 F = FresnelSchlick(LdH, F0);
@@ -40,7 +40,7 @@ float3 PbrShader(float3 L, float3 V, float3 N, float3 aBaseColor, float aMetalli
     float3 G = GGX_GeometryWithDenominator(NdL, NdV, alpha);
     
     float3 specular = F * D * G;
-    float3 diffuse = (1.0 - F) * (1.0 - aMetallic) * aBaseColor / PI; // (1.0 - aMetallic) ensures that metals have no diffuse color
+    float3 diffuse = (1.0 - F) * (1.0 - aMetallic) * aAlbedo / PI; // (1.0 - aMetallic) ensures that metals have no diffuse color
 
     return (specular + diffuse) * NdL;
 }
