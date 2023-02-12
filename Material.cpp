@@ -7,10 +7,11 @@ const char* TextureTypeToString(TextureType aType)
     static constexpr std::array strings
     {
         "Diffuse",
-        "Emissive",
         "Normal",
         "Metallic",
         "Roughness",
+        "Occlusion",
+        //"Emissive",
     };
 
     return strings.at(std::to_underlying(aType));
@@ -59,9 +60,6 @@ void Material::LoadPaths(const aiMaterial& aMaterial)
         case aiTextureType_DIFFUSE:
             type = TextureType::Diffuse;
             break;
-        case aiTextureType_EMISSIVE:
-            type = TextureType::Emissive;
-            break;
         case aiTextureType_NORMALS:
             type = TextureType::Normal;
             break;
@@ -71,6 +69,9 @@ void Material::LoadPaths(const aiMaterial& aMaterial)
         case aiTextureType_SHININESS:
             type = TextureType::Roughness;
             break;
+        // todo: handle ambient occlusion
+        case aiTextureType_EMISSIVE:
+            [[fallthrough]];
         default:
             Debug::Println(std::format("Warning: Unrecognized texture type {}", TextureTypeToString(aiType)));
             continue;
@@ -84,10 +85,8 @@ void Material::LoadImages()
 {
     for (size_t i = 0; i < ourCount; ++i)
     {
-        if (myPaths[i].empty())
-            continue;
-
-        myImages[i] = { myPaths[i], ourChannels[i] };
+        if (!myPaths[i].empty())
+            myImages[i] = { myPaths[i], ourChannels[i] };
     }
 }
 
@@ -124,10 +123,8 @@ void Material::CreateShaderResources()
 {
     for (size_t i = 0; i < ourCount; ++i)
     {
-        if (!myTextures[i])
-            continue;
-
-        DX11_DEVICE->CreateShaderResourceView(myTextures[i].Get(), NULL, &myShaderResources[i]);
+        if (myTextures[i])
+            DX11_DEVICE->CreateShaderResourceView(myTextures[i].Get(), NULL, &myShaderResources[i]);
     }
 }
 
@@ -143,12 +140,19 @@ void ImGui::InspectMaterial(const Material& aMaterial)
 
         if (TreeNode(TextureTypeToString(type)))
         {
-            Text(aMaterial.GetPath(type).filename().string().c_str());
-
-            if (ShaderResourcePtr resource = aMaterial.GetShaderResource(type))
-                Image(resource.Get(), { GetContentRegionAvail().x, GetContentRegionAvail().x });
+            if (aMaterial.GetPath(type).empty())
+            {
+                TextColored({ 1.f, 1.f, 0.f, 1.f }, "No texture specified!");
+            }
             else
-                TextColored({ 1.f, 0.f, 0.f, 1.f }, "Failed to load texture!");
+            {
+                Text(aMaterial.GetPath(type).filename().string().c_str());
+
+                if (ShaderResourcePtr resource = aMaterial.GetShaderResource(type))
+                    Image(resource.Get(), { GetContentRegionAvail().x, GetContentRegionAvail().x });
+                else
+                    TextColored({ 1.f, 0.f, 0.f, 1.f }, "Failed to load texture!");
+            }
 
             TreePop();
         }

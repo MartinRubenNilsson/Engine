@@ -3,7 +3,7 @@
 
 void Debug::Print(std::string_view aString)
 {
-	OutputDebugStringA(std::string{ aString }.c_str());
+	OutputDebugStringA(aString.data());
 }
 
 void Debug::Println(std::string_view aString)

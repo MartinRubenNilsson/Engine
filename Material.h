@@ -4,10 +4,11 @@
 enum class TextureType : size_t
 {
 	Diffuse,
-	Emissive,
 	Normal,
 	Metallic,
 	Roughness,
+	Occlusion,
+	//Emissive,
 	Count
 };
 
@@ -31,19 +32,21 @@ private:
 	static constexpr std::array<unsigned, ourCount> ourChannels
 	{
 		4, // Diffuse
-		4, // Emissive
 		4, // Normal
 		1, // Metallic
 		1, // Roughness
+		1, // Occlusion
+		//1, // Emissive
 	};
 
 	static constexpr std::array<DXGI_FORMAT, ourCount> ourFormats
 	{
 		DXGI_FORMAT_R8G8B8A8_UNORM, // Diffuse
-		DXGI_FORMAT_R8G8B8A8_UNORM, // Emissive
 		DXGI_FORMAT_R8G8B8A8_UNORM, // Normal
 		DXGI_FORMAT_R8_UNORM,		// Metallic
 		DXGI_FORMAT_R8_UNORM,		// Roughness
+		DXGI_FORMAT_R8_UNORM,		// Occlusion
+		//DXGI_FORMAT_R8_UNORM,		// Emissive
 	};
 
 	void LoadPaths(const aiMaterial&);

@@ -2,8 +2,7 @@
 #include "IndexBuffer.h"
 
 IndexBuffer::IndexBuffer(std::span<unsigned> someIndices)
-	: myBuffer{}
-	, myIndexCount{ someIndices.size() }
+	: myIndexCount{ someIndices.size() }
 {
 	D3D11_BUFFER_DESC desc{};
 	desc.ByteWidth = static_cast<UINT>(someIndices.size_bytes());
@@ -16,7 +15,7 @@ IndexBuffer::IndexBuffer(std::span<unsigned> someIndices)
 	DX11_DEVICE->CreateBuffer(&desc, &data, &myBuffer);
 }
 
-void IndexBuffer::SetIndexBuffer() const
+void IndexBuffer::SetIndexBuffer(unsigned anOffset) const
 {
-	DX11_CONTEXT->IASetIndexBuffer(myBuffer.Get(), DXGI_FORMAT_R32_UINT, 0);
+	DX11_CONTEXT->IASetIndexBuffer(myBuffer.Get(), DXGI_FORMAT_R32_UINT, anOffset);
 }

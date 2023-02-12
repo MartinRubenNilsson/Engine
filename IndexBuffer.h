@@ -5,12 +5,12 @@ class IndexBuffer
 public:
 	IndexBuffer(std::span<unsigned> someIndices);
 
-	void SetIndexBuffer() const;
+	void SetIndexBuffer(unsigned anOffset = 0) const;
 	size_t GetIndexCount() const { return myIndexCount; }
 
 	explicit operator bool() const { return myBuffer; }
 
 private:
-	ComPtr<ID3D11Buffer> myBuffer;
-	size_t myIndexCount;
+	size_t myIndexCount{};
+	BufferPtr myBuffer{};
 };

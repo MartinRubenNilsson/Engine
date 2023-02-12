@@ -38,6 +38,7 @@ using Microsoft::WRL::ComPtr;
 using namespace DirectX::SimpleMath;
 
 using SwapChainPtr = ComPtr<IDXGISwapChain>;
+using BufferPtr = ComPtr<ID3D11Buffer>;
 using TexturePtr = ComPtr<ID3D11Texture2D>;
 using RenderTargetPtr = ComPtr<ID3D11RenderTargetView>;
 using DepthStencilPtr = ComPtr<ID3D11DepthStencilView>;
