@@ -21,7 +21,7 @@ struct GBufferTarget
 {
     float4 worldPosition : SV_Target0;
     float4 worldNormal : SV_Target1;
-    float4 diffuse : SV_Target2;
+    float4 baseColor : SV_Target2;
     float4 metalRoughAo : SV_Target3;
 };
 
@@ -31,8 +31,8 @@ struct GBufferTarget
 
 cbuffer CameraBuffer : register(b0)
 {
-    float4x4 CameraMatrix;
-    float4x4 WorldToClipMatrix;
+    float4x4 CameraViewProjMatrix;
+    float4 CameraPosition;
 }
 
 cbuffer MeshBuffer : register(b1)
@@ -47,10 +47,10 @@ cbuffer MeshBuffer : register(b1)
 
 Texture2D GBufferWorldPosition  : register(t0);
 Texture2D GBufferWorldNormal    : register(t1);
-Texture2D GBufferDiffuse        : register(t2);
+Texture2D GBufferBaseColor        : register(t2);
 Texture2D GBufferMetalRoughAo   : register(t3);
 
-Texture2D MaterialDiffuse   : register(t10);
+Texture2D MaterialBaseColor   : register(t10);
 Texture2D MaterialNormal    : register(t11);
 Texture2D MaterialMetallic  : register(t12);
 Texture2D MaterialRoughness : register(t13);

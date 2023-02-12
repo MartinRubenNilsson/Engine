@@ -3,8 +3,8 @@
 
 struct alignas(16) CameraBuffer
 {
-	Matrix cameraMatrix;
-	Matrix worldToClipMatrix;
+	Matrix cameraViewProjMatrix;
+	Vector4 cameraPosition;
 };
 
 struct alignas(16) MeshBuffer

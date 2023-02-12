@@ -992,7 +992,7 @@ extern "C" {
 
 // Specular/Glossiness Workflow
 // ---------------------------
-// Diffuse/Albedo Color. Note: Pure Metals have a diffuse of {0,0,0}
+// BaseColor/Albedo Color. Note: Pure Metals have a diffuse of {0,0,0}
 // AI_MATKEY_COLOR_DIFFUSE
 // Specular Color.
 // Note: Metallic/Roughness may also have a Specular Color

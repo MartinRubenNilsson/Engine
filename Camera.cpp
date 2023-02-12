@@ -60,8 +60,10 @@ Camera::Camera(const aiCamera& aCamera)
 void Camera::SetCamera(const Matrix& aTransform) const
 {
 	CameraBuffer buffer{};
-	//buffer.cameraMatrix = aTransform;
-	buffer.worldToClipMatrix = aTransform.Invert() * myLocalViewMatrix * GetProjectionMatrix();
+	buffer.cameraViewProjMatrix = aTransform.Invert() * myLocalViewMatrix * GetProjectionMatrix();
+	buffer.cameraPosition.x = aTransform.Translation().x;
+	buffer.cameraPosition.y = aTransform.Translation().y;
+	buffer.cameraPosition.z = aTransform.Translation().z;
 
 	DX11_WRITE_CONSTANT_BUFFER(buffer);
 }

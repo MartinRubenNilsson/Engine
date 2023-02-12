@@ -190,7 +190,7 @@ struct aiLight
      */
     float mAttenuationQuadratic;
 
-    /** Diffuse color of the light source
+    /** BaseColor color of the light source
      *
      *  The diffuse light color is multiplied with the diffuse
      *  material color to obtain the final color that contributes

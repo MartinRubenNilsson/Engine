@@ -3,7 +3,7 @@
 
 enum class TextureType : size_t
 {
-	Diffuse,
+	BaseColor,
 	Normal,
 	Metallic,
 	Roughness,
@@ -31,7 +31,7 @@ private:
 
 	static constexpr std::array<unsigned, ourCount> ourChannels
 	{
-		4, // Diffuse
+		4, // BaseColor
 		4, // Normal
 		1, // Metallic
 		1, // Roughness
@@ -41,7 +41,7 @@ private:
 
 	static constexpr std::array<DXGI_FORMAT, ourCount> ourFormats
 	{
-		DXGI_FORMAT_R8G8B8A8_UNORM, // Diffuse
+		DXGI_FORMAT_R8G8B8A8_UNORM, // BaseColor
 		DXGI_FORMAT_R8G8B8A8_UNORM, // Normal
 		DXGI_FORMAT_R8_UNORM,		// Metallic
 		DXGI_FORMAT_R8_UNORM,		// Roughness

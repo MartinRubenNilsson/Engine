@@ -186,7 +186,7 @@
     <FxCompile Include="VsFullscreen.hlsl">
       <Filter>shaders</Filter>
     </FxCompile>
-    <FxCompile Include="PsLightAmbient.hlsl">
+    <FxCompile Include="PsPbr.hlsl">
       <Filter>shaders</Filter>
     </FxCompile>
     <FxCompile Include="VsSkybox.hlsl">
@@ -201,7 +201,7 @@
     <FxCompile Include="PsGBuffer.hlsl">
       <Filter>shaders\gbuffer</Filter>
     </FxCompile>
-    <FxCompile Include="PsGBufferDiffuse.hlsl">
+    <FxCompile Include="PsGBufferBaseColor.hlsl">
       <Filter>shaders\gbuffer</Filter>
     </FxCompile>
     <FxCompile Include="PsGBufferWorldNormal.hlsl">
@@ -216,6 +216,9 @@
       <Filter>shaders</Filter>
     </None>
     <None Include="Skybox.hlsli">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="PbrFunctions.hlsli">
       <Filter>shaders</Filter>
     </None>
   </ItemGroup>

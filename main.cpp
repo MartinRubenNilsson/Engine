@@ -72,10 +72,10 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
 
     FullscreenPass fullscreenPasses[] =
     {
-        PIXEL_SHADER("PsLightAmbient.cso"),
+        PIXEL_SHADER("PsPbr.cso"),
         PIXEL_SHADER("PsGBufferWorldPosition.cso"),
         PIXEL_SHADER("PsGBufferWorldNormal.cso"),
-        PIXEL_SHADER("PsGBufferDiffuse.cso"),
+        PIXEL_SHADER("PsGBufferBaseColor.cso"),
         PIXEL_SHADER("PsGBufferMetalRoughAo.cso"),
     };
 

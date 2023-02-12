@@ -17,7 +17,7 @@ private:
 	{
 		DXGI_FORMAT_R32G32B32A32_FLOAT, // RGB  = World position
 		DXGI_FORMAT_R32G32B32A32_FLOAT, // RGB  = World normal
-		DXGI_FORMAT_R8G8B8A8_UNORM,		// RGBA = Diffuse
+		DXGI_FORMAT_R8G8B8A8_UNORM,		// RGBA = Base color
 		DXGI_FORMAT_R8G8B8A8_UNORM,		// RGB  = Metallic + Roughness + AO
 	};
 

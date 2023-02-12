@@ -6,7 +6,7 @@ const char* TextureTypeToString(TextureType aType)
 {
     static constexpr std::array strings
     {
-        "Diffuse",
+        "Base Color",
         "Normal",
         "Metallic",
         "Roughness",
@@ -58,7 +58,7 @@ void Material::LoadPaths(const aiMaterial& aMaterial)
         switch (aiType)
         {
         case aiTextureType_DIFFUSE:
-            type = TextureType::Diffuse;
+            type = TextureType::BaseColor;
             break;
         case aiTextureType_NORMALS:
             type = TextureType::Normal;

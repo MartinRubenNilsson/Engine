@@ -28,7 +28,7 @@ SkyboxPixel main(uint id : SV_VertexID)
     
     SkyboxPixel pixel;
     pixel.localPosition = skyboxVertices[id];
-    pixel.pixelPosition = mul(WorldToClipMatrix, float4(pixel.localPosition, 0.f)).xyww;
+    pixel.pixelPosition = mul(CameraViewProjMatrix, float4(pixel.localPosition, 0.f)).xyww;
     
     return pixel;
 }
