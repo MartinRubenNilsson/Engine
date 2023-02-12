@@ -175,21 +175,15 @@
     <Filter Include="windows">
       <UniqueIdentifier>{bffff0c7-e125-46a2-aa9e-59024fddbf31}</UniqueIdentifier>
     </Filter>
+    <Filter Include="shaders\gbuffer">
+      <UniqueIdentifier>{46ecd3c9-22e6-4560-a68b-88131e00d1c1}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="VsBasic.hlsl">
       <Filter>shaders</Filter>
     </FxCompile>
-    <FxCompile Include="PsGBuffer.hlsl">
-      <Filter>shaders</Filter>
-    </FxCompile>
-    <FxCompile Include="PsGBufferWorldPosition.hlsl">
-      <Filter>shaders</Filter>
-    </FxCompile>
     <FxCompile Include="VsFullscreen.hlsl">
-      <Filter>shaders</Filter>
-    </FxCompile>
-    <FxCompile Include="PsGBufferWorldNormal.hlsl">
       <Filter>shaders</Filter>
     </FxCompile>
     <FxCompile Include="PsLightAmbient.hlsl">
@@ -201,8 +195,20 @@
     <FxCompile Include="PsSkybox.hlsl">
       <Filter>shaders</Filter>
     </FxCompile>
+    <FxCompile Include="PsGBufferWorldPosition.hlsl">
+      <Filter>shaders\gbuffer</Filter>
+    </FxCompile>
+    <FxCompile Include="PsGBuffer.hlsl">
+      <Filter>shaders\gbuffer</Filter>
+    </FxCompile>
     <FxCompile Include="PsGBufferDiffuse.hlsl">
-      <Filter>shaders</Filter>
+      <Filter>shaders\gbuffer</Filter>
+    </FxCompile>
+    <FxCompile Include="PsGBufferWorldNormal.hlsl">
+      <Filter>shaders\gbuffer</Filter>
+    </FxCompile>
+    <FxCompile Include="PsGBufferMetalRoughAo.hlsl">
+      <Filter>shaders\gbuffer</Filter>
     </FxCompile>
   </ItemGroup>
   <ItemGroup>

@@ -2,11 +2,16 @@
 
 float4 main(float4 aPixelPosition : SV_Position) : SV_TARGET
 {
-    float4 worldNormal = SampleGBufferWorldNormal(aPixelPosition);
+    uint2 dim;
+    GBufferWorldPosition.GetDimensions(dim.x, dim.y);
+    
+    const float2 uv = aPixelPosition.xy / dim;
+    
+    float4 worldPosition = GBufferWorldPosition.Sample(DefaultSampler, uv);
+    float4 worldNormal = GBufferWorldNormal.Sample(DefaultSampler, uv);
+    
     if (!any(worldNormal))
         discard;
-    
-    float4 worldPosition = SampleGBufferWorldPosition(aPixelPosition);
     
     float4 up = { 0, 1, 0, 0 };
     

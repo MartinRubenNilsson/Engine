@@ -2,12 +2,6 @@
 #include "GeometryBuffer.h"
 
 GeometryBuffer::GeometryBuffer(unsigned aWidth, unsigned aHeight)
-	: myResult{}
-	, myTextures{}
-	, myRenderTargets{}
-	, myShaderResources{}
-	, myWidth{}
-	, myHeight{}
 {
 	D3D11_TEXTURE2D_DESC textureDesc{};
 	textureDesc.Width = aWidth;
@@ -18,6 +12,8 @@ GeometryBuffer::GeometryBuffer(unsigned aWidth, unsigned aHeight)
 	textureDesc.SampleDesc.Quality = 0;
 	textureDesc.Usage = D3D11_USAGE_DEFAULT;
 	textureDesc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
+	textureDesc.CPUAccessFlags = 0;
+	textureDesc.MiscFlags = 0;
 
 	D3D11_RENDER_TARGET_VIEW_DESC targetDesc{};
 	targetDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;

@@ -13,19 +13,22 @@ public:
 	explicit operator bool() const { return SUCCEEDED(myResult); }
 
 private:
-	static constexpr std::array ourFormats =
+	static constexpr std::array ourFormats
 	{
-		DXGI_FORMAT_R32G32B32A32_FLOAT, // World position
-		DXGI_FORMAT_R32G32B32A32_FLOAT, // World normal
-		DXGI_FORMAT_R8G8B8A8_UNORM_SRGB, // Diffuse
+		DXGI_FORMAT_R32G32B32A32_FLOAT, // RGB  = World position
+		DXGI_FORMAT_R32G32B32A32_FLOAT, // RGB  = World normal
+		DXGI_FORMAT_R8G8B8A8_UNORM,		// RGBA = Diffuse
+		DXGI_FORMAT_R8G8B8A8_UNORM,		// RGB  = Metallic + Roughness + AO
 	};
 
-	static_assert(ourFormats.size() <= D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT);
+	static constexpr size_t ourCount{ ourFormats.size() };
 
-	HRESULT myResult;
-	TexturePtr myTextures[ourFormats.size()];
-	RenderTargetPtr myRenderTargets[ourFormats.size()];
-	ShaderResourcePtr myShaderResources[ourFormats.size()];
-	unsigned myWidth, myHeight;
+	static_assert(ourCount <= D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT);
+
+	HRESULT myResult{ E_FAIL };
+	std::array<TexturePtr, ourCount> myTextures{};
+	std::array<RenderTargetPtr, ourCount> myRenderTargets{};
+	std::array<ShaderResourcePtr, ourCount> myShaderResources{};
+	unsigned myWidth{}, myHeight{};
 };
 
