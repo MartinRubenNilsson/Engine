@@ -2,8 +2,7 @@
 #include "ConstantBuffer.h"
 
 ConstantBuffer::ConstantBuffer(size_t aByteWidth)
-	: myBuffer{}
-	, myByteWidth{ aByteWidth }
+	: myByteWidth{ aByteWidth }
 {
 	D3D11_BUFFER_DESC desc{};
 	desc.ByteWidth = static_cast<UINT>(aByteWidth);

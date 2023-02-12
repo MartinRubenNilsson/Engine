@@ -13,7 +13,7 @@ public:
 	explicit operator bool() const { return myBuffer; }
 
 private:
-	ComPtr<ID3D11Buffer> myBuffer;
-	size_t myByteWidth;
+	size_t myByteWidth{};
+	BufferPtr myBuffer{};
 };
 
