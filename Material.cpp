@@ -134,9 +134,7 @@ void Material::CreateShaderResources()
 
 void ImGui::InspectMaterial(const Material& aMaterial)
 {
-    Text(aMaterial.GetName().data());
-
-    const float availWidth = GetContentRegionAvail().x;
+    Text("Name: %s", aMaterial.GetName().data());
 
     for (size_t i = 0; i < std::to_underlying(TextureType::Count); ++i)
     {
@@ -150,10 +148,10 @@ void ImGui::InspectMaterial(const Material& aMaterial)
             }
             else
             {
-                Text(aMaterial.GetPath(type).filename().string().c_str());
+                Text("Path: %s", aMaterial.GetPath(type).filename().string().c_str());
 
                 if (ShaderResourcePtr resource = aMaterial.GetShaderResource(type))
-                    Image(resource.Get(), { availWidth, availWidth });
+                    Image(resource.Get(), { 200.f, 200.f });
                 else
                     TextColored({ 1.f, 0.f, 0.f, 1.f }, "Failed to load texture!");
             }

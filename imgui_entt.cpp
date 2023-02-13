@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "imgui_entt.h"
 #include "Transform.h"
+#include "Mesh.h"
 #include "Material.h"
 
 void ImGui::Inspector(entt::handle aHandle)
@@ -9,6 +10,12 @@ void ImGui::Inspector(entt::handle aHandle)
 	{
 		if (CollapsingHeader("Transform", ImGuiTreeNodeFlags_DefaultOpen))
 			InspectTransform(*transform);
+	}
+
+	if (auto mesh = aHandle.try_get<Mesh::Ptr>())
+	{
+		if (CollapsingHeader("Mesh", ImGuiTreeNodeFlags_DefaultOpen))
+			InspectMesh(**mesh);
 	}
 
 	if (auto material = aHandle.try_get<Material::Ptr>())

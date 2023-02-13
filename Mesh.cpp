@@ -1,6 +1,10 @@
 #include "pch.h"
 #include "Mesh.h"
 
+/*
+* class Mesh
+*/
+
 Mesh::Mesh(const aiMesh& aMesh)
 	: myName{ aMesh.mName.C_Str() }
 {
@@ -48,8 +52,28 @@ void Mesh::Draw(const Matrix& aTransform) const
 	DX11_CONTEXT->DrawIndexed(myIndexBuffer.GetIndexCount(), 0, 0);
 }
 
+unsigned Mesh::GetVertexCount() const
+{
+	return myVertexBuffer.GetVertexCount();
+}
+
+unsigned Mesh::GetIndexCount() const
+{
+	return myIndexBuffer.GetIndexCount();
+}
+
 Mesh::operator bool() const
 {
 	return myVertexBuffer && myIndexBuffer;
 }
 
+/*
+* namespace ImGui
+*/
+
+void ImGui::InspectMesh(const Mesh& aMesh)
+{
+	Text("Name: %s", aMesh.GetName().data());
+	Value("Vertices", aMesh.GetVertexCount());
+	Value("Indices", aMesh.GetIndexCount());
+}
