@@ -17,6 +17,8 @@ const char* TextureTypeToString(TextureType);
 class Material
 {
 public:
+	using Ptr = std::shared_ptr<const Material>;
+
 	Material(const aiMaterial&);
 
 	std::string_view GetName() const { return myName; }

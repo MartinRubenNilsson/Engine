@@ -5,18 +5,18 @@
 class Mesh
 {
 public:
+	using Ptr = std::shared_ptr<const Mesh>;
+
 	Mesh(const aiMesh&);
 
 	void Draw(const Matrix& aTransform) const;
 
 	std::string_view GetName() const { return myName; }
-	unsigned GetMaterialIndex() const { return myMaterialIndex; }
 
 	explicit operator bool() const;
 
 private:
 	std::string myName{};
-	unsigned myMaterialIndex{};
 	VertexBuffer myVertexBuffer{};
 	IndexBuffer myIndexBuffer{};
 };

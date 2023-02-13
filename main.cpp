@@ -19,7 +19,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 namespace
 {
     Drop theDrop;
-    std::shared_ptr<const Scene> theScene;
 }
 
 int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
@@ -119,6 +118,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
     const float cameraDistance = 20.f;
     cameraTransform.Translation({ 0.f, 0.f, -cameraDistance });
 
+    entt::registry registry{};
+
     bool run = true;
     MSG msg{};
 
@@ -137,7 +138,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
         // Drag and drop
         if (theDrop)
         {
-            theScene = sceneMgr.GetScene(theDrop.GetPaths().front());
+            registry.clear();
+            sceneMgr.GetScene(theDrop.GetPaths().front())->Instantiate(registry);
             theDrop = {};
         }
 
@@ -150,22 +152,18 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
 
         camera.SetCamera(cameraTransform);
 
-        if (theScene)
+        if (!registry.empty())
         {
             ScopedInputLayout layout{ typeid(BasicVertex) };
             ScopedShader vs{ VERTEX_SHADER("VsBasic.cso") };
             ScopedShader ps{ PIXEL_SHADER("PsGBuffer.cso") };
             ScopedRenderTargets geometryBufferScope{ geometryBuffer, depthBuffer };
 
-            auto& materials = theScene->GetMaterials();
-            auto& meshes = theScene->GetMeshes();
-
-            for (auto& [mesh, transforms] : meshes)
+            auto view = registry.view<Material::Ptr, Mesh::Ptr, Transform::Ptr>();
+            for (auto [_, material, mesh, transform] : view.each())
             {
-                ScopedShaderResources resources{ ShaderType::Pixel, 10, materials[mesh.GetMaterialIndex()] };
-
-                for (auto& transform : transforms)
-                    mesh.Draw(transform->GetWorldMatrix());
+                ScopedShaderResources resources{ ShaderType::Pixel, 10, *material };
+                mesh->Draw(transform->GetWorldMatrix());
             }
         }
 
@@ -190,7 +188,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
 
             ImGui::ViewManipulate(camera, cameraTransform, cameraDistance, {}, { 150.f, 150.f }, 0);
 
-            if (theScene)
+            /*if (theScene)
             {
                 ImGui::Begin("Materials");
                 for (const auto& material : theScene->GetMaterials())
@@ -218,7 +216,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
                     ImGui::Manipulate(camera, cameraTransform, operation, mode, m);
                     selection->SetWorldMatrix(m);
                 }
-            }
+            }*/
 
             imGui.Render();
         }

@@ -10,33 +10,47 @@ Scene::Scene(const aiScene& aScene)
 {
     LoadMaterials({ aScene.mMaterials, aScene.mNumMaterials });
     LoadMeshes({ aScene.mMeshes, aScene.mNumMeshes });
-    LoadHierarchy(myRootTransform, aScene.mRootNode);
+    LoadTransforms(myRootTransform, aScene.mRootNode);
     LoadCameras({ aScene.mCameras, aScene.mNumCameras });
+}
+
+void Scene::Instantiate(entt::registry& aRegistry) const
+{
+    for (auto& [transform, meshIndex] : myTransforms)
+    {
+        auto& [mesh, materialIndex] = myMeshes.at(meshIndex);
+        auto& material = myMaterials.at(materialIndex);
+
+        entt::handle handle{ aRegistry, aRegistry.create() };
+        handle.emplace<Transform::Ptr>(transform);
+        handle.emplace<Mesh::Ptr>(mesh);
+        handle.emplace<Material::Ptr>(material);
+    }
 }
 
 void Scene::LoadMaterials(std::span<aiMaterial*> someMaterials)
 {
     for (aiMaterial* material : someMaterials)
-        myMaterials.emplace_back(*material);
+        myMaterials.emplace_back(std::make_shared<Material>(*material));
 }
 
 void Scene::LoadMeshes(std::span<aiMesh*> someMeshes)
 {
     for (aiMesh* mesh : someMeshes)
-        myMeshes.emplace_back(*mesh, 0);
+        myMeshes.emplace_back(std::make_shared<Mesh>(*mesh), mesh->mMaterialIndex);
 }
 
-void Scene::LoadHierarchy(Transform::Ptr aTransform, aiNode* aNode)
+void Scene::LoadTransforms(Transform::Ptr aTransform, aiNode* aNode)
 {
     aTransform->SetName(aNode->mName.C_Str());
 
     std::memcpy(aTransform->Data(), &aNode->mTransformation.Transpose(), sizeof(Matrix));
 
     for (unsigned meshIndex : std::span{ aNode->mMeshes, aNode->mNumMeshes })
-        myMeshes[meshIndex].second.emplace_back(aTransform);
+        myTransforms.emplace_back(aTransform, meshIndex);
 
-    for (aiNode* childNode : std::span{ aNode->mChildren, aNode->mNumChildren })
-        LoadHierarchy(aTransform->CreateChild(), childNode);
+    for (aiNode* child : std::span{ aNode->mChildren, aNode->mNumChildren })
+        LoadTransforms(aTransform->CreateChild(), child);
 }
 
 void Scene::LoadCameras(std::span<aiCamera*> someCameras)

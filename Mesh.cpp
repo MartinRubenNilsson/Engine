@@ -3,7 +3,6 @@
 
 Mesh::Mesh(const aiMesh& aMesh)
 	: myName{ aMesh.mName.C_Str() }
-	, myMaterialIndex{ aMesh.mMaterialIndex }
 {
 	assert(aMesh.HasPositions());
 	assert(aMesh.HasNormals());

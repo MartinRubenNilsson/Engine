@@ -9,20 +9,20 @@ class Scene
 public:
 	Scene(const aiScene&);
 
-	auto GetRootTransform() const { return myRootTransform; }
-	const auto& GetMaterials() const { return myMaterials; }
-	const auto& GetMeshes() const { return myMeshes; }
-	const auto& GetCameras() const { return myCameras; }
+	void Instantiate(entt::registry&) const;
+
+	Transform::Ptr GetRootTransform() const { return myRootTransform; }
 
 private:
 	void LoadMaterials(std::span<aiMaterial*>);
 	void LoadMeshes(std::span<aiMesh*>);
-	void LoadHierarchy(Transform::Ptr aTransform, aiNode* aNode);
+	void LoadTransforms(Transform::Ptr aTransform, aiNode* aNode);
 	void LoadCameras(std::span<aiCamera*>);
 
 	Transform::Ptr myRootTransform{ Transform::Create() };
-	std::vector<Material> myMaterials{};
-	std::vector<std::pair<Mesh, std::vector<Transform::Ptr>>> myMeshes{};
+	std::vector<Material::Ptr> myMaterials{};
+	std::vector<std::pair<Mesh::Ptr, unsigned>> myMeshes{};
+	std::vector<std::pair<Transform::Ptr, unsigned>> myTransforms{};
 	std::vector<std::pair<Camera, Transform::Ptr>> myCameras{};
 };
 
