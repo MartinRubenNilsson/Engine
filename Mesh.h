@@ -11,7 +11,7 @@ public:
 
 	void Draw(const Matrix& aTransform) const;
 
-	std::string_view GetName() const { return myName; }
+	std::string_view GetName() const;
 	unsigned GetVertexCount() const;
 	unsigned GetIndexCount() const;
 

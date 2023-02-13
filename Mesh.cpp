@@ -52,6 +52,11 @@ void Mesh::Draw(const Matrix& aTransform) const
 	DX11_CONTEXT->DrawIndexed(myIndexBuffer.GetIndexCount(), 0, 0);
 }
 
+std::string_view Mesh::GetName() const
+{
+	return myName;
+}
+
 unsigned Mesh::GetVertexCount() const
 {
 	return myVertexBuffer.GetVertexCount();

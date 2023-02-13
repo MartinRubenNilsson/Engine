@@ -1,8 +1,11 @@
 #include "pch.h"
-#include "GeometryBuffer.h"
+#include "RenderTargets.h"
 
-GeometryBuffer::GeometryBuffer(unsigned aWidth, unsigned aHeight)
+RenderTargets::RenderTargets(unsigned aWidth, unsigned aHeight, std::span<const DXGI_FORMAT> someFormats)
 {
+	if (someFormats.size() > ourCount)
+		return;
+
 	D3D11_TEXTURE2D_DESC textureDesc{};
 	textureDesc.Width = aWidth;
 	textureDesc.Height = aHeight;
@@ -22,9 +25,9 @@ GeometryBuffer::GeometryBuffer(unsigned aWidth, unsigned aHeight)
 	resourceDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
 	resourceDesc.Texture2D.MipLevels = static_cast<UINT>(-1);
 
-	for (size_t i = 0; i < ourFormats.size(); ++i)
+	for (size_t i = 0; i < someFormats.size(); ++i)
 	{
-		textureDesc.Format = targetDesc.Format = resourceDesc.Format = ourFormats[i];
+		textureDesc.Format = targetDesc.Format = resourceDesc.Format = someFormats[i];
 
 		myResult = DX11_DEVICE->CreateTexture2D(&textureDesc, NULL, &myTextures[i]);
 		if (FAILED(myResult))
@@ -41,14 +44,18 @@ GeometryBuffer::GeometryBuffer(unsigned aWidth, unsigned aHeight)
 	myHeight = aHeight;
 }
 
-void GeometryBuffer::Clear()
+void RenderTargets::Clear()
 {
 	static constexpr FLOAT color[]{ 0.f, 0.f, 0.f, 0.f };
+
 	for (const auto& target : myRenderTargets)
-		DX11_CONTEXT->ClearRenderTargetView(target.Get(), color);
+	{
+		if (target)
+			DX11_CONTEXT->ClearRenderTargetView(target.Get(), color);
+	}
 }
 
-GeometryBuffer::operator bool() const
+RenderTargets::operator bool() const
 {
 	return SUCCEEDED(myResult);
 }

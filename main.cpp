@@ -4,7 +4,7 @@
 #include "DearImGui.h"
 #include "BackBuffer.h"
 #include "DepthBuffer.h"
-#include "GeometryBuffer.h"
+#include "RenderTargets.h"
 #include "StateManager.h"
 #include "InputLayoutManager.h"
 #include "Scene.h"
@@ -62,12 +62,21 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
     if (!backBuffer)
         return EXIT_FAILURE;
 
-    GeometryBuffer geometryBuffer{ backBuffer.GetWidth(), backBuffer.GetHeight() };
-    if (!geometryBuffer)
+    static constexpr std::array gbufferFormats
+    {
+        DXGI_FORMAT_R32G32B32A32_FLOAT, // World position
+        DXGI_FORMAT_R32G32B32A32_FLOAT, // Vertex normal
+        DXGI_FORMAT_R32G32B32A32_FLOAT, // Pixel normal
+        DXGI_FORMAT_R8G8B8A8_UNORM,		// Albedo
+        DXGI_FORMAT_R8G8B8A8_UNORM,		// Metallic + Roughness + AO + [Unused]
+    };
+
+    RenderTargets gbuffer{ backBuffer.GetWidth(), backBuffer.GetHeight(), gbufferFormats };
+    if (!gbuffer)
         return EXIT_FAILURE;
 
-    DepthBuffer depthBuffer{ backBuffer.GetWidth(), backBuffer.GetHeight() };
-    if (!depthBuffer)
+    DepthBuffer zbuffer{ backBuffer.GetWidth(), backBuffer.GetHeight() };
+    if (!zbuffer)
         return EXIT_FAILURE;
 
     FullscreenPass fullscreenPasses[] =
@@ -149,8 +158,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
 
         // Rendering
         backBuffer.Clear();
-        geometryBuffer.Clear();
-        depthBuffer.Clear();
+        gbuffer.Clear();
+        zbuffer.Clear();
 
         ScopedRenderTargets swapChainScope{ backBuffer };
 
@@ -161,7 +170,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
             ScopedInputLayout layout{ typeid(BasicVertex) };
             ScopedShader vs{ VERTEX_SHADER("VsBasic.cso") };
             ScopedShader ps{ PIXEL_SHADER("PsGBuffer.cso") };
-            ScopedRenderTargets geometryBufferScope{ geometryBuffer, depthBuffer };
+            ScopedRenderTargets targets{ gbuffer, zbuffer };
 
             auto view = registry.view<Material::Ptr, Mesh::Ptr, Transform::Ptr>();
             for (auto [_, material, mesh, transform] : view.each())
@@ -171,11 +180,11 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
             }
         }
         {
-            ScopedShaderResources resources{ ShaderType::Pixel, 0, geometryBuffer };
+            ScopedShaderResources resources{ ShaderType::Pixel, 0, gbuffer };
             fullscreenPasses[pass].Draw();
         }
         {
-            ScopedRenderTargets skyboxScope{ backBuffer, depthBuffer };
+            ScopedRenderTargets skyboxScope{ backBuffer, zbuffer };
             cubemap.DrawSkybox();
         }
 

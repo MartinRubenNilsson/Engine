@@ -198,7 +198,7 @@
     <ClInclude Include="Drop.h" />
     <ClInclude Include="DX11.h" />
     <ClInclude Include="FullscreenPass.h" />
-    <ClInclude Include="GeometryBuffer.h" />
+    <ClInclude Include="RenderTargets.h" />
     <ClInclude Include="Image.h" />
     <ClInclude Include="imgui_entt.h" />
     <ClInclude Include="IndexBuffer.h" />
@@ -228,7 +228,7 @@
     <ClCompile Include="Drop.cpp" />
     <ClCompile Include="DX11.cpp" />
     <ClCompile Include="FullscreenPass.cpp" />
-    <ClCompile Include="GeometryBuffer.cpp" />
+    <ClCompile Include="RenderTargets.cpp" />
     <ClCompile Include="Image.cpp" />
     <ClCompile Include="imgui_entt.cpp" />
     <ClCompile Include="IndexBuffer.cpp" />

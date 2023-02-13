@@ -46,9 +46,6 @@
     <ClInclude Include="StateManager.h">
       <Filter>graphics\managers</Filter>
     </ClInclude>
-    <ClInclude Include="GeometryBuffer.h">
-      <Filter>graphics\buffers</Filter>
-    </ClInclude>
     <ClInclude Include="FullscreenPass.h">
       <Filter>graphics</Filter>
     </ClInclude>
@@ -76,6 +73,9 @@
     </ClInclude>
     <ClInclude Include="imgui_entt.h">
       <Filter>imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderTargets.h">
+      <Filter>graphics</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -124,9 +124,6 @@
     <ClCompile Include="StateManager.cpp">
       <Filter>graphics\managers</Filter>
     </ClCompile>
-    <ClCompile Include="GeometryBuffer.cpp">
-      <Filter>graphics\buffers</Filter>
-    </ClCompile>
     <ClCompile Include="FullscreenPass.cpp">
       <Filter>graphics</Filter>
     </ClCompile>
@@ -151,6 +148,9 @@
     </ClCompile>
     <ClCompile Include="imgui_entt.cpp">
       <Filter>imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="RenderTargets.cpp">
+      <Filter>graphics</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
