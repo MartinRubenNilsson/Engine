@@ -3,6 +3,7 @@
 class GeometryBuffer
 {
 public:
+	GeometryBuffer() = default;
 	GeometryBuffer(unsigned aWidth, unsigned aHeight);
 
 	void Clear();
@@ -10,14 +11,14 @@ public:
 	operator std::span<const RenderTargetPtr>() const { return myRenderTargets; }
 	operator std::span<const ShaderResourcePtr>() const { return myShaderResources; }
 
-	explicit operator bool() const { return SUCCEEDED(myResult); }
+	explicit operator bool() const;
 
 private:
 	static constexpr std::array ourFormats
 	{
 		DXGI_FORMAT_R32G32B32A32_FLOAT, // World position
-		DXGI_FORMAT_R32G32B32A32_FLOAT, // Vertex normal
-		DXGI_FORMAT_R32G32B32A32_FLOAT, // Pixel normal
+		DXGI_FORMAT_R32G32B32A32_FLOAT,  // Vertex normal
+		DXGI_FORMAT_R32G32B32A32_FLOAT,  // Pixel normal
 		DXGI_FORMAT_R8G8B8A8_UNORM,		// Albedo
 		DXGI_FORMAT_R8G8B8A8_UNORM,		// Metallic + Roughness + AO + [Unused]
 	};

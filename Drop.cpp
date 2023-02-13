@@ -32,3 +32,8 @@ POINT Drop::GetPoint() const
     DragQueryPoint(myDrop.get(), &point);
     return point;
 }
+
+Drop::operator bool() const
+{
+    return myDrop.operator bool();
+}

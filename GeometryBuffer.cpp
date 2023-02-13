@@ -47,3 +47,8 @@ void GeometryBuffer::Clear()
 	for (const auto& target : myRenderTargets)
 		DX11_CONTEXT->ClearRenderTargetView(target.Get(), color);
 }
+
+GeometryBuffer::operator bool() const
+{
+	return SUCCEEDED(myResult);
+}
