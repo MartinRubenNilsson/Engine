@@ -17,3 +17,8 @@ void FullscreenPass::Draw() const
 
 	DX11_CONTEXT->Draw(3, 0);
 }
+
+FullscreenPass::operator bool() const
+{
+	return myPixelShader.operator bool();
+}
