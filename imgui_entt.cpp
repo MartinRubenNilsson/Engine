@@ -3,6 +3,7 @@
 #include "Transform.h"
 #include "Mesh.h"
 #include "Material.h"
+#include "Camera.h"
 
 void ImGui::Inspector(entt::handle aHandle)
 {
@@ -22,6 +23,12 @@ void ImGui::Inspector(entt::handle aHandle)
 	{
 		if (CollapsingHeader("Material", ImGuiTreeNodeFlags_DefaultOpen))
 			InspectMaterial(**material);
+	}
+
+	if (auto camera = aHandle.try_get<Camera>())
+	{
+		if (CollapsingHeader("Camera", ImGuiTreeNodeFlags_DefaultOpen))
+			InspectCamera(*camera);
 	}
 }
 

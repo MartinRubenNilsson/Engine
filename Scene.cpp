@@ -12,6 +12,7 @@ Scene::Scene(const aiScene& aScene)
     LoadMeshes({ aScene.mMeshes, aScene.mNumMeshes });
     LoadTransforms(myRootTransform, aScene.mRootNode);
     LoadCameras({ aScene.mCameras, aScene.mNumCameras });
+    LoadLights({ aScene.mLights, aScene.mNumLights });
 }
 
 entt::entity Scene::Instantiate(entt::registry& aRegistry) const
@@ -25,6 +26,20 @@ entt::entity Scene::Instantiate(entt::registry& aRegistry) const
         handle.emplace<Transform::Ptr>(transform);
         handle.emplace<Mesh::Ptr>(mesh);
         handle.emplace<Material::Ptr>(material);
+    }
+
+    for (auto& [camera, transform] : myCameras)
+    {
+        entt::handle handle{ aRegistry, aRegistry.create() };
+        handle.emplace<Transform::Ptr>(transform);
+        handle.emplace<Camera>(camera);
+    }
+
+    for (auto& [light, transform] : myCameras)
+    {
+        entt::handle handle{ aRegistry, aRegistry.create() };
+        handle.emplace<Transform::Ptr>(transform);
+        handle.emplace<Light>(light);
     }
 
     entt::entity entity{ aRegistry.create() };
@@ -62,6 +77,12 @@ void Scene::LoadCameras(std::span<aiCamera*> someCameras)
 {
     for (aiCamera* camera : someCameras)
         myCameras.emplace_back(*camera, myRootTransform->FindByName(camera->mName.C_Str()));
+}
+
+void Scene::LoadLights(std::span<aiLight*> someLights)
+{
+    for (aiLight* light : someLights)
+        myLights.emplace_back(*light, myRootTransform->FindByName(light->mName.C_Str()));
 }
 
 /*

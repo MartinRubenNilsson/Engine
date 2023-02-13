@@ -4,6 +4,12 @@
 #include "Mesh.h"
 #include "Camera.h"
 
+class Light
+{
+public:
+	Light(const aiLight&) {}
+};
+
 class Scene
 {
 public:
@@ -16,12 +22,14 @@ private:
 	void LoadMeshes(std::span<aiMesh*>);
 	void LoadTransforms(Transform::Ptr aTransform, aiNode* aNode);
 	void LoadCameras(std::span<aiCamera*>);
+	void LoadLights(std::span<aiLight*>);
 
 	Transform::Ptr myRootTransform{ Transform::Create() };
 	std::vector<Material::Ptr> myMaterials{};
 	std::vector<std::pair<Mesh::Ptr, unsigned>> myMeshes{};
 	std::vector<std::pair<Transform::Ptr, unsigned>> myTransforms{};
 	std::vector<std::pair<Camera, Transform::Ptr>> myCameras{};
+	std::vector<std::pair<Light, Transform::Ptr>> myLights{};
 };
 
 class SceneManager : public Singleton<SceneManager>
