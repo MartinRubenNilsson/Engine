@@ -9,9 +9,7 @@ class Scene
 public:
 	Scene(const aiScene&);
 
-	void Instantiate(entt::registry&) const;
-
-	Transform::Ptr GetRootTransform() const { return myRootTransform; }
+	entt::entity Instantiate(entt::registry&) const;
 
 private:
 	void LoadMaterials(std::span<aiMaterial*>);

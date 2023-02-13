@@ -14,7 +14,7 @@ Scene::Scene(const aiScene& aScene)
     LoadCameras({ aScene.mCameras, aScene.mNumCameras });
 }
 
-void Scene::Instantiate(entt::registry& aRegistry) const
+entt::entity Scene::Instantiate(entt::registry& aRegistry) const
 {
     for (auto& [transform, meshIndex] : myTransforms)
     {
@@ -26,6 +26,11 @@ void Scene::Instantiate(entt::registry& aRegistry) const
         handle.emplace<Mesh::Ptr>(mesh);
         handle.emplace<Material::Ptr>(material);
     }
+
+    entt::entity entity{ aRegistry.create() };
+    aRegistry.emplace<Transform::Ptr>(entity, myRootTransform);
+
+    return entity;
 }
 
 void Scene::LoadMaterials(std::span<aiMaterial*> someMaterials)

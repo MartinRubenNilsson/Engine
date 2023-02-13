@@ -134,6 +134,8 @@ void Material::CreateShaderResources()
 
 void ImGui::InspectMaterial(const Material& aMaterial)
 {
+    Text(aMaterial.GetName().data());
+
     const float availWidth = GetContentRegionAvail().x;
 
     for (size_t i = 0; i < std::to_underlying(TextureType::Count); ++i)

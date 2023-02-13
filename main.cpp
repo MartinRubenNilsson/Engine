@@ -119,6 +119,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
     cameraTransform.Translation({ 0.f, 0.f, -cameraDistance });
 
     entt::registry registry{};
+    entt::entity entity{};
 
     bool run = true;
     MSG msg{};
@@ -139,7 +140,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
         if (theDrop)
         {
             registry.clear();
-            sceneMgr.GetScene(theDrop.GetPaths().front())->Instantiate(registry);
+            entity = sceneMgr.GetScene(theDrop.GetPaths().front())->Instantiate(registry);
             theDrop = {};
         }
 
@@ -188,23 +189,12 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
 
             ImGui::ViewManipulate(camera, cameraTransform, cameraDistance, {}, { 150.f, 150.f }, 0);
 
-            /*if (theScene)
+            if (registry.valid(entity) && registry.all_of<Transform::Ptr>(entity))
             {
-                ImGui::Begin("Materials");
-                for (const auto& material : theScene->GetMaterials())
-                {
-                    if (ImGui::TreeNode(material.GetName().data()))
-                    {
-                        ImGui::InspectMaterial(material);
-                        ImGui::TreePop();
-                    }
-                }
-                ImGui::End();
-
                 static Transform::Ptr selection;
 
                 ImGui::Begin("Hierarchy");
-                ImGui::Hierarchy(theScene->GetRootTransform(), selection);
+                ImGui::Hierarchy(registry.get<Transform::Ptr>(entity), selection);
                 ImGui::End();
 
                 if (selection)
@@ -216,7 +206,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
                     ImGui::Manipulate(camera, cameraTransform, operation, mode, m);
                     selection->SetWorldMatrix(m);
                 }
-            }*/
+            }
 
             imGui.Render();
         }
