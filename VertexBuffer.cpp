@@ -20,7 +20,7 @@ VertexBuffer::VertexBuffer(std::type_index aVertexType, size_t aVertexSize, size
 
 void VertexBuffer::SetVertexBuffer() const
 {
-	const UINT stride{ static_cast<UINT>(myVertexSize) };
-	const UINT offset{ 0 };
+	UINT stride{ static_cast<UINT>(myVertexSize) };
+	UINT offset{ 0 };
 	DX11_CONTEXT->IASetVertexBuffers(0, 1, myBuffer.GetAddressOf(), &stride, &offset);
 }

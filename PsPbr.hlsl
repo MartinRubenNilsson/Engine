@@ -9,16 +9,16 @@ float4 main(float4 aPixelPosition : SV_Position) : SV_TARGET
     const float2 uv = aPixelPosition.xy / dim;
     
     const float4 worldPosition  = GBufferWorldPosition.Sample(DefaultSampler, uv);
-    const float4 worldNormal    = GBufferWorldNormal.Sample(DefaultSampler, uv);
-    const float4 albedo      = GBufferAlbedo.Sample(DefaultSampler, uv);
+    const float4 pixelNormal    = GBufferPixelNormal.Sample(DefaultSampler, uv);
+    const float4 albedo         = GBufferAlbedo.Sample(DefaultSampler, uv);
     const float4 metalRoughAo   = GBufferMetalRoughAo.Sample(DefaultSampler, uv);
     
-    if (!any(worldNormal))
+    if (!any(pixelNormal))
         discard;
     
     const float3 L = normalize(float3(-1.f, 1.f, 0.f));
     const float3 V = normalize(CameraPosition.xyz - worldPosition.xyz);
-    const float3 N = normalize(worldNormal.xyz);
+    const float3 N = normalize(pixelNormal.xyz);
     
     const float metallic = metalRoughAo.x;
     const float roughness = metalRoughAo.y;
@@ -27,7 +27,7 @@ float4 main(float4 aPixelPosition : SV_Position) : SV_TARGET
     color *= 4.0;
     
     color = color / (1.0 + color); // Tonemapping
-    color = pow(color, 1.0 / 2.2); // Gamma correct
+    color = pow(color, 1.0 / 2.2); // Gamma correction
     
     return float4(color, 1.0);
 }

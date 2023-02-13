@@ -204,10 +204,13 @@
     <FxCompile Include="PsGBufferAlbedo.hlsl">
       <Filter>shaders\gbuffer</Filter>
     </FxCompile>
-    <FxCompile Include="PsGBufferWorldNormal.hlsl">
+    <FxCompile Include="PsGBufferVertexNormal.hlsl">
       <Filter>shaders\gbuffer</Filter>
     </FxCompile>
     <FxCompile Include="PsGBufferMetalRoughAo.hlsl">
+      <Filter>shaders\gbuffer</Filter>
+    </FxCompile>
+    <FxCompile Include="PsGBufferPixelNormal.hlsl">
       <Filter>shaders\gbuffer</Filter>
     </FxCompile>
   </ItemGroup>

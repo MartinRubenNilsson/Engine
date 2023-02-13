@@ -74,7 +74,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
     {
         PIXEL_SHADER("PsPbr.cso"),
         PIXEL_SHADER("PsGBufferWorldPosition.cso"),
-        PIXEL_SHADER("PsGBufferWorldNormal.cso"),
+        PIXEL_SHADER("PsGBufferVertexNormal.cso"),
+        PIXEL_SHADER("PsGBufferPixelNormal.cso"),
         PIXEL_SHADER("PsGBufferAlbedo.cso"),
         PIXEL_SHADER("PsGBufferMetalRoughAo.cso"),
     };

@@ -7,22 +7,23 @@ Mesh::Mesh(const aiMesh& aMesh)
 {
 	assert(aMesh.HasPositions());
 	assert(aMesh.HasNormals());
-	assert(aMesh.HasFaces());
-	assert(aMesh.mPrimitiveTypes == aiPrimitiveType_TRIANGLE);
+	assert(aMesh.HasTangentsAndBitangents());
 	assert(aMesh.GetNumUVChannels() == 1);
 	assert(aMesh.mNumUVComponents[0] == 2);
+	assert(aMesh.HasFaces());
+	assert(aMesh.mPrimitiveTypes == aiPrimitiveType_TRIANGLE);
 
 	std::vector<BasicVertex> vertices(aMesh.mNumVertices);
 	std::vector<unsigned> indices(3 * aMesh.mNumFaces);
 
 	for (unsigned i = 0; i < aMesh.mNumVertices; ++i)
-		std::memcpy(&vertices[i].position, &aMesh.mVertices[i], 3 * sizeof(float));
-
-	for (unsigned i = 0; i < aMesh.mNumVertices; ++i)
-		std::memcpy(&vertices[i].normal, &aMesh.mNormals[i], 3 * sizeof(float));
-
-	for (unsigned i = 0; i < aMesh.mNumVertices; ++i)
-		std::memcpy(&vertices[i].uv, &aMesh.mTextureCoords[0][i], 2 * sizeof(float));
+	{
+		std::memcpy(&vertices[i].position,	&aMesh.mVertices[i],		 sizeof(Vector3));
+		std::memcpy(&vertices[i].normal,	&aMesh.mNormals[i],			 sizeof(Vector3));
+		std::memcpy(&vertices[i].tangent,	&aMesh.mTangents[i],		 sizeof(Vector3));
+		std::memcpy(&vertices[i].bitangent, &aMesh.mBitangents[i],		 sizeof(Vector3));
+		std::memcpy(&vertices[i].uv,		&aMesh.mTextureCoords[0][i], sizeof(Vector2));
+	}
 
 	for (unsigned i = 0; i < aMesh.mNumFaces; ++i)
 		std::memcpy(&indices[3 * i], aMesh.mFaces[i].mIndices, 3 * sizeof(unsigned));

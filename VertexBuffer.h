@@ -20,7 +20,7 @@ private:
 	std::type_index myVertexType;
 	size_t myVertexSize;
 	size_t myVertexCount;
-	ComPtr<ID3D11Buffer> myBuffer;
+	BufferPtr myBuffer;
 };
 
 template<class VertexType, size_t Extent>
