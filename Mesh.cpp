@@ -28,11 +28,8 @@ Mesh::Mesh(const aiMesh& aMesh)
 	for (unsigned i = 0; i < aMesh.mNumFaces; ++i)
 		std::memcpy(&indices[3 * i], aMesh.mFaces[i].mIndices, 3 * sizeof(unsigned));
 
-	std::span vertexSpan{ vertices };
-	std::span indexSpan{ indices };
-
-	myVertexBuffer = std::make_unique<VertexBuffer>(vertexSpan);
-	myIndexBuffer = std::make_unique<IndexBuffer>(indexSpan);
+	myVertexBuffer = { std::span{ vertices } };
+	myIndexBuffer = { std::span{ indices } };
 }
 
 void Mesh::Draw(const Matrix& aTransform) const
@@ -40,8 +37,8 @@ void Mesh::Draw(const Matrix& aTransform) const
 	if (!operator bool())
 		return;
 
-	myVertexBuffer->SetVertexBuffer();
-	myIndexBuffer->SetIndexBuffer();
+	myVertexBuffer.SetVertexBuffer();
+	myIndexBuffer.SetIndexBuffer();
 
 	MeshBuffer buffer{};
 	buffer.meshMatrix = aTransform;
@@ -49,6 +46,11 @@ void Mesh::Draw(const Matrix& aTransform) const
 
 	DX11_WRITE_CONSTANT_BUFFER(buffer);
 
-	DX11_CONTEXT->DrawIndexed((UINT)myIndexBuffer->GetIndexCount(), 0, 0);
+	DX11_CONTEXT->DrawIndexed(myIndexBuffer.GetIndexCount(), 0, 0);
+}
+
+Mesh::operator bool() const
+{
+	return myVertexBuffer && myIndexBuffer;
 }
 
