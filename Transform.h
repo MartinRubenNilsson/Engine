@@ -54,7 +54,7 @@ private:
 
 namespace ImGui
 {
-	bool DragTransform(Transform::Ptr aTransform);
+	bool InspectTransform(Transform::Ptr aTransform);
 	bool Hierarchy(Transform::Ptr aTransform, Transform::Ptr& aSelection);
 }
 

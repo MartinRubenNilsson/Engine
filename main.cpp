@@ -13,6 +13,7 @@
 #include "Image.h"
 #include "Cubemap.h"
 #include "Camera.h"
+#include "imgui_entt.h"
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
@@ -119,7 +120,9 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
     cameraTransform.Translation({ 0.f, 0.f, -cameraDistance });
 
     entt::registry registry{};
-    entt::entity entity{};
+    entt::entity selection{};
+
+    int pass{};
 
     bool run = true;
     MSG msg{};
@@ -140,7 +143,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
         if (theDrop)
         {
             registry.clear();
-            entity = sceneMgr.GetScene(theDrop.GetPaths().front())->Instantiate(registry);
+            sceneMgr.GetScene(theDrop.GetPaths().front())->Instantiate(registry);
             theDrop = {};
         }
 
@@ -167,9 +170,6 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
                 mesh->Draw(transform->GetWorldMatrix());
             }
         }
-
-        static int pass{};
-
         {
             ScopedShaderResources resources{ ShaderType::Pixel, 0, geometryBuffer };
             fullscreenPasses[pass].Draw();
@@ -183,29 +183,28 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
         {
             imGui.NewFrame();
 
-            if (ImGui::Begin("Buffer"))
-                ImGui::SliderInt("Buffer", &pass, 0, static_cast<int>(std::size(fullscreenPasses)) - 1);
+            ImGui::Begin("Buffer");
+            ImGui::SliderInt("Buffer", &pass, 0, static_cast<int>(std::size(fullscreenPasses)) - 1);
             ImGui::End();
 
             ImGui::ViewManipulate(camera, cameraTransform, cameraDistance, {}, { 150.f, 150.f }, 0);
 
-            if (registry.valid(entity) && registry.all_of<Transform::Ptr>(entity))
+            ImGui::Begin("Hierarchy");
+            ImGui::Hierarchy(registry, selection);
+            ImGui::End();
+
+            ImGui::Begin("Inspector");
+            ImGui::Inspector({ registry, selection });
+            ImGui::End();
+
+            if (auto transform = registry.try_get<Transform::Ptr>(selection))
             {
-                static Transform::Ptr selection;
+                auto operation = ImGuizmo::TRANSLATE | ImGuizmo::ROTATE | ImGuizmo::SCALE;
+                auto mode = ImGuizmo::LOCAL;
 
-                ImGui::Begin("Hierarchy");
-                ImGui::Hierarchy(registry.get<Transform::Ptr>(entity), selection);
-                ImGui::End();
-
-                if (selection)
-                {
-                    auto operation = ImGuizmo::TRANSLATE | ImGuizmo::ROTATE | ImGuizmo::SCALE;
-                    auto mode = ImGuizmo::LOCAL;
-
-                    Matrix m = selection->GetWorldMatrix();
-                    ImGui::Manipulate(camera, cameraTransform, operation, mode, m);
-                    selection->SetWorldMatrix(m);
-                }
+                Matrix m = (*transform)->GetWorldMatrix();
+                ImGui::Manipulate(camera, cameraTransform, operation, mode, m);
+                (*transform)->SetWorldMatrix(m);
             }
 
             imGui.Render();

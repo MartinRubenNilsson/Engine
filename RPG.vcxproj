@@ -200,7 +200,7 @@
     <ClInclude Include="FullscreenPass.h" />
     <ClInclude Include="GeometryBuffer.h" />
     <ClInclude Include="Image.h" />
-    <ClInclude Include="imgui_simplemath.h" />
+    <ClInclude Include="imgui_entt.h" />
     <ClInclude Include="IndexBuffer.h" />
     <ClInclude Include="InputLayoutManager.h" />
     <ClInclude Include="Material.h" />
@@ -230,7 +230,7 @@
     <ClCompile Include="FullscreenPass.cpp" />
     <ClCompile Include="GeometryBuffer.cpp" />
     <ClCompile Include="Image.cpp" />
-    <ClCompile Include="imgui_simplemath.cpp" />
+    <ClCompile Include="imgui_entt.cpp" />
     <ClCompile Include="IndexBuffer.cpp" />
     <ClCompile Include="InputLayoutManager.cpp" />
     <ClCompile Include="main.cpp" />

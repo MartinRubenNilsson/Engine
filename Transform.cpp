@@ -119,7 +119,7 @@ bool Transform::IsChildOf(Ptr aParent) const
 	return false;
 }
 
-bool ImGui::DragTransform(Transform::Ptr aTransform)
+bool ImGui::InspectTransform(Transform::Ptr aTransform)
 {
 	float translation[3]{};
 	float rotation[3]{};

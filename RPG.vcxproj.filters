@@ -21,9 +21,6 @@
     <ClInclude Include="IndexBuffer.h">
       <Filter>graphics\buffers</Filter>
     </ClInclude>
-    <ClInclude Include="imgui_simplemath.h">
-      <Filter>imgui</Filter>
-    </ClInclude>
     <ClInclude Include="DepthBuffer.h">
       <Filter>graphics\buffers</Filter>
     </ClInclude>
@@ -77,6 +74,9 @@
     <ClInclude Include="BackBuffer.h">
       <Filter>graphics\buffers</Filter>
     </ClInclude>
+    <ClInclude Include="imgui_entt.h">
+      <Filter>imgui</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
@@ -99,9 +99,6 @@
     </ClCompile>
     <ClCompile Include="IndexBuffer.cpp">
       <Filter>graphics\buffers</Filter>
-    </ClCompile>
-    <ClCompile Include="imgui_simplemath.cpp">
-      <Filter>imgui</Filter>
     </ClCompile>
     <ClCompile Include="DepthBuffer.cpp">
       <Filter>graphics\buffers</Filter>
@@ -151,6 +148,9 @@
     </ClCompile>
     <ClCompile Include="BackBuffer.cpp">
       <Filter>graphics\buffers</Filter>
+    </ClCompile>
+    <ClCompile Include="imgui_entt.cpp">
+      <Filter>imgui</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
