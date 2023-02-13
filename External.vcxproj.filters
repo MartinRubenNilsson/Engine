@@ -262,6 +262,9 @@
     <ClInclude Include="External\stb\stb_image.h">
       <Filter>stb</Filter>
     </ClInclude>
+    <ClInclude Include="External\entt\entt.hpp">
+      <Filter>entt</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="External\imgui\imgui.cpp">
@@ -310,6 +313,9 @@
     </Filter>
     <Filter Include="stb">
       <UniqueIdentifier>{2a195ce7-669e-4307-b684-0650f83e5f01}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="entt">
+      <UniqueIdentifier>{462f6854-af5a-4710-9c68-5619e9b76e84}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

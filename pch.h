@@ -55,6 +55,9 @@ using ShaderResourcePtr = ComPtr<ID3D11ShaderResourceView>;
 #include <assimp/scene.h>
 #include <assimp/mesh.h>
 
+// entt
+#include <entt/entt.hpp>
+
 // other
 #include "Singleton.h"
 #include "Debug.h"

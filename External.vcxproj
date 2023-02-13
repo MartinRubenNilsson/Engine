@@ -95,6 +95,7 @@
     <ClInclude Include="External\assimp\XMLTools.h" />
     <ClInclude Include="External\assimp\ZipArchiveIOSystem.h" />
     <ClInclude Include="External\directxtk\simplemath\SimpleMath.h" />
+    <ClInclude Include="External\entt\entt.hpp" />
     <ClInclude Include="External\imgui\imconfig.h" />
     <ClInclude Include="External\imgui\imgui.h" />
     <ClInclude Include="External\imgui\ImGuizmo.h" />
