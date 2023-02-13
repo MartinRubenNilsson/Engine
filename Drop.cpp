@@ -1,9 +1,15 @@
 #include "pch.h"
 #include "Drop.h"
 
-Drop::Drop(HDROP hDrop)
-	: myDrop{ hDrop, DragFinish }
+Drop::Drop()
+    : myDrop{ nullptr, DragFinish }
 {
+}
+
+Drop::Drop(HDROP hDrop)
+    : Drop()
+{
+    myDrop.reset(hDrop);
 }
 
 std::vector<fs::path> Drop::GetPaths() const

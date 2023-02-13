@@ -18,7 +18,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 namespace
 {
-    std::unique_ptr<Drop> theDrop;
+    Drop theDrop;
     std::shared_ptr<const Scene> theScene;
 }
 
@@ -137,8 +137,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
         // Drag and drop
         if (theDrop)
         {
-            theScene = sceneMgr.GetScene(theDrop->GetPaths().front());
-            theDrop = nullptr;
+            theScene = sceneMgr.GetScene(theDrop.GetPaths().front());
+            theDrop = {};
         }
 
         // Rendering
@@ -239,7 +239,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
     switch (msg)
     {
     case WM_DROPFILES:
-        theDrop = std::make_unique<Drop>((HDROP)wParam);
+        theDrop = { (HDROP)wParam };
         break;
     case WM_DESTROY:
         PostQuitMessage(EXIT_SUCCESS);
