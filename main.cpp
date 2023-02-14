@@ -1,15 +1,15 @@
 #include "pch.h"
 #include "Window.h"
 #include "Drop.h"
-#include "BackBuffer.h"
 #include "DearImGui.h"
 #include "StateManager.h"
 #include "InputLayoutManager.h"
+#include "BackBuffer.h"
+#include "Renderer.h"
 #include "Scene.h"
 #include "Scopes.h"
 #include "Camera.h"
 #include "imgui_entt.h"
-#include "Renderer.h"
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
@@ -138,10 +138,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
             ScopedRenderTargets scopedTarget{ backBuffer };
 
             backBuffer.Clear();
-
             renderer.Render(registry);
             imGui.Render();
-
             backBuffer.Present();
         }
     }

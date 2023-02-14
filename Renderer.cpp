@@ -6,38 +6,7 @@
 
 Renderer::Renderer(unsigned aWidth, unsigned aHeight)
 {
-	// Geometry buffer
-	{
-		static constexpr std::array formats
-		{
-			DXGI_FORMAT_R32G32B32A32_FLOAT, // World position
-			DXGI_FORMAT_R32G32B32A32_FLOAT, // Vertex normal
-			DXGI_FORMAT_R32G32B32A32_FLOAT, // Pixel normal
-			DXGI_FORMAT_R8G8B8A8_UNORM,		// Albedo
-			DXGI_FORMAT_R8G8B8A8_UNORM,		// Metallic + Roughness + AO + [Unused]
-			DXGI_FORMAT_R32_UINT,			// Entity
-		};
-
-		myGeometryBuffer = { aWidth, aHeight, formats };
-		if (!myGeometryBuffer)
-			return;
-	}
-
-	// Output buffer
-	{
-		static constexpr std::array formats
-		{
-			DXGI_FORMAT_R32G32B32A32_FLOAT
-		};
-
-		myOutputBuffer = { aWidth, aHeight, formats };
-		if (!myOutputBuffer)
-			return;
-	}
-
-	// Depth buffer
-	myDepthBuffer = { aWidth, aHeight };
-	if (!myDepthBuffer)
+	if (!CreateBuffers(aWidth, aHeight))
 		return;
 
 	// Fullscreen passes
@@ -72,8 +41,6 @@ Renderer::Renderer(unsigned aWidth, unsigned aHeight)
 	}
 
 	mySucceeded = true;
-	myWidth = aWidth;
-	myHeight = aHeight;
 }
 
 void Renderer::Render(entt::registry& aRegistry)
@@ -95,11 +62,40 @@ void Renderer::Render(entt::registry& aRegistry)
 	TonemapAndGammaCorrect();
 }
 
+bool Renderer::CreateBuffers(unsigned aWidth, unsigned aHeight)
+{
+	static constexpr std::array geometryFormats
+	{
+		DXGI_FORMAT_R32G32B32A32_FLOAT, // World position
+		DXGI_FORMAT_R32G32B32A32_FLOAT, // Vertex normal
+		DXGI_FORMAT_R32G32B32A32_FLOAT, // Pixel normal
+		DXGI_FORMAT_R8G8B8A8_UNORM,		// Albedo
+		DXGI_FORMAT_R8G8B8A8_UNORM,		// Metallic + Roughness + AO + [Unused]
+		DXGI_FORMAT_R32_UINT,			// Entity
+	};
+
+	static constexpr std::array lightningFormat{ DXGI_FORMAT_R32G32B32A32_FLOAT };
+
+	myDepthBuffer = { aWidth, aHeight };
+	if (!myDepthBuffer)
+		return false;
+
+	myGeometryBuffer = { aWidth, aHeight, geometryFormats };
+	if (!myGeometryBuffer)
+		return false;
+
+	myLightningBuffer = { aWidth, aHeight, lightningFormat };
+	if (!myLightningBuffer)
+		return false;
+
+	return true;
+}
+
 void Renderer::ClearBuffers()
 {
-	myGeometryBuffer.Clear();
-	myOutputBuffer.Clear();
 	myDepthBuffer.Clear();
+	myGeometryBuffer.Clear();
+	myLightningBuffer.Clear();
 }
 
 void Renderer::RenderGeometry(entt::registry& aRegistry)
@@ -123,18 +119,18 @@ void Renderer::RenderGeometry(entt::registry& aRegistry)
 void Renderer::RenderLightning()
 {
 	ScopedShaderResources scopedResources{ ShaderType::Pixel, 0, myGeometryBuffer };  // TODO: turn hardcoded 0 into am acro
-	ScopedRenderTargets scopedTargets{ myOutputBuffer };
+	ScopedRenderTargets scopedTargets{ myLightningBuffer };
 	myFullscreenPasses[pass].Render();
 }
 
 void Renderer::RenderSkybox()
 {
-	ScopedRenderTargets scopedTargets{ myOutputBuffer, myDepthBuffer };
+	ScopedRenderTargets scopedTargets{ myLightningBuffer, myDepthBuffer };
 	mySkybox.DrawSkybox();
 }
 
 void Renderer::TonemapAndGammaCorrect()
 {
-	ScopedShaderResources scopedResources{ ShaderType::Pixel, 0, myOutputBuffer };
+	ScopedShaderResources scopedResources{ ShaderType::Pixel, 0, myLightningBuffer };
 	FullscreenPass{ PIXEL_SHADER("PsTonemapAndGammaCorrect.cso") }.Render();
 }
