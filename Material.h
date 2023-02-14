@@ -43,12 +43,12 @@ private:
 
 	static constexpr std::array<DXGI_FORMAT, ourCount> ourFormats
 	{
-		DXGI_FORMAT_R8G8B8A8_UNORM, // Albedo
-		DXGI_FORMAT_R8G8B8A8_UNORM, // Normal
-		DXGI_FORMAT_R8_UNORM,		// Metallic
-		DXGI_FORMAT_R8_UNORM,		// Roughness
-		DXGI_FORMAT_R8_UNORM,		// Occlusion
-		//DXGI_FORMAT_R8_UNORM,		// Emissive
+		DXGI_FORMAT_R8G8B8A8_UNORM, // Albedo // Change to SRGB?
+		DXGI_FORMAT_R8G8B8A8_UNORM,	// Normal
+		DXGI_FORMAT_R8_UNORM,	// Metallic
+		DXGI_FORMAT_R8_UNORM,	// Roughness
+		DXGI_FORMAT_R8_UNORM,	// Occlusion
+		//DXGI_FORMAT_R8_UNORM,	// Emissive
 	};
 
 	void LoadPaths(const aiMaterial&);

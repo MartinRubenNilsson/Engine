@@ -4,20 +4,9 @@
 #include "Mesh.h"
 #include "Transform.h"
 
-Renderer::Renderer(HWND hWnd)
+Renderer::Renderer(unsigned aWidth, unsigned aHeight)
 {
-	myBackBuffer = { hWnd };
-	if (!myBackBuffer)
-		return;
-
-	const unsigned width = myBackBuffer.GetWidth();
-	const unsigned height = myBackBuffer.GetHeight();
-
-	myDepthBuffer = { width, height };
-	if (!myDepthBuffer)
-		return;
-
-	// GBuffer
+	// Geometry buffer
 	{
 		static constexpr std::array formats
 		{
@@ -29,10 +18,27 @@ Renderer::Renderer(HWND hWnd)
 			DXGI_FORMAT_R32_UINT,			// Entity
 		};
 
-		myGeometryBuffer = { width, height, formats };
+		myGeometryBuffer = { aWidth, aHeight, formats };
 		if (!myGeometryBuffer)
 			return;
 	}
+
+	// Output buffer
+	{
+		static constexpr std::array formats
+		{
+			DXGI_FORMAT_R32G32B32A32_FLOAT
+		};
+
+		myOutputBuffer = { aWidth, aHeight, formats };
+		if (!myOutputBuffer)
+			return;
+	}
+
+	// Depth buffer
+	myDepthBuffer = { aWidth, aHeight };
+	if (!myDepthBuffer)
+		return;
 
 	// Fullscreen passes
 	myFullscreenPasses =
@@ -66,21 +72,34 @@ Renderer::Renderer(HWND hWnd)
 	}
 
 	mySucceeded = true;
+	myWidth = aWidth;
+	myHeight = aHeight;
 }
 
 void Renderer::Render(entt::registry& aRegistry)
 {
+	if (!operator bool())
+		return;
+
+	D3D11_SAMPLER_DESC samplers[]
+	{
+		CD3D11_SAMPLER_DESC{ CD3D11_DEFAULT{} },
+	};
+
+	ScopedSamplerStates scopedSamplers{ 0, samplers }; // todo: replace 0 with macro?
+
 	ClearBuffers();
 	RenderGeometry(aRegistry);
 	RenderLightning();
 	RenderSkybox();
+	TonemapAndGammaCorrect();
 }
 
 void Renderer::ClearBuffers()
 {
-	myBackBuffer.Clear();
-	myDepthBuffer.Clear();
 	myGeometryBuffer.Clear();
+	myOutputBuffer.Clear();
+	myDepthBuffer.Clear();
 }
 
 void Renderer::RenderGeometry(entt::registry& aRegistry)
@@ -88,27 +107,34 @@ void Renderer::RenderGeometry(entt::registry& aRegistry)
 	if (aRegistry.empty())
 		return;
 
-	ScopedInputLayout layout{ typeid(BasicVertex) };
-	ScopedShader vertexShader{ VERTEX_SHADER("VsBasic.cso") };
-	ScopedShader pixelShader{ PIXEL_SHADER("PsGBuffer.cso") };
-	ScopedRenderTargets targets{ myGeometryBuffer, myDepthBuffer };
+	ScopedInputLayout scopedLayout{ typeid(BasicVertex) };
+	ScopedShader scopedVs{ VERTEX_SHADER("VsBasic.cso") };
+	ScopedShader scopedPs{ PIXEL_SHADER("PsGBuffer.cso") };
+	ScopedRenderTargets scopedTargets{ myGeometryBuffer, myDepthBuffer };
 
 	auto view = aRegistry.view<Material::Ptr, Mesh::Ptr, Transform::Ptr>();
 	for (auto [_, material, mesh, transform] : view.each())
 	{
-		ScopedShaderResources resources{ ShaderType::Pixel, 10, *material };
+		ScopedShaderResources scopedResources{ ShaderType::Pixel, 10, *material }; // TODO: turn hardcoded 10 into am acro
 		mesh->Draw(transform->GetWorldMatrix());
 	}
 }
 
 void Renderer::RenderLightning()
 {
-	ScopedShaderResources resources{ ShaderType::Pixel, 0, myGeometryBuffer };
+	ScopedShaderResources scopedResources{ ShaderType::Pixel, 0, myGeometryBuffer };  // TODO: turn hardcoded 0 into am acro
+	ScopedRenderTargets scopedTargets{ myOutputBuffer };
 	myFullscreenPasses[pass].Render();
 }
 
 void Renderer::RenderSkybox()
 {
-	ScopedRenderTargets targets{ myBackBuffer, myDepthBuffer };
+	ScopedRenderTargets scopedTargets{ myOutputBuffer, myDepthBuffer };
 	mySkybox.DrawSkybox();
+}
+
+void Renderer::TonemapAndGammaCorrect()
+{
+	ScopedShaderResources scopedResources{ ShaderType::Pixel, 0, myOutputBuffer };
+	FullscreenPass{ PIXEL_SHADER("PsTonemapAndGammaCorrect.cso") }.Render();
 }

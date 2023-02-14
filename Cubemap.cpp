@@ -27,7 +27,7 @@ Cubemap::Cubemap(std::span<const fs::path, 6> someImagePaths)
 	textureDesc.Height = height;
 	textureDesc.MipLevels = 1;
 	textureDesc.ArraySize = 6;
-	textureDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	textureDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
 	textureDesc.SampleDesc.Count = 1;
 	textureDesc.SampleDesc.Quality = 0;
 	textureDesc.Usage = D3D11_USAGE_DEFAULT;

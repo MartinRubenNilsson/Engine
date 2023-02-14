@@ -9,6 +9,8 @@ public:
 	void Present() const;
 	void Clear();
 
+	Viewport GetViewport() const;
+
 	unsigned GetWidth() const { return myWidth; }
 	unsigned GetHeight() const { return myHeight; }
 

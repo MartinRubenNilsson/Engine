@@ -88,6 +88,7 @@ private:
 class ScopedViewports : Scope
 {
 public:
+	ScopedViewports(const D3D11_VIEWPORT& aViewport);
 	ScopedViewports(std::span<const D3D11_VIEWPORT> someViewports);
 	~ScopedViewports();
 

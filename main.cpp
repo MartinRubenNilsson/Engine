@@ -1,8 +1,8 @@
 #include "pch.h"
 #include "Window.h"
 #include "Drop.h"
+#include "BackBuffer.h"
 #include "DearImGui.h"
-#include "DepthBuffer.h"
 #include "StateManager.h"
 #include "InputLayoutManager.h"
 #include "Scene.h"
@@ -54,28 +54,15 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
     StateManager stateMgr{};
     ShaderManager shaderMgr{};
 
-    Renderer renderer{ window };
+    BackBuffer backBuffer{ window };
+    if (!backBuffer)
+        return EXIT_FAILURE;
+
+    Renderer renderer{ backBuffer.GetWidth(), backBuffer.GetHeight() };
     if (!renderer)
         return EXIT_FAILURE;
 
-    D3D11_SAMPLER_DESC samplerDesc{ CD3D11_SAMPLER_DESC{ CD3D11_DEFAULT{} } };
-
-    Viewport viewport{};
-    viewport.width = static_cast<float>(renderer.GetBackBuffer().GetWidth());
-    viewport.height = static_cast<float>(renderer.GetBackBuffer().GetHeight());
-    std::vector<D3D11_VIEWPORT> viewports{ 8, viewport };
-
-    ScopedPrimitiveTopology topologyScope{ D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST };
-    ScopedSamplerStates samplersScope{ 0, { &samplerDesc, 1 } };
-    ScopedViewports viewportsScope{ viewports };
-    ScopedRenderTargets backBufferScope{ renderer.GetBackBuffer() };
-
     SceneManager sceneMgr{};
-
-    PerspectiveCamera perspective{};
-    perspective.fovY = 1.04719755119f; // 60 degrees
-    perspective.aspect = viewport.AspectRatio();
-    Camera camera{ perspective };
 
     Matrix cameraTransform;
     const float cameraDistance = 20.f;
@@ -107,10 +94,11 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
             theDrop = {};
         }
 
-        // Rendering
-
-        camera.SetCamera(cameraTransform);
-        renderer.Render(registry);
+        // Create camera
+        PerspectiveCamera perspective{};
+        perspective.fovY = 1.04719755119f; // 60 degrees
+        perspective.aspect = backBuffer.GetViewport().AspectRatio();
+        Camera camera{ perspective };
 
         // ImGui
         {
@@ -140,10 +128,22 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
                 (*transform)->SetWorldMatrix(m);
             }
 
-            imGui.Render();
+            camera.SetCamera(cameraTransform);
         }
 
-        renderer.GetBackBuffer().Present();
+        // Rendering
+        {
+            ScopedPrimitiveTopology scopedTopology{ D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST };
+            ScopedViewports scopedViewport{ backBuffer.GetViewport() };
+            ScopedRenderTargets scopedTarget{ backBuffer };
+
+            backBuffer.Clear();
+
+            renderer.Render(registry);
+            imGui.Render();
+
+            backBuffer.Present();
+        }
     }
 
 	return static_cast<int>(msg.wParam);

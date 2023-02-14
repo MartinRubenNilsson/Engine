@@ -26,8 +26,5 @@ float4 main(float4 aPixelPosition : SV_Position) : SV_TARGET
     float3 color = PbrShader(L, V, N, albedo.rgb, metallic, roughness);
     color *= 4.0;
     
-    color = color / (1.0 + color); // Tonemapping
-    color = pow(color, 1.0 / 2.2); // Gamma correction
-    
     return float4(color, 1.0);
 }

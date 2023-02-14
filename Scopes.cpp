@@ -142,6 +142,11 @@ ScopedRenderTargets::~ScopedRenderTargets()
 * class ScopedViewports
 */
 
+ScopedViewports::ScopedViewports(const D3D11_VIEWPORT& aViewport)
+	: ScopedViewports({ &aViewport, 1 })
+{
+}
+
 ScopedViewports::ScopedViewports(std::span<const D3D11_VIEWPORT> someViewports)
 {
 	UINT prevCount{ ourCount };

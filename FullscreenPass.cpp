@@ -11,9 +11,9 @@ void FullscreenPass::Render() const
 	if (!operator bool())
 		return;
 
-	ScopedInputLayout layout{ typeid(EmptyVertex) };
-	ScopedShader vertexShader{ VERTEX_SHADER("VsFullscreen.cso") };
-	ScopedShader pixelShader{ myPixelShader };
+	ScopedInputLayout scopedLayout{ typeid(EmptyVertex) };
+	ScopedShader scopedVs{ VERTEX_SHADER("VsFullscreen.cso") };
+	ScopedShader scopedPs{ myPixelShader };
 
 	DX11_CONTEXT->Draw(3, 0);
 }

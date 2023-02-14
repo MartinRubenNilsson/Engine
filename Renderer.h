@@ -1,5 +1,4 @@
 #pragma once
-#include "BackBuffer.h"
 #include "DepthBuffer.h"
 #include "RenderTargets.h"
 #include "FullscreenPass.h"
@@ -11,11 +10,9 @@ public:
 	int pass = 0;
 
 	Renderer() = default;
-	Renderer(HWND);
+	Renderer(unsigned aWidth, unsigned aHeight);
 
 	void Render(entt::registry&);
-
-	auto& GetBackBuffer() const { return myBackBuffer; }
 
 	explicit operator bool() const { return mySucceeded; }
 
@@ -24,11 +21,14 @@ private:
 	void RenderGeometry(entt::registry&);
 	void RenderLightning();
 	void RenderSkybox();
+	void TonemapAndGammaCorrect();
 
 	bool mySucceeded{ false };
-	BackBuffer myBackBuffer{};
-	DepthBuffer myDepthBuffer{};
+	unsigned myWidth{}, myHeight{};
+
 	RenderTargets myGeometryBuffer{};
+	RenderTargets myOutputBuffer{};
+	DepthBuffer myDepthBuffer{};
 	std::array<FullscreenPass, 7> myFullscreenPasses;
 	Cubemap mySkybox{};
 };

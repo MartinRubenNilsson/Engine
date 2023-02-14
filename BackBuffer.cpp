@@ -57,6 +57,11 @@ void BackBuffer::Clear()
 	DX11_CONTEXT->ClearRenderTargetView(myRenderTarget.Get(), color);
 }
 
+Viewport BackBuffer::GetViewport() const
+{
+	return Viewport{ CD3D11_VIEWPORT{ myTexture.Get(), myRenderTarget.Get() } };
+}
+
 BackBuffer::operator std::span<const RenderTargetPtr>() const
 {
 	return { std::addressof(myRenderTarget), 1 };
