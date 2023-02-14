@@ -84,8 +84,6 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
     entt::registry registry{};
     entt::entity selection{ entt::null };
 
-    int pass{};
-
     bool run = true;
     MSG msg{};
 
@@ -118,10 +116,9 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
         {
             imGui.NewFrame();
 
-            pass;
-            /*ImGui::Begin("Buffer");
-            ImGui::SliderInt("Buffer", &pass, 0, static_cast<int>(std::size(fullscreenPasses)) - 1);
-            ImGui::End();*/
+            ImGui::Begin("Buffer");
+            ImGui::SliderInt("Buffer", &renderer.pass, 0, 6);
+            ImGui::End();
 
             ImGui::ViewManipulate(camera, cameraTransform, cameraDistance, {}, { 150.f, 150.f }, 0);
 

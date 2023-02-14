@@ -43,6 +43,7 @@ Renderer::Renderer(HWND hWnd)
 		PIXEL_SHADER("PsGBufferPixelNormal.cso"),
 		PIXEL_SHADER("PsGBufferAlbedo.cso"),
 		PIXEL_SHADER("PsGBufferMetalRoughAo.cso"),
+		PIXEL_SHADER("PsGBufferEntity.cso"),
 	};
 	if (!std::ranges::all_of(myFullscreenPasses, &FullscreenPass::operator bool))
 		return;
@@ -103,7 +104,7 @@ void Renderer::RenderGeometry(entt::registry& aRegistry)
 void Renderer::RenderLightning()
 {
 	ScopedShaderResources resources{ ShaderType::Pixel, 0, myGeometryBuffer };
-	myFullscreenPasses[0].Render();
+	myFullscreenPasses[pass].Render();
 }
 
 void Renderer::RenderSkybox()

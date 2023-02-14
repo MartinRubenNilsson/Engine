@@ -8,6 +8,8 @@
 class Renderer
 {
 public:
+	int pass = 0;
+
 	Renderer() = default;
 	Renderer(HWND);
 
@@ -27,7 +29,7 @@ private:
 	BackBuffer myBackBuffer{};
 	DepthBuffer myDepthBuffer{};
 	RenderTargets myGeometryBuffer{};
-	std::array<FullscreenPass, 6> myFullscreenPasses;
+	std::array<FullscreenPass, 7> myFullscreenPasses;
 	Cubemap mySkybox{};
 };
 

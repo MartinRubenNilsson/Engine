@@ -56,7 +56,7 @@ Texture2D GBufferVertexNormal   : register(t1);
 Texture2D GBufferPixelNormal    : register(t2);
 Texture2D GBufferAlbedo         : register(t3);
 Texture2D GBufferMetalRoughAo   : register(t4);
-Texture2D GBufferEntity         : register(t5);
+Texture2D<uint> GBufferEntity   : register(t5);
 
 Texture2D MaterialAlbedo    : register(t10);
 Texture2D MaterialNormal    : register(t11);
