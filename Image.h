@@ -11,9 +11,9 @@ public:
 	unsigned GetChannelsInFile() const	{ return myChannelsInFile; }
 	unsigned GetChannels() const		{ return myChannels; }
 
-	const void* Data() const { return myData.get(); }
+	const void* Data() const;
 
-	explicit operator bool() const { return myData.operator bool(); }
+	explicit operator bool() const;
 
 private:
 	using Element = unsigned char;

@@ -77,6 +77,7 @@
     <ClInclude Include="RenderTargets.h">
       <Filter>graphics</Filter>
     </ClInclude>
+    <ClInclude Include="Renderer.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
@@ -152,6 +153,7 @@
     <ClCompile Include="RenderTargets.cpp">
       <Filter>graphics</Filter>
     </ClCompile>
+    <ClCompile Include="Renderer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="graphics">

@@ -2,7 +2,6 @@
 #include "Window.h"
 #include "Drop.h"
 #include "DearImGui.h"
-#include "BackBuffer.h"
 #include "DepthBuffer.h"
 #include "RenderTargets.h"
 #include "StateManager.h"
@@ -14,6 +13,7 @@
 #include "Cubemap.h"
 #include "Camera.h"
 #include "imgui_entt.h"
+#include "Renderer.h"
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
@@ -58,64 +58,21 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
     StateManager stateMgr{};
     ShaderManager shaderMgr{};
 
-    BackBuffer backBuffer{ window };
-    if (!backBuffer)
-        return EXIT_FAILURE;
-
-    static constexpr std::array gbufferFormats
-    {
-        DXGI_FORMAT_R32G32B32A32_FLOAT, // World position
-        DXGI_FORMAT_R32G32B32A32_FLOAT, // Vertex normal
-        DXGI_FORMAT_R32G32B32A32_FLOAT, // Pixel normal
-        DXGI_FORMAT_R8G8B8A8_UNORM,		// Albedo
-        DXGI_FORMAT_R8G8B8A8_UNORM,		// Metallic + Roughness + AO + [Unused]
-    };
-
-    RenderTargets gbuffer{ backBuffer.GetWidth(), backBuffer.GetHeight(), gbufferFormats };
-    if (!gbuffer)
-        return EXIT_FAILURE;
-
-    DepthBuffer zbuffer{ backBuffer.GetWidth(), backBuffer.GetHeight() };
-    if (!zbuffer)
-        return EXIT_FAILURE;
-
-    FullscreenPass fullscreenPasses[] =
-    {
-        PIXEL_SHADER("PsPbr.cso"),
-        PIXEL_SHADER("PsGBufferWorldPosition.cso"),
-        PIXEL_SHADER("PsGBufferVertexNormal.cso"),
-        PIXEL_SHADER("PsGBufferPixelNormal.cso"),
-        PIXEL_SHADER("PsGBufferAlbedo.cso"),
-        PIXEL_SHADER("PsGBufferMetalRoughAo.cso"),
-    };
-
-    if (!std::ranges::all_of(fullscreenPasses, &FullscreenPass::operator bool))
+    Renderer renderer{ window };
+    if (!renderer)
         return EXIT_FAILURE;
 
     D3D11_SAMPLER_DESC samplerDesc{ CD3D11_SAMPLER_DESC{ CD3D11_DEFAULT{} } };
 
     Viewport viewport{};
-    viewport.width = static_cast<float>(backBuffer.GetWidth());
-    viewport.height = static_cast<float>(backBuffer.GetHeight());
+    viewport.width = static_cast<float>(renderer.GetBackBuffer().GetWidth());
+    viewport.height = static_cast<float>(renderer.GetBackBuffer().GetHeight());
     std::vector<D3D11_VIEWPORT> viewports{ 8, viewport };
 
     ScopedPrimitiveTopology topologyScope{ D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST };
     ScopedSamplerStates samplersScope{ 0, { &samplerDesc, 1 } };
     ScopedViewports viewportsScope{ viewports };
-
-    Image cubemapFaces[]
-    {
-        { "cubemap/Sorsele/posx.jpg", 4 },
-        { "cubemap/Sorsele/negx.jpg", 4 },
-        { "cubemap/Sorsele/posy.jpg", 4 },
-        { "cubemap/Sorsele/negy.jpg", 4 },
-        { "cubemap/Sorsele/posz.jpg", 4 },
-        { "cubemap/Sorsele/negz.jpg", 4 },
-    };
-
-    Cubemap cubemap{ cubemapFaces };
-    if (!cubemap)
-        return EXIT_FAILURE;
+    ScopedRenderTargets backBufferScope{ renderer.GetBackBuffer() };
 
     SceneManager sceneMgr{};
 
@@ -129,7 +86,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
     cameraTransform.Translation({ 0.f, 0.f, -cameraDistance });
 
     entt::registry registry{};
-    entt::entity selection{};
+    entt::entity selection{ entt::null };
 
     int pass{};
 
@@ -157,44 +114,22 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
         }
 
         // Rendering
-        backBuffer.Clear();
-        gbuffer.Clear();
-        zbuffer.Clear();
-
-        ScopedRenderTargets swapChainScope{ backBuffer };
 
         camera.SetCamera(cameraTransform);
 
-        if (!registry.empty())
-        {
-            ScopedInputLayout layout{ typeid(BasicVertex) };
-            ScopedShader vs{ VERTEX_SHADER("VsBasic.cso") };
-            ScopedShader ps{ PIXEL_SHADER("PsGBuffer.cso") };
-            ScopedRenderTargets targets{ gbuffer, zbuffer };
-
-            auto view = registry.view<Material::Ptr, Mesh::Ptr, Transform::Ptr>();
-            for (auto [_, material, mesh, transform] : view.each())
-            {
-                ScopedShaderResources resources{ ShaderType::Pixel, 10, *material };
-                mesh->Draw(transform->GetWorldMatrix());
-            }
-        }
-        {
-            ScopedShaderResources resources{ ShaderType::Pixel, 0, gbuffer };
-            fullscreenPasses[pass].Draw();
-        }
-        {
-            ScopedRenderTargets skyboxScope{ backBuffer, zbuffer };
-            cubemap.DrawSkybox();
-        }
+        renderer.ClearBuffers();
+        renderer.RenderGeometry(registry);
+        renderer.RenderLightning();
+        renderer.RenderSkybox();
 
         // ImGui
         {
             imGui.NewFrame();
 
-            ImGui::Begin("Buffer");
+            pass;
+            /*ImGui::Begin("Buffer");
             ImGui::SliderInt("Buffer", &pass, 0, static_cast<int>(std::size(fullscreenPasses)) - 1);
-            ImGui::End();
+            ImGui::End();*/
 
             ImGui::ViewManipulate(camera, cameraTransform, cameraDistance, {}, { 150.f, 150.f }, 0);
 
@@ -219,7 +154,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
             imGui.Render();
         }
 
-        backBuffer.Present();
+        renderer.GetBackBuffer().Present();
     }
 
 	return static_cast<int>(msg.wParam);

@@ -6,14 +6,14 @@ FullscreenPass::FullscreenPass(std::shared_ptr<const PixelShader> aPixelShader)
 {
 }
 
-void FullscreenPass::Draw() const
+void FullscreenPass::Render() const
 {
 	if (!operator bool())
 		return;
 
 	ScopedInputLayout layout{ typeid(EmptyVertex) };
-	ScopedShader vs{ VERTEX_SHADER("VsFullscreen.cso") };
-	ScopedShader ps{ myPixelShader };
+	ScopedShader vertexShader{ VERTEX_SHADER("VsFullscreen.cso") };
+	ScopedShader pixelShader{ myPixelShader };
 
 	DX11_CONTEXT->Draw(3, 0);
 }

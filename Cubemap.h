@@ -1,16 +1,16 @@
 #pragma once
-#include "Image.h"
 
 class Cubemap
 {
 public:
-	Cubemap(std::span<const Image, 6> someFaces);
+	Cubemap() = default;
+	Cubemap(std::span<const fs::path, 6> someImagePaths);
 
 	void DrawSkybox() const;
 
 	operator std::span<const ShaderResourcePtr>() const;
 
-	explicit operator bool() const { return SUCCEEDED(myResult); }
+	explicit operator bool() const;
 
 private:
 	HRESULT myResult{ E_FAIL };

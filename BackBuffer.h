@@ -3,6 +3,7 @@
 class BackBuffer
 {
 public:
+	BackBuffer() = default;
 	BackBuffer(HWND);
 
 	void Present() const;
@@ -13,11 +14,11 @@ public:
 
 	operator std::span<const RenderTargetPtr>() const;
 
-	explicit operator bool() const { return SUCCEEDED(myResult); }
+	explicit operator bool() const;
 
 private:
 	HRESULT myResult{ E_FAIL };
-	ComPtr<IDXGISwapChain> mySwapChain{};
+	SwapChainPtr mySwapChain{};
 	TexturePtr myTexture{};
 	RenderTargetPtr myRenderTarget{};
 	unsigned myWidth{}, myHeight{};

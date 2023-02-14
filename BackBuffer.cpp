@@ -62,3 +62,8 @@ BackBuffer::operator std::span<const RenderTargetPtr>() const
 	return { std::addressof(myRenderTarget), 1 };
 }
 
+BackBuffer::operator bool() const
+{
+	{ return SUCCEEDED(myResult); }
+}
+

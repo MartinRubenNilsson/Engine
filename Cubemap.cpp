@@ -1,19 +1,25 @@
 #include "pch.h"
 #include "Cubemap.h"
+#include "Image.h"
 #include "Scopes.h"
 
-Cubemap::Cubemap(std::span<const Image, 6> someFaces)
+Cubemap::Cubemap(std::span<const fs::path, 6> someImagePaths)
 {
-	const unsigned width = someFaces[0].GetWidth();
-	const unsigned height = someFaces[0].GetHeight();
+	std::array<Image, 6> images{};
 
-	if (!std::ranges::all_of(someFaces, &Image::operator bool))
+	for (size_t i = 0; i < 6; ++i)
+	{
+		images[i] = { someImagePaths[i], 4 };
+		if (!images[i])
+			return;
+	}
+
+	const unsigned width = images[0].GetWidth();
+	const unsigned height = images[0].GetHeight();
+
+	if (std::ranges::count(images, width, &Image::GetWidth) != 6)
 		return;
-	if (std::ranges::count(someFaces, 4u, &Image::GetChannels) != 6)
-		return;
-	if (std::ranges::count(someFaces, width, &Image::GetWidth) != 6)
-		return;
-	if (std::ranges::count(someFaces, height, &Image::GetHeight) != 6)
+	if (std::ranges::count(images, height, &Image::GetHeight) != 6)
 		return;
 
 	D3D11_TEXTURE2D_DESC textureDesc{};
@@ -38,7 +44,7 @@ Cubemap::Cubemap(std::span<const Image, 6> someFaces)
 	D3D11_SUBRESOURCE_DATA data[6]{};
 	for (size_t i = 0; i < 6; ++i)
 	{
-		data[i].pSysMem = someFaces[i].Data();
+		data[i].pSysMem = images[i].Data();
 		data[i].SysMemPitch = width * 4;
 		data[i].SysMemSlicePitch = 0;
 	}
@@ -68,12 +74,17 @@ void Cubemap::DrawSkybox() const
 	ScopedPrimitiveTopology topology{ D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP };
 	ScopedInputLayout layout{ typeid(EmptyVertex) };
 	ScopedShaderResources resources{ ShaderType::Pixel, 0, *this };
-	ScopedShader vs{ VERTEX_SHADER("VsSkybox.cso") };
-	ScopedShader ps{ PIXEL_SHADER("PsSkybox.cso") };
+	ScopedShader vertexShader{ VERTEX_SHADER("VsSkybox.cso") };
+	ScopedShader pixelShader{ PIXEL_SHADER("PsSkybox.cso") };
 	ScopedRasterizerState rasterizer{ rasterizerDesc };
 	ScopedDepthStencilState depthStencil{ depthStencilDesc, 0 };
 
 	DX11_CONTEXT->Draw(14, 0);
+}
+
+Cubemap::operator bool() const
+{
+	return SUCCEEDED(myResult);
 }
 
 Cubemap::operator std::span<const ShaderResourcePtr>() const

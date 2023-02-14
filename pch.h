@@ -37,6 +37,7 @@ using Microsoft::WRL::ComPtr;
 #include <directxtk/simplemath/SimpleMath.h>
 using namespace DirectX::SimpleMath;
 
+using SwapChainPtr = ComPtr<IDXGISwapChain>;
 using BufferPtr = ComPtr<ID3D11Buffer>;
 using TexturePtr = ComPtr<ID3D11Texture2D>;
 using RenderTargetPtr = ComPtr<ID3D11RenderTargetView>;

@@ -30,3 +30,13 @@ Image::Image(const fs::path& aPath, unsigned aDesiredChannels)
 	myChannelsInFile = static_cast<unsigned>(channelsInFile);
 	myChannels = aDesiredChannels;
 }
+
+const void* Image::Data() const
+{
+	return myData.get();
+}
+
+Image::operator bool() const
+{
+	return myData.operator bool();
+}

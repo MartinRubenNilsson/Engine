@@ -6,7 +6,7 @@ public:
 	FullscreenPass() = default;
 	FullscreenPass(std::shared_ptr<const PixelShader>);
 
-	void Draw() const;
+	void Render() const;
 
 	explicit operator bool() const;
 
