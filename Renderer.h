@@ -29,7 +29,6 @@ private:
 	DepthBuffer myDepthBuffer{};
 	RenderTargets myGeometryBuffer{};
 	RenderTargets myLightningBuffer{};
-	std::array<FullscreenPass, 7> myFullscreenPasses;
 	Cubemap mySkybox{};
 };
 

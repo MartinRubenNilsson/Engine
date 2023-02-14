@@ -9,20 +9,6 @@ Renderer::Renderer(unsigned aWidth, unsigned aHeight)
 	if (!CreateBuffers(aWidth, aHeight))
 		return;
 
-	// Fullscreen passes
-	myFullscreenPasses =
-	{
-		PIXEL_SHADER("PsPbr.cso"),
-		PIXEL_SHADER("PsGBufferWorldPosition.cso"),
-		PIXEL_SHADER("PsGBufferVertexNormal.cso"),
-		PIXEL_SHADER("PsGBufferPixelNormal.cso"),
-		PIXEL_SHADER("PsGBufferAlbedo.cso"),
-		PIXEL_SHADER("PsGBufferMetalRoughAo.cso"),
-		PIXEL_SHADER("PsGBufferEntity.cso"),
-	};
-	if (!std::ranges::all_of(myFullscreenPasses, &FullscreenPass::operator bool))
-		return;
-
 	// Skybox
 	{
 		std::array<fs::path, 6> skyboxImagePaths
@@ -120,17 +106,38 @@ void Renderer::RenderLightning()
 {
 	ScopedShaderResources scopedResources{ ShaderType::Pixel, 0, myGeometryBuffer };  // TODO: turn hardcoded 0 into am acro
 	ScopedRenderTargets scopedTargets{ myLightningBuffer };
-	myFullscreenPasses[pass].Render();
+
+	FullscreenPass{ PIXEL_SHADER("PsPbr.cso") }.Render();
 }
 
 void Renderer::RenderSkybox()
 {
 	ScopedRenderTargets scopedTargets{ myLightningBuffer, myDepthBuffer };
+
 	mySkybox.DrawSkybox();
 }
 
 void Renderer::TonemapAndGammaCorrect()
 {
-	ScopedShaderResources scopedResources{ ShaderType::Pixel, 0, myLightningBuffer };
-	FullscreenPass{ PIXEL_SHADER("PsTonemapAndGammaCorrect.cso") }.Render();
+	static FullscreenPass passes[]
+	{
+		PIXEL_SHADER("PsTonemapAndGammaCorrect.cso"),
+		PIXEL_SHADER("PsGBufferWorldPosition.cso"),
+		PIXEL_SHADER("PsGBufferVertexNormal.cso"),
+		PIXEL_SHADER("PsGBufferPixelNormal.cso"),
+		PIXEL_SHADER("PsGBufferAlbedo.cso"),
+		PIXEL_SHADER("PsGBufferMetalRoughAo.cso"),
+		PIXEL_SHADER("PsGBufferEntity.cso"),
+	};
+
+	if (pass == 0)
+	{
+		ScopedShaderResources scopedResources{ ShaderType::Pixel, 0, myLightningBuffer };
+		passes[pass].Render();
+	}
+	else if (pass < std::size(passes))
+	{
+		ScopedShaderResources scopedResources{ ShaderType::Pixel, 0, myGeometryBuffer };
+		passes[pass].Render();
+	}
 }
