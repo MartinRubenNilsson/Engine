@@ -13,8 +13,8 @@ Renderer::Renderer(HWND hWnd)
 	const unsigned width = myBackBuffer.GetWidth();
 	const unsigned height = myBackBuffer.GetHeight();
 
-	myZBuffer = { width, height };
-	if (!myZBuffer)
+	myDepthBuffer = { width, height };
+	if (!myDepthBuffer)
 		return;
 
 	// GBuffer
@@ -26,10 +26,11 @@ Renderer::Renderer(HWND hWnd)
 			DXGI_FORMAT_R32G32B32A32_FLOAT, // Pixel normal
 			DXGI_FORMAT_R8G8B8A8_UNORM,		// Albedo
 			DXGI_FORMAT_R8G8B8A8_UNORM,		// Metallic + Roughness + AO + [Unused]
+			DXGI_FORMAT_R32_UINT,			// Entity
 		};
 
-		myGBuffer = { width, height, formats };
-		if (!myGBuffer)
+		myGeometryBuffer = { width, height, formats };
+		if (!myGeometryBuffer)
 			return;
 	}
 
@@ -46,9 +47,9 @@ Renderer::Renderer(HWND hWnd)
 	if (!std::ranges::all_of(myFullscreenPasses, &FullscreenPass::operator bool))
 		return;
 
-	// Cubemap
+	// Skybox
 	{
-		std::array<fs::path, 6> cubemapImagePaths
+		std::array<fs::path, 6> skyboxImagePaths
 		{
 			"cubemap/Sorsele/posx.jpg",
 			"cubemap/Sorsele/negx.jpg",
@@ -58,19 +59,27 @@ Renderer::Renderer(HWND hWnd)
 			"cubemap/Sorsele/negz.jpg",
 		};
 
-		myCubemap = { cubemapImagePaths };
-		if (!myCubemap)
+		mySkybox = { skyboxImagePaths };
+		if (!mySkybox)
 			return;
 	}
 
 	mySucceeded = true;
 }
 
+void Renderer::Render(entt::registry& aRegistry)
+{
+	ClearBuffers();
+	RenderGeometry(aRegistry);
+	RenderLightning();
+	RenderSkybox();
+}
+
 void Renderer::ClearBuffers()
 {
 	myBackBuffer.Clear();
-	myZBuffer.Clear();
-	myGBuffer.Clear();
+	myDepthBuffer.Clear();
+	myGeometryBuffer.Clear();
 }
 
 void Renderer::RenderGeometry(entt::registry& aRegistry)
@@ -81,7 +90,7 @@ void Renderer::RenderGeometry(entt::registry& aRegistry)
 	ScopedInputLayout layout{ typeid(BasicVertex) };
 	ScopedShader vertexShader{ VERTEX_SHADER("VsBasic.cso") };
 	ScopedShader pixelShader{ PIXEL_SHADER("PsGBuffer.cso") };
-	ScopedRenderTargets targets{ myGBuffer, myZBuffer };
+	ScopedRenderTargets targets{ myGeometryBuffer, myDepthBuffer };
 
 	auto view = aRegistry.view<Material::Ptr, Mesh::Ptr, Transform::Ptr>();
 	for (auto [_, material, mesh, transform] : view.each())
@@ -93,12 +102,12 @@ void Renderer::RenderGeometry(entt::registry& aRegistry)
 
 void Renderer::RenderLightning()
 {
-	ScopedShaderResources resources{ ShaderType::Pixel, 0, myGBuffer };
+	ScopedShaderResources resources{ ShaderType::Pixel, 0, myGeometryBuffer };
 	myFullscreenPasses[0].Render();
 }
 
 void Renderer::RenderSkybox()
 {
-	ScopedRenderTargets targets{ myBackBuffer, myZBuffer };
-	myCubemap.DrawSkybox();
+	ScopedRenderTargets targets{ myBackBuffer, myDepthBuffer };
+	mySkybox.DrawSkybox();
 }

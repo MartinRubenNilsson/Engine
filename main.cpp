@@ -3,14 +3,10 @@
 #include "Drop.h"
 #include "DearImGui.h"
 #include "DepthBuffer.h"
-#include "RenderTargets.h"
 #include "StateManager.h"
 #include "InputLayoutManager.h"
 #include "Scene.h"
-#include "FullscreenPass.h"
 #include "Scopes.h"
-#include "Image.h"
-#include "Cubemap.h"
 #include "Camera.h"
 #include "imgui_entt.h"
 #include "Renderer.h"
@@ -116,11 +112,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
         // Rendering
 
         camera.SetCamera(cameraTransform);
-
-        renderer.ClearBuffers();
-        renderer.RenderGeometry(registry);
-        renderer.RenderLightning();
-        renderer.RenderSkybox();
+        renderer.Render(registry);
 
         // ImGui
         {

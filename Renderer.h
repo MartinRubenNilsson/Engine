@@ -11,21 +11,23 @@ public:
 	Renderer() = default;
 	Renderer(HWND);
 
-	void ClearBuffers();
-	void RenderGeometry(entt::registry&);
-	void RenderLightning();
-	void RenderSkybox();
+	void Render(entt::registry&);
 
 	auto& GetBackBuffer() const { return myBackBuffer; }
 
 	explicit operator bool() const { return mySucceeded; }
 
 private:
+	void ClearBuffers();
+	void RenderGeometry(entt::registry&);
+	void RenderLightning();
+	void RenderSkybox();
+
 	bool mySucceeded{ false };
 	BackBuffer myBackBuffer{};
-	DepthBuffer myZBuffer{};
-	RenderTargets myGBuffer{};
+	DepthBuffer myDepthBuffer{};
+	RenderTargets myGeometryBuffer{};
 	std::array<FullscreenPass, 6> myFullscreenPasses;
-	Cubemap myCubemap{};
+	Cubemap mySkybox{};
 };
 

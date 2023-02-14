@@ -28,6 +28,7 @@ struct GBufferTarget
     float4 pixelNormal : SV_Target2;
     float4 albedo : SV_Target3;
     float4 metalRoughAo : SV_Target4;
+    uint entity : SV_Target5;
 };
 
 /*
@@ -55,6 +56,7 @@ Texture2D GBufferVertexNormal   : register(t1);
 Texture2D GBufferPixelNormal    : register(t2);
 Texture2D GBufferAlbedo         : register(t3);
 Texture2D GBufferMetalRoughAo   : register(t4);
+Texture2D GBufferEntity         : register(t5);
 
 Texture2D MaterialAlbedo    : register(t10);
 Texture2D MaterialNormal    : register(t11);
