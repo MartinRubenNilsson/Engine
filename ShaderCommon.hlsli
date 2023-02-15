@@ -45,6 +45,7 @@ cbuffer MeshBuffer : register(b1)
 {
     float4x4 MeshMatrix;
     float4x4 MeshMatrixInverseTranspose;
+    uint MeshEntity[4];
 }
 
 /*

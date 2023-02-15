@@ -19,7 +19,7 @@ GBufferTarget main(BasicPixel aPixel)
     target.metalRoughAo.g = MaterialRoughness.Sample(DefaultSampler, aPixel.uv).r;
     target.metalRoughAo.b = MaterialOcclusion.Sample(DefaultSampler, aPixel.uv).r;
     target.metalRoughAo.a = 0.0;
-    target.entity = 64;
+    target.entity = MeshEntity[0];
     
     return target;
 }

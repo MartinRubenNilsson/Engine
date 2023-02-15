@@ -16,6 +16,7 @@ Renderer::Renderer(unsigned aWidth, unsigned aHeight)
 		return;
 
 	myMeshBuffer.VSSetBuffer(CBUFFER_SLOT_MESH);
+	myMeshBuffer.PSSetBuffer(CBUFFER_SLOT_MESH);
 
 
 	// Skybox
@@ -100,7 +101,7 @@ void Renderer::RenderGeometry(entt::registry& aRegistry)
 	ScopedRenderTargets scopedTargets{ myGeometryBuffer, myDepthBuffer };
 
 	auto view = aRegistry.view<Material::Ptr, Mesh::Ptr, Transform::Ptr>();
-	for (auto [_, material, mesh, transform] : view.each())
+	for (auto [entity, material, mesh, transform] : view.each())
 	{
 		ScopedShaderResources scopedResources{ ShaderType::Pixel, 10, *material }; // TODO: turn hardcoded 10 into am acro
 		
@@ -109,6 +110,8 @@ void Renderer::RenderGeometry(entt::registry& aRegistry)
 		MeshBuffer buffer{};
 		buffer.meshMatrix = transform->GetWorldMatrix();
 		buffer.meshMatrixInverseTranspose = buffer.meshMatrix.Invert().Transpose();
+		std::ranges::fill(buffer.meshEntity, std::to_underlying(entity));
+
 		myMeshBuffer.WriteToBuffer(&buffer);
 
 		DX11_CONTEXT->DrawIndexed(mesh->GetIndexCount(), 0, 0);
@@ -119,12 +122,14 @@ void Renderer::RenderLightning()
 {
 	ScopedShaderResources scopedResources{ ShaderType::Pixel, 0, myGeometryBuffer };  // TODO: turn hardcoded 0 into am acro
 	ScopedRenderTargets scopedTargets{ myLightningBuffer };
+
 	FullscreenPass{ PIXEL_SHADER("PsPbr.cso") }.Render();
 }
 
 void Renderer::RenderSkybox()
 {
 	ScopedRenderTargets scopedTargets{ myLightningBuffer, myDepthBuffer };
+
 	mySkybox.DrawSkybox();
 }
 
