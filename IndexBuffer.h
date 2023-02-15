@@ -6,7 +6,7 @@ public:
 	IndexBuffer() = default;
 	IndexBuffer(std::span<unsigned> someIndices);
 
-	void SetIndexBuffer(unsigned anOffset = 0) const;
+	void SetIndexBuffer() const;
 
 	unsigned GetIndexCount() const { return myIndexCount; }
 

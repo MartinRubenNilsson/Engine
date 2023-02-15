@@ -23,7 +23,7 @@ IndexBuffer::IndexBuffer(std::span<unsigned> someIndices)
 	myIndexCount = static_cast<unsigned>(someIndices.size());
 }
 
-void IndexBuffer::SetIndexBuffer(unsigned anOffset) const
+void IndexBuffer::SetIndexBuffer() const
 {
-	DX11_CONTEXT->IASetIndexBuffer(myBuffer.Get(), DXGI_FORMAT_R32_UINT, anOffset);
+	DX11_CONTEXT->IASetIndexBuffer(myBuffer.Get(), DXGI_FORMAT_R32_UINT, 0);
 }

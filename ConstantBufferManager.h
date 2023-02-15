@@ -7,19 +7,12 @@ struct alignas(16) CameraBuffer
 	Vector4 cameraPosition;
 };
 
-struct alignas(16) MeshBuffer
-{
-	Matrix meshMatrix;
-	Matrix meshMatrixInverseTranspose;
-};
-
 class ConstantBufferManager : public Singleton<ConstantBufferManager>
 {
 public:
 	ConstantBufferManager();
 
-	void WriteConstantBuffer(const CameraBuffer& aBuffer) { WriteConstantBuffer(Camera, &aBuffer); }
-	void WriteConstantBuffer(const MeshBuffer& aBuffer) { WriteConstantBuffer(Mesh, &aBuffer); }
+	void WriteToBuffer(const CameraBuffer& aBuffer) { WriteToBuffer(Camera, &aBuffer); }
 
 	explicit operator bool() const;
 
@@ -27,13 +20,12 @@ private:
 	enum Slot : unsigned
 	{
 		Camera,
-		Mesh,
 		Count
 	};
 
-	void WriteConstantBuffer(Slot aSlot, const void* someData);
+	void WriteToBuffer(Slot aSlot, const void* someData);
 
 	ConstantBuffer myConstantBuffers[Count];
 };
 
-#define DX11_WRITE_CONSTANT_BUFFER(buffer) ConstantBufferManager::Get().WriteConstantBuffer(buffer)
+#define DX11_WRITE_CONSTANT_BUFFER(buffer) ConstantBufferManager::Get().WriteToBuffer(buffer)

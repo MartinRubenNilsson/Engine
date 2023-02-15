@@ -3,17 +3,20 @@
 class ConstantBuffer
 {
 public:
-	ConstantBuffer(size_t aByteWidth);
+	ConstantBuffer() = default;
+	ConstantBuffer(unsigned aByteWidth);
 
-	void WriteConstantBuffer(const void* someData);
-	void VSSetConstantBuffer(unsigned aSlot) const;
-	void PSSetConstantBuffer(unsigned aSlot) const;
-	size_t GetByteWidth() const { return myByteWidth; }
+	void WriteToBuffer(const void* someData);
+
+	void VSSetBuffer(unsigned aSlot) const;
+	void PSSetBuffer(unsigned aSlot) const;
+
+	unsigned GetByteWidth() const { return myByteWidth; }
 
 	explicit operator bool() const { return myBuffer; }
 
 private:
-	size_t myByteWidth{};
 	BufferPtr myBuffer{};
+	unsigned myByteWidth{};
 };
 

@@ -6,20 +6,19 @@ ConstantBufferManager::ConstantBufferManager()
 	, myConstantBuffers
 	{
 		sizeof(CameraBuffer),
-		sizeof(MeshBuffer)
 	}
 {
 	for (unsigned slot = 0; slot < Count; ++slot)
 	{
-		myConstantBuffers[slot].VSSetConstantBuffer(slot);
-		myConstantBuffers[slot].PSSetConstantBuffer(slot);
+		myConstantBuffers[slot].VSSetBuffer(slot);
+		myConstantBuffers[slot].PSSetBuffer(slot);
 	}
 }
 
 
-void ConstantBufferManager::WriteConstantBuffer(Slot aSlot, const void* someData)
+void ConstantBufferManager::WriteToBuffer(Slot aSlot, const void* someData)
 {
-	myConstantBuffers[aSlot].WriteConstantBuffer(someData);
+	myConstantBuffers[aSlot].WriteToBuffer(someData);
 }
 
 ConstantBufferManager::operator bool() const

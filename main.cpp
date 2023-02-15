@@ -87,11 +87,11 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
             DispatchMessage(&msg);
         }
 
-        // Resizing
+        // Resize
         if (theResize)
         {
             backBuffer = { window.operator HWND() };
-            renderer.CreateBuffers(backBuffer.GetWidth(), backBuffer.GetHeight());
+            renderer.ResizeBuffers(backBuffer.GetWidth(), backBuffer.GetHeight());
             theResize = false;
         }
 
@@ -165,14 +165,14 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
     switch (msg)
     {
+    case WM_DESTROY:
+        PostQuitMessage(EXIT_SUCCESS);
+        break;
     case WM_EXITSIZEMOVE:
         theResize = true;
         break;
     case WM_DROPFILES:
         theDrop = { (HDROP)wParam };
-        break;
-    case WM_DESTROY:
-        PostQuitMessage(EXIT_SUCCESS);
         break;
     default:
         return DefWindowProc(hWnd, msg, wParam, lParam);

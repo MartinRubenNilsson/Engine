@@ -1,7 +1,7 @@
 #pragma once
 #include "DepthBuffer.h"
 #include "RenderTargets.h"
-#include "FullscreenPass.h"
+#include "ConstantBuffer.h"
 #include "Cubemap.h"
 
 class Renderer
@@ -12,7 +12,7 @@ public:
 	Renderer() = default;
 	Renderer(unsigned aWidth, unsigned aHeight);
 
-	void CreateBuffers(unsigned aWidth, unsigned aHeight);
+	void ResizeBuffers(unsigned aWidth, unsigned aHeight);
 	void Render(entt::registry&);
 
 	explicit operator bool() const;
@@ -27,6 +27,7 @@ private:
 	DepthBuffer myDepthBuffer{};
 	RenderTargets myGeometryBuffer{};
 	RenderTargets myLightningBuffer{};
+	ConstantBuffer myMeshBuffer{};
 	Cubemap mySkybox{};
 };
 

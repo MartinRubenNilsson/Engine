@@ -9,7 +9,7 @@ public:
 
 	Mesh(const aiMesh&);
 
-	void Draw(const Matrix& aTransform) const;
+	void SetBuffers() const;
 
 	std::string_view GetName() const;
 	unsigned GetVertexCount() const;

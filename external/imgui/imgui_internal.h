@@ -1047,7 +1047,7 @@ struct IMGUI_API ImGuiMenuColumns
     ImU16       Widths[4];          // Width of:   Icon, Label, Shortcut, Mark  (accumulators for current frame)
 
     ImGuiMenuColumns() { memset(this, 0, sizeof(*this)); }
-    void        WriteConstantBuffer(float spacing, bool window_reappearing);
+    void        WriteToBuffer(float spacing, bool window_reappearing);
     float       DeclColumns(float w_icon, float w_label, float w_shortcut, float w_mark);
     void        CalcNextTotalWidth(bool update_offsets);
 };

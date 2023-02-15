@@ -1,12 +1,22 @@
 #include "pch.h"
 #include "Renderer.h"
+#include "ShaderCommon.h"
 #include "Material.h"
 #include "Mesh.h"
 #include "Transform.h"
+#include "FullscreenPass.h"
+	
 
 Renderer::Renderer(unsigned aWidth, unsigned aHeight)
 {
-	CreateBuffers(aWidth, aHeight);
+	ResizeBuffers(aWidth, aHeight);
+
+	myMeshBuffer = { sizeof(MeshBuffer) };
+	if (!myMeshBuffer)
+		return;
+
+	myMeshBuffer.VSSetBuffer(CBUFFER_SLOT_MESH);
+
 
 	// Skybox
 	{
@@ -26,7 +36,7 @@ Renderer::Renderer(unsigned aWidth, unsigned aHeight)
 	}
 }
 
-void Renderer::CreateBuffers(unsigned aWidth, unsigned aHeight)
+void Renderer::ResizeBuffers(unsigned aWidth, unsigned aHeight)
 {
 	static constexpr std::array geometryFormats
 	{
@@ -69,7 +79,7 @@ void Renderer::Render(entt::registry& aRegistry)
 
 Renderer::operator bool() const
 {
-	return myDepthBuffer && myGeometryBuffer && myLightningBuffer;
+	return myDepthBuffer && myGeometryBuffer && myLightningBuffer && myMeshBuffer;
 }
 
 void Renderer::ClearBuffers()
@@ -93,7 +103,15 @@ void Renderer::RenderGeometry(entt::registry& aRegistry)
 	for (auto [_, material, mesh, transform] : view.each())
 	{
 		ScopedShaderResources scopedResources{ ShaderType::Pixel, 10, *material }; // TODO: turn hardcoded 10 into am acro
-		mesh->Draw(transform->GetWorldMatrix());
+		
+		mesh->SetBuffers();
+
+		MeshBuffer buffer{};
+		buffer.meshMatrix = transform->GetWorldMatrix();
+		buffer.meshMatrixInverseTranspose = buffer.meshMatrix.Invert().Transpose();
+		myMeshBuffer.WriteToBuffer(&buffer);
+
+		DX11_CONTEXT->DrawIndexed(mesh->GetIndexCount(), 0, 0);
 	}
 }
 
@@ -101,14 +119,12 @@ void Renderer::RenderLightning()
 {
 	ScopedShaderResources scopedResources{ ShaderType::Pixel, 0, myGeometryBuffer };  // TODO: turn hardcoded 0 into am acro
 	ScopedRenderTargets scopedTargets{ myLightningBuffer };
-
 	FullscreenPass{ PIXEL_SHADER("PsPbr.cso") }.Render();
 }
 
 void Renderer::RenderSkybox()
 {
 	ScopedRenderTargets scopedTargets{ myLightningBuffer, myDepthBuffer };
-
 	mySkybox.DrawSkybox();
 }
 

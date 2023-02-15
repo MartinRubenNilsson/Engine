@@ -35,21 +35,10 @@ Mesh::Mesh(const aiMesh& aMesh)
 	myIndexBuffer = { std::span{ indices } };
 }
 
-void Mesh::Draw(const Matrix& aTransform) const
+void Mesh::SetBuffers() const
 {
-	if (!operator bool())
-		return;
-
 	myVertexBuffer.SetVertexBuffer();
 	myIndexBuffer.SetIndexBuffer();
-
-	MeshBuffer buffer{};
-	buffer.meshMatrix = aTransform;
-	buffer.meshMatrixInverseTranspose = aTransform.Transpose().Invert();
-
-	DX11_WRITE_CONSTANT_BUFFER(buffer);
-
-	DX11_CONTEXT->DrawIndexed(myIndexBuffer.GetIndexCount(), 0, 0);
 }
 
 std::string_view Mesh::GetName() const
