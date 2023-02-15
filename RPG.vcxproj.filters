@@ -226,6 +226,9 @@
     <FxCompile Include="PsTonemapAndGammaCorrect.hlsl">
       <Filter>shaders</Filter>
     </FxCompile>
+    <FxCompile Include="PsUintMax.hlsl">
+      <Filter>shaders</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="ShaderCommon.hlsli">

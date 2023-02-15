@@ -75,6 +75,7 @@ private:
 class ScopedRenderTargets : Scope
 {
 public:
+	ScopedRenderTargets(RenderTargetPtr aTarget, DepthStencilPtr aDepthStencil = nullptr);
 	ScopedRenderTargets(std::span<const RenderTargetPtr> someTargets, DepthStencilPtr aDepthStencil = nullptr);
 	~ScopedRenderTargets();
 

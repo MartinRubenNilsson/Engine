@@ -98,6 +98,9 @@ void Renderer::ClearBuffers()
 	myDepthBuffer.Clear();
 	myGeometryBuffer.Clear();
 	myLightningBuffer.Clear();
+
+	ScopedRenderTargets scopedTargets{ myGeometryBuffer.operator std::span<const RenderTargetPtr>().back() };
+	FullscreenPass{ PIXEL_SHADER("PsUintMax.cso") }.Render();
 }
 
 void Renderer::RenderGeometry(entt::registry& aRegistry)

@@ -116,6 +116,11 @@ ScopedDepthStencilState::~ScopedDepthStencilState()
 * class ScopedRenderTargets
 */
 
+ScopedRenderTargets::ScopedRenderTargets(RenderTargetPtr aTarget, DepthStencilPtr aDepthStencil)
+	: ScopedRenderTargets({ std::addressof(aTarget), 1 }, aDepthStencil)
+{
+}
+
 ScopedRenderTargets::ScopedRenderTargets(std::span<const RenderTargetPtr> someTargets, DepthStencilPtr aDepthStencil)
 {
 	{

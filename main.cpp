@@ -11,8 +11,6 @@
 #include "Camera.h"
 #include "imgui_entt.h"
 
-#include "Pixel.h"
-
 LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 namespace
