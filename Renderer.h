@@ -2,6 +2,7 @@
 #include "DepthBuffer.h"
 #include "RenderTargets.h"
 #include "ConstantBuffer.h"
+#include "Pixel.h"
 #include "Cubemap.h"
 
 class Renderer
@@ -14,6 +15,8 @@ public:
 
 	void ResizeBuffers(unsigned aWidth, unsigned aHeight);
 	void Render(entt::registry&);
+
+	entt::entity PickEntity(unsigned x, unsigned y);
 
 	explicit operator bool() const;
 
@@ -28,6 +31,7 @@ private:
 	RenderTargets myGeometryBuffer{};
 	RenderTargets myLightningBuffer{};
 	ConstantBuffer myMeshBuffer{};
+	Pixel myEntityPixel{};
 	Cubemap mySkybox{};
 };
 

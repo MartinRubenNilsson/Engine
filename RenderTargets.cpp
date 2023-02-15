@@ -2,8 +2,9 @@
 #include "RenderTargets.h"
 
 RenderTargets::RenderTargets(unsigned aWidth, unsigned aHeight, std::span<const DXGI_FORMAT> someFormats)
+	: myWidth{ aWidth }, myHeight{ aHeight } 
 {
-	if (someFormats.size() > ourCount)
+	if (someFormats.size() > D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT)
 		return;
 
 	D3D11_TEXTURE2D_DESC textureDesc{};
@@ -25,23 +26,28 @@ RenderTargets::RenderTargets(unsigned aWidth, unsigned aHeight, std::span<const 
 	resourceDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
 	resourceDesc.Texture2D.MipLevels = static_cast<UINT>(-1);
 
-	for (size_t i = 0; i < someFormats.size(); ++i)
+	for (DXGI_FORMAT format : someFormats)
 	{
-		textureDesc.Format = targetDesc.Format = resourceDesc.Format = someFormats[i];
+		textureDesc.Format = targetDesc.Format = resourceDesc.Format = format;
 
-		myResult = DX11_DEVICE->CreateTexture2D(&textureDesc, NULL, &myTextures[i]);
+		TexturePtr texture{};
+		RenderTargetPtr target{};
+		ShaderResourcePtr resource{};
+
+		myResult = DX11_DEVICE->CreateTexture2D(&textureDesc, NULL, &texture);
 		if (FAILED(myResult))
 			return;
-		myResult = DX11_DEVICE->CreateRenderTargetView(myTextures[i].Get(), &targetDesc, &myRenderTargets[i]);
+		myResult = DX11_DEVICE->CreateRenderTargetView(texture.Get(), &targetDesc, &target);
 		if (FAILED(myResult))
 			return;
-		myResult = DX11_DEVICE->CreateShaderResourceView(myTextures[i].Get(), &resourceDesc, &myShaderResources[i]);
+		myResult = DX11_DEVICE->CreateShaderResourceView(texture.Get(), &resourceDesc, &resource);
 		if (FAILED(myResult))
 			return;
+
+		myTextures.push_back(texture);
+		myRenderTargets.push_back(target);
+		myShaderResources.push_back(resource);
 	}
-
-	myWidth = aWidth;
-	myHeight = aHeight;
 }
 
 void RenderTargets::Clear()
@@ -49,10 +55,7 @@ void RenderTargets::Clear()
 	static constexpr FLOAT color[]{ 0.f, 0.f, 0.f, 0.f };
 
 	for (const auto& target : myRenderTargets)
-	{
-		if (target)
-			DX11_CONTEXT->ClearRenderTargetView(target.Get(), color);
-	}
+		DX11_CONTEXT->ClearRenderTargetView(target.Get(), color);
 }
 
 RenderTargets::operator bool() const

@@ -11,6 +11,8 @@
 #include "Camera.h"
 #include "imgui_entt.h"
 
+#include "Pixel.h"
+
 LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 namespace
@@ -118,6 +120,14 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
             ImGui::End();
 
             ImGui::ViewManipulate(camera, cameraTransform, cameraDistance, {}, { 150.f, 150.f }, 0);
+
+            if (ImGui::IsMouseClicked(ImGuiMouseButton_Left) && !ImGui::GetIO().WantCaptureMouse)
+            {
+                selection = renderer.PickEntity(
+                    static_cast<unsigned>(ImGui::GetMousePos().x),
+                    static_cast<unsigned>(ImGui::GetMousePos().y)
+                );
+            }
 
             ImGui::Begin("Hierarchy");
             ImGui::Hierarchy(registry, selection);

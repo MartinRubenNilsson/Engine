@@ -5,7 +5,6 @@
 #include "Mesh.h"
 #include "Transform.h"
 #include "FullscreenPass.h"
-	
 
 Renderer::Renderer(unsigned aWidth, unsigned aHeight)
 {
@@ -18,6 +17,9 @@ Renderer::Renderer(unsigned aWidth, unsigned aHeight)
 	myMeshBuffer.VSSetBuffer(CBUFFER_SLOT_MESH);
 	myMeshBuffer.PSSetBuffer(CBUFFER_SLOT_MESH);
 
+	myEntityPixel = { DXGI_FORMAT_R32_UINT };
+	if (!myEntityPixel)
+		return;
 
 	// Skybox
 	{
@@ -78,9 +80,17 @@ void Renderer::Render(entt::registry& aRegistry)
 	TonemapAndGammaCorrect();
 }
 
+entt::entity Renderer::PickEntity(unsigned x, unsigned y)
+{
+	entt::entity entity{ entt::null };
+	myEntityPixel.Pick(myGeometryBuffer.operator std::span<const TexturePtr>().back(), x, y);
+	myEntityPixel.Read(&entity, sizeof(entity));
+	return entity;
+}
+
 Renderer::operator bool() const
 {
-	return myDepthBuffer && myGeometryBuffer && myLightningBuffer && myMeshBuffer;
+	return myDepthBuffer && myGeometryBuffer && myLightningBuffer && myMeshBuffer && myEntityPixel;
 }
 
 void Renderer::ClearBuffers()
