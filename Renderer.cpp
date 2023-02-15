@@ -6,8 +6,7 @@
 
 Renderer::Renderer(unsigned aWidth, unsigned aHeight)
 {
-	if (!CreateBuffers(aWidth, aHeight))
-		return;
+	CreateBuffers(aWidth, aHeight);
 
 	// Skybox
 	{
@@ -25,8 +24,28 @@ Renderer::Renderer(unsigned aWidth, unsigned aHeight)
 		if (!mySkybox)
 			return;
 	}
+}
 
-	mySucceeded = true;
+void Renderer::CreateBuffers(unsigned aWidth, unsigned aHeight)
+{
+	static constexpr std::array geometryFormats
+	{
+		DXGI_FORMAT_R32G32B32A32_FLOAT, // World position
+		DXGI_FORMAT_R32G32B32A32_FLOAT, // Vertex normal
+		DXGI_FORMAT_R32G32B32A32_FLOAT, // Pixel normal
+		DXGI_FORMAT_R8G8B8A8_UNORM,		// Albedo
+		DXGI_FORMAT_R8G8B8A8_UNORM,		// Metallic + Roughness + AO + [Unused]
+		DXGI_FORMAT_R32_UINT,			// Entity
+	};
+
+	static constexpr std::array lightningFormats
+	{
+		DXGI_FORMAT_R32G32B32A32_FLOAT // Linear color space
+	};
+
+	myDepthBuffer = { aWidth, aHeight };
+	myGeometryBuffer = { aWidth, aHeight, geometryFormats };
+	myLightningBuffer = { aWidth, aHeight, lightningFormats };
 }
 
 void Renderer::Render(entt::registry& aRegistry)
@@ -48,33 +67,9 @@ void Renderer::Render(entt::registry& aRegistry)
 	TonemapAndGammaCorrect();
 }
 
-bool Renderer::CreateBuffers(unsigned aWidth, unsigned aHeight)
+Renderer::operator bool() const
 {
-	static constexpr std::array geometryFormats
-	{
-		DXGI_FORMAT_R32G32B32A32_FLOAT, // World position
-		DXGI_FORMAT_R32G32B32A32_FLOAT, // Vertex normal
-		DXGI_FORMAT_R32G32B32A32_FLOAT, // Pixel normal
-		DXGI_FORMAT_R8G8B8A8_UNORM,		// Albedo
-		DXGI_FORMAT_R8G8B8A8_UNORM,		// Metallic + Roughness + AO + [Unused]
-		DXGI_FORMAT_R32_UINT,			// Entity
-	};
-
-	static constexpr std::array lightningFormat{ DXGI_FORMAT_R32G32B32A32_FLOAT };
-
-	myDepthBuffer = { aWidth, aHeight };
-	if (!myDepthBuffer)
-		return false;
-
-	myGeometryBuffer = { aWidth, aHeight, geometryFormats };
-	if (!myGeometryBuffer)
-		return false;
-
-	myLightningBuffer = { aWidth, aHeight, lightningFormat };
-	if (!myLightningBuffer)
-		return false;
-
-	return true;
+	return myDepthBuffer && myGeometryBuffer && myLightningBuffer;
 }
 
 void Renderer::ClearBuffers()

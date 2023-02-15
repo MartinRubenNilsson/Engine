@@ -1,6 +1,6 @@
 #pragma once
-#include "RenderTargets.h"
 #include "DepthBuffer.h"
+#include "RenderTargets.h"
 #include "FullscreenPass.h"
 #include "Cubemap.h"
 
@@ -12,20 +12,18 @@ public:
 	Renderer() = default;
 	Renderer(unsigned aWidth, unsigned aHeight);
 
+	void CreateBuffers(unsigned aWidth, unsigned aHeight);
 	void Render(entt::registry&);
 
-	explicit operator bool() const { return mySucceeded; }
+	explicit operator bool() const;
 
 private:
-	bool CreateBuffers(unsigned aWidth, unsigned aHeight);
-
 	void ClearBuffers();
 	void RenderGeometry(entt::registry&);
 	void RenderLightning();
 	void RenderSkybox();
 	void TonemapAndGammaCorrect();
 
-	bool mySucceeded{ false };
 	DepthBuffer myDepthBuffer{};
 	RenderTargets myGeometryBuffer{};
 	RenderTargets myLightningBuffer{};

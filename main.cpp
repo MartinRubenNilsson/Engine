@@ -15,7 +15,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 namespace
 {
-    Drop theDrop;
+    bool theResize{ false };
+    Drop theDrop{};
 }
 
 int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
@@ -84,6 +85,14 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
 
             TranslateMessage(&msg);
             DispatchMessage(&msg);
+        }
+
+        // Resizing
+        if (theResize)
+        {
+            backBuffer = { window.operator HWND() };
+            renderer.CreateBuffers(backBuffer.GetWidth(), backBuffer.GetHeight());
+            theResize = false;
         }
 
         // Drag and drop
@@ -156,6 +165,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
     switch (msg)
     {
+    case WM_EXITSIZEMOVE:
+        theResize = true;
+        break;
     case WM_DROPFILES:
         theDrop = { (HDROP)wParam };
         break;
