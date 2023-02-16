@@ -18,7 +18,7 @@ float4 main(float4 aPixelPosition : SV_Position) : SV_TARGET
     
     const float3 L = normalize(float3(-1.f, 1.f, 0.f));
     const float3 V = normalize(CameraPosition.xyz - worldPosition.xyz);
-    const float3 N = normalize(pixelNormal.xyz);
+    const float3 N = normalize(pixelNormal.xyz * 2.0 - 1.0); // Unpack normals
     
     const float metallic = metalRoughAo.x;
     const float roughness = metalRoughAo.y;

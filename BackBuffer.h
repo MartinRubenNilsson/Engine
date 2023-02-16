@@ -10,11 +10,10 @@ public:
 	void Clear();
 
 	Viewport GetViewport() const;
+	RenderTargetPtr GetTarget() const { return myRenderTarget; }
 
 	unsigned GetWidth() const { return myWidth; }
 	unsigned GetHeight() const { return myHeight; }
-
-	operator std::span<const RenderTargetPtr>() const;
 
 	explicit operator bool() const;
 

@@ -8,7 +8,7 @@ GBufferTarget main(BasicPixel aPixel)
     
     float3 localNormal = MaterialNormal.Sample(DefaultSampler, aPixel.uv).xyz;
     localNormal.g = 1.0 - localNormal.g; // Convert from OpenGL to DirectX
-    localNormal = localNormal * 2.0 - 1.0; // Unpack normal texture
+    localNormal = localNormal * 2.0 - 1.0; // Unpack normals
     
     GBufferTarget target;
     target.worldPosition  = float4(aPixel.worldPosition, 0.0);
@@ -20,6 +20,9 @@ GBufferTarget main(BasicPixel aPixel)
     target.metalRoughAo.b = MaterialOcclusion.Sample(DefaultSampler, aPixel.uv).r;
     target.metalRoughAo.a = 0.0;
     target.entity = MeshEntity[0];
+    
+    target.vertexNormal.xyz = target.vertexNormal.xyz * 0.5 + 0.5; // Pack normals
+    target.pixelNormal.xyz = target.pixelNormal.xyz * 0.5 + 0.5; // Pack normals
     
     return target;
 }

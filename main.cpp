@@ -121,10 +121,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
 
             if (ImGui::IsMouseClicked(ImGuiMouseButton_Left) && !ImGui::GetIO().WantCaptureMouse)
             {
-                selection = renderer.PickEntity(
-                    static_cast<unsigned>(ImGui::GetMousePos().x),
-                    static_cast<unsigned>(ImGui::GetMousePos().y)
-                );
+                ImVec2 pos = ImGui::GetMousePos();
+                selection = renderer.PickEntity(static_cast<unsigned>(pos.x), static_cast<unsigned>(pos.y));
             }
 
             ImGui::Begin("Hierarchy");
@@ -162,7 +160,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
         {
             ScopedPrimitiveTopology scopedTopology{ D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST };
             ScopedViewports scopedViewport{ backBuffer.GetViewport() };
-            ScopedRenderTargets scopedTarget{ backBuffer };
+            ScopedRenderTargets scopedTarget{ backBuffer.GetTarget() };
 
             backBuffer.Clear();
             renderer.Render(registry);

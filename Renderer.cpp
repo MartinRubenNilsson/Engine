@@ -44,8 +44,8 @@ void Renderer::ResizeBuffers(unsigned aWidth, unsigned aHeight)
 	static constexpr std::array geometryFormats
 	{
 		DXGI_FORMAT_R32G32B32A32_FLOAT, // World position
-		DXGI_FORMAT_R32G32B32A32_FLOAT, // Vertex normal
-		DXGI_FORMAT_R32G32B32A32_FLOAT, // Pixel normal
+		DXGI_FORMAT_R10G10B10A2_UNORM,  // Vertex normal
+		DXGI_FORMAT_R10G10B10A2_UNORM,  // Pixel normal
 		DXGI_FORMAT_R8G8B8A8_UNORM,		// Albedo
 		DXGI_FORMAT_R8G8B8A8_UNORM,		// Metallic + Roughness + AO + [Unused]
 		DXGI_FORMAT_R32_UINT,			// Entity

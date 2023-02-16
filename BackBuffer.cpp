@@ -62,11 +62,6 @@ Viewport BackBuffer::GetViewport() const
 	return Viewport{ CD3D11_VIEWPORT{ myTexture.Get(), myRenderTarget.Get() } };
 }
 
-BackBuffer::operator std::span<const RenderTargetPtr>() const
-{
-	return { std::addressof(myRenderTarget), 1 };
-}
-
 BackBuffer::operator bool() const
 {
 	{ return SUCCEEDED(myResult); }
