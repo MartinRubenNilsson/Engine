@@ -8,7 +8,6 @@ public:
 	static Ptr Create();
 
 	Ptr CreateChild();
-
 	Ptr Find(std::string_view aName);
 
 	void SetName(const std::string& aName)		{ myName = aName; }

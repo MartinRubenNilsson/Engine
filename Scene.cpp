@@ -35,7 +35,7 @@ entt::entity Scene::Instantiate(entt::registry& aRegistry) const
         handle.emplace<Camera>(camera);
     }
 
-    for (auto& [light, transform] : myCameras)
+    for (auto& [light, transform] : myLights)
     {
         entt::handle handle{ aRegistry, aRegistry.create() };
         handle.emplace<Transform::Ptr>(transform);

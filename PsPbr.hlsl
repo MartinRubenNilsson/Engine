@@ -23,8 +23,8 @@ float4 main(float4 aPixelPosition : SV_Position) : SV_TARGET
     const float metallic = metalRoughAo.x;
     const float roughness = metalRoughAo.y;
     
-    float3 color = PbrShader(L, V, N, albedo.rgb, metallic, roughness);
-    color *= 4.0;
+    float3 color = BrdfDotGGX(L, V, N, albedo.rgb, metallic, roughness);
+    color *= 4.0; // radiance is 4
     
     return float4(color, 1.0);
 }

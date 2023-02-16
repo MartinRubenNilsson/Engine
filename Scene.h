@@ -3,12 +3,7 @@
 #include "Material.h"
 #include "Mesh.h"
 #include "Camera.h"
-
-class Light
-{
-public:
-	Light(const aiLight&) {}
-};
+#include "Light.h"
 
 class Scene
 {

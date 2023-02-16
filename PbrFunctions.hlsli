@@ -10,7 +10,7 @@ float3 FresnelSchlick(float LdH, float3 F0)
     return F0 + (1.0 - F0) * pow(1.0 - LdH, 5);
 }
 
-float GGX_NormalDistribution(float NdH, float alpha)
+float NormalDistributionGGX(float NdH, float alpha)
 {
     float alpha2 = alpha * alpha;
     float denom = 1.0 + NdH * NdH * (alpha2 - 1.0);
@@ -18,29 +18,40 @@ float GGX_NormalDistribution(float NdH, float alpha)
     return alpha2 / max(denom, EPSILON);
 }
 
-float GGX_GeometryWithDenominator(float NdL, float NdV, float alpha)
+// Important! Subsumes denominator of full specular BRDF!
+float SmithHammonGGX(float NdL, float NdV, float alpha)
 {
     return 0.5 / lerp(2.0 * NdL * NdV, NdL + NdV, alpha);
 }
 
-float3 PbrShader(float3 L, float3 V, float3 N, float3 anAlbedo, float aMetallic, float aRoughness)
+// This value is multiplied by the incoming radiance to get the outgoing radiance.
+float3 BrdfDotGGX(float3 L, float3 V, float3 N, float3 aSurfaceColor, float aMetallic, float aRoughness)
 {
-    float3 H = normalize(L + V);
+    const float3 H = normalize(L + V);
+    const float LdV = max(dot(L, V), 0.0);
+    const float LdH = max(dot(L, H), 0.0);
+    const float NdH = max(dot(N, H), 0.0);
+    const float NdL = max(dot(N, L), EPSILON);
+    const float NdV = max(dot(N, V), EPSILON);
     
-    float LdH = max(dot(L, H), 0.0);
-    float NdH = max(dot(N, H), 0.0);
-    float NdL = max(dot(N, L), EPSILON);
-    float NdV = max(dot(N, V), EPSILON);
+    const float3 specularColor = lerp(0.04, aSurfaceColor, aMetallic); // 0.04 = default dielectric F0
+    const float3 diffuseColor = lerp(aSurfaceColor, 0.0, aMetallic);
     
-    float3 F0 = lerp(0.04, anAlbedo, aMetallic); // 0.04 approximates the specular color of dielectrics
-    float alpha = aRoughness * aRoughness;
+    const float alphaGGX = aRoughness * aRoughness;
     
-    float3 F = FresnelSchlick(LdH, F0);
-    float3 D = GGX_NormalDistribution(NdH, alpha);
-    float3 G = GGX_GeometryWithDenominator(NdL, NdV, alpha);
+    const float3 F = FresnelSchlick(LdH, specularColor);
+    const float3 D = NormalDistributionGGX(NdH, alphaGGX);
+    const float3 G = SmithHammonGGX(NdL, NdV, alphaGGX);
     
-    float3 specular = F * D * G;
-    float3 diffuse = (1.0 - F) * (1.0 - aMetallic) * anAlbedo / PI; // (1.0 - aMetallic) ensures that metals have no diffuse color
+    const float3 specularBrdf = F * D * G;
+    
+    const float smooth = 1.05 * (1.0 - specularColor) * (1.0 - pow(1.0 - NdL, 5)) * (1.0 - pow(1.0 - NdV, 5));
+    const float facing = 0.5 + 0.5 * LdV;
+    const float rough = facing * (0.9 - 0.4 * facing) * ((0.5 + NdH) / NdH);
+    const float single = lerp(smooth, rough, alphaGGX);
+    const float multi = 0.3641 * alphaGGX;
+    
+    const float3 diffuseBrdf = (diffuseColor / PI) * (single + diffuseColor * multi);
 
-    return (specular + diffuse) * NdL;
+    return (specularBrdf + diffuseBrdf) * NdL;
 }
