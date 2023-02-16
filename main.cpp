@@ -137,11 +137,21 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
 
             if (auto transform = registry.try_get<Transform::Ptr>(selection))
             {
-                auto operation = ImGuizmo::TRANSLATE | ImGuizmo::ROTATE | ImGuizmo::SCALE;
-                auto mode = ImGuizmo::LOCAL;
+                static ImGuizmo::OPERATION op = ImGuizmo::TRANSLATE;
+                static ImGuizmo::MODE mode = ImGuizmo::LOCAL;
+
+                if (ImGui::IsKeyPressed(ImGuiKey_W))
+                    op = ImGuizmo::TRANSLATE;
+                if (ImGui::IsKeyPressed(ImGuiKey_E))
+                    op = ImGuizmo::ROTATE;
+                if (ImGui::IsKeyPressed(ImGuiKey_R))
+                    op = ImGuizmo::SCALE;
+
+                if (ImGui::IsKeyPressed(ImGuiKey_X))
+                    mode = static_cast<ImGuizmo::MODE>(1 - mode);
 
                 Matrix m = (*transform)->GetWorldMatrix();
-                ImGui::Manipulate(camera, cameraTransform, operation, mode, m);
+                ImGui::Manipulate(camera, cameraTransform, op, mode, m);
                 (*transform)->SetWorldMatrix(m);
             }
 

@@ -76,13 +76,13 @@ void Scene::LoadTransforms(Transform::Ptr aTransform, aiNode* aNode)
 void Scene::LoadCameras(std::span<aiCamera*> someCameras)
 {
     for (aiCamera* camera : someCameras)
-        myCameras.emplace_back(*camera, myRootTransform->FindByName(camera->mName.C_Str()));
+        myCameras.emplace_back(*camera, myRootTransform->Find(camera->mName.C_Str()));
 }
 
 void Scene::LoadLights(std::span<aiLight*> someLights)
 {
     for (aiLight* light : someLights)
-        myLights.emplace_back(*light, myRootTransform->FindByName(light->mName.C_Str()));
+        myLights.emplace_back(*light, myRootTransform->Find(light->mName.C_Str()));
 }
 
 /*

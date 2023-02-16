@@ -1,6 +1,10 @@
 #include "pch.h"
 #include "Transform.h"
 
+/*
+* class Transform
+*/
+
 Transform::Ptr Transform::Create()
 {
 	return Ptr(new Transform());
@@ -13,31 +17,16 @@ Transform::Ptr Transform::CreateChild()
 	return child;
 }
 
-Transform::Ptr Transform::FindByName(std::string_view aName)
+Transform::Ptr Transform::Find(std::string_view aName)
 {
 	if (aName == myName)
 		return shared_from_this();
 	for (auto& child : myChildren)
 	{
-		if (auto result = child->FindByName(aName))
+		if (auto result = child->Find(aName))
 			return result;
 	}
 	return nullptr;
-}
-
-std::vector<Transform::Ptr> Transform::FindAllByName(std::string_view aName)
-{
-	std::vector<Ptr> result{};
-	if (aName == myName)
-		result.emplace_back(shared_from_this());
-	for (auto& child : myChildren)
-		result.append_range(child->FindAllByName(aName)); // untested!!!
-	return result;
-}
-
-void Transform::Reset()
-{
-	myLocalMatrix = Matrix::Identity;
 }
 
 void Transform::SetWorldMatrix(const Matrix& aMatrix)
@@ -78,29 +67,6 @@ Transform::Ptr Transform::GetParent() const
 	return myParent ? myParent->shared_from_this() : nullptr;
 }
 
-//std::span<Matrix> Transform::GetHierarchyWorldMatrices(std::span<Matrix> aSpan) const
-//{
-//	std::memcpy(aSpan.data(), &myLocalMatrix, sizeof(Matrix));
-//	aSpan = aSpan.subspan(1);
-//
-//	const auto descendants = aSpan;
-//
-//	for (const auto& child : myChildren)
-//		aSpan = child->GetHierarchyWorldMatrices(aSpan);
-//
-//	for (Matrix& matrix : descendants)
-//		matrix *= myLocalMatrix;
-//	
-//	return aSpan;
-//}
-//
-//std::vector<Matrix> Transform::GetHierarchyWorldMatrices() const
-//{
-//	std::vector<Matrix> matrices(GetHierarchyCount());
-//	GetHierarchyWorldMatrices(matrices);
-//	return matrices;
-//}
-
 size_t Transform::GetTreeSize() const
 {
 	size_t size = 1;
@@ -119,6 +85,10 @@ bool Transform::IsChildOf(Ptr aParent) const
 	return false;
 }
 
+/*
+* namespace ImGui
+*/
+
 bool ImGui::InspectTransform(Transform::Ptr aTransform)
 {
 	float translation[3]{};
@@ -131,10 +101,6 @@ bool ImGui::InspectTransform(Transform::Ptr aTransform)
 	ImGuizmo::RecomposeMatrixFromComponents(translation, rotation, scale, aTransform->Data());
 	return translated || rotated || scaled;
 }
-
-/*
-* ImGui
-*/
 
 bool ImGui::Hierarchy(Transform::Ptr aTransform, Transform::Ptr& aSelection)
 {

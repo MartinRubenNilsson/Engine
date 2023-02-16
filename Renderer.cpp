@@ -83,7 +83,7 @@ void Renderer::Render(entt::registry& aRegistry)
 entt::entity Renderer::PickEntity(unsigned x, unsigned y)
 {
 	entt::entity entity{ entt::null };
-	myEntityPixel.Pick(myGeometryBuffer.operator std::span<const TexturePtr>().back(), x, y);
+	myEntityPixel.Pick(myGeometryBuffer.GetTexture(TEXTURE_SLOT_GBUFFER_ENTITY), x, y);
 	myEntityPixel.Read(&entity, sizeof(entity));
 	return entity;
 }
@@ -99,7 +99,7 @@ void Renderer::ClearBuffers()
 	myGeometryBuffer.Clear();
 	myLightningBuffer.Clear();
 
-	ScopedRenderTargets scopedTargets{ myGeometryBuffer.operator std::span<const RenderTargetPtr>().back() };
+	ScopedRenderTargets scopedTargets{ myGeometryBuffer.GetRenderTarget(TEXTURE_SLOT_GBUFFER_ENTITY) };
 	FullscreenPass{ PIXEL_SHADER("PsUintMax.cso") }.Render();
 }
 

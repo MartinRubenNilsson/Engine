@@ -9,10 +9,7 @@ public:
 
 	Ptr CreateChild();
 
-	Ptr FindByName(std::string_view aName);
-	std::vector<Ptr> FindAllByName(std::string_view aName);
-
-	void Reset();
+	Ptr Find(std::string_view aName);
 
 	void SetName(const std::string& aName)		{ myName = aName; }
 	std::string_view GetName() const			{ return myName; }
@@ -43,13 +40,10 @@ private:
 	Transform(Transform&&) = delete;
 	Transform& operator=(Transform&&) = delete;
 
-	/*std::vector<Matrix> GetHierarchyWorldMatrices() const;
-	std::span<Matrix> GetHierarchyWorldMatrices(std::span<Matrix>) const;*/
-
-	Matrix myLocalMatrix;
-	std::string myName;
-	Transform* myParent = nullptr;
-	std::vector<Ptr> myChildren;
+	Matrix myLocalMatrix{};
+	std::string myName{};
+	Transform* myParent{ nullptr };
+	std::vector<Ptr> myChildren{};
 };
 
 namespace ImGui

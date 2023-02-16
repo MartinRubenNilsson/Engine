@@ -77,11 +77,15 @@
     <ClInclude Include="RenderTargets.h">
       <Filter>graphics</Filter>
     </ClInclude>
-    <ClInclude Include="Renderer.h" />
     <ClInclude Include="ShaderCommon.h">
       <Filter>graphics</Filter>
     </ClInclude>
-    <ClInclude Include="Pixel.h" />
+    <ClInclude Include="Renderer.h">
+      <Filter>graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Pixel.h">
+      <Filter>graphics</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
@@ -157,8 +161,12 @@
     <ClCompile Include="RenderTargets.cpp">
       <Filter>graphics</Filter>
     </ClCompile>
-    <ClCompile Include="Renderer.cpp" />
-    <ClCompile Include="Pixel.cpp" />
+    <ClCompile Include="Pixel.cpp">
+      <Filter>graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer.cpp">
+      <Filter>graphics</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="graphics">

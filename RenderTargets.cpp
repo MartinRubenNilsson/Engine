@@ -58,6 +58,16 @@ void RenderTargets::Clear()
 		DX11_CONTEXT->ClearRenderTargetView(target.Get(), color);
 }
 
+TexturePtr RenderTargets::GetTexture(size_t anIndex) const
+{
+	return anIndex < myTextures.size() ? myTextures[anIndex] : nullptr;
+}
+
+RenderTargetPtr RenderTargets::GetRenderTarget(size_t anIndex) const
+{
+	return anIndex < myRenderTargets.size() ? myRenderTargets[anIndex] : nullptr;
+}
+
 RenderTargets::operator bool() const
 {
 	return SUCCEEDED(myResult);

@@ -8,6 +8,9 @@ public:
 
 	void Clear();
 
+	TexturePtr GetTexture(size_t anIndex) const;
+	RenderTargetPtr GetRenderTarget(size_t anIndex) const;
+
 	operator std::span<const TexturePtr>() const { return myTextures; }
 	operator std::span<const RenderTargetPtr>() const { return myRenderTargets; }
 	operator std::span<const ShaderResourcePtr>() const { return myShaderResources; }
