@@ -33,6 +33,12 @@ Mesh::Mesh(const aiMesh& aMesh)
 
 	myVertexBuffer = { std::span{ vertices } };
 	myIndexBuffer = { std::span{ indices } };
+
+	BoundingBox::CreateFromPoints(
+		myBoundingBox,
+		{ aMesh.mAABB.mMin.x, aMesh.mAABB.mMin.y, aMesh.mAABB.mMin.z },
+		{ aMesh.mAABB.mMax.x, aMesh.mAABB.mMax.y, aMesh.mAABB.mMax.z }
+	);
 }
 
 void Mesh::SetBuffers() const
@@ -56,6 +62,11 @@ unsigned Mesh::GetIndexCount() const
 	return myIndexBuffer.GetIndexCount();
 }
 
+const BoundingBox& Mesh::GetBoundingBox() const
+{
+	return myBoundingBox;
+}
+
 Mesh::operator bool() const
 {
 	return myVertexBuffer && myIndexBuffer;
@@ -67,7 +78,11 @@ Mesh::operator bool() const
 
 void ImGui::InspectMesh(const Mesh& aMesh)
 {
+	auto& box = aMesh.GetBoundingBox();
+
 	Text("Name: %s", aMesh.GetName().data());
 	Value("Vertices", aMesh.GetVertexCount());
 	Value("Indices", aMesh.GetIndexCount());
+	Text("Center: (%.3g, %.3g, %.3g)", box.Center.x, box.Center.y, box.Center.z);
+	Text("Extents: (%.3g, %.3g, %.3g)", box.Extents.x, box.Extents.y, box.Extents.z);
 }

@@ -95,9 +95,12 @@ std::shared_ptr<const Scene> SceneManager::GetScene(const fs::path& aPath)
     if (itr != myScenes.end())
         return itr->second;
 
+    constexpr unsigned flags =
+        aiProcess_ConvertToLeftHanded |
+        aiProcessPreset_TargetRealtime_MaxQuality |
+        static_cast<unsigned>(aiProcess_GenBoundingBoxes);
+    
     Assimp::Importer importer{};
-    unsigned flags = aiProcess_ConvertToLeftHanded | aiProcessPreset_TargetRealtime_MaxQuality;
-
     const aiScene* importedScene = importer.ReadFile(aPath.string().c_str(), flags);
     if (!importedScene)
         return nullptr;

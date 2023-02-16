@@ -34,7 +34,10 @@ using Microsoft::WRL::ComPtr;
 // dx11
 #include <dxgi.h>
 #include <d3d11.h>
+#include <DirectXMath.h>
+#include <DirectXCollision.h>
 #include <directxtk/simplemath/SimpleMath.h>
+using namespace DirectX;
 using namespace DirectX::SimpleMath;
 
 using SwapChainPtr = ComPtr<IDXGISwapChain>;
