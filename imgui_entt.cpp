@@ -4,6 +4,7 @@
 #include "Mesh.h"
 #include "Material.h"
 #include "Camera.h"
+#include "Light.h"
 
 void ImGui::Inspector(entt::handle aHandle)
 {
@@ -29,6 +30,12 @@ void ImGui::Inspector(entt::handle aHandle)
 	{
 		if (CollapsingHeader("Camera", ImGuiTreeNodeFlags_DefaultOpen))
 			InspectCamera(*camera);
+	}
+
+	if (auto light = aHandle.try_get<Light>())
+	{
+		if (CollapsingHeader("Light", ImGuiTreeNodeFlags_DefaultOpen))
+			InspectLight(*light);
 	}
 }
 
