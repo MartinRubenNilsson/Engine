@@ -32,8 +32,8 @@ Light::Light(const aiLight& aLight)
 		std::memcpy(&light.position, &aLight.mPosition, sizeof(aiVector3D));
 		std::memcpy(&light.direction, &aLight.mDirection, sizeof(aiVector3D));
 		light.parameters = { 5.0f, aLight.mAttenuationConstant, aLight.mAttenuationLinear, aLight.mAttenuationQuadratic };
-		light.innerAngle = aLight.mAngleInnerCone;
 		light.outerAngle = aLight.mAngleOuterCone;
+		light.innerAngle = aLight.mAngleInnerCone;
 		SetLight(light);
 		break;
 	}
@@ -79,9 +79,34 @@ void Light::SetLight(SpotLight aLight)
 
 void ImGui::InspectLight(Light& aLight)
 {
+	auto type{ static_cast<int>(aLight.GetType()) };
+	Combo("Type", &type, "Directional\0Point\0Spot\0\0");
+
 	{
 		Color color = aLight.GetColor();
-		ImGui::ColorEdit3("Color", &color.x);
+		ColorEdit3("Color", &color.x);
 		aLight.SetColor(color);
+	}
+
+	switch (aLight.GetType())
+	{
+	case LightType::Point:
+	{
+		auto light{ aLight.GetLight<PointLight>() };
+		DragFloat("Range", &light.parameters.x, 0.1f, 0.f, FLT_MAX);
+		DragFloat3("Attenuation", &light.parameters.y, 0.1f, 0.f, FLT_MAX);
+		aLight.SetLight(light);
+		break;
+	}
+	case LightType::Spot:
+	{
+		auto light{ aLight.GetLight<SpotLight>() };
+		DragFloat("Range", &light.parameters.x, 0.1f, 0.f, FLT_MAX);
+		DragFloat3("Attenuation", &light.parameters.y, 0.1f, 0.f, FLT_MAX);
+		DragFloat("Outer Angle", &light.outerAngle, 0.01f, 0.f, XM_PIDIV2);
+		DragFloat("Inner Angle", &light.innerAngle, 0.01f, 0.f, light.outerAngle);
+		aLight.SetLight(light);
+		break;
+	}
 	}
 }
