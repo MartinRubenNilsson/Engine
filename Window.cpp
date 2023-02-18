@@ -1,43 +1,38 @@
 #include "pch.h"
 #include "Window.h"
 
-
-// WindowClass
-
-WindowClass::WindowClass(WNDPROC aWndProc)
-	: WNDCLASS{}
+ATOM Window::Register(WNDPROC aWndProc)
 {
-	lpfnWndProc = aWndProc;
-	hInstance = GetModuleHandle(NULL);
-	lpszClassName = L"Window";
+	WNDCLASS wndClass{};
+	wndClass.style = 0;
+	wndClass.lpfnWndProc = aWndProc;
+	wndClass.cbClsExtra = 0;
+	wndClass.cbWndExtra = 0;
+	wndClass.hInstance = GetModuleHandle(NULL);
+	wndClass.hIcon = NULL;
+	wndClass.hCursor = NULL;
+	wndClass.hbrBackground = NULL;
+	wndClass.lpszMenuName = NULL;
+	wndClass.lpszClassName = L"Window";
 
-	RegisterClass(this);
+	return RegisterClass(&wndClass);
 }
 
-WindowClass::~WindowClass()
+Window::Window()
+	: myWindow{ nullptr, DestroyWindow }
 {
-	UnregisterClass(lpszClassName, hInstance);
-}
-
-
-// Window
-
-Window::Window(const WNDCLASS& aClass)
-	: myWindow{ CreateWindowEx(
+	myWindow.reset(CreateWindowEx(
 		WS_EX_ACCEPTFILES,
-		aClass.lpszClassName,
+		L"Window",
 		NULL,
 		WS_OVERLAPPEDWINDOW | WS_VISIBLE,
-		CW_USEDEFAULT,
-		CW_USEDEFAULT,
-		CW_USEDEFAULT,
-		CW_USEDEFAULT,
+		CW_USEDEFAULT, CW_USEDEFAULT,
+		CW_USEDEFAULT, CW_USEDEFAULT,
 		NULL,
 		NULL,
-		aClass.hInstance,
+		GetModuleHandle(NULL),
 		NULL
-	), DestroyWindow }
-{
+	));
 }
 
 void Window::SetTitle(std::wstring_view aString)
@@ -58,4 +53,9 @@ RECT Window::GetClientRect() const
 	RECT rect{};
 	::GetClientRect(myWindow.get(), &rect);
 	return rect;
+}
+
+Window::operator bool() const
+{
+	return myWindow.operator bool();
 }

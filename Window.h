@@ -1,22 +1,18 @@
 #pragma once
 
-struct WindowClass : WNDCLASS
-{
-	WindowClass(WNDPROC);
-	~WindowClass();
-};
-
 class Window
 {
 public:
-	Window(const WNDCLASS&);
+	static ATOM Register(WNDPROC);
+
+	Window();
 
 	void SetTitle(std::wstring_view);
 	std::wstring GetTitle() const;
 	RECT GetClientRect() const;
 
 	operator HWND() const { return myWindow.get(); }
-	explicit operator bool() const { return myWindow.operator bool(); }
+	explicit operator bool() const;
 
 private:
 	using Element = std::remove_pointer_t<HWND>;

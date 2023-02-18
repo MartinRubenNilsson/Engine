@@ -29,8 +29,10 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
         fs::current_path(modulePath.remove_filename());
     }
 
-    WindowClass windowClass{ WndProc };
-    Window window{ windowClass };
+    if (!Window::Register(WndProc))
+        return EXIT_FAILURE;
+
+    Window window{};
     if (!window)
         return EXIT_FAILURE;
 
