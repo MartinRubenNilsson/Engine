@@ -6,9 +6,6 @@
       <Filter>graphics</Filter>
     </ClInclude>
     <ClInclude Include="Debug.h" />
-    <ClInclude Include="Shader.h">
-      <Filter>graphics</Filter>
-    </ClInclude>
     <ClInclude Include="DearImGui.h">
       <Filter>imgui</Filter>
     </ClInclude>
@@ -41,9 +38,6 @@
     </ClInclude>
     <ClInclude Include="Singleton.h" />
     <ClInclude Include="InputLayoutManager.h">
-      <Filter>graphics\managers</Filter>
-    </ClInclude>
-    <ClInclude Include="StateManager.h">
       <Filter>graphics\managers</Filter>
     </ClInclude>
     <ClInclude Include="FullscreenPass.h">
@@ -89,6 +83,12 @@
     <ClInclude Include="Light.h">
       <Filter>objects</Filter>
     </ClInclude>
+    <ClInclude Include="StateFactory.h">
+      <Filter>graphics\factories</Filter>
+    </ClInclude>
+    <ClInclude Include="Shader.h">
+      <Filter>graphics\factories</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
@@ -97,9 +97,6 @@
       <Filter>graphics</Filter>
     </ClCompile>
     <ClCompile Include="Debug.cpp" />
-    <ClCompile Include="Shader.cpp">
-      <Filter>graphics</Filter>
-    </ClCompile>
     <ClCompile Include="DearImGui.cpp">
       <Filter>imgui</Filter>
     </ClCompile>
@@ -131,9 +128,6 @@
       <Filter>objects</Filter>
     </ClCompile>
     <ClCompile Include="InputLayoutManager.cpp">
-      <Filter>graphics\managers</Filter>
-    </ClCompile>
-    <ClCompile Include="StateManager.cpp">
       <Filter>graphics\managers</Filter>
     </ClCompile>
     <ClCompile Include="FullscreenPass.cpp">
@@ -173,6 +167,12 @@
     <ClCompile Include="Light.cpp">
       <Filter>objects</Filter>
     </ClCompile>
+    <ClCompile Include="StateFactory.cpp">
+      <Filter>graphics\factories</Filter>
+    </ClCompile>
+    <ClCompile Include="Shader.cpp">
+      <Filter>graphics\factories</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="graphics">
@@ -201,6 +201,9 @@
     </Filter>
     <Filter Include="shaders\lights">
       <UniqueIdentifier>{ff3380cb-75a3-4a1c-894d-50ec2b167785}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="graphics\factories">
+      <UniqueIdentifier>{2ab3bd79-3b21-4cf0-8d97-b8c85aff6897}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

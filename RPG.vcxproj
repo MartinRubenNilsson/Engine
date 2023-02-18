@@ -210,7 +210,7 @@
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="ShaderCommon.h" />
-    <ClInclude Include="StateManager.h" />
+    <ClInclude Include="StateFactory.h" />
     <ClInclude Include="Scene.h" />
     <ClInclude Include="Scopes.h" />
     <ClInclude Include="Shader.h" />
@@ -249,7 +249,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="StateManager.cpp" />
+    <ClCompile Include="StateFactory.cpp" />
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="Scopes.cpp" />
     <ClCompile Include="Shader.cpp" />

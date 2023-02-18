@@ -47,7 +47,7 @@ private:
 	ComPtr<ID3D11PixelShader> myShader{};
 };
 
-class ShaderManager : public Singleton<ShaderManager>
+class ShaderFactory : public Singleton<ShaderFactory>
 {
 public:
 	template <class T>
@@ -58,7 +58,7 @@ private:
 };
 
 template<class T>
-inline std::shared_ptr<const T> ShaderManager::GetShader(const fs::path& aPath)
+inline std::shared_ptr<const T> ShaderFactory::GetShader(const fs::path& aPath)
 {
 	static_assert(std::is_base_of_v<Shader, T>);
 
@@ -82,6 +82,6 @@ inline std::shared_ptr<const T> ShaderManager::GetShader(const fs::path& aPath)
 	return shader;
 }
 
-#define VERTEX_SHADER(aPath) ShaderManager::Get().GetShader<VertexShader>(aPath)
-#define PIXEL_SHADER(aPath) ShaderManager::Get().GetShader<PixelShader>(aPath)
+#define VERTEX_SHADER(aPath) ShaderFactory::Get().GetShader<VertexShader>(aPath)
+#define PIXEL_SHADER(aPath) ShaderFactory::Get().GetShader<PixelShader>(aPath)
 

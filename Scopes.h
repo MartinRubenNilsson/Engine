@@ -47,7 +47,7 @@ public:
 	~ScopedRasterizerState();
 
 private:
-	D3D11_RASTERIZER_DESC myPreviousDesc{ CD3D11_RASTERIZER_DESC{ CD3D11_DEFAULT{} } };
+	RasterizerStatePtr myRasterizerState{};
 };
 
 class ScopedSamplerStates : Scope
@@ -57,8 +57,10 @@ public:
 	~ScopedSamplerStates();
 
 private:
-	UINT myStartSlot;
-	std::vector<D3D11_SAMPLER_DESC> myPreviousDescs;
+	ScopedSamplerStates(UINT aStartSlot, const std::vector<ID3D11SamplerState*>& someStates);
+
+	UINT myStartSlot{};
+	std::vector<ID3D11SamplerState*> myStates{};
 };
 
 class ScopedDepthStencilState : Scope
@@ -68,8 +70,6 @@ public:
 	~ScopedDepthStencilState();
 
 private:
-	ScopedDepthStencilState(DepthStencilStatePtr aState, UINT aStencilRef);
-
 	DepthStencilStatePtr myState{};
 	UINT myStencilRef{};
 };
@@ -81,11 +81,9 @@ public:
 	~ScopedBlendState();
 
 private:
-	ScopedBlendState(BlendStatePtr aState, const FLOAT aBlendFactor[4], UINT aSampleMask);
-
 	BlendStatePtr myState{};
-	FLOAT myBlendFactor[4]{ 1.f, 1.f, 1.f, 1.f };
-	UINT mySampleMask{ 0xffffffff };
+	FLOAT myBlendFactor[4]{};
+	UINT mySampleMask{};
 };
 
 class ScopedRenderTargets : Scope

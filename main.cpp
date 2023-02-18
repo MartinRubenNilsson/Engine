@@ -2,7 +2,7 @@
 #include "Window.h"
 #include "Drop.h"
 #include "DearImGui.h"
-#include "StateManager.h"
+#include "StateFactory.h"
 #include "InputLayoutManager.h"
 #include "BackBuffer.h"
 #include "Renderer.h"
@@ -51,8 +51,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
     if (!constantBufferMgr)
         return EXIT_FAILURE;
 
-    StateManager stateMgr{};
-    ShaderManager shaderMgr{};
+    StateFactory stateFactory{};
+    ShaderFactory shaderFactory{};
 
     BackBuffer backBuffer{ window };
     if (!backBuffer)

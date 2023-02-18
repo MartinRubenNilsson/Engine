@@ -33,21 +33,18 @@ namespace std
 	SPECIALIZE_EQUAL_TO(D3D11_BLEND_DESC)
 }
 
-class StateManager : public Singleton<StateManager>
+class StateFactory : public Singleton<StateFactory>
 {
 public:
-	void SetRasterizerState(const D3D11_RASTERIZER_DESC& aDesc);
-	void GetRasterizerState(D3D11_RASTERIZER_DESC& aDesc) const;
-	void SetSamplerStates(UINT aStartSlot, std::span<const D3D11_SAMPLER_DESC> someDescs);
-	void GetSamplerStates(UINT aStartSlot, std::span<D3D11_SAMPLER_DESC> someDescs) const;
-
+	RasterizerStatePtr	 GetRasterizerState(const D3D11_RASTERIZER_DESC&);
+	SamplerStatePtr		 GetSamplerState(const D3D11_SAMPLER_DESC&);
 	DepthStencilStatePtr GetDepthStencilState(const D3D11_DEPTH_STENCIL_DESC&);
-	BlendStatePtr GetBlendState(const D3D11_BLEND_DESC&);
+	BlendStatePtr		 GetBlendState(const D3D11_BLEND_DESC&);
 
 private:
-	std::unordered_map<D3D11_RASTERIZER_DESC, ComPtr<ID3D11RasterizerState>> myRasterizerStates;
-	std::unordered_map<D3D11_SAMPLER_DESC, ComPtr<ID3D11SamplerState>> mySamplerStates;
+	std::unordered_map<D3D11_RASTERIZER_DESC,	 RasterizerStatePtr>   myRasterizerStates;
+	std::unordered_map<D3D11_SAMPLER_DESC,	     SamplerStatePtr>	   mySamplerStates;
 	std::unordered_map<D3D11_DEPTH_STENCIL_DESC, DepthStencilStatePtr> myDepthStencilStates;
-	std::unordered_map<D3D11_BLEND_DESC, BlendStatePtr> myBlendStates;
+	std::unordered_map<D3D11_BLEND_DESC,		 BlendStatePtr>		   myBlendStates;
 };
 

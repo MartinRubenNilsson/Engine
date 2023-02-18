@@ -1,7 +1,20 @@
 #include "pch.h"
 #include "Scopes.h"
 #include "InputLayoutManager.h"
-#include "StateManager.h"
+#include "StateFactory.h"
+
+namespace
+{
+	template <class T>
+	void ReleaseAll(const std::vector<T*>& somePtrs)
+	{
+		for (T* ptr : somePtrs)
+		{
+			if (ptr)
+				ptr->Release();
+		}
+	}
+}
 
 /*
 * class ScopedPrimitiveTopology
@@ -71,13 +84,13 @@ ScopedShader::~ScopedShader()
 
 ScopedRasterizerState::ScopedRasterizerState(const D3D11_RASTERIZER_DESC& aDesc)
 {
-	StateManager::Get().GetRasterizerState(myPreviousDesc);
-	StateManager::Get().SetRasterizerState(aDesc);
+	DX11_CONTEXT->RSGetState(&myRasterizerState);
+	DX11_CONTEXT->RSSetState(StateFactory::Get().GetRasterizerState(aDesc).Get());
 }
 
 ScopedRasterizerState::~ScopedRasterizerState()
 {
-	StateManager::Get().SetRasterizerState(myPreviousDesc);
+	DX11_CONTEXT->RSSetState(myRasterizerState.Get());
 }
 
 /*
@@ -85,16 +98,30 @@ ScopedRasterizerState::~ScopedRasterizerState()
 */
 
 ScopedSamplerStates::ScopedSamplerStates(UINT aStartSlot, std::span<const D3D11_SAMPLER_DESC> someDescs)
-	: myStartSlot{ aStartSlot }
-	, myPreviousDescs{ someDescs.size(), CD3D11_SAMPLER_DESC{ CD3D11_DEFAULT{} } }
+	: ScopedSamplerStates{
+		aStartSlot,
+		someDescs
+			| std::views::transform([](auto& desc) { return StateFactory::Get().GetSamplerState(desc).Get(); })
+			| std::ranges::to<std::vector>()
+	}
 {
-	StateManager::Get().GetSamplerStates(myStartSlot, myPreviousDescs);
-	StateManager::Get().SetSamplerStates(aStartSlot, someDescs);
+}
+
+ScopedSamplerStates::ScopedSamplerStates(UINT aStartSlot, const std::vector<ID3D11SamplerState*>& someStates)
+	: myStartSlot{ aStartSlot }
+	, myStates{ someStates.size(), nullptr }
+{
+	assert(aStartSlot < D3D11_COMMONSHADER_SAMPLER_SLOT_COUNT);
+	assert(aStartSlot + someStates.size() <= D3D11_COMMONSHADER_SAMPLER_SLOT_COUNT);
+	
+	DX11_CONTEXT->PSGetSamplers(myStartSlot, (UINT)myStates.size(), myStates.data());
+	DX11_CONTEXT->PSSetSamplers(aStartSlot, (UINT)someStates.size(), someStates.data());
 }
 
 ScopedSamplerStates::~ScopedSamplerStates()
 {
-	StateManager::Get().SetSamplerStates(myStartSlot, myPreviousDescs);
+	DX11_CONTEXT->PSSetSamplers(myStartSlot, (UINT)myStates.size(), myStates.data());
+	ReleaseAll(myStates);
 }
 
 /*
@@ -102,19 +129,29 @@ ScopedSamplerStates::~ScopedSamplerStates()
 */
 
 ScopedDepthStencilState::ScopedDepthStencilState(const D3D11_DEPTH_STENCIL_DESC& aDesc, UINT aStencilRef)
-	: ScopedDepthStencilState{ StateManager::Get().GetDepthStencilState(aDesc), aStencilRef }
-{
-}
-
-ScopedDepthStencilState::ScopedDepthStencilState(DepthStencilStatePtr aState, UINT aStencilRef)
 {
 	DX11_CONTEXT->OMGetDepthStencilState(&myState, &myStencilRef);
-	DX11_CONTEXT->OMSetDepthStencilState(aState.Get(), aStencilRef);
+	DX11_CONTEXT->OMSetDepthStencilState(StateFactory::Get().GetDepthStencilState(aDesc).Get(), aStencilRef);
 }
 
 ScopedDepthStencilState::~ScopedDepthStencilState()
 {
 	DX11_CONTEXT->OMSetDepthStencilState(myState.Get(), myStencilRef);
+}
+
+/*
+* class ScopedBlendState
+*/
+
+ScopedBlendState::ScopedBlendState(const D3D11_BLEND_DESC& aDesc, const FLOAT aBlendFactor[4], UINT aSampleMask)
+{
+	DX11_CONTEXT->OMGetBlendState(&myState, myBlendFactor, &mySampleMask);
+	DX11_CONTEXT->OMSetBlendState(StateFactory::Get().GetBlendState(aDesc).Get(), aBlendFactor, aSampleMask);
+}
+
+ScopedBlendState::~ScopedBlendState()
+{
+	DX11_CONTEXT->OMSetBlendState(myState.Get(), myBlendFactor, mySampleMask);
 }
 
 /*
@@ -216,24 +253,4 @@ ScopedShaderResources::~ScopedShaderResources()
 	std::vector<ID3D11ShaderResourceView*> views{ myPreviousResources.size() };
 	std::ranges::transform(myPreviousResources, views.begin(), &ShaderResourcePtr::Get);
 	std::invoke(mySetter, DX11_CONTEXT, myStartSlot, (UINT)views.size(), views.data());
-}
-
-/*
-* class ScopedBlendState
-*/
-
-ScopedBlendState::ScopedBlendState(const D3D11_BLEND_DESC& aDesc, const FLOAT aBlendFactor[4], UINT aSampleMask)
-	: ScopedBlendState{ StateManager::Get().GetBlendState(aDesc), aBlendFactor, aSampleMask }
-{
-}
-
-ScopedBlendState::ScopedBlendState(BlendStatePtr aState, const FLOAT aBlendFactor[4], UINT aSampleMask)
-{
-	DX11_CONTEXT->OMGetBlendState(&myState, myBlendFactor, &mySampleMask);
-	DX11_CONTEXT->OMSetBlendState(aState.Get(), aBlendFactor, aSampleMask);
-}
-
-ScopedBlendState::~ScopedBlendState()
-{
-	DX11_CONTEXT->OMSetBlendState(myState.Get(), myBlendFactor, mySampleMask);
 }
