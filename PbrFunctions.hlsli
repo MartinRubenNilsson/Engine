@@ -27,12 +27,16 @@ float SmithHammonGGX(float NdL, float NdV, float alpha)
 // This value is multiplied by the incoming radiance to get the outgoing radiance.
 float3 BrdfDotGGX(float3 L, float3 V, float3 N, float3 aSurfaceColor, float aMetallic, float aRoughness)
 {
+    const float NdL = dot(N, L);
+    const float NdV = dot(N, V);
+    
+    if (NdL <= 0.0 || NdV <= 0.0)
+        return float3(0.0, 0.0, 0.0);
+    
     const float3 H = normalize(L + V);
     const float LdV = max(dot(L, V), 0.0);
     const float LdH = max(dot(L, H), 0.0);
     const float NdH = max(dot(N, H), 0.0);
-    const float NdL = max(dot(N, L), EPSILON);
-    const float NdV = max(dot(N, V), EPSILON);
     
     const float3 specularColor = lerp(0.04, aSurfaceColor, aMetallic); // 0.04 = default dielectric F0
     const float3 diffuseColor = lerp(aSurfaceColor, 0.0, aMetallic);

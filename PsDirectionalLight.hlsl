@@ -9,7 +9,7 @@ float4 main(float4 aPixelPosition : SV_Position) : SV_TARGET
     
     const float4 pixelNormal = GBufferPixelNormal.Sample(DefaultSampler, uv);
     if (!any(pixelNormal))
-        discard;
+        return float4(0.f, 0.f, 0.f, 1.f);
     
     const float4 worldPosition = GBufferWorldPosition.Sample(DefaultSampler, uv);
     const float4 albedo = GBufferAlbedo.Sample(DefaultSampler, uv);
