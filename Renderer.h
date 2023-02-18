@@ -29,6 +29,7 @@ private:
 	void TonemapAndGammaCorrect();
 
 	void RenderDirectionalLights(std::span<const DirectionalLight>);
+	void RenderPointLights(std::span<const PointLight>);
 
 	DepthBuffer myDepthBuffer{};
 	RenderTargets myGeometryBuffer{};

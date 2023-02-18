@@ -65,7 +65,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
     SceneManager sceneMgr{};
 
     Matrix cameraTransform;
-    const float cameraDistance = 20.f;
+    const float cameraDistance = 0.2f;
     cameraTransform.Translation({ 0.f, 0.f, -cameraDistance });
 
     entt::registry registry{};

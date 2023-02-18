@@ -210,9 +210,6 @@
     <FxCompile Include="VsFullscreenPass.hlsl">
       <Filter>shaders</Filter>
     </FxCompile>
-    <FxCompile Include="PsPbr.hlsl">
-      <Filter>shaders</Filter>
-    </FxCompile>
     <FxCompile Include="VsSkybox.hlsl">
       <Filter>shaders</Filter>
     </FxCompile>
@@ -247,6 +244,9 @@
       <Filter>shaders</Filter>
     </FxCompile>
     <FxCompile Include="PsDirectionalLight.hlsl">
+      <Filter>shaders\lights</Filter>
+    </FxCompile>
+    <FxCompile Include="PsPointLight.hlsl">
       <Filter>shaders\lights</Filter>
     </FxCompile>
   </ItemGroup>

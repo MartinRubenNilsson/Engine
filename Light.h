@@ -45,6 +45,8 @@ public:
 	template <class T>       T& GetLight()		 { return std::get<T>(myLight); }
 	template <class T> const T& GetLight() const { return std::get<T>(myLight); }
 
+	bool enabled{ true };
+
 private:
 	std::variant<DirectionalLight, PointLight, SpotLight> myLight{};
 };

@@ -53,7 +53,8 @@ Light::Light(const aiLight& aLight)
 		break;
 	}
 	default:
-		assert(false);
+		Debug::Println("Warning: Unrecognized light type");
+		break;
 	}
 }
 
@@ -119,6 +120,8 @@ void ImGui::InspectSpotLight(SpotLight& aLight)
 
 void ImGui::InspectLight(Light& aLight)
 {
+	Checkbox("Enabled", &aLight.enabled);
+
 	auto type{ static_cast<int>(aLight.GetType()) };
 	Combo("Type", &type, "Directional\0Point\0Spot\0\0");
 
@@ -133,7 +136,5 @@ void ImGui::InspectLight(Light& aLight)
 	case LightType::Spot:
 		InspectSpotLight(aLight.GetLight<SpotLight>());
 		break;
-	default:
-		assert(false);
 	}
 }

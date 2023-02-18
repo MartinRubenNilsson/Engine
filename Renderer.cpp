@@ -122,7 +122,7 @@ void Renderer::RenderGeometry(entt::registry& aRegistry)
 	ScopedShader scopedPs{ PIXEL_SHADER("PsGBuffer.cso") };
 	ScopedRenderTargets scopedTargets{ myGeometryBuffer, myDepthBuffer };
 
-	auto view = aRegistry.view<Material::Ptr, Mesh::Ptr, Transform::Ptr>();
+	auto view = aRegistry.view<const Material::Ptr, const Mesh::Ptr, const Transform::Ptr>();
 	for (auto [entity, material, mesh, transform] : view.each())
 	{
 		ScopedShaderResources scopedResources{ ShaderType::Pixel, 10, *material }; // TODO: turn hardcoded 10 into am acro
@@ -143,20 +143,33 @@ void Renderer::RenderGeometry(entt::registry& aRegistry)
 void Renderer::RenderLightning(entt::registry& aRegistry)
 {
 	std::vector<DirectionalLight> dLights{};
+	std::vector<PointLight> pLights{};
 
-	for (auto [_, transform, light] : aRegistry.view<Transform::Ptr, Light>().each())
+	auto view = aRegistry.view<const Light, const Transform::Ptr>();
+	for (auto [entity, light, transform] : view.each())
 	{
-		Matrix worldMatrix = transform->GetWorldMatrix();
+		if (!light.enabled)
+			continue;
+
+		const Matrix worldMatrix{ transform->GetWorldMatrix() };
+
+		// todo: culling
 
 		switch (light.GetType())
 		{
 		case LightType::Directional:
 		{
-			auto dLight{ light.GetLight<DirectionalLight>() };
+			auto& dLight{ dLights.emplace_back(light.GetLight<DirectionalLight>()) };
 			dLight.color.Premultiply();
 			dLight.direction = Vector3::TransformNormal(dLight.direction, worldMatrix);
 			dLight.direction.Normalize();
-			dLights.push_back(dLight);
+			break;
+		}
+		case LightType::Point:
+		{
+			auto& pLight{ pLights.emplace_back(light.GetLight<PointLight>()) };
+			pLight.color.Premultiply();
+			pLight.position = Vector3::Transform(pLight.position, worldMatrix);
 			break;
 		}
 		}
@@ -166,6 +179,7 @@ void Renderer::RenderLightning(entt::registry& aRegistry)
 	ScopedRenderTargets scopedTargets{ myLightningBuffer };
 
 	RenderDirectionalLights(dLights);
+	RenderPointLights(pLights);
 }
 
 void Renderer::RenderSkybox()
@@ -209,6 +223,22 @@ void Renderer::RenderDirectionalLights(std::span<const DirectionalLight> someLig
 		LightBuffer buffer{};
 		buffer.lightColor = light.color;
 		buffer.lightDirection = { light.direction.x, light.direction.y, light.direction.z, 0.f };
+		myLightBuffer.WriteToBuffer(&buffer);
+
+		lightPass.Render();
+	}
+}
+
+void Renderer::RenderPointLights(std::span<const PointLight> someLights)
+{
+	FullscreenPass lightPass{ PIXEL_SHADER("PsPointLight.cso") };
+
+	for (auto& light : someLights)
+	{
+		LightBuffer buffer{};
+		buffer.lightColor = light.color;
+		buffer.lightPosition = { light.position.x, light.position.y, light.position.z, 1.f };
+		buffer.lightParameters = light.parameters;
 		myLightBuffer.WriteToBuffer(&buffer);
 
 		lightPass.Render();
