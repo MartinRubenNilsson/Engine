@@ -4,6 +4,7 @@
 #include "Material.h"
 #include "Mesh.h"
 #include "Transform.h"
+#include "Light.h"
 #include "FullscreenPass.h"
 
 Renderer::Renderer(unsigned aWidth, unsigned aHeight)
@@ -16,6 +17,12 @@ Renderer::Renderer(unsigned aWidth, unsigned aHeight)
 
 	myMeshBuffer.VSSetBuffer(CBUFFER_SLOT_MESH);
 	myMeshBuffer.PSSetBuffer(CBUFFER_SLOT_MESH);
+
+	myLightBuffer = { sizeof(LightBuffer) };
+	if (!myLightBuffer)
+		return;
+	
+	myLightBuffer.PSSetBuffer(CBUFFER_SLOT_LIGHT);
 
 	myEntityPixel = { DXGI_FORMAT_R32_UINT };
 	if (!myEntityPixel)
@@ -75,7 +82,7 @@ void Renderer::Render(entt::registry& aRegistry)
 
 	ClearBuffers();
 	RenderGeometry(aRegistry);
-	RenderLightning();
+	RenderLightning(aRegistry);
 	RenderSkybox();
 	TonemapAndGammaCorrect();
 }
@@ -90,7 +97,9 @@ entt::entity Renderer::PickEntity(unsigned x, unsigned y)
 
 Renderer::operator bool() const
 {
-	return myDepthBuffer && myGeometryBuffer && myLightningBuffer && myMeshBuffer && myEntityPixel;
+	return
+		myDepthBuffer && myGeometryBuffer && myLightningBuffer &&
+		myMeshBuffer && myLightBuffer && myEntityPixel;
 }
 
 void Renderer::ClearBuffers()
@@ -131,12 +140,32 @@ void Renderer::RenderGeometry(entt::registry& aRegistry)
 	}
 }
 
-void Renderer::RenderLightning()
+void Renderer::RenderLightning(entt::registry& aRegistry)
 {
+	std::vector<DirectionalLight> dLights{};
+
+	for (auto [_, transform, light] : aRegistry.view<Transform::Ptr, Light>().each())
+	{
+		Matrix worldMatrix = transform->GetWorldMatrix();
+
+		switch (light.GetType())
+		{
+		case LightType::Directional:
+		{
+			auto dLight{ light.GetLight<DirectionalLight>() };
+			dLight.color.Premultiply();
+			dLight.direction = Vector3::TransformNormal(dLight.direction, worldMatrix);
+			dLight.direction.Normalize();
+			dLights.push_back(dLight);
+			break;
+		}
+		}
+	}
+
 	ScopedShaderResources scopedResources{ ShaderType::Pixel, 0, myGeometryBuffer };  // TODO: turn hardcoded 0 into am acro
 	ScopedRenderTargets scopedTargets{ myLightningBuffer };
 
-	FullscreenPass{ PIXEL_SHADER("PsPbr.cso") }.Render();
+	RenderDirectionalLights(dLights);
 }
 
 void Renderer::RenderSkybox()
@@ -170,3 +199,19 @@ void Renderer::TonemapAndGammaCorrect()
 		passes[pass].Render();
 	}
 }
+
+void Renderer::RenderDirectionalLights(std::span<const DirectionalLight> someLights)
+{
+	FullscreenPass lightPass{ PIXEL_SHADER("PsDirectionalLight.cso") };
+
+	for (auto& light : someLights)
+	{
+		LightBuffer buffer{};
+		buffer.lightColor = light.color;
+		buffer.lightDirection = { light.direction.x, light.direction.y, light.direction.z, 0.f };
+		myLightBuffer.WriteToBuffer(&buffer);
+
+		lightPass.Render();
+	}
+}
+

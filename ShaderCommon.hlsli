@@ -48,6 +48,15 @@ cbuffer MeshBuffer : register(b1)
     uint MeshEntity[4];
 }
 
+cbuffer LightBuffer : register(b2)
+{
+    float4 LightColor;      // (r, g, b, [unused])
+    float4 LightPosition;   // (x, y, z, 1)
+    float4 LightDirection;  // (x, y, z, 0)
+    float4 LightParameters; // (range, constant attn, linear attn, quadratic attn)
+    float4 LightConeAngles; // (inner, outer, [unused], [unused])
+};
+
 /*
 * Textures
 */

@@ -4,6 +4,7 @@
 #include "ConstantBuffer.h"
 #include "Pixel.h"
 #include "Cubemap.h"
+#include "Light.h"
 
 class Renderer
 {
@@ -23,14 +24,19 @@ public:
 private:
 	void ClearBuffers();
 	void RenderGeometry(entt::registry&);
-	void RenderLightning();
+	void RenderLightning(entt::registry&);
 	void RenderSkybox();
 	void TonemapAndGammaCorrect();
+
+	void RenderDirectionalLights(std::span<const DirectionalLight>);
 
 	DepthBuffer myDepthBuffer{};
 	RenderTargets myGeometryBuffer{};
 	RenderTargets myLightningBuffer{};
+
 	ConstantBuffer myMeshBuffer{};
+	ConstantBuffer myLightBuffer{};
+
 	Pixel myEntityPixel{};
 	Cubemap mySkybox{};
 };

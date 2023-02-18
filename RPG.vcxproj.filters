@@ -199,12 +199,15 @@
     <Filter Include="shaders\gbuffer">
       <UniqueIdentifier>{46ecd3c9-22e6-4560-a68b-88131e00d1c1}</UniqueIdentifier>
     </Filter>
+    <Filter Include="shaders\lights">
+      <UniqueIdentifier>{ff3380cb-75a3-4a1c-894d-50ec2b167785}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="VsBasic.hlsl">
       <Filter>shaders</Filter>
     </FxCompile>
-    <FxCompile Include="VsFullscreen.hlsl">
+    <FxCompile Include="VsFullscreenPass.hlsl">
       <Filter>shaders</Filter>
     </FxCompile>
     <FxCompile Include="PsPbr.hlsl">
@@ -242,6 +245,9 @@
     </FxCompile>
     <FxCompile Include="PsUintMax.hlsl">
       <Filter>shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="PsDirectionalLight.hlsl">
+      <Filter>shaders\lights</Filter>
     </FxCompile>
   </ItemGroup>
   <ItemGroup>

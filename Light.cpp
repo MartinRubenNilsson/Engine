@@ -1,6 +1,20 @@
 #include "pch.h"
 #include "Light.h"
 
+namespace
+{
+	void Unpremultiply(Color& aColor)
+	{
+		float rgbMax = std::max({ aColor.x, aColor.y, aColor.z });
+		if (rgbMax <= 1.f)
+			return;
+		aColor.x /= rgbMax;
+		aColor.y /= rgbMax;
+		aColor.z /= rgbMax;
+		aColor.w *= rgbMax;
+	}
+}
+
 /*
 * class Light
 */
@@ -33,8 +47,8 @@ Light::Light(const aiLight& aLight)
 		std::memcpy(&light.position, &aLight.mPosition, sizeof(aiVector3D));
 		std::memcpy(&light.direction, &aLight.mDirection, sizeof(aiVector3D));
 		light.parameters = { 5.0f, aLight.mAttenuationConstant, aLight.mAttenuationLinear, aLight.mAttenuationQuadratic };
-		light.outerAngle = aLight.mAngleOuterCone;
 		light.innerAngle = aLight.mAngleInnerCone;
+		light.outerAngle = aLight.mAngleOuterCone;
 		SetLight(light);
 		break;
 	}
@@ -43,9 +57,15 @@ Light::Light(const aiLight& aLight)
 	}
 }
 
+LightType Light::GetType() const
+{
+	return static_cast<LightType>(myLight.index());
+}
+
 void Light::SetLight(DirectionalLight aLight)
 {
 	aLight.color = Vector4::Max(aLight.color, Vector4::Zero);
+	Unpremultiply(aLight.color);
 	aLight.direction.Normalize();
 	myLight = aLight;
 }
@@ -53,6 +73,7 @@ void Light::SetLight(DirectionalLight aLight)
 void Light::SetLight(PointLight aLight)
 {
 	aLight.color = Vector4::Max(aLight.color, Vector4::Zero);
+	Unpremultiply(aLight.color);
 	aLight.parameters = Vector4::Max(aLight.parameters, Vector4::Zero);
 	myLight = aLight;
 }
@@ -60,6 +81,7 @@ void Light::SetLight(PointLight aLight)
 void Light::SetLight(SpotLight aLight)
 {
 	aLight.color = Vector4::Max(aLight.color, Vector4::Zero);
+	Unpremultiply(aLight.color);
 	aLight.direction.Normalize();
 	aLight.parameters = Vector4::Max(aLight.parameters, Vector4::Zero);
 	aLight.outerAngle = std::clamp(aLight.outerAngle, 0.f, XM_PIDIV2);
@@ -67,14 +89,33 @@ void Light::SetLight(SpotLight aLight)
 	myLight = aLight;
 }
 
-LightType Light::GetType() const
-{
-	return static_cast<LightType>(myLight.index());
-}
-
 /*
 * namespace ImGui
 */
+
+void ImGui::InspectDirectionalLight(DirectionalLight& aLight)
+{
+	ColorEdit3("Color", &aLight.color.x);
+	DragFloat("Intensity", &aLight.color.w, 0.1f, 0.f, FLT_MAX);
+}
+
+void ImGui::InspectPointLight(PointLight& aLight)
+{
+	ColorEdit3("Color", &aLight.color.x);
+	DragFloat("Intensity", &aLight.color.w, 0.1f, 0.f, FLT_MAX);
+	DragFloat("Range", &aLight.parameters.x, 0.1f, 0.f, FLT_MAX);
+	DragFloat3("Attenuation", &aLight.parameters.y, 0.1f, 0.f, FLT_MAX);
+}
+
+void ImGui::InspectSpotLight(SpotLight& aLight)
+{
+	ColorEdit3("Color", &aLight.color.x);
+	DragFloat("Intensity", &aLight.color.w, 0.1f, 0.f, FLT_MAX);
+	DragFloat("Range", &aLight.parameters.x, 0.1f, 0.f, FLT_MAX);
+	DragFloat3("Attenuation", &aLight.parameters.y, 0.1f, 0.f, FLT_MAX);
+	DragFloat("Outer Angle", &aLight.outerAngle, 0.01f, 0.f, XM_PIDIV2);
+	DragFloat("Inner Angle", &aLight.innerAngle, 0.01f, 0.f, aLight.outerAngle);
+}
 
 void ImGui::InspectLight(Light& aLight)
 {
@@ -84,31 +125,15 @@ void ImGui::InspectLight(Light& aLight)
 	switch (aLight.GetType())
 	{
 	case LightType::Directional:
-	{
-		auto light{ aLight.GetLight<DirectionalLight>() };
-		ColorEdit3("Color", &light.color.x);
-		aLight.SetLight(light);
+		InspectDirectionalLight(aLight.GetLight<DirectionalLight>());
 		break;
-	}
 	case LightType::Point:
-	{
-		auto light{ aLight.GetLight<PointLight>() };
-		ColorEdit3("Color", &light.color.x);
-		DragFloat("Range", &light.parameters.x, 0.1f, 0.f, FLT_MAX);
-		DragFloat3("Attenuation", &light.parameters.y, 0.1f, 0.f, FLT_MAX);
-		aLight.SetLight(light);
+		InspectPointLight(aLight.GetLight<PointLight>());
 		break;
-	}
 	case LightType::Spot:
-	{
-		auto light{ aLight.GetLight<SpotLight>() };
-		ColorEdit3("Color", &light.color.x);
-		DragFloat("Range", &light.parameters.x, 0.1f, 0.f, FLT_MAX);
-		DragFloat3("Attenuation", &light.parameters.y, 0.1f, 0.f, FLT_MAX);
-		DragFloat("Outer Angle", &light.outerAngle, 0.01f, 0.f, XM_PIDIV2);
-		DragFloat("Inner Angle", &light.innerAngle, 0.01f, 0.f, light.outerAngle);
-		aLight.SetLight(light);
+		InspectSpotLight(aLight.GetLight<SpotLight>());
 		break;
-	}
+	default:
+		assert(false);
 	}
 }
