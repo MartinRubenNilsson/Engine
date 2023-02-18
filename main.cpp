@@ -102,7 +102,9 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
         PerspectiveCamera perspective{};
         perspective.fovY = 1.04719755119f; // 60 degrees
         perspective.aspect = backBuffer.GetViewport().AspectRatio();
-        Camera camera{ perspective };
+
+        Camera camera{};
+        camera.SetPerspective(perspective);
 
         // ImGui
         {

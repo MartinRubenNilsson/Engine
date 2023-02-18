@@ -173,7 +173,7 @@ void Renderer::RenderLightning(entt::registry& aRegistry)
 		{
 		case LightType::Directional:
 		{
-			auto& dLight{ dLights.emplace_back(light.GetLight<DirectionalLight>()) };
+			auto& dLight{ dLights.emplace_back(light.Get<DirectionalLight>()) };
 			dLight.color.Premultiply();
 			dLight.direction = Vector3::TransformNormal(dLight.direction, worldMatrix);
 			dLight.direction.Normalize();
@@ -181,7 +181,7 @@ void Renderer::RenderLightning(entt::registry& aRegistry)
 		}
 		case LightType::Point:
 		{
-			auto& pLight{ pLights.emplace_back(light.GetLight<PointLight>()) };
+			auto& pLight{ pLights.emplace_back(light.Get<PointLight>()) };
 			pLight.color.Premultiply();
 			pLight.position = Vector3::Transform(pLight.position, worldMatrix);
 			break;

@@ -17,18 +17,14 @@ Matrix OrthographicCamera::GetProjectionMatrix() const
 * class Camera
 */
 
-Camera::Camera(const PerspectiveCamera& aCamera)
-	: myCamera{ aCamera }
-{
-}
-
-Camera::Camera(const OrthographicCamera& aCamera)
-	: myCamera{ aCamera }
-{
-}
-
 Camera::Camera(const aiCamera& aCamera)
 {
+	myViewMatrix = XMMatrixLookToLH(
+		{ aCamera.mPosition.x, aCamera.mPosition.y, aCamera.mPosition.z },
+		XMVector3Normalize({ aCamera.mLookAt.x, aCamera.mLookAt.y, aCamera.mLookAt.z }),
+		XMVector3Normalize({ aCamera.mUp.x, aCamera.mUp.y, aCamera.mUp.z })
+	);
+
 	if (aCamera.mOrthographicWidth == 0.f)
 	{
 		PerspectiveCamera camera{};
@@ -37,7 +33,7 @@ Camera::Camera(const aiCamera& aCamera)
 		camera.nearZ = aCamera.mClipPlaneNear;
 		camera.farZ = aCamera.mClipPlaneFar;
 
-		*this = Camera(camera);
+		SetPerspective(camera);
 	}
 	else
 	{
@@ -47,14 +43,13 @@ Camera::Camera(const aiCamera& aCamera)
 		camera.nearZ = aCamera.mClipPlaneNear;
 		camera.farZ = aCamera.mClipPlaneFar;
 
-		*this = Camera(camera);
+		SetOrthographic(camera);
 	}
+}
 
-	myViewMatrix = XMMatrixLookToLH(
-		{ aCamera.mPosition.x, aCamera.mPosition.y, aCamera.mPosition.z },
-		XMVector3Normalize({ aCamera.mLookAt.x, aCamera.mLookAt.y, aCamera.mLookAt.z }),
-		XMVector3Normalize({ aCamera.mUp.x, aCamera.mUp.y, aCamera.mUp.z })
-	);
+CameraType Camera::GetType() const
+{
+	return static_cast<CameraType>(myCamera.index());
 }
 
 const Matrix& Camera::GetViewMatrix() const
@@ -64,39 +59,21 @@ const Matrix& Camera::GetViewMatrix() const
 
 Matrix Camera::GetProjectionMatrix() const
 {
-	return IsPerspective() ?
+	return GetType() == CameraType::Perspective ?
 		std::get<PerspectiveCamera>(myCamera).GetProjectionMatrix() :
 		std::get<OrthographicCamera>(myCamera).GetProjectionMatrix();
 }
 
 void Camera::SetPerspective(const PerspectiveCamera& aCamera)
 {
+	// todo: validae values
 	myCamera = aCamera;
-}
-
-PerspectiveCamera Camera::GetPerspective() const
-{
-	return IsPerspective() ? std::get<PerspectiveCamera>(myCamera) : PerspectiveCamera{};
 }
 
 void Camera::SetOrthographic(const OrthographicCamera& aCamera)
 {
+	// todo: validae values
 	myCamera = aCamera;
-}
-
-OrthographicCamera Camera::GetOrthographic() const
-{
-	return IsOrthographic() ? std::get<OrthographicCamera>(myCamera) : OrthographicCamera{};
-}
-
-bool Camera::IsPerspective() const
-{
-	return std::holds_alternative<PerspectiveCamera>(myCamera);
-}
-
-bool Camera::IsOrthographic() const
-{
-	return std::holds_alternative<OrthographicCamera>(myCamera);
 }
 
 /*
@@ -105,32 +82,30 @@ bool Camera::IsOrthographic() const
 
 void ImGui::InspectCamera(class Camera& aCamera)
 {
-	{
-		int orthographic = aCamera.IsOrthographic();
-		if (Combo("Projection", &orthographic, "Perspective\0Orthographic\0\0"))
-			orthographic ? aCamera.SetOrthographic({}) : aCamera.SetPerspective({});
-	}
+	int type{ static_cast<int>(aCamera.GetType()) };
+	if (Combo("Type", &type, "Perspective\0Orthographic\0\0"))
+		type ? aCamera.SetOrthographic({}) : aCamera.SetPerspective({});
 
-	if (aCamera.IsPerspective())
+	switch (aCamera.GetType())
 	{
-		auto camera = aCamera.GetPerspective();
+	case CameraType::Perspective:
+	{
+		auto& camera{ aCamera.Get<PerspectiveCamera>() };
 		DragFloat("FoV", &camera.fovY, 0.01f);
 		DragFloat("Aspect", &camera.aspect, 0.01f);
 		DragFloat("Near Z", &camera.nearZ, 0.1f);
 		DragFloat("Far Z", &camera.farZ);
-
-		aCamera.SetPerspective(camera);
+		break;
 	}
-
-	if (aCamera.IsOrthographic())
+	case CameraType::Orthographic:
 	{
-		auto camera = aCamera.GetOrthographic();
+		auto& camera{ aCamera.Get<OrthographicCamera>() };
 		DragFloat("Width", &camera.width, 0.01f);
 		DragFloat("Height", &camera.height, 0.01f);
 		DragFloat("Near Z", &camera.nearZ, 0.1f);
 		DragFloat("Far Z", &camera.farZ);
-
-		aCamera.SetOrthographic(camera);
+		break;
+	}
 	}
 }
 
@@ -141,7 +116,7 @@ void ImGui::DrawCubes(const Camera& aCamera, const Matrix& aCameraTransform, std
 
 	Matrix view = aCameraTransform.Invert() * aCamera.GetViewMatrix();
 	Matrix proj = aCamera.GetProjectionMatrix();
-	ImGuizmo::SetOrthographic(aCamera.IsOrthographic());
+	ImGuizmo::SetOrthographic(aCamera.GetType() == CameraType::Orthographic);
 	ImGuizmo::DrawCubes(&view._11, &proj._11, &someCubeTransforms.front()._11, static_cast<int>(someCubeTransforms.size()));
 }
 
@@ -149,7 +124,7 @@ void ImGui::DrawGrid(const Camera& aCamera, const Matrix& aCameraTransform, cons
 {
 	Matrix view = aCameraTransform.Invert() * aCamera.GetViewMatrix();
 	Matrix proj = aCamera.GetProjectionMatrix();
-	ImGuizmo::SetOrthographic(aCamera.IsOrthographic());
+	ImGuizmo::SetOrthographic(aCamera.GetType() == CameraType::Orthographic);
 	ImGuizmo::DrawGrid(&view._11, &proj._11, &aGridTransform._11, aGridSize);
 }
 
@@ -157,7 +132,7 @@ bool ImGui::Manipulate(const Camera& aCamera, const Matrix& aCameraTransform, Im
 {
 	Matrix view = aCameraTransform.Invert() * aCamera.GetViewMatrix();
 	Matrix proj = aCamera.GetProjectionMatrix();
-	ImGuizmo::SetOrthographic(aCamera.IsOrthographic());
+	ImGuizmo::SetOrthographic(aCamera.GetType() == CameraType::Orthographic);
 	return ImGuizmo::Manipulate(&view._11, &proj._11, anOperation, aMode, &aTransform._11);
 }
 
@@ -166,7 +141,7 @@ void ImGui::ViewManipulate(const Camera& aCamera, Matrix& aCameraTransform, floa
 	// https://github.com/CedricGuillemet/ImGuizmo/issues/107
 	constexpr static Matrix inversionMatrix{ 1.f, 0, 0, 0, 0, 1.f, 0, 0, 0, 0, -1.f, 0, 0, 0, 0, 1.f };
 	Matrix view = inversionMatrix * aCameraTransform.Invert() * aCamera.GetViewMatrix() * inversionMatrix;
-	ImGuizmo::SetOrthographic(aCamera.IsOrthographic());
+	ImGuizmo::SetOrthographic(aCamera.GetType() == CameraType::Orthographic);
 	ImGuizmo::ViewManipulate(&view._11, aLength, aPosition, aSize, aBackgroundColor);
 	aCameraTransform = inversionMatrix * aCamera.GetViewMatrix() * view.Invert() * inversionMatrix;
 }

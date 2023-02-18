@@ -38,12 +38,12 @@ public:
 
 	LightType GetType() const;
 
-	void SetLight(DirectionalLight);
-	void SetLight(PointLight);
-	void SetLight(SpotLight);
+	void SetDirectional(DirectionalLight);
+	void SetPoint(PointLight);
+	void SetSpot(SpotLight);
 
-	template <class T>       T& GetLight()		 { return std::get<T>(myLight); }
-	template <class T> const T& GetLight() const { return std::get<T>(myLight); }
+	template <class T>       T& Get()		{ return std::get<T>(myLight); }
+	template <class T> const T& Get() const { return std::get<T>(myLight); }
 
 	bool enabled{ true };
 

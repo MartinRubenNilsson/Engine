@@ -1,5 +1,11 @@
 #pragma once
 
+enum class CameraType
+{
+	Perspective,
+	Orthographic
+};
+
 struct PerspectiveCamera
 {
 	float fovY = XM_PIDIV2;
@@ -24,23 +30,18 @@ class Camera
 {
 public:
 	Camera() = default;
-	Camera(const PerspectiveCamera&);
-	Camera(const OrthographicCamera&);
 	Camera(const aiCamera&);
+
+	CameraType GetType() const;
 
 	const Matrix& GetViewMatrix() const;
 	Matrix GetProjectionMatrix() const;
 
-	template <class T>       T& GetCamera()       { return std::get<T>(myCamera); }
-	template <class T> const T& GetCamera() const { return std::get<T>(myCamera); }
-
 	void SetPerspective(const PerspectiveCamera&);
-	PerspectiveCamera GetPerspective() const;
 	void SetOrthographic(const OrthographicCamera&);
-	OrthographicCamera GetOrthographic() const;
 
-	bool IsPerspective() const;
-	bool IsOrthographic() const;
+	template <class T>       T& Get()       { return std::get<T>(myCamera); }
+	template <class T> const T& Get() const { return std::get<T>(myCamera); }
 
 private:
 	Matrix myViewMatrix{ DirectX::XMMatrixLookToLH({ 0, 0, 0 }, { 0, 0, 1 }, { 0, 1, 0 }) };

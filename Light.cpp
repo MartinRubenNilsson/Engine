@@ -28,7 +28,7 @@ Light::Light(const aiLight& aLight)
 		DirectionalLight light{};
 		std::memcpy(&light.color, &aLight.mColorDiffuse, sizeof(aiColor3D));
 		std::memcpy(&light.direction, &aLight.mDirection, sizeof(aiVector3D));
-		SetLight(light);
+		SetDirectional(light);
 		break;
 	}
 	case aiLightSource_POINT:
@@ -37,7 +37,7 @@ Light::Light(const aiLight& aLight)
 		std::memcpy(&light.color, &aLight.mColorDiffuse, sizeof(aiColor3D));
 		std::memcpy(&light.position, &aLight.mPosition, sizeof(aiVector3D));
 		light.parameters = { 5.0f, aLight.mAttenuationConstant, aLight.mAttenuationLinear, aLight.mAttenuationQuadratic };
-		SetLight(light);
+		SetPoint(light);
 		break;
 	}
 	case aiLightSource_SPOT:
@@ -49,7 +49,7 @@ Light::Light(const aiLight& aLight)
 		light.parameters = { 5.0f, aLight.mAttenuationConstant, aLight.mAttenuationLinear, aLight.mAttenuationQuadratic };
 		light.innerAngle = aLight.mAngleInnerCone;
 		light.outerAngle = aLight.mAngleOuterCone;
-		SetLight(light);
+		SetSpot(light);
 		break;
 	}
 	default:
@@ -63,7 +63,7 @@ LightType Light::GetType() const
 	return static_cast<LightType>(myLight.index());
 }
 
-void Light::SetLight(DirectionalLight aLight)
+void Light::SetDirectional(DirectionalLight aLight)
 {
 	aLight.color = Vector4::Max(aLight.color, Vector4::Zero);
 	Unpremultiply(aLight.color);
@@ -71,7 +71,7 @@ void Light::SetLight(DirectionalLight aLight)
 	myLight = aLight;
 }
 
-void Light::SetLight(PointLight aLight)
+void Light::SetPoint(PointLight aLight)
 {
 	aLight.color = Vector4::Max(aLight.color, Vector4::Zero);
 	Unpremultiply(aLight.color);
@@ -79,7 +79,7 @@ void Light::SetLight(PointLight aLight)
 	myLight = aLight;
 }
 
-void Light::SetLight(SpotLight aLight)
+void Light::SetSpot(SpotLight aLight)
 {
 	aLight.color = Vector4::Max(aLight.color, Vector4::Zero);
 	Unpremultiply(aLight.color);
@@ -128,13 +128,13 @@ void ImGui::InspectLight(Light& aLight)
 	switch (aLight.GetType())
 	{
 	case LightType::Directional:
-		InspectDirectionalLight(aLight.GetLight<DirectionalLight>());
+		InspectDirectionalLight(aLight.Get<DirectionalLight>());
 		break;
 	case LightType::Point:
-		InspectPointLight(aLight.GetLight<PointLight>());
+		InspectPointLight(aLight.Get<PointLight>());
 		break;
 	case LightType::Spot:
-		InspectSpotLight(aLight.GetLight<SpotLight>());
+		InspectSpotLight(aLight.Get<SpotLight>());
 		break;
 	}
 }
