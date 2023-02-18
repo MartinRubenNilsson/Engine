@@ -6,6 +6,7 @@ public:
 	static ATOM Register(WNDPROC);
 
 	Window();
+	Window(ATOM);
 
 	void SetTitle(std::wstring_view);
 	std::wstring GetTitle() const;

@@ -21,9 +21,14 @@ ATOM Window::Register(WNDPROC aWndProc)
 Window::Window()
 	: myWindow{ nullptr, DestroyWindow }
 {
+}
+
+Window::Window(ATOM anAtom)
+	: Window{}
+{
 	myWindow.reset(CreateWindowEx(
 		WS_EX_ACCEPTFILES,
-		L"Window",
+		MAKEINTATOM(anAtom),
 		NULL,
 		WS_OVERLAPPEDWINDOW | WS_VISIBLE,
 		CW_USEDEFAULT, CW_USEDEFAULT,
