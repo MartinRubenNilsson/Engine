@@ -50,27 +50,16 @@ Camera::Camera(const aiCamera& aCamera)
 		*this = Camera(camera);
 	}
 
-	myLocalViewMatrix = XMMatrixLookToLH(
+	myViewMatrix = XMMatrixLookToLH(
 		{ aCamera.mPosition.x, aCamera.mPosition.y, aCamera.mPosition.z },
 		XMVector3Normalize({ aCamera.mLookAt.x, aCamera.mLookAt.y, aCamera.mLookAt.z }),
 		XMVector3Normalize({ aCamera.mUp.x, aCamera.mUp.y, aCamera.mUp.z })
 	);
 }
 
-void Camera::SetCamera(const Matrix& aTransform) const
+const Matrix& Camera::GetViewMatrix() const
 {
-	CameraBuffer buffer{};
-	buffer.cameraViewProjMatrix = aTransform.Invert() * myLocalViewMatrix * GetProjectionMatrix();
-	buffer.cameraPosition.x = aTransform.Translation().x;
-	buffer.cameraPosition.y = aTransform.Translation().y;
-	buffer.cameraPosition.z = aTransform.Translation().z;
-
-	DX11_WRITE_CONSTANT_BUFFER(buffer);
-}
-
-const Matrix& Camera::GetLocalViewMatrix() const
-{
-	return myLocalViewMatrix;
+	return myViewMatrix;
 }
 
 Matrix Camera::GetProjectionMatrix() const
@@ -150,7 +139,7 @@ void ImGui::DrawCubes(const Camera& aCamera, const Matrix& aCameraTransform, std
 	if (someCubeTransforms.empty())
 		return;
 
-	Matrix view = aCameraTransform.Invert() * aCamera.GetLocalViewMatrix();
+	Matrix view = aCameraTransform.Invert() * aCamera.GetViewMatrix();
 	Matrix proj = aCamera.GetProjectionMatrix();
 	ImGuizmo::SetOrthographic(aCamera.IsOrthographic());
 	ImGuizmo::DrawCubes(&view._11, &proj._11, &someCubeTransforms.front()._11, static_cast<int>(someCubeTransforms.size()));
@@ -158,7 +147,7 @@ void ImGui::DrawCubes(const Camera& aCamera, const Matrix& aCameraTransform, std
 
 void ImGui::DrawGrid(const Camera& aCamera, const Matrix& aCameraTransform, const Matrix& aGridTransform, float aGridSize)
 {
-	Matrix view = aCameraTransform.Invert() * aCamera.GetLocalViewMatrix();
+	Matrix view = aCameraTransform.Invert() * aCamera.GetViewMatrix();
 	Matrix proj = aCamera.GetProjectionMatrix();
 	ImGuizmo::SetOrthographic(aCamera.IsOrthographic());
 	ImGuizmo::DrawGrid(&view._11, &proj._11, &aGridTransform._11, aGridSize);
@@ -166,7 +155,7 @@ void ImGui::DrawGrid(const Camera& aCamera, const Matrix& aCameraTransform, cons
 
 bool ImGui::Manipulate(const Camera& aCamera, const Matrix& aCameraTransform, ImGuizmo::OPERATION anOperation, ImGuizmo::MODE aMode, Matrix& aTransform)
 {
-	Matrix view = aCameraTransform.Invert() * aCamera.GetLocalViewMatrix();
+	Matrix view = aCameraTransform.Invert() * aCamera.GetViewMatrix();
 	Matrix proj = aCamera.GetProjectionMatrix();
 	ImGuizmo::SetOrthographic(aCamera.IsOrthographic());
 	return ImGuizmo::Manipulate(&view._11, &proj._11, anOperation, aMode, &aTransform._11);
@@ -176,8 +165,8 @@ void ImGui::ViewManipulate(const Camera& aCamera, Matrix& aCameraTransform, floa
 {
 	// https://github.com/CedricGuillemet/ImGuizmo/issues/107
 	constexpr static Matrix inversionMatrix{ 1.f, 0, 0, 0, 0, 1.f, 0, 0, 0, 0, -1.f, 0, 0, 0, 0, 1.f };
-	Matrix view = inversionMatrix * aCameraTransform.Invert() * aCamera.GetLocalViewMatrix() * inversionMatrix;
+	Matrix view = inversionMatrix * aCameraTransform.Invert() * aCamera.GetViewMatrix() * inversionMatrix;
 	ImGuizmo::SetOrthographic(aCamera.IsOrthographic());
 	ImGuizmo::ViewManipulate(&view._11, aLength, aPosition, aSize, aBackgroundColor);
-	aCameraTransform = inversionMatrix * aCamera.GetLocalViewMatrix() * view.Invert() * inversionMatrix;
+	aCameraTransform = inversionMatrix * aCamera.GetViewMatrix() * view.Invert() * inversionMatrix;
 }

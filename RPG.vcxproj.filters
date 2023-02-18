@@ -30,16 +30,10 @@
     <ClInclude Include="Transform.h">
       <Filter>objects</Filter>
     </ClInclude>
-    <ClInclude Include="ConstantBufferManager.h">
-      <Filter>graphics\managers</Filter>
-    </ClInclude>
     <ClInclude Include="Scene.h">
       <Filter>objects</Filter>
     </ClInclude>
     <ClInclude Include="Singleton.h" />
-    <ClInclude Include="InputLayoutManager.h">
-      <Filter>graphics\managers</Filter>
-    </ClInclude>
     <ClInclude Include="FullscreenPass.h">
       <Filter>graphics</Filter>
     </ClInclude>
@@ -84,10 +78,13 @@
       <Filter>objects</Filter>
     </ClInclude>
     <ClInclude Include="StateFactory.h">
-      <Filter>graphics\factories</Filter>
+      <Filter>graphics</Filter>
     </ClInclude>
     <ClInclude Include="Shader.h">
-      <Filter>graphics\factories</Filter>
+      <Filter>graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="InputLayoutManager.h">
+      <Filter>graphics</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -121,14 +118,8 @@
     <ClCompile Include="Transform.cpp">
       <Filter>objects</Filter>
     </ClCompile>
-    <ClCompile Include="ConstantBufferManager.cpp">
-      <Filter>graphics\managers</Filter>
-    </ClCompile>
     <ClCompile Include="Scene.cpp">
       <Filter>objects</Filter>
-    </ClCompile>
-    <ClCompile Include="InputLayoutManager.cpp">
-      <Filter>graphics\managers</Filter>
     </ClCompile>
     <ClCompile Include="FullscreenPass.cpp">
       <Filter>graphics</Filter>
@@ -167,11 +158,14 @@
     <ClCompile Include="Light.cpp">
       <Filter>objects</Filter>
     </ClCompile>
-    <ClCompile Include="StateFactory.cpp">
-      <Filter>graphics\factories</Filter>
-    </ClCompile>
     <ClCompile Include="Shader.cpp">
-      <Filter>graphics\factories</Filter>
+      <Filter>graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="StateFactory.cpp">
+      <Filter>graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="InputLayoutManager.cpp">
+      <Filter>graphics</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -190,9 +184,6 @@
     <Filter Include="objects">
       <UniqueIdentifier>{545fdeb4-0f2f-46c3-ac4c-1a93a1a6f995}</UniqueIdentifier>
     </Filter>
-    <Filter Include="graphics\managers">
-      <UniqueIdentifier>{c18edbf6-ced2-448f-a66c-4b49888979aa}</UniqueIdentifier>
-    </Filter>
     <Filter Include="windows">
       <UniqueIdentifier>{bffff0c7-e125-46a2-aa9e-59024fddbf31}</UniqueIdentifier>
     </Filter>
@@ -201,9 +192,6 @@
     </Filter>
     <Filter Include="shaders\lights">
       <UniqueIdentifier>{ff3380cb-75a3-4a1c-894d-50ec2b167785}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="graphics\factories">
-      <UniqueIdentifier>{2ab3bd79-3b21-4cf0-8d97-b8c85aff6897}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

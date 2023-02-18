@@ -2,7 +2,7 @@
 
 struct PerspectiveCamera
 {
-	float fovY = 1.570796327f; // pi/2
+	float fovY = XM_PIDIV2;
 	float aspect = 1.f;
 	float nearZ = 0.01f;
 	float farZ = 1000.f;
@@ -28,10 +28,11 @@ public:
 	Camera(const OrthographicCamera&);
 	Camera(const aiCamera&);
 
-	void SetCamera(const Matrix& aTransform) const;
-
-	const Matrix& GetLocalViewMatrix() const;
+	const Matrix& GetViewMatrix() const;
 	Matrix GetProjectionMatrix() const;
+
+	template <class T>       T& GetCamera()       { return std::get<T>(myCamera); }
+	template <class T> const T& GetCamera() const { return std::get<T>(myCamera); }
 
 	void SetPerspective(const PerspectiveCamera&);
 	PerspectiveCamera GetPerspective() const;
@@ -42,7 +43,7 @@ public:
 	bool IsOrthographic() const;
 
 private:
-	Matrix myLocalViewMatrix{ DirectX::XMMatrixLookToLH({ 0, 0, 0 }, { 0, 0, 1 }, { 0, 1, 0 }) };
+	Matrix myViewMatrix{ DirectX::XMMatrixLookToLH({ 0, 0, 0 }, { 0, 0, 1 }, { 0, 1, 0 }) };
 	std::variant<PerspectiveCamera, OrthographicCamera> myCamera{};
 };
 

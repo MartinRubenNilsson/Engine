@@ -71,7 +71,6 @@ using BlendStatePtr = ComPtr<ID3D11BlendState>;
 #include "Singleton.h"
 #include "Debug.h"
 #include "DX11.h"
-#include "ConstantBufferManager.h"
 #include "Vertices.h"
 #include "Shader.h"
 #include "Scopes.h"

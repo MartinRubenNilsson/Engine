@@ -4,6 +4,7 @@
 #include "ConstantBuffer.h"
 #include "Pixel.h"
 #include "Cubemap.h"
+#include "Camera.h"
 #include "Light.h"
 
 class Renderer
@@ -14,12 +15,14 @@ public:
 	Renderer() = default;
 	Renderer(unsigned aWidth, unsigned aHeight);
 
-	void ResizeBuffers(unsigned aWidth, unsigned aHeight);
+	bool ResizeBuffers(unsigned aWidth, unsigned aHeight);
+
+	void SetCamera(const Camera& aCamera, const Matrix& aTransform);
 	void Render(entt::registry&);
 
 	entt::entity PickEntity(unsigned x, unsigned y);
 
-	explicit operator bool() const;
+	explicit operator bool() const { return mySucceeded; }
 
 private:
 	void ClearBuffers();
@@ -35,10 +38,13 @@ private:
 	RenderTargets myGeometryBuffer{};
 	RenderTargets myLightningBuffer{};
 
+	ConstantBuffer myCameraBuffer{};
 	ConstantBuffer myMeshBuffer{};
 	ConstantBuffer myLightBuffer{};
 
 	Pixel myEntityPixel{};
 	Cubemap mySkybox{};
+
+	bool mySucceeded{ false };
 };
 

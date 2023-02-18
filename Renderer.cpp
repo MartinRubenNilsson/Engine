@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "Renderer.h"
 #include "ShaderCommon.h"
+#include "Camera.h"
 #include "Material.h"
 #include "Mesh.h"
 #include "Transform.h"
@@ -9,19 +10,26 @@
 
 Renderer::Renderer(unsigned aWidth, unsigned aHeight)
 {
-	ResizeBuffers(aWidth, aHeight);
+	if (!ResizeBuffers(aWidth, aHeight))
+		return;
+
+	myCameraBuffer = { sizeof(CameraBuffer) };
+	if (!myCameraBuffer)
+		return;
 
 	myMeshBuffer = { sizeof(MeshBuffer) };
 	if (!myMeshBuffer)
 		return;
 
-	myMeshBuffer.VSSetBuffer(CBUFFER_SLOT_MESH);
-	myMeshBuffer.PSSetBuffer(CBUFFER_SLOT_MESH);
-
 	myLightBuffer = { sizeof(LightBuffer) };
 	if (!myLightBuffer)
 		return;
 	
+	myCameraBuffer.VSSetBuffer(CBUFFER_SLOT_CAMERA);
+	myCameraBuffer.PSSetBuffer(CBUFFER_SLOT_CAMERA);
+	myMeshBuffer.VSSetBuffer(CBUFFER_SLOT_MESH);
+	myMeshBuffer.PSSetBuffer(CBUFFER_SLOT_MESH);
+	myLightBuffer.VSSetBuffer(CBUFFER_SLOT_LIGHT);
 	myLightBuffer.PSSetBuffer(CBUFFER_SLOT_LIGHT);
 
 	myEntityPixel = { DXGI_FORMAT_R32_UINT };
@@ -44,9 +52,11 @@ Renderer::Renderer(unsigned aWidth, unsigned aHeight)
 		if (!mySkybox)
 			return;
 	}
+
+	mySucceeded = true;
 }
 
-void Renderer::ResizeBuffers(unsigned aWidth, unsigned aHeight)
+bool Renderer::ResizeBuffers(unsigned aWidth, unsigned aHeight)
 {
 	static constexpr std::array geometryFormats
 	{
@@ -66,6 +76,17 @@ void Renderer::ResizeBuffers(unsigned aWidth, unsigned aHeight)
 	myDepthBuffer = { aWidth, aHeight };
 	myGeometryBuffer = { aWidth, aHeight, geometryFormats };
 	myLightningBuffer = { aWidth, aHeight, lightningFormats };
+
+	return myDepthBuffer && myGeometryBuffer && myLightningBuffer;
+}
+
+void Renderer::SetCamera(const Camera& aCamera, const Matrix& aTransform)
+{
+	CameraBuffer buffer{};
+	buffer.cameraViewProjMatrix = aTransform.Invert() * aCamera.GetViewMatrix() * aCamera.GetProjectionMatrix();
+	buffer.cameraPosition = { aTransform.Translation().operator XMVECTOR() };
+
+	myCameraBuffer.WriteToBuffer(&buffer);
 }
 
 void Renderer::Render(entt::registry& aRegistry)
@@ -93,13 +114,6 @@ entt::entity Renderer::PickEntity(unsigned x, unsigned y)
 	myEntityPixel.Pick(myGeometryBuffer.GetTexture(TEXTURE_SLOT_GBUFFER_ENTITY), x, y);
 	myEntityPixel.Read(&entity, sizeof(entity));
 	return entity;
-}
-
-Renderer::operator bool() const
-{
-	return
-		myDepthBuffer && myGeometryBuffer && myLightningBuffer &&
-		myMeshBuffer && myLightBuffer && myEntityPixel;
 }
 
 void Renderer::ClearBuffers()

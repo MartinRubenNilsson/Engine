@@ -190,7 +190,6 @@
   <ItemGroup>
     <ClInclude Include="Camera.h" />
     <ClInclude Include="ConstantBuffer.h" />
-    <ClInclude Include="ConstantBufferManager.h" />
     <ClInclude Include="Cubemap.h" />
     <ClInclude Include="DearImGui.h" />
     <ClInclude Include="Debug.h" />
@@ -224,7 +223,6 @@
   <ItemGroup>
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="ConstantBuffer.cpp" />
-    <ClCompile Include="ConstantBufferManager.cpp" />
     <ClCompile Include="Cubemap.cpp" />
     <ClCompile Include="DearImGui.cpp" />
     <ClCompile Include="Debug.cpp" />
