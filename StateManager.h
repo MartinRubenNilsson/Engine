@@ -42,13 +42,13 @@ public:
 	void GetSamplerStates(UINT aStartSlot, std::span<D3D11_SAMPLER_DESC> someDescs) const;
 	void SetDepthStencilState(const D3D11_DEPTH_STENCIL_DESC& aDesc, UINT aStencilRef);
 	void GetDepthStencilState(D3D11_DEPTH_STENCIL_DESC& aDesc, UINT& aStencilRef) const;
-	void SetBlendState(const D3D11_BLEND_DESC& aDesc, const FLOAT aBlendFactor[4], UINT aSampleMask);
-	void GetBlendState(D3D11_BLEND_DESC& aDesc, FLOAT aBlendFactor[4], UINT& aSampleMask) const;
+
+	BlendStatePtr GetBlendState(const D3D11_BLEND_DESC& aDesc);
 
 private:
 	std::unordered_map<D3D11_RASTERIZER_DESC, ComPtr<ID3D11RasterizerState>> myRasterizerStates;
 	std::unordered_map<D3D11_SAMPLER_DESC, ComPtr<ID3D11SamplerState>> mySamplerStates;
 	std::unordered_map<D3D11_DEPTH_STENCIL_DESC, ComPtr<ID3D11DepthStencilState>> myDepthStencilStates;
-	std::unordered_map<D3D11_BLEND_DESC, ComPtr<ID3D11BlendState>> myBlendStates;
+	std::unordered_map<D3D11_BLEND_DESC, BlendStatePtr> myBlendStates;
 };
 

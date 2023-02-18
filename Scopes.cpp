@@ -212,3 +212,23 @@ ScopedShaderResources::~ScopedShaderResources()
 	std::ranges::transform(myPreviousResources, views.begin(), &ShaderResourcePtr::Get);
 	std::invoke(mySetter, DX11_CONTEXT, myStartSlot, (UINT)views.size(), views.data());
 }
+
+/*
+* class ScopedBlendState
+*/
+
+ScopedBlendState::ScopedBlendState(const D3D11_BLEND_DESC& aDesc, const FLOAT aBlendFactor[4], UINT aSampleMask)
+	: ScopedBlendState{ StateManager::Get().GetBlendState(aDesc), aBlendFactor, aSampleMask }
+{
+}
+
+ScopedBlendState::ScopedBlendState(BlendStatePtr aBlendState, const FLOAT aBlendFactor[4], UINT aSampleMask)
+{
+	DX11_CONTEXT->OMGetBlendState(&myBlendState, myBlendFactor, &mySampleMask);
+	DX11_CONTEXT->OMSetBlendState(aBlendState.Get(), aBlendFactor, aSampleMask);
+}
+
+ScopedBlendState::~ScopedBlendState()
+{
+	DX11_CONTEXT->OMSetBlendState(myBlendState.Get(), myBlendFactor, mySampleMask);
+}

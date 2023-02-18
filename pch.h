@@ -46,6 +46,7 @@ using TexturePtr = ComPtr<ID3D11Texture2D>;
 using RenderTargetPtr = ComPtr<ID3D11RenderTargetView>;
 using DepthStencilPtr = ComPtr<ID3D11DepthStencilView>;
 using ShaderResourcePtr = ComPtr<ID3D11ShaderResourceView>;
+using BlendStatePtr = ComPtr<ID3D11BlendState>;
 
 // imgui
 #include <imgui/imgui_impl_win32.h>

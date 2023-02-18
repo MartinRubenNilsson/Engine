@@ -4,6 +4,7 @@
 #define CBUFFER_SLOT_MESH 1
 #define CBUFFER_SLOT_LIGHT 2
 
+#define TEXTURE_SLOT_GBUFFER 0
 #define TEXTURE_SLOT_GBUFFER_ENTITY 5
 
 struct alignas(16) MeshBuffer

@@ -175,8 +175,15 @@ void Renderer::RenderLightning(entt::registry& aRegistry)
 		}
 	}
 
-	ScopedShaderResources scopedResources{ ShaderType::Pixel, 0, myGeometryBuffer };  // TODO: turn hardcoded 0 into am acro
+	CD3D11_BLEND_DESC blendDesc{ CD3D11_DEFAULT{} };
+	blendDesc.RenderTarget[0].BlendEnable = TRUE;
+	blendDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_ONE;
+	blendDesc.RenderTarget[0].DestBlend = D3D11_BLEND_ONE;
+	blendDesc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
+
+	ScopedShaderResources scopedResources{ ShaderType::Pixel, TEXTURE_SLOT_GBUFFER, myGeometryBuffer };
 	ScopedRenderTargets scopedTargets{ myLightningBuffer };
+	ScopedBlendState scopedBlend{ blendDesc };
 
 	RenderDirectionalLights(dLights);
 	RenderPointLights(pLights);

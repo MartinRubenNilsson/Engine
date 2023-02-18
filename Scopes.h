@@ -72,6 +72,20 @@ private:
 	UINT myPreviousStencilRef{};
 };
 
+class ScopedBlendState : Scope
+{
+public:
+	ScopedBlendState(const D3D11_BLEND_DESC& aDesc, const FLOAT aBlendFactor[4] = NULL, UINT aSampleMask = 0xffffffff);
+	~ScopedBlendState();
+
+private:
+	ScopedBlendState(BlendStatePtr aBlendState, const FLOAT aBlendFactor[4] = NULL, UINT aSampleMask = 0xffffffff);
+
+	BlendStatePtr myBlendState{};
+	FLOAT myBlendFactor[4]{ 1.f, 1.f, 1.f, 1.f };
+	UINT mySampleMask{ 0xffffffff };
+};
+
 class ScopedRenderTargets : Scope
 {
 public:
