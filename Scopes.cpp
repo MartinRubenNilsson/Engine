@@ -102,14 +102,19 @@ ScopedSamplerStates::~ScopedSamplerStates()
 */
 
 ScopedDepthStencilState::ScopedDepthStencilState(const D3D11_DEPTH_STENCIL_DESC& aDesc, UINT aStencilRef)
+	: ScopedDepthStencilState{ StateManager::Get().GetDepthStencilState(aDesc), aStencilRef }
 {
-	StateManager::Get().GetDepthStencilState(myPreviousDesc, myPreviousStencilRef);
-	StateManager::Get().SetDepthStencilState(aDesc, aStencilRef);
+}
+
+ScopedDepthStencilState::ScopedDepthStencilState(DepthStencilStatePtr aState, UINT aStencilRef)
+{
+	DX11_CONTEXT->OMGetDepthStencilState(&myState, &myStencilRef);
+	DX11_CONTEXT->OMSetDepthStencilState(aState.Get(), aStencilRef);
 }
 
 ScopedDepthStencilState::~ScopedDepthStencilState()
 {
-	StateManager::Get().SetDepthStencilState(myPreviousDesc, myPreviousStencilRef);
+	DX11_CONTEXT->OMSetDepthStencilState(myState.Get(), myStencilRef);
 }
 
 /*
@@ -222,13 +227,13 @@ ScopedBlendState::ScopedBlendState(const D3D11_BLEND_DESC& aDesc, const FLOAT aB
 {
 }
 
-ScopedBlendState::ScopedBlendState(BlendStatePtr aBlendState, const FLOAT aBlendFactor[4], UINT aSampleMask)
+ScopedBlendState::ScopedBlendState(BlendStatePtr aState, const FLOAT aBlendFactor[4], UINT aSampleMask)
 {
-	DX11_CONTEXT->OMGetBlendState(&myBlendState, myBlendFactor, &mySampleMask);
-	DX11_CONTEXT->OMSetBlendState(aBlendState.Get(), aBlendFactor, aSampleMask);
+	DX11_CONTEXT->OMGetBlendState(&myState, myBlendFactor, &mySampleMask);
+	DX11_CONTEXT->OMSetBlendState(aState.Get(), aBlendFactor, aSampleMask);
 }
 
 ScopedBlendState::~ScopedBlendState()
 {
-	DX11_CONTEXT->OMSetBlendState(myBlendState.Get(), myBlendFactor, mySampleMask);
+	DX11_CONTEXT->OMSetBlendState(myState.Get(), myBlendFactor, mySampleMask);
 }

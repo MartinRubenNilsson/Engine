@@ -77,7 +77,7 @@ void Cubemap::DrawSkybox() const
 	ScopedShader vertexShader{ VERTEX_SHADER("VsSkybox.cso") };
 	ScopedShader pixelShader{ PIXEL_SHADER("PsSkybox.cso") };
 	ScopedRasterizerState rasterizer{ rasterizerDesc };
-	ScopedDepthStencilState depthStencil{ depthStencilDesc, 0 };
+	ScopedDepthStencilState depthStencil{ depthStencilDesc };
 
 	DX11_CONTEXT->Draw(14, 0);
 }

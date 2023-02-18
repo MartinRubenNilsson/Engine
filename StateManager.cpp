@@ -50,23 +50,13 @@ void StateManager::GetSamplerStates(UINT aStartSlot, std::span<D3D11_SAMPLER_DES
 
 }
 
-void StateManager::SetDepthStencilState(const D3D11_DEPTH_STENCIL_DESC& aDesc, UINT aStencilRef)
+
+DepthStencilStatePtr StateManager::GetDepthStencilState(const D3D11_DEPTH_STENCIL_DESC& aDesc)
 {
 	auto& state = myDepthStencilStates[aDesc];
 	if (!state)
-	{
-		assert(myDepthStencilStates.size() <= D3D11_REQ_DEPTH_STENCIL_OBJECT_COUNT_PER_DEVICE);
 		DX11_DEVICE->CreateDepthStencilState(&aDesc, &state);
-	}
-	DX11_CONTEXT->OMSetDepthStencilState(state.Get(), aStencilRef);
-}
-
-void StateManager::GetDepthStencilState(D3D11_DEPTH_STENCIL_DESC& aDesc, UINT& aStencilRef) const
-{
-	ComPtr<ID3D11DepthStencilState> state{};
-	DX11_CONTEXT->OMGetDepthStencilState(&state, &aStencilRef);
-	if (state)
-		state->GetDesc(&aDesc);
+	return state;
 }
 
 BlendStatePtr StateManager::GetBlendState(const D3D11_BLEND_DESC& aDesc)

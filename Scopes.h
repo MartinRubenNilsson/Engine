@@ -64,12 +64,14 @@ private:
 class ScopedDepthStencilState : Scope
 {
 public:
-	ScopedDepthStencilState(const D3D11_DEPTH_STENCIL_DESC& aDesc, UINT aStencilRef);
+	ScopedDepthStencilState(const D3D11_DEPTH_STENCIL_DESC& aDesc, UINT aStencilRef = 0u);
 	~ScopedDepthStencilState();
 
 private:
-	D3D11_DEPTH_STENCIL_DESC myPreviousDesc{ CD3D11_DEPTH_STENCIL_DESC{ CD3D11_DEFAULT{} } };
-	UINT myPreviousStencilRef{};
+	ScopedDepthStencilState(DepthStencilStatePtr aState, UINT aStencilRef);
+
+	DepthStencilStatePtr myState{};
+	UINT myStencilRef{};
 };
 
 class ScopedBlendState : Scope
@@ -79,9 +81,9 @@ public:
 	~ScopedBlendState();
 
 private:
-	ScopedBlendState(BlendStatePtr aBlendState, const FLOAT aBlendFactor[4] = NULL, UINT aSampleMask = 0xffffffff);
+	ScopedBlendState(BlendStatePtr aState, const FLOAT aBlendFactor[4], UINT aSampleMask);
 
-	BlendStatePtr myBlendState{};
+	BlendStatePtr myState{};
 	FLOAT myBlendFactor[4]{ 1.f, 1.f, 1.f, 1.f };
 	UINT mySampleMask{ 0xffffffff };
 };
