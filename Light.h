@@ -9,17 +9,20 @@ enum class LightType
 
 struct DirectionalLight
 {
+	Color color{};
 	Vector3 direction{ 0.f, 0.f, 1.f };
 };
 
 struct PointLight
 {
+	Color color{};
 	Vector3 position{};
 	Vector4 parameters{ 5.0, 0.f, 1.f, 0.f }; // (range, constant attn, linear attn, quadratic attn)
 };
 
 struct SpotLight
 {
+	Color color{};
 	Vector3 position{};
 	Vector3 direction{ 0.f, 0.f, 1.f };
 	Vector4 parameters{ 5.0, 0.f, 1.f, 0.f }; // (range, constant attn, linear attn, quadratic attn)
@@ -33,20 +36,16 @@ public:
 	Light() = default;
 	Light(const aiLight&);
 
-	LightType GetType() const;
-
-	void SetColor(const Color&);
-	Color GetColor() const { return myColor; }
-
 	void SetLight(DirectionalLight);
 	void SetLight(PointLight);
 	void SetLight(SpotLight);
+
+	LightType GetType() const;
 
 	template <class T>
 	T GetLight() const { return std::get<T>(myLight); }
 
 private:
-	Color myColor{};
 	std::variant<DirectionalLight, PointLight, SpotLight> myLight{};
 };
 
@@ -54,3 +53,4 @@ namespace ImGui
 {
 	void InspectLight(Light& aLight);
 }
+
