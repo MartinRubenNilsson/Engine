@@ -30,6 +30,13 @@ struct SpotLight
 	float outerAngle{ XM_PI / 4.f }; // half-angle in radians
 };
 
+class Light;
+
+namespace ImGui
+{
+	void InspectLight(Light&);
+}
+
 class Light
 {
 public:
@@ -42,20 +49,14 @@ public:
 	void SetPoint(PointLight);
 	void SetSpot(SpotLight);
 
-	template <class T>       T& Get()		{ return std::get<T>(myLight); }
-	template <class T> const T& Get() const { return std::get<T>(myLight); }
+	template <class T>
+	T Get() const { return std::get<T>(myLight); }
 
 	bool enabled{ true };
 
 private:
+	friend void ImGui::InspectLight(Light&);
+
 	std::variant<DirectionalLight, PointLight, SpotLight> myLight{};
 };
-
-namespace ImGui
-{
-	void InspectDirectionalLight(DirectionalLight&);
-	void InspectPointLight(PointLight&);
-	void InspectSpotLight(SpotLight&);
-	void InspectLight(Light&);
-}
 

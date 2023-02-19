@@ -94,28 +94,34 @@ void Light::SetSpot(SpotLight aLight)
 * namespace ImGui
 */
 
-void ImGui::InspectDirectionalLight(DirectionalLight& aLight)
+namespace ImGui
 {
-	ColorEdit3("Color", &aLight.color.x);
-	DragFloat("Intensity", &aLight.color.w, 0.1f, 0.f, FLT_MAX);
-}
+	struct LightInspector
+	{
+		void operator()(DirectionalLight& aLight)
+		{
+			ColorEdit3("Color", &aLight.color.x);
+			DragFloat("Intensity", &aLight.color.w, 0.1f, 0.f, FLT_MAX);
+		}
 
-void ImGui::InspectPointLight(PointLight& aLight)
-{
-	ColorEdit3("Color", &aLight.color.x);
-	DragFloat("Intensity", &aLight.color.w, 0.1f, 0.f, FLT_MAX);
-	DragFloat("Range", &aLight.parameters.x, 0.1f, 0.f, FLT_MAX);
-	DragFloat3("Attenuation", &aLight.parameters.y, 0.1f, 0.f, FLT_MAX);
-}
+		void operator()(PointLight& aLight)
+		{
+			ColorEdit3("Color", &aLight.color.x);
+			DragFloat("Intensity", &aLight.color.w, 0.1f, 0.f, FLT_MAX);
+			DragFloat("Range", &aLight.parameters.x, 0.1f, 0.f, FLT_MAX);
+			DragFloat3("Attenuation", &aLight.parameters.y, 0.1f, 0.f, FLT_MAX);
+		}
 
-void ImGui::InspectSpotLight(SpotLight& aLight)
-{
-	ColorEdit3("Color", &aLight.color.x);
-	DragFloat("Intensity", &aLight.color.w, 0.1f, 0.f, FLT_MAX);
-	DragFloat("Range", &aLight.parameters.x, 0.1f, 0.f, FLT_MAX);
-	DragFloat3("Attenuation", &aLight.parameters.y, 0.1f, 0.f, FLT_MAX);
-	DragFloat("Outer Angle", &aLight.outerAngle, 0.01f, 0.f, XM_PIDIV2);
-	DragFloat("Inner Angle", &aLight.innerAngle, 0.01f, 0.f, aLight.outerAngle);
+		void operator()(SpotLight& aLight)
+		{
+			ColorEdit3("Color", &aLight.color.x);
+			DragFloat("Intensity", &aLight.color.w, 0.1f, 0.f, FLT_MAX);
+			DragFloat("Range", &aLight.parameters.x, 0.1f, 0.f, FLT_MAX);
+			DragFloat3("Attenuation", &aLight.parameters.y, 0.1f, 0.f, FLT_MAX);
+			DragFloat("Outer Angle", &aLight.outerAngle, 0.01f, 0.f, XM_PIDIV2);
+			DragFloat("Inner Angle", &aLight.innerAngle, 0.01f, 0.f, aLight.outerAngle);
+		}
+	};
 }
 
 void ImGui::InspectLight(Light& aLight)
@@ -125,16 +131,5 @@ void ImGui::InspectLight(Light& aLight)
 	auto type{ static_cast<int>(aLight.GetType()) };
 	Combo("Type", &type, "Directional\0Point\0Spot\0\0");
 
-	switch (aLight.GetType())
-	{
-	case LightType::Directional:
-		InspectDirectionalLight(aLight.Get<DirectionalLight>());
-		break;
-	case LightType::Point:
-		InspectPointLight(aLight.Get<PointLight>());
-		break;
-	case LightType::Spot:
-		InspectSpotLight(aLight.Get<SpotLight>());
-		break;
-	}
+	std::visit(LightInspector{}, aLight.myLight);
 }
