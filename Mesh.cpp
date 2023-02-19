@@ -41,7 +41,7 @@ Mesh::Mesh(const aiMesh& aMesh)
 	);
 }
 
-void Mesh::SetBuffers() const
+void Mesh::SetVertexAndIndexBuffers() const
 {
 	myVertexBuffer.SetVertexBuffer();
 	myIndexBuffer.SetIndexBuffer();

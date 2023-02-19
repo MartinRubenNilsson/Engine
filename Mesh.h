@@ -9,7 +9,7 @@ public:
 
 	Mesh(const aiMesh&);
 
-	void SetBuffers() const;
+	void SetVertexAndIndexBuffers() const;
 
 	std::string_view GetName() const;
 	unsigned GetVertexCount() const;

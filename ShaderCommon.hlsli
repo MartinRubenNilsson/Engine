@@ -79,3 +79,13 @@ Texture2D MaterialOcclusion : register(t14);
 */
 
 SamplerState DefaultSampler : register(s0);
+
+/*
+* Functions
+*/
+
+// To be multiplied by outgoing radiance.
+float DistanceAttenuation(float aDistanceToLight)
+{
+    return 1.f / max(0.01, LightParams.y + aDistanceToLight * (LightParams.z + aDistanceToLight * LightParams.w));
+}

@@ -139,10 +139,10 @@ void Renderer::RenderGeometry(entt::registry& aRegistry)
 	auto view = aRegistry.view<const Material::Ptr, const Mesh::Ptr, const Transform::Ptr>();
 	for (auto [entity, material, mesh, transform] : view.each())
 	{
+		mesh->SetVertexAndIndexBuffers();
+
 		ScopedShaderResources scopedResources{ ShaderType::Pixel, 10, *material }; // TODO: turn hardcoded 10 into am acro
 		
-		mesh->SetBuffers();
-
 		MeshBuffer buffer{};
 		buffer.meshMatrix = transform->GetWorldMatrix();
 		buffer.meshMatrixInverseTranspose = buffer.meshMatrix.Invert().Transpose();
@@ -158,6 +158,7 @@ void Renderer::RenderLightning(entt::registry& aRegistry)
 {
 	std::vector<DirectionalLight> dLights{};
 	std::vector<PointLight> pLights{};
+	std::vector<SpotLight> sLights{};
 
 	auto view = aRegistry.view<const Light, const Transform::Ptr>();
 	for (auto [entity, light, transform] : view.each())
@@ -165,7 +166,7 @@ void Renderer::RenderLightning(entt::registry& aRegistry)
 		if (!light.enabled)
 			continue;
 
-		const Matrix worldMatrix{ transform->GetWorldMatrix() };
+		const Matrix worldMatrix{ transform->GetWorldMatrix() }; // todo: remove scale
 
 		// todo: culling
 
@@ -175,15 +176,22 @@ void Renderer::RenderLightning(entt::registry& aRegistry)
 		{
 			auto& dLight{ dLights.emplace_back(light.Get<DirectionalLight>()) };
 			dLight.color.Premultiply();
-			dLight.direction = Vector3::TransformNormal(dLight.direction, worldMatrix);
-			dLight.direction.Normalize();
+			Vector3::TransformNormal(dLight.direction, worldMatrix).Normalize(dLight.direction);
 			break;
 		}
 		case LightType::Point:
 		{
 			auto& pLight{ pLights.emplace_back(light.Get<PointLight>()) };
 			pLight.color.Premultiply();
-			pLight.position = Vector3::Transform(pLight.position, worldMatrix);
+			Vector3::Transform(pLight.position, worldMatrix, pLight.position);
+			break;
+		}
+		case LightType::Spot:
+		{
+			auto& sLight{ sLights.emplace_back(light.Get<SpotLight>()) };
+			sLight.color.Premultiply();
+			Vector3::Transform(sLight.position, worldMatrix, sLight.position);
+			Vector3::TransformNormal(sLight.direction, worldMatrix).Normalize(sLight.direction);
 			break;
 		}
 		}
@@ -201,12 +209,12 @@ void Renderer::RenderLightning(entt::registry& aRegistry)
 
 	RenderDirectionalLights(dLights);
 	RenderPointLights(pLights);
+	RenderSpotLights(sLights);
 }
 
 void Renderer::RenderSkybox()
 {
 	ScopedRenderTargets scopedTargets{ myLightningBuffer, myDepthBuffer };
-
 	mySkybox.DrawSkybox();
 }
 
@@ -239,11 +247,12 @@ void Renderer::RenderDirectionalLights(std::span<const DirectionalLight> someLig
 {
 	FullscreenPass lightPass{ PIXEL_SHADER("PsDirectionalLight.cso") };
 
-	for (auto& light : someLights)
+	for (const DirectionalLight& light : someLights)
 	{
 		LightBuffer buffer{};
 		buffer.lightColor = light.color;
 		buffer.lightDirection = { light.direction.x, light.direction.y, light.direction.z, 0.f };
+
 		myLightBuffer.WriteToBuffer(&buffer);
 
 		lightPass.Render();
@@ -254,12 +263,32 @@ void Renderer::RenderPointLights(std::span<const PointLight> someLights)
 {
 	FullscreenPass lightPass{ PIXEL_SHADER("PsPointLight.cso") };
 
-	for (auto& light : someLights)
+	for (const PointLight& light : someLights)
 	{
 		LightBuffer buffer{};
 		buffer.lightColor = light.color;
 		buffer.lightPosition = { light.position.x, light.position.y, light.position.z, 1.f };
 		buffer.lightParameters = light.parameters;
+
+		myLightBuffer.WriteToBuffer(&buffer);
+
+		lightPass.Render();
+	}
+}
+
+void Renderer::RenderSpotLights(std::span<const SpotLight> someLights)
+{
+	FullscreenPass lightPass{ PIXEL_SHADER("PsSpotLight.cso") };
+
+	for (const SpotLight& light : someLights)
+	{
+		LightBuffer buffer{};
+		buffer.lightColor = light.color;
+		buffer.lightPosition = { light.position.x, light.position.y, light.position.z, 1.f };
+		buffer.lightDirection = { light.direction.x, light.direction.y, light.direction.z, 0.f };
+		buffer.lightParameters = light.parameters;
+		buffer.lightConeAngles = { light.innerAngle, light.outerAngle, 0.f, 0.f };
+
 		myLightBuffer.WriteToBuffer(&buffer);
 
 		lightPass.Render();

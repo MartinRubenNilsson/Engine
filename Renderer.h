@@ -3,11 +3,12 @@
 #include "RenderTargets.h"
 #include "ConstantBuffer.h"
 #include "Pixel.h"
-#include "Cubemap.h"
 #include "Camera.h"
 #include "Light.h"
+#include "Cubemap.h"
 
 class Renderer
+
 {
 public:
 	int pass = 0;
@@ -33,6 +34,7 @@ private:
 
 	void RenderDirectionalLights(std::span<const DirectionalLight>);
 	void RenderPointLights(std::span<const PointLight>);
+	void RenderSpotLights(std::span<const SpotLight>);
 
 	DepthBuffer myDepthBuffer{};
 	RenderTargets myGeometryBuffer{};

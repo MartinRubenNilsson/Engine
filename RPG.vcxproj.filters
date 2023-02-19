@@ -240,6 +240,9 @@
     <FxCompile Include="PsPointLight.hlsl">
       <Filter>shaders\lights</Filter>
     </FxCompile>
+    <FxCompile Include="PsSpotLight.hlsl">
+      <Filter>shaders\lights</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="ShaderCommon.hlsli">
