@@ -49,11 +49,10 @@ float3 BrdfDotGGX(float3 L, float3 V, float3 N, float3 aSurfaceColor, float aMet
     
     const float3 specularBrdf = F * D * G;
     
-    // ??? smooth should be a vector3?
-    const float smooth = 1.05 * (1.0 - specularColor) * (1.0 - pow(1.0 - NdL, 5)) * (1.0 - pow(1.0 - NdV, 5));
+    const float3 smooth = 1.05 * (1.0 - specularColor) * (1.0 - pow(1.0 - NdL, 5)) * (1.0 - pow(1.0 - NdV, 5));
     const float facing = 0.5 + 0.5 * LdV;
     const float rough = facing * (0.9 - 0.4 * facing) * ((0.5 + NdH) / NdH);
-    const float single = lerp(smooth, rough, alphaGGX);
+    const float3 single = lerp(smooth, rough, alphaGGX);
     const float multi = 0.3641 * alphaGGX;
     
     const float3 diffuseBrdf = (diffuseColor / PI) * (single + diffuseColor * multi);

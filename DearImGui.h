@@ -12,5 +12,7 @@ public:
 	explicit operator bool() const { return mySucceeded; }
 
 private:
-	bool mySucceeded;
+	void AddFonts();
+
+	bool mySucceeded{ false };
 };

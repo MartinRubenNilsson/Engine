@@ -57,6 +57,7 @@ using BlendStatePtr = ComPtr<ID3D11BlendState>;
 #include <imgui/imgui_impl_dx11.h>
 #include <imgui/imgui.h>
 #include <imgui/ImGuizmo.h>
+#include <imgui/IconsFontAwesome6.h>
 
 // assimp
 #include <assimp/Importer.hpp>

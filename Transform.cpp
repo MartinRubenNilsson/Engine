@@ -110,7 +110,11 @@ bool ImGui::Hierarchy(Transform::Ptr aTransform, Transform::Ptr& aSelection)
 	if (aSelection == aTransform)
 		flags |= ImGuiTreeNodeFlags_Selected;
 
-	const bool open = TreeNodeEx(std::string{ aTransform->GetName() }.c_str(), flags);
+	std::string name{ ICON_FA_CUBE };
+	name += " ";
+	name += aTransform->GetName();
+
+	const bool open = TreeNodeEx(name.c_str(), flags);
 
 	if (IsItemClicked() && !IsItemToggledOpen())
 		aSelection = aTransform;

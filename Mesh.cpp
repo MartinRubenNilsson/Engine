@@ -83,6 +83,6 @@ void ImGui::InspectMesh(const Mesh& aMesh)
 	Text("Name: %s", aMesh.GetName().data());
 	Value("Vertices", aMesh.GetVertexCount());
 	Value("Indices", aMesh.GetIndexCount());
-	Text("Center: (%.3g, %.3g, %.3g)", box.Center.x, box.Center.y, box.Center.z);
-	Text("Extents: (%.3g, %.3g, %.3g)", box.Extents.x, box.Extents.y, box.Extents.z);
+	Text("Center: (%.2g, %.2g, %.2g)", box.Center.x, box.Center.y, box.Center.z);
+	Text("Extents: (%.2g, %.2g, %.2g)", box.Extents.x, box.Extents.y, box.Extents.z);
 }

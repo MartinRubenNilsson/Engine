@@ -265,6 +265,9 @@
     <ClInclude Include="External\entt\entt.hpp">
       <Filter>entt</Filter>
     </ClInclude>
+    <ClInclude Include="External\imgui\IconsFontAwesome6.h">
+      <Filter>imgui</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="External\imgui\imgui.cpp">

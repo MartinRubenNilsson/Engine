@@ -110,10 +110,6 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
         {
             imGui.NewFrame();
 
-            /*ImGui::Begin("Buffer");
-            ImGui::SliderInt("Buffer", &renderer.pass, 0, 6);
-            ImGui::End();*/
-
             ImGui::ViewManipulate(camera, cameraTransform, cameraDistance, {}, { 150.f, 150.f }, 0);
 
             if (ImGui::IsMouseClicked(ImGuiMouseButton_Left) && !ImGui::GetIO().WantCaptureMouse)
@@ -122,11 +118,11 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
                 selection = renderer.PickEntity(static_cast<unsigned>(pos.x), static_cast<unsigned>(pos.y));
             }
 
-            ImGui::Begin("Hierarchy");
+            ImGui::Begin(ICON_FA_LIST" Hierarchy");
             ImGui::Hierarchy(registry, selection);
             ImGui::End();
 
-            ImGui::Begin("Inspector");
+            ImGui::Begin(ICON_FA_CIRCLE_INFO" Inspector");
             ImGui::Inspector({ registry, selection });
             ImGui::End();
 
