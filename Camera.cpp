@@ -3,7 +3,7 @@
 
 namespace
 {
-	struct CameraVisitor
+	struct ProjectionBuilder
 	{
 		Matrix operator()(const PerspectiveCamera& aCamera)
 		{
@@ -64,7 +64,7 @@ Matrix Camera::GetViewMatrix() const
 
 Matrix Camera::GetProjectionMatrix() const
 {
-	return std::visit(CameraVisitor{}, myCamera);
+	return std::visit(ProjectionBuilder{}, myCamera);
 }
 
 void Camera::SetPerspective(const PerspectiveCamera& aCamera)
@@ -83,35 +83,35 @@ void Camera::SetOrthographic(const OrthographicCamera& aCamera)
 * namespace ImGui
 */
 
-void ImGui::InspectCamera(class Camera& aCamera)
+namespace ImGui
+{
+	struct CameraInspector
+	{
+		void operator()(PerspectiveCamera& aCamera)
+		{
+			DragFloat("FoV", &aCamera.fovY, 0.01f);
+			DragFloat("Aspect", &aCamera.aspect, 0.01f);
+			DragFloat("Near Z", &aCamera.nearZ, 0.1f);
+			DragFloat("Far Z", &aCamera.farZ);
+		}
+
+		void operator()(OrthographicCamera& aCamera)
+		{
+			DragFloat("Width", &aCamera.width, 0.01f);
+			DragFloat("Height", &aCamera.height, 0.01f);
+			DragFloat("Near Z", &aCamera.nearZ, 0.1f);
+			DragFloat("Far Z", &aCamera.farZ);
+		}
+	};
+}
+
+void ImGui::InspectCamera(Camera& aCamera)
 {
 	int type{ static_cast<int>(aCamera.GetType()) };
 	if (Combo("Type", &type, "Perspective\0Orthographic\0\0"))
 		type ? aCamera.SetOrthographic({}) : aCamera.SetPerspective({});
 
-	// todo: add min/max limits
-
-	switch (aCamera.GetType())
-	{
-	case CameraType::Perspective:
-	{
-		auto& camera{ aCamera.Get<PerspectiveCamera>() };
-		DragFloat("FoV", &camera.fovY, 0.01f);
-		DragFloat("Aspect", &camera.aspect, 0.01f);
-		DragFloat("Near Z", &camera.nearZ, 0.1f);
-		DragFloat("Far Z", &camera.farZ);
-		break;
-	}
-	case CameraType::Orthographic:
-	{
-		auto& camera{ aCamera.Get<OrthographicCamera>() };
-		DragFloat("Width", &camera.width, 0.01f);
-		DragFloat("Height", &camera.height, 0.01f);
-		DragFloat("Near Z", &camera.nearZ, 0.1f);
-		DragFloat("Far Z", &camera.farZ);
-		break;
-	}
-	}
+	std::visit(CameraInspector{}, aCamera.myCamera);
 }
 
 void ImGui::DrawCubes(const Camera& aCamera, const Matrix& aCameraTransform, std::span<const Matrix> someCubeTransforms)

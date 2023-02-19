@@ -22,6 +22,13 @@ struct OrthographicCamera
 	float farZ = 1000.f;
 };
 
+class Camera;
+
+namespace ImGui
+{
+	void InspectCamera(Camera& aCamera);
+}
+
 class Camera
 {
 public:
@@ -36,18 +43,15 @@ public:
 	void SetPerspective(const PerspectiveCamera&);
 	void SetOrthographic(const OrthographicCamera&);
 
-	template <class T>       T& Get()       { return std::get<T>(myCamera); }
-	template <class T> const T& Get() const { return std::get<T>(myCamera); }
-
 private:
+	friend void ImGui::InspectCamera(Camera&);
+
 	Vector3 myPosition{ Vector3::Zero }, myDirection{ -Vector3::Forward }, myUp{ Vector3::Up };
 	std::variant<PerspectiveCamera, OrthographicCamera> myCamera{};
 };
 
 namespace ImGui
 {
-	void InspectCamera(Camera& aCamera);
-
 	void DrawCubes(const Camera& aCamera, const Matrix& aCameraTransform, std::span<const Matrix> someCubeTransforms);
 	void DrawGrid(const Camera& aCamera, const Matrix& aCameraTransform, const Matrix& aGridTransform, float aGridSize);
 
