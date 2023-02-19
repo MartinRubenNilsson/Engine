@@ -28,9 +28,6 @@
     <ClInclude Include="External\imgui\imstb_truetype.h">
       <Filter>imgui</Filter>
     </ClInclude>
-    <ClInclude Include="External\directxtk\simplemath\SimpleMath.h">
-      <Filter>directxtk\simplemath</Filter>
-    </ClInclude>
     <ClInclude Include="External\assimp\aabb.h">
       <Filter>assimp</Filter>
     </ClInclude>
@@ -268,6 +265,21 @@
     <ClInclude Include="External\imgui\IconsFontAwesome6.h">
       <Filter>imgui</Filter>
     </ClInclude>
+    <ClInclude Include="External\directxtk\Keyboard.h">
+      <Filter>directxtk</Filter>
+    </ClInclude>
+    <ClInclude Include="External\directxtk\Mouse.h">
+      <Filter>directxtk</Filter>
+    </ClInclude>
+    <ClInclude Include="External\directxtk\SimpleMath.h">
+      <Filter>directxtk</Filter>
+    </ClInclude>
+    <ClInclude Include="External\directxtk\pch.h">
+      <Filter>directxtk</Filter>
+    </ClInclude>
+    <ClInclude Include="External\directxtk\PlatformHelpers.h">
+      <Filter>directxtk</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="External\imgui\imgui.cpp">
@@ -294,11 +306,20 @@
     <ClCompile Include="External\imgui\imgui_widgets.cpp">
       <Filter>imgui</Filter>
     </ClCompile>
-    <ClCompile Include="External\directxtk\simplemath\SimpleMath.cpp">
-      <Filter>directxtk\simplemath</Filter>
-    </ClCompile>
     <ClCompile Include="External\imgui\ImGuizmo.cpp">
       <Filter>imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="External\directxtk\SimpleMath.cpp">
+      <Filter>directxtk</Filter>
+    </ClCompile>
+    <ClCompile Include="External\directxtk\Keyboard.cpp">
+      <Filter>directxtk</Filter>
+    </ClCompile>
+    <ClCompile Include="External\directxtk\Mouse.cpp">
+      <Filter>directxtk</Filter>
+    </ClCompile>
+    <ClCompile Include="External\directxtk\pch.cpp">
+      <Filter>directxtk</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -307,9 +328,6 @@
     </Filter>
     <Filter Include="directxtk">
       <UniqueIdentifier>{671e2649-f407-4b59-93b3-cb5882d75af8}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="directxtk\simplemath">
-      <UniqueIdentifier>{399442e4-ca25-454e-b3e5-ede583d183dd}</UniqueIdentifier>
     </Filter>
     <Filter Include="assimp">
       <UniqueIdentifier>{3192f0f0-aac5-4132-b1b9-9a58c9da5b2c}</UniqueIdentifier>
@@ -322,9 +340,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <None Include="External\directxtk\simplemath\SimpleMath.inl">
-      <Filter>directxtk\simplemath</Filter>
-    </None>
     <None Include="External\assimp\assimp-vc142-mt.dll">
       <Filter>assimp</Filter>
     </None>
@@ -354,6 +369,9 @@
     </None>
     <None Include="External\assimp\vector3.inl">
       <Filter>assimp</Filter>
+    </None>
+    <None Include="External\directxtk\SimpleMath.inl">
+      <Filter>directxtk</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

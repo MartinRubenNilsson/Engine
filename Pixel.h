@@ -6,7 +6,7 @@ public:
 	Pixel() = default;
 	Pixel(DXGI_FORMAT);
 
-	void Pick(TexturePtr aTexture, unsigned x, unsigned y);
+	void Copy(TexturePtr aTexture, unsigned x, unsigned y);
 	void Read(void* someData, size_t aSize) const;
 
 	explicit operator bool() const { return myTexture; }

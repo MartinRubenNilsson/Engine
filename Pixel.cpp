@@ -4,8 +4,8 @@
 Pixel::Pixel(DXGI_FORMAT aFormat)
 {
 	D3D11_TEXTURE2D_DESC desc{};
-	desc.Width = 10;
-	desc.Height = 10;
+	desc.Width = 1;
+	desc.Height = 1;
 	desc.MipLevels = 1;
 	desc.ArraySize = 1;
 	desc.Format = aFormat;
@@ -19,7 +19,7 @@ Pixel::Pixel(DXGI_FORMAT aFormat)
 	DX11_DEVICE->CreateTexture2D(&desc, NULL, &myTexture);
 }
 
-void Pixel::Pick(TexturePtr aTexture, unsigned x, unsigned y)
+void Pixel::Copy(TexturePtr aTexture, unsigned x, unsigned y)
 {
 	if (!myTexture || !aTexture)
 		return;

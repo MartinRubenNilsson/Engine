@@ -3,7 +3,6 @@
 #include "DepthBuffer.h"
 #include "RenderTargets.h"
 #include "ConstantBuffer.h"
-#include "Pixel.h"
 #include "Camera.h"
 #include "Light.h"
 #include "Cubemap.h"
@@ -39,7 +38,6 @@ private:
 	std::array<ConstantBuffer, CBufferCount> myCBuffers{};
 	DepthBuffer myDepthBuffer{};
 	RenderTargets myGeometryBuffer{}, myLightningBuffer{};
-	Pixel myEntityPixel{};
 	Cubemap mySkybox{};
 
 	bool mySucceeded{ false };

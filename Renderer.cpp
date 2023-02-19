@@ -6,6 +6,7 @@
 #include "Transform.h"
 #include "Light.h"
 #include "FullscreenPass.h"
+#include "Pixel.h"
 
 Renderer::Renderer(unsigned aWidth, unsigned aHeight)
 {
@@ -20,10 +21,6 @@ Renderer::Renderer(unsigned aWidth, unsigned aHeight)
 	}
 
 	if (!ResizeTextures(aWidth, aHeight))
-		return;
-
-	myEntityPixel = { DXGI_FORMAT_R32_UINT };
-	if (!myEntityPixel)
 		return;
 
 	// Skybox
@@ -120,8 +117,14 @@ void Renderer::RenderGBufferTexture(size_t anIndex)
 entt::entity Renderer::PickEntity(unsigned x, unsigned y)
 {
 	entt::entity entity{ entt::null };
-	myEntityPixel.Pick(myGeometryBuffer.GetTexture(TEXTURE_SLOT_GBUFFER_ENTITY), x, y);
-	myEntityPixel.Read(&entity, sizeof(entity));
+
+	Pixel pixel{ DXGI_FORMAT_R32_UINT };
+	if (pixel)
+	{
+		pixel.Copy(myGeometryBuffer.GetTexture(TEXTURE_SLOT_GBUFFER_ENTITY), x, y);
+		pixel.Read(&entity, sizeof(entity));
+	}
+
 	return entity;
 }
 

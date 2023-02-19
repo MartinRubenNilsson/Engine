@@ -94,7 +94,11 @@
     <ClInclude Include="External\assimp\XmlParser.h" />
     <ClInclude Include="External\assimp\XMLTools.h" />
     <ClInclude Include="External\assimp\ZipArchiveIOSystem.h" />
-    <ClInclude Include="External\directxtk\simplemath\SimpleMath.h" />
+    <ClInclude Include="External\directxtk\Keyboard.h" />
+    <ClInclude Include="External\directxtk\Mouse.h" />
+    <ClInclude Include="External\directxtk\pch.h" />
+    <ClInclude Include="External\directxtk\PlatformHelpers.h" />
+    <ClInclude Include="External\directxtk\SimpleMath.h" />
     <ClInclude Include="External\entt\entt.hpp" />
     <ClInclude Include="External\imgui\IconsFontAwesome6.h" />
     <ClInclude Include="External\imgui\imconfig.h" />
@@ -110,7 +114,10 @@
     <ClInclude Include="External\stb\stb_image.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="External\directxtk\simplemath\SimpleMath.cpp" />
+    <ClCompile Include="External\directxtk\Keyboard.cpp" />
+    <ClCompile Include="External\directxtk\Mouse.cpp" />
+    <ClCompile Include="External\directxtk\pch.cpp" />
+    <ClCompile Include="External\directxtk\SimpleMath.cpp" />
     <ClCompile Include="External\imgui\imgui.cpp" />
     <ClCompile Include="External\imgui\ImGuizmo.cpp" />
     <ClCompile Include="External\imgui\imgui_demo.cpp" />
@@ -132,7 +139,7 @@
     <None Include="External\assimp\SmoothingGroups.inl" />
     <None Include="External\assimp\vector2.inl" />
     <None Include="External\assimp\vector3.inl" />
-    <None Include="External\directxtk\simplemath\SimpleMath.inl" />
+    <None Include="External\directxtk\SimpleMath.inl" />
   </ItemGroup>
   <ItemGroup>
     <Library Include="External\assimp\assimp-vc142-mt.lib" />

@@ -37,7 +37,9 @@ using Microsoft::WRL::ComPtr;
 #include <d3d11.h>
 #include <DirectXMath.h>
 #include <DirectXCollision.h>
-#include <directxtk/simplemath/SimpleMath.h>
+#include <directxtk/SimpleMath.h>
+#include <directxtk/Mouse.h>
+#include <directxtk/Keyboard.h>
 using namespace DirectX;
 using namespace DirectX::SimpleMath;
 
