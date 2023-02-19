@@ -38,9 +38,6 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
     Mouse mouse{};
     mouse.SetWindow(window);
 
-    Mouse::ButtonStateTracker stateTracker{};
-    stateTracker;
-
     DX11 dx11{};
     if (!dx11)
         return EXIT_FAILURE;
@@ -115,9 +112,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
 
             if (state.positionMode == Mouse::MODE_RELATIVE)
             {
-                constexpr float rotSpeed = 0.25f;
-                constexpr float moveSpeed = 5.f;
-
+                const float rotSpeed = 0.25f;
+                const float moveSpeed = ImGui::IsKeyDown(ImGuiKey_LeftShift) ? 15.f : 5.f;
                 const float deltaTime = ImGui::GetIO().DeltaTime;
 
                 if (state.x != 0 || state.y != 0)
