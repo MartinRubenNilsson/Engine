@@ -1,4 +1,5 @@
 #pragma once
+#include "ShaderCommon.h"
 #include "DepthBuffer.h"
 #include "RenderTargets.h"
 #include "ConstantBuffer.h"
@@ -11,22 +12,21 @@ class Renderer
 
 {
 public:
-	int pass = 0;
-
 	Renderer() = default;
 	Renderer(unsigned aWidth, unsigned aHeight);
 
-	bool ResizeBuffers(unsigned aWidth, unsigned aHeight);
+	bool ResizeTextures(unsigned aWidth, unsigned aHeight);
 
 	void SetCamera(const Camera& aCamera, const Matrix& aTransform);
 	void Render(entt::registry&);
+	void RenderGBufferTexture(size_t anIndex);
 
 	entt::entity PickEntity(unsigned x, unsigned y);
 
 	explicit operator bool() const { return mySucceeded; }
 
 private:
-	void ClearBuffers();
+	void Clear();
 	void RenderGeometry(entt::registry&);
 	void RenderLightning(entt::registry&);
 	void RenderSkybox();
@@ -36,14 +36,9 @@ private:
 	void RenderPointLights(std::span<const PointLight>);
 	void RenderSpotLights(std::span<const SpotLight>);
 
+	std::array<ConstantBuffer, CBufferCount> myCBuffers{};
 	DepthBuffer myDepthBuffer{};
-	RenderTargets myGeometryBuffer{};
-	RenderTargets myLightningBuffer{};
-
-	ConstantBuffer myCameraBuffer{};
-	ConstantBuffer myMeshBuffer{};
-	ConstantBuffer myLightBuffer{};
-
+	RenderTargets myGeometryBuffer{}, myLightningBuffer{};
 	Pixel myEntityPixel{};
 	Cubemap mySkybox{};
 

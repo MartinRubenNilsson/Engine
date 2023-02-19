@@ -1,8 +1,12 @@
 #pragma once
 
-#define CBUFFER_SLOT_CAMERA 0
-#define CBUFFER_SLOT_MESH 1
-#define CBUFFER_SLOT_LIGHT 2
+enum CBufferSlot : unsigned
+{
+	CBufferCamera,
+	CBufferMesh,
+	CBufferLight,
+	CBufferCount,
+};
 
 #define TEXTURE_SLOT_GBUFFER 0
 #define TEXTURE_SLOT_GBUFFER_ENTITY 5

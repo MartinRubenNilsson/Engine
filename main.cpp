@@ -86,7 +86,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
         if (theResize)
         {
             backBuffer = { window.operator HWND() };
-            renderer.ResizeBuffers(backBuffer.GetWidth(), backBuffer.GetHeight());
+            renderer.ResizeTextures(backBuffer.GetWidth(), backBuffer.GetHeight());
             theResize = false;
         }
 
@@ -110,9 +110,9 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
         {
             imGui.NewFrame();
 
-            ImGui::Begin("Buffer");
+            /*ImGui::Begin("Buffer");
             ImGui::SliderInt("Buffer", &renderer.pass, 0, 6);
-            ImGui::End();
+            ImGui::End();*/
 
             ImGui::ViewManipulate(camera, cameraTransform, cameraDistance, {}, { 150.f, 150.f }, 0);
 

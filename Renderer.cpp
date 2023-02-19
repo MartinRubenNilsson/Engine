@@ -1,6 +1,5 @@
 #include "pch.h"
 #include "Renderer.h"
-#include "ShaderCommon.h"
 #include "Camera.h"
 #include "Material.h"
 #include "Mesh.h"
@@ -10,27 +9,18 @@
 
 Renderer::Renderer(unsigned aWidth, unsigned aHeight)
 {
-	if (!ResizeBuffers(aWidth, aHeight))
+	myCBuffers = { sizeof(CameraBuffer), sizeof(MeshBuffer), sizeof(LightBuffer) };
+	if (!std::ranges::all_of(myCBuffers, &ConstantBuffer::operator bool))
 		return;
 
-	myCameraBuffer = { sizeof(CameraBuffer) };
-	if (!myCameraBuffer)
-		return;
+	for (unsigned i = 0; i < CBufferCount; ++i)
+	{
+		myCBuffers[i].VSSetBuffer(i);
+		myCBuffers[i].PSSetBuffer(i);
+	}
 
-	myMeshBuffer = { sizeof(MeshBuffer) };
-	if (!myMeshBuffer)
+	if (!ResizeTextures(aWidth, aHeight))
 		return;
-
-	myLightBuffer = { sizeof(LightBuffer) };
-	if (!myLightBuffer)
-		return;
-	
-	myCameraBuffer.VSSetBuffer(CBUFFER_SLOT_CAMERA);
-	myCameraBuffer.PSSetBuffer(CBUFFER_SLOT_CAMERA);
-	myMeshBuffer.VSSetBuffer(CBUFFER_SLOT_MESH);
-	myMeshBuffer.PSSetBuffer(CBUFFER_SLOT_MESH);
-	myLightBuffer.VSSetBuffer(CBUFFER_SLOT_LIGHT);
-	myLightBuffer.PSSetBuffer(CBUFFER_SLOT_LIGHT);
 
 	myEntityPixel = { DXGI_FORMAT_R32_UINT };
 	if (!myEntityPixel)
@@ -56,7 +46,7 @@ Renderer::Renderer(unsigned aWidth, unsigned aHeight)
 	mySucceeded = true;
 }
 
-bool Renderer::ResizeBuffers(unsigned aWidth, unsigned aHeight)
+bool Renderer::ResizeTextures(unsigned aWidth, unsigned aHeight)
 {
 	static constexpr std::array geometryFormats
 	{
@@ -86,7 +76,7 @@ void Renderer::SetCamera(const Camera& aCamera, const Matrix& aTransform)
 	buffer.cameraViewProjMatrix = aTransform.Invert() * aCamera.GetViewMatrix() * aCamera.GetProjectionMatrix();
 	buffer.cameraPosition = { aTransform.Translation().operator XMVECTOR() };
 
-	myCameraBuffer.WriteToBuffer(&buffer);
+	myCBuffers.at(CBufferCamera).WriteToBuffer(&buffer);
 }
 
 void Renderer::Render(entt::registry& aRegistry)
@@ -101,11 +91,30 @@ void Renderer::Render(entt::registry& aRegistry)
 
 	ScopedSamplerStates scopedSamplers{ 0, samplers }; // todo: replace 0 with macro?
 
-	ClearBuffers();
+	Clear();
 	RenderGeometry(aRegistry);
 	RenderLightning(aRegistry);
 	RenderSkybox();
 	TonemapAndGammaCorrect();
+}
+
+void Renderer::RenderGBufferTexture(size_t anIndex)
+{
+	FullscreenPass passes[]
+	{
+		PIXEL_SHADER("PsGBufferWorldPosition.cso"),
+		PIXEL_SHADER("PsGBufferVertexNormal.cso"),
+		PIXEL_SHADER("PsGBufferPixelNormal.cso"),
+		PIXEL_SHADER("PsGBufferAlbedo.cso"),
+		PIXEL_SHADER("PsGBufferMetalRoughAo.cso"),
+		PIXEL_SHADER("PsGBufferEntity.cso"),
+	};
+
+	if (anIndex >= std::size(passes))
+		return;
+
+	ScopedShaderResources scopedResources{ ShaderType::Pixel, 0, myGeometryBuffer };
+	passes[anIndex].Render();
 }
 
 entt::entity Renderer::PickEntity(unsigned x, unsigned y)
@@ -116,7 +125,7 @@ entt::entity Renderer::PickEntity(unsigned x, unsigned y)
 	return entity;
 }
 
-void Renderer::ClearBuffers()
+void Renderer::Clear()
 {
 	myDepthBuffer.Clear();
 	myGeometryBuffer.Clear();
@@ -148,7 +157,7 @@ void Renderer::RenderGeometry(entt::registry& aRegistry)
 		buffer.meshMatrixInverseTranspose = buffer.meshMatrix.Invert().Transpose();
 		std::ranges::fill(buffer.meshEntity, std::to_underlying(entity));
 
-		myMeshBuffer.WriteToBuffer(&buffer);
+		myCBuffers.at(CBufferMesh).WriteToBuffer(&buffer);
 
 		DX11_CONTEXT->DrawIndexed(mesh->GetIndexCount(), 0, 0);
 	}
@@ -220,32 +229,14 @@ void Renderer::RenderSkybox()
 
 void Renderer::TonemapAndGammaCorrect()
 {
-	static FullscreenPass passes[]
-	{
-		PIXEL_SHADER("PsTonemapAndGammaCorrect.cso"),
-		PIXEL_SHADER("PsGBufferWorldPosition.cso"),
-		PIXEL_SHADER("PsGBufferVertexNormal.cso"),
-		PIXEL_SHADER("PsGBufferPixelNormal.cso"),
-		PIXEL_SHADER("PsGBufferAlbedo.cso"),
-		PIXEL_SHADER("PsGBufferMetalRoughAo.cso"),
-		PIXEL_SHADER("PsGBufferEntity.cso"),
-	};
-
-	if (pass == 0)
-	{
-		ScopedShaderResources scopedResources{ ShaderType::Pixel, 0, myLightningBuffer };
-		passes[pass].Render();
-	}
-	else if (pass < std::size(passes))
-	{
-		ScopedShaderResources scopedResources{ ShaderType::Pixel, 0, myGeometryBuffer };
-		passes[pass].Render();
-	}
+	ScopedShaderResources scopedResources{ ShaderType::Pixel, 0, myLightningBuffer };
+	FullscreenPass pass{ PIXEL_SHADER("PsTonemapAndGammaCorrect.cso") };
+	pass.Render();
 }
 
 void Renderer::RenderDirectionalLights(std::span<const DirectionalLight> someLights)
 {
-	FullscreenPass lightPass{ PIXEL_SHADER("PsDirectionalLight.cso") };
+	FullscreenPass pass{ PIXEL_SHADER("PsDirectionalLight.cso") };
 
 	for (const DirectionalLight& light : someLights)
 	{
@@ -253,15 +244,15 @@ void Renderer::RenderDirectionalLights(std::span<const DirectionalLight> someLig
 		buffer.lightColor = light.color;
 		buffer.lightDirection = { light.direction.x, light.direction.y, light.direction.z, 0.f };
 
-		myLightBuffer.WriteToBuffer(&buffer);
+		myCBuffers.at(CBufferLight).WriteToBuffer(&buffer);
 
-		lightPass.Render();
+		pass.Render();
 	}
 }
 
 void Renderer::RenderPointLights(std::span<const PointLight> someLights)
 {
-	FullscreenPass lightPass{ PIXEL_SHADER("PsPointLight.cso") };
+	FullscreenPass pass{ PIXEL_SHADER("PsPointLight.cso") };
 
 	for (const PointLight& light : someLights)
 	{
@@ -270,15 +261,15 @@ void Renderer::RenderPointLights(std::span<const PointLight> someLights)
 		buffer.lightPosition = { light.position.x, light.position.y, light.position.z, 1.f };
 		buffer.lightParameters = light.parameters;
 
-		myLightBuffer.WriteToBuffer(&buffer);
+		myCBuffers.at(CBufferLight).WriteToBuffer(&buffer);
 
-		lightPass.Render();
+		pass.Render();
 	}
 }
 
 void Renderer::RenderSpotLights(std::span<const SpotLight> someLights)
 {
-	FullscreenPass lightPass{ PIXEL_SHADER("PsSpotLight.cso") };
+	FullscreenPass pass{ PIXEL_SHADER("PsSpotLight.cso") };
 
 	for (const SpotLight& light : someLights)
 	{
@@ -289,9 +280,9 @@ void Renderer::RenderSpotLights(std::span<const SpotLight> someLights)
 		buffer.lightParameters = light.parameters;
 		buffer.lightConeAngles = { light.innerAngle, light.outerAngle, 0.f, 0.f };
 
-		myLightBuffer.WriteToBuffer(&buffer);
+		myCBuffers.at(CBufferLight).WriteToBuffer(&buffer);
 
-		lightPass.Render();
+		pass.Render();
 	}
 }
 
