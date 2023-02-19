@@ -8,9 +8,9 @@ enum class CameraType
 
 struct PerspectiveCamera
 {
-	float fovY = XM_PIDIV2;
+	float fovY = 1.04719755119f; // 60 degrees
 	float aspect = 1.f;
-	float nearZ = 0.01f;
+	float nearZ = 0.3f;
 	float farZ = 1000.f;
 };
 
@@ -18,7 +18,7 @@ struct OrthographicCamera
 {
 	float width = 10.f;
 	float height = 10.f;
-	float nearZ = 0.01f;
+	float nearZ = 0.3f;
 	float farZ = 1000.f;
 };
 
@@ -43,10 +43,10 @@ public:
 	void SetPerspective(const PerspectiveCamera&);
 	void SetOrthographic(const OrthographicCamera&);
 
-private:
+protected:
 	friend void ImGui::InspectCamera(Camera&);
 
-	Vector3 myPosition{ Vector3::Zero }, myDirection{ -Vector3::Forward }, myUp{ Vector3::Up };
+	Vector3 myPosition{ Vector3::Zero }, myDirection{ Vector3::UnitZ }, myUp{ Vector3::UnitY };
 	std::variant<PerspectiveCamera, OrthographicCamera> myCamera{};
 };
 

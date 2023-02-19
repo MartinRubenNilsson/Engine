@@ -35,6 +35,12 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
 
     window.SetTitle(L"Model Viewer");
 
+    Mouse mouse{};
+    mouse.SetWindow(window);
+
+    Mouse::ButtonStateTracker stateTracker{};
+    stateTracker;
+
     DX11 dx11{};
     if (!dx11)
         return EXIT_FAILURE;
@@ -60,9 +66,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
 
     SceneManager sceneMgr{};
 
-    Matrix cameraTransform;
-    const float cameraDistance = 0.2f;
-    cameraTransform.Translation({ 0.f, 0.f, -cameraDistance });
+    Camera camera{};
+    Matrix cameraTransform{};
 
     entt::registry registry{};
     entt::entity selection{ entt::null };
@@ -98,19 +103,54 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
             theDrop = {};
         }
 
-        // Create camera
-        PerspectiveCamera perspective{};
-        perspective.fovY = 1.04719755119f; // 60 degrees
-        perspective.aspect = backBuffer.GetViewport().AspectRatio();
+        // Editor camera
+        {
+            PerspectiveCamera perspective{};
+            perspective.fovY = 1.04719755119f; // 60 degrees
+            perspective.aspect = backBuffer.GetViewport().AspectRatio();
+            camera.SetPerspective(perspective);
 
-        Camera camera{};
-        camera.SetPerspective(perspective);
+            Mouse::State state{ mouse.GetState() };
+            mouse.SetMode(state.rightButton ? Mouse::MODE_RELATIVE : Mouse::MODE_ABSOLUTE);
+
+            if (state.positionMode == Mouse::MODE_RELATIVE)
+            {
+                constexpr float rotSpeed = 0.25f;
+                constexpr float moveSpeed = 5.f;
+
+                const float deltaTime = ImGui::GetIO().DeltaTime;
+
+                if (state.x != 0 || state.y != 0)
+                {
+                    Vector3 scale{}, translation{};
+                    Quaternion rotation{};
+                    cameraTransform.Decompose(scale, rotation, translation);
+
+                    rotation = Quaternion::CreateFromAxisAngle(Vector3::UnitX, state.y * rotSpeed * deltaTime) * rotation;
+                    rotation = rotation * Quaternion::CreateFromAxisAngle(Vector3::UnitY, state.x * rotSpeed * deltaTime);
+                
+                    cameraTransform = Matrix::CreateFromQuaternion(rotation) * Matrix::CreateTranslation(translation);
+                }
+
+                Vector3 moveDir{};
+
+                if (ImGui::IsKeyDown(ImGuiKey_D)) moveDir += Vector3::UnitX;
+                if (ImGui::IsKeyDown(ImGuiKey_A)) moveDir -= Vector3::UnitX;
+                if (ImGui::IsKeyDown(ImGuiKey_E)) moveDir += Vector3::UnitY;
+                if (ImGui::IsKeyDown(ImGuiKey_Q)) moveDir -= Vector3::UnitY;
+                if (ImGui::IsKeyDown(ImGuiKey_W)) moveDir += Vector3::UnitZ;
+                if (ImGui::IsKeyDown(ImGuiKey_S)) moveDir -= Vector3::UnitZ;
+            
+                if (moveDir != Vector3::Zero)
+                    cameraTransform = Matrix::CreateTranslation(moveDir * moveSpeed * deltaTime) * cameraTransform;
+            }
+        }
+
+        mouse.EndOfInputFrame();
 
         // ImGui
         {
             imGui.NewFrame();
-
-            ImGui::ViewManipulate(camera, cameraTransform, cameraDistance, {}, { 150.f, 150.f }, 0);
 
             if (ImGui::IsMouseClicked(ImGuiMouseButton_Left) && !ImGui::GetIO().WantCaptureMouse)
             {
@@ -165,17 +205,24 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
 	return static_cast<int>(msg.wParam);
 }
 
-IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 
-LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
+LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-    if (ImGui_ImplWin32_WndProcHandler(hWnd, msg, wParam, lParam))
+    if (ImGui_ImplWin32_WndProcHandler(hWnd, message, wParam, lParam))
         return 0;
 
-    switch (msg)
+    if (ImGui::GetCurrentContext() && !ImGui::GetIO().WantCaptureMouse)
+        Mouse::ProcessMessage(message, wParam, lParam);
+
+    switch (message)
     {
     case WM_DESTROY:
         PostQuitMessage(EXIT_SUCCESS);
+        break;
+    case WM_SIZE:
+        if (wParam == SIZE_MAXIMIZED || wParam == SIZE_RESTORED)
+            theResize = true;
         break;
     case WM_EXITSIZEMOVE:
         theResize = true;
@@ -184,7 +231,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
         theDrop = { (HDROP)wParam };
         break;
     default:
-        return DefWindowProc(hWnd, msg, wParam, lParam);
+        return DefWindowProc(hWnd, message, wParam, lParam);
     }
 
     return 0;
