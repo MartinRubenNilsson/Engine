@@ -1,16 +1,20 @@
 #include "pch.h"
 #include "Camera.h"
 
-using namespace DirectX;
-
-Matrix PerspectiveCamera::GetProjectionMatrix() const
+namespace
 {
-	return XMMatrixPerspectiveFovLH(fovY, aspect, nearZ, farZ);
-}
+	struct CameraVisitor
+	{
+		Matrix operator()(const PerspectiveCamera& aCamera)
+		{
+			return XMMatrixPerspectiveFovLH(aCamera.fovY, aCamera.aspect, aCamera.nearZ, aCamera.farZ);
+		}
 
-Matrix OrthographicCamera::GetProjectionMatrix() const
-{
-	return XMMatrixOrthographicLH(width, height, nearZ, farZ);
+		Matrix operator()(const OrthographicCamera& aCamera)
+		{
+			return XMMatrixOrthographicLH(aCamera.width, aCamera.height, aCamera.nearZ, aCamera.farZ);
+		}
+	};
 }
 
 /*
@@ -19,11 +23,12 @@ Matrix OrthographicCamera::GetProjectionMatrix() const
 
 Camera::Camera(const aiCamera& aCamera)
 {
-	myViewMatrix = XMMatrixLookToLH(
-		{ aCamera.mPosition.x, aCamera.mPosition.y, aCamera.mPosition.z },
-		XMVector3Normalize({ aCamera.mLookAt.x, aCamera.mLookAt.y, aCamera.mLookAt.z }),
-		XMVector3Normalize({ aCamera.mUp.x, aCamera.mUp.y, aCamera.mUp.z })
-	);
+	std::memcpy(&myPosition, &aCamera.mPosition, sizeof(Vector3));
+	std::memcpy(&myDirection, &aCamera.mLookAt, sizeof(Vector3));
+	std::memcpy(&myUp, &aCamera.mUp, sizeof(Vector3));
+
+	myDirection.Normalize();
+	myUp.Normalize();
 
 	if (aCamera.mOrthographicWidth == 0.f)
 	{
@@ -39,7 +44,7 @@ Camera::Camera(const aiCamera& aCamera)
 	{
 		OrthographicCamera camera{};
 		camera.width = 2.f * aCamera.mOrthographicWidth;
-		camera.height = camera.width / aCamera.mAspect;;
+		camera.height = camera.width / aCamera.mAspect;
 		camera.nearZ = aCamera.mClipPlaneNear;
 		camera.farZ = aCamera.mClipPlaneFar;
 
@@ -52,16 +57,14 @@ CameraType Camera::GetType() const
 	return static_cast<CameraType>(myCamera.index());
 }
 
-const Matrix& Camera::GetViewMatrix() const
+Matrix Camera::GetViewMatrix() const
 {
-	return myViewMatrix;
+	return XMMatrixLookToLH(myPosition, myDirection, myUp);
 }
 
 Matrix Camera::GetProjectionMatrix() const
 {
-	return GetType() == CameraType::Perspective ?
-		std::get<PerspectiveCamera>(myCamera).GetProjectionMatrix() :
-		std::get<OrthographicCamera>(myCamera).GetProjectionMatrix();
+	return std::visit(CameraVisitor{}, myCamera);
 }
 
 void Camera::SetPerspective(const PerspectiveCamera& aCamera)
@@ -85,6 +88,8 @@ void ImGui::InspectCamera(class Camera& aCamera)
 	int type{ static_cast<int>(aCamera.GetType()) };
 	if (Combo("Type", &type, "Perspective\0Orthographic\0\0"))
 		type ? aCamera.SetOrthographic({}) : aCamera.SetPerspective({});
+
+	// todo: add min/max limits
 
 	switch (aCamera.GetType())
 	{

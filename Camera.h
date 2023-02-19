@@ -12,8 +12,6 @@ struct PerspectiveCamera
 	float aspect = 1.f;
 	float nearZ = 0.01f;
 	float farZ = 1000.f;
-
-	Matrix GetProjectionMatrix() const;
 };
 
 struct OrthographicCamera
@@ -22,8 +20,6 @@ struct OrthographicCamera
 	float height = 10.f;
 	float nearZ = 0.01f;
 	float farZ = 1000.f;
-
-	Matrix GetProjectionMatrix() const;
 };
 
 class Camera
@@ -34,7 +30,7 @@ public:
 
 	CameraType GetType() const;
 
-	const Matrix& GetViewMatrix() const;
+	Matrix GetViewMatrix() const;
 	Matrix GetProjectionMatrix() const;
 
 	void SetPerspective(const PerspectiveCamera&);
@@ -44,7 +40,7 @@ public:
 	template <class T> const T& Get() const { return std::get<T>(myCamera); }
 
 private:
-	Matrix myViewMatrix{ DirectX::XMMatrixLookToLH({ 0, 0, 0 }, { 0, 0, 1 }, { 0, 1, 0 }) };
+	Vector3 myPosition{ Vector3::Zero }, myDirection{ -Vector3::Forward }, myUp{ Vector3::Up };
 	std::variant<PerspectiveCamera, OrthographicCamera> myCamera{};
 };
 
