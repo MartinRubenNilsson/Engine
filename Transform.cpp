@@ -106,6 +106,12 @@ bool Transform::IsChildOf(Ptr aParent) const
 	return false;
 }
 
+Transform::~Transform()
+{
+	for (auto& child : myChildren)
+		child->myParent = nullptr;
+}
+
 /*
 * namespace ImGui
 */

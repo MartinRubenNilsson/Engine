@@ -57,4 +57,16 @@ void ImGui::Hierarchy(entt::registry& aRegistry, entt::entity& aSelection)
 		if (transform == selection)
 			aSelection = entity;
 	}
+
+	if (aRegistry.valid(aSelection) && IsKeyPressed(ImGuiKey_Delete))
+	{
+		aRegistry.destroy(aSelection);
+		aSelection = entt::null;
+
+		for (auto [entity, transform] : aRegistry.view<Transform::Ptr>().each())
+		{
+			if (!transform)
+				aRegistry.destroy(entity);
+		}
+	}
 }

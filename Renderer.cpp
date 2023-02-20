@@ -92,7 +92,7 @@ void Renderer::Render(entt::registry& aRegistry)
 	RenderGeometry(aRegistry);
 	RenderLightning(aRegistry);
 	RenderSkybox();
-	TonemapAndGammaCorrect();
+	TonemapAndGamma();
 }
 
 void Renderer::RenderGBufferTexture(size_t anIndex)
@@ -230,10 +230,10 @@ void Renderer::RenderSkybox()
 	mySkybox.DrawSkybox();
 }
 
-void Renderer::TonemapAndGammaCorrect()
+void Renderer::TonemapAndGamma()
 {
 	ScopedShaderResources scopedResources{ ShaderType::Pixel, 0, myLightningBuffer };
-	FullscreenPass pass{ PIXEL_SHADER("PsTonemapAndGammaCorrect.cso") };
+	FullscreenPass pass{ PIXEL_SHADER("PsTonemapAndGamma.cso") };
 	pass.Render();
 }
 

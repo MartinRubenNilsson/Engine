@@ -28,7 +28,7 @@ private:
 	void RenderGeometry(entt::registry&);
 	void RenderLightning(entt::registry&);
 	void RenderSkybox();
-	void TonemapAndGammaCorrect();
+	void TonemapAndGamma();
 
 	void RenderDirectionalLights(std::span<const DirectionalLight>);
 	void RenderPointLights(std::span<const PointLight>);
