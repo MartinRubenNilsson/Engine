@@ -196,16 +196,16 @@ ScopedViewports::ScopedViewports(const D3D11_VIEWPORT& aViewport)
 
 ScopedViewports::ScopedViewports(std::span<const D3D11_VIEWPORT> someViewports)
 {
-	UINT prevCount{ ourCount };
-	UINT currCount{ std::min(ourCount, (UINT)someViewports.size()) };
+	assert(someViewports.size() <= myViewports.size());
 
-	DX11_CONTEXT->RSGetViewports(&prevCount, myPreviousViewports.data());
-	DX11_CONTEXT->RSSetViewports(currCount, someViewports.data());
+	UINT count{ (UINT)myViewports.size() };
+	DX11_CONTEXT->RSGetViewports(&count, myViewports.data());
+	DX11_CONTEXT->RSSetViewports((UINT)someViewports.size(), someViewports.data());
 }
 
 ScopedViewports::~ScopedViewports()
 {
-	DX11_CONTEXT->RSSetViewports(ourCount, myPreviousViewports.data());
+	DX11_CONTEXT->RSSetViewports((UINT)myViewports.size(), myViewports.data());
 }
 
 /*

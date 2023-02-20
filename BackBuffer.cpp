@@ -46,7 +46,7 @@ void BackBuffer::Resize()
 	if (FAILED(myResult))
 		return;
 
-	myResult = mySwapChain->GetBuffer(0, IID_PPV_ARGS(myTexture.GetAddressOf()));
+	myResult = mySwapChain->GetBuffer(0, IID_PPV_ARGS(&myTexture));
 	if (FAILED(myResult))
 		return;
 

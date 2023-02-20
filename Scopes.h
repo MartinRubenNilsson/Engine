@@ -108,9 +108,7 @@ public:
 	~ScopedViewports();
 
 private:
-	static constexpr UINT ourCount = D3D11_VIEWPORT_AND_SCISSORRECT_OBJECT_COUNT_PER_PIPELINE;
-
-	std::array<D3D11_VIEWPORT, ourCount> myPreviousViewports{};
+	std::array<D3D11_VIEWPORT, D3D11_VIEWPORT_AND_SCISSORRECT_OBJECT_COUNT_PER_PIPELINE> myViewports{};
 };
 
 class ScopedShaderResources : Scope
