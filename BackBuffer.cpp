@@ -17,25 +17,36 @@ BackBuffer::BackBuffer(HWND hWnd)
 	swapChainDesc.BufferCount = 2;
 	swapChainDesc.OutputWindow = hWnd;
 	swapChainDesc.Windowed = TRUE;
-	swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
+	swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
 	swapChainDesc.Flags = 0;
-
-	D3D11_RENDER_TARGET_VIEW_DESC targetDesc{};
-	targetDesc.Format = swapChainDesc.BufferDesc.Format;
-	targetDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
-	targetDesc.Texture2D.MipSlice = 0;
 
 	ComPtr<IDXGIFactory> factory{};
 	myResult = CreateDXGIFactory(IID_PPV_ARGS(&factory));
 	if (FAILED(myResult))
 		return;
+
 	myResult = factory->CreateSwapChain(DX11_DEVICE, &swapChainDesc, &mySwapChain);
 	if (FAILED(myResult))
 		return;
-	myResult = mySwapChain->GetBuffer(0, IID_PPV_ARGS(myTexture.GetAddressOf()));
+
+	Resize();
+}
+
+void BackBuffer::Resize()
+{
+	if (!mySwapChain)
+		return;
+
+	myTexture = nullptr;
+	myRenderTarget = nullptr;
+	myWidth = 0;
+	myHeight = 0;
+
+	myResult = mySwapChain->ResizeBuffers(0, 0, 0, DXGI_FORMAT_UNKNOWN, 0);
 	if (FAILED(myResult))
 		return;
-	myResult = DX11_DEVICE->CreateRenderTargetView(myTexture.Get(), &targetDesc, &myRenderTarget);
+
+	myResult = mySwapChain->GetBuffer(0, IID_PPV_ARGS(myTexture.GetAddressOf()));
 	if (FAILED(myResult))
 		return;
 
@@ -43,6 +54,15 @@ BackBuffer::BackBuffer(HWND hWnd)
 	myTexture->GetDesc(&textureDesc);
 	myWidth = textureDesc.Width;
 	myHeight = textureDesc.Height;
+
+	D3D11_RENDER_TARGET_VIEW_DESC targetDesc{};
+	targetDesc.Format = textureDesc.Format;
+	targetDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
+	targetDesc.Texture2D.MipSlice = 0;
+
+	myResult = DX11_DEVICE->CreateRenderTargetView(myTexture.Get(), &targetDesc, &myRenderTarget);
+	if (FAILED(myResult))
+		return;
 }
 
 void BackBuffer::Present() const

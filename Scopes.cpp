@@ -5,8 +5,8 @@
 
 namespace
 {
-	template <class T>
-	void ReleaseAll(const std::vector<T*>& somePtrs)
+	template <class T, size_t Extent>
+	void ReleaseAll(std::span<T*, Extent> somePtrs)
 	{
 		for (T* ptr : somePtrs)
 		{
@@ -121,7 +121,7 @@ ScopedSamplerStates::ScopedSamplerStates(UINT aStartSlot, const std::vector<ID3D
 ScopedSamplerStates::~ScopedSamplerStates()
 {
 	DX11_CONTEXT->PSSetSamplers(myStartSlot, (UINT)myStates.size(), myStates.data());
-	ReleaseAll(myStates);
+	ReleaseAll(std::span(myStates));
 }
 
 /*
@@ -164,25 +164,25 @@ ScopedRenderTargets::ScopedRenderTargets(RenderTargetPtr aTarget, DepthStencilPt
 }
 
 ScopedRenderTargets::ScopedRenderTargets(std::span<const RenderTargetPtr> someTargets, DepthStencilPtr aDepthStencil)
+	: ScopedRenderTargets{
+		someTargets | std::views::transform(&RenderTargetPtr::Get) | std::ranges::to<std::vector>(),
+		aDepthStencil
+	}
 {
-	{
-		ID3D11RenderTargetView* views[ourCount]{};
-		DX11_CONTEXT->OMGetRenderTargets(ourCount, views, &myPreviousDepthStencil);
-		std::ranges::copy(views, myPreviousTargets.begin());
-	}
-	
-	{
-		ID3D11RenderTargetView* views[ourCount]{};
-		std::ranges::transform(someTargets, views, &RenderTargetPtr::Get);
-		DX11_CONTEXT->OMSetRenderTargets(ourCount, views, aDepthStencil.Get());
-	}
+}
+
+ScopedRenderTargets::ScopedRenderTargets(const std::vector<ID3D11RenderTargetView*>& someTargets, DepthStencilPtr aDepthStencil)
+{
+	assert(someTargets.size() <= myTargets.size());
+
+	DX11_CONTEXT->OMGetRenderTargets((UINT)myTargets.size(), myTargets.data(), &myDepthStencil);
+	DX11_CONTEXT->OMSetRenderTargets((UINT)someTargets.size(), someTargets.data(), aDepthStencil.Get());
 }
 
 ScopedRenderTargets::~ScopedRenderTargets()
 {
-	ID3D11RenderTargetView* views[ourCount]{};
-	std::ranges::transform(myPreviousTargets, views, &RenderTargetPtr::Get);
-	DX11_CONTEXT->OMSetRenderTargets(ourCount, views, myPreviousDepthStencil.Get());
+	DX11_CONTEXT->OMSetRenderTargets((UINT)myTargets.size(), myTargets.data(), myDepthStencil.Get());
+	ReleaseAll(std::span(myTargets));
 }
 
 /*
@@ -234,6 +234,8 @@ ScopedShaderResources::ScopedShaderResources(ShaderType aType, UINT aStartSlot, 
 	default:
 		assert(false);
 	}
+
+	// BUGGY
 
 	{
 		std::vector<ID3D11ShaderResourceView*> views{ myPreviousResources.size() };

@@ -6,6 +6,7 @@ public:
 	BackBuffer() = default;
 	BackBuffer(HWND);
 
+	void Resize();
 	void Present() const;
 	void Clear();
 

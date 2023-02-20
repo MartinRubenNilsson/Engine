@@ -94,10 +94,10 @@ public:
 	~ScopedRenderTargets();
 
 private:
-	static constexpr UINT ourCount = D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT;
+	ScopedRenderTargets(const std::vector<ID3D11RenderTargetView*>& someTargets, DepthStencilPtr aDepthStencil);
 
-	std::array<RenderTargetPtr, ourCount> myPreviousTargets{};
-	DepthStencilPtr myPreviousDepthStencil{};
+	std::array<ID3D11RenderTargetView*, D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT> myTargets{};
+	DepthStencilPtr myDepthStencil{};
 };
 
 class ScopedViewports : Scope

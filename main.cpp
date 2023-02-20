@@ -38,6 +38,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
     Mouse mouse{};
     mouse.SetWindow(window);
 
+    Keyboard keyboard{};
+
     DX11 dx11{};
     if (!dx11)
         return EXIT_FAILURE;
@@ -87,7 +89,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
         // Resize
         if (theResize)
         {
-            backBuffer = { window.operator HWND() };
+            backBuffer.Resize();
             renderer.ResizeTextures(backBuffer.GetWidth(), backBuffer.GetHeight());
             theResize = false;
         }
@@ -208,8 +210,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     if (ImGui_ImplWin32_WndProcHandler(hWnd, message, wParam, lParam))
         return 0;
 
-    if (ImGui::GetCurrentContext() && !ImGui::GetIO().WantCaptureMouse)
-        Mouse::ProcessMessage(message, wParam, lParam);
+    if (ImGui::GetCurrentContext())
+    {
+        if (!ImGui::GetIO().WantCaptureMouse)
+            Mouse::ProcessMessage(message, wParam, lParam);
+        if (!ImGui::GetIO().WantCaptureKeyboard)
+            Keyboard::ProcessMessage(message, wParam, lParam);
+    }
 
     switch (message)
     {
