@@ -3,7 +3,7 @@
 enum class ShaderType
 {
 	Vertex,
-	Pixel
+	Pixel,
 };
 
 class Shader

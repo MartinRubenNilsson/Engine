@@ -118,9 +118,10 @@ public:
 	~ScopedShaderResources();
 
 private:
-	UINT myStartSlot;
-	std::vector<ShaderResourcePtr> myPreviousResources;
-	decltype(&ID3D11DeviceContext::VSSetShaderResources) mySetter;
-	decltype(&ID3D11DeviceContext::VSGetShaderResources) myGetter;
+	ScopedShaderResources(ShaderType aType, UINT aStartSlot, const std::vector<ID3D11ShaderResourceView*>& someResources);
+
+	ShaderType myType{};
+	UINT myStartSlot{};
+	std::vector<ID3D11ShaderResourceView*> myResources;
 };
 

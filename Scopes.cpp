@@ -212,47 +212,45 @@ ScopedViewports::~ScopedViewports()
 * class ScopedShaderResources
 */
 
+namespace
+{
+	constexpr std::array theSetters
+	{
+		&ID3D11DeviceContext::VSSetShaderResources,
+		&ID3D11DeviceContext::PSSetShaderResources,
+	};
+
+	constexpr std::array theGetters
+	{
+		&ID3D11DeviceContext::VSGetShaderResources,
+		&ID3D11DeviceContext::PSGetShaderResources,
+	};
+}
+
 ScopedShaderResources::ScopedShaderResources(ShaderType aType, UINT aStartSlot, std::span<const ShaderResourcePtr> someResources)
-	: myStartSlot{ aStartSlot }
-	, myPreviousResources{ someResources.size() }
-	, mySetter{}
-	, myGetter{}
+	: ScopedShaderResources{
+		aType,
+		aStartSlot,
+		someResources | std::views::transform(&ShaderResourcePtr::Get) | std::ranges::to<std::vector>()
+	}
+{
+}
+
+ScopedShaderResources::ScopedShaderResources(ShaderType aType, UINT aStartSlot, const std::vector<ID3D11ShaderResourceView*>& someResources)
+	: myType{ aType }
+	, myStartSlot{ aStartSlot }
+	, myResources{ someResources.size() }
 {
 	assert(aStartSlot < D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT);
 	assert(aStartSlot + someResources.size() <= D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT);
 
-	switch (aType)
-	{
-	case ShaderType::Vertex:
-		mySetter = &ID3D11DeviceContext::VSSetShaderResources;
-		myGetter = &ID3D11DeviceContext::VSGetShaderResources;
-		break;
-	case ShaderType::Pixel:
-		mySetter = &ID3D11DeviceContext::PSSetShaderResources;
-		myGetter = &ID3D11DeviceContext::PSGetShaderResources;
-		break;
-	default:
-		assert(false);
-	}
-
-	// BUGGY
-
-	{
-		std::vector<ID3D11ShaderResourceView*> views{ myPreviousResources.size() };
-		std::invoke(myGetter, DX11_CONTEXT, myStartSlot, (UINT)views.size(), views.data());
-		std::ranges::copy(views, myPreviousResources.begin());
-	}
-
-	{
-		std::vector<ID3D11ShaderResourceView*> views{ someResources.size() };
-		std::ranges::transform(someResources, views.begin(), &ShaderResourcePtr::Get);
-		std::invoke(mySetter, DX11_CONTEXT, aStartSlot, (UINT)views.size(), views.data());
-	}
+	std::invoke(theGetters.at(std::to_underlying(myType)), DX11_CONTEXT, myStartSlot, (UINT)myResources.size(), myResources.data());
+	std::invoke(theSetters.at(std::to_underlying(aType)), DX11_CONTEXT, aStartSlot, (UINT)someResources.size(), someResources.data());
 }
 
 ScopedShaderResources::~ScopedShaderResources()
 {
-	std::vector<ID3D11ShaderResourceView*> views{ myPreviousResources.size() };
-	std::ranges::transform(myPreviousResources, views.begin(), &ShaderResourcePtr::Get);
-	std::invoke(mySetter, DX11_CONTEXT, myStartSlot, (UINT)views.size(), views.data());
+	std::invoke(theSetters.at(std::to_underlying(myType)), DX11_CONTEXT, myStartSlot, (UINT)myResources.size(), myResources.data());
+	ReleaseAll(std::span(myResources));
 }
+
