@@ -5,12 +5,13 @@ DearImGui::DearImGui(HWND hWnd, ID3D11Device* aDevice, ID3D11DeviceContext* aCon
 {
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
-    ImGui::StyleColorsDark();
 
     if (!ImGui_ImplWin32_Init(hWnd))
         return;
     if (!ImGui_ImplDX11_Init(aDevice, aContext))
         return;
+
+    ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 
     AddFonts();
 
@@ -30,9 +31,9 @@ void DearImGui::NewFrame()
     ImGui_ImplWin32_NewFrame();
     ImGui::NewFrame();
     ImGuizmo::BeginFrame();
-
-    ImGuiIO& io = ImGui::GetIO();
-    ImGuizmo::SetRect(0.f, 0.f, io.DisplaySize.x, io.DisplaySize.y);
+    ImGuiViewport* viewport{ ImGui::GetMainViewport() };
+    ImGuizmo::SetRect(0.f, 0.f, viewport->Size.x, viewport->Size.y);
+    ImGui::DockSpaceOverViewport(viewport, ImGuiDockNodeFlags_PassthruCentralNode | ImGuiDockNodeFlags_NoDockingInCentralNode);
 }
 
 void DearImGui::Render()
@@ -50,15 +51,12 @@ void DearImGui::AddFonts()
     config.GlyphRanges = glyphRanges;
     config.MergeMode = true;
 
-    constexpr float size = 14.f;
-
-    const fs::path currentPath{ fs::current_path() };
+    fs::path currentPath{ fs::current_path() };
     fs::current_path(currentPath / "font");
 
     ImGuiIO& io = ImGui::GetIO();
     io.Fonts->AddFontDefault();
-    //io.Fonts->AddFontFromFileTTF(FONT_ICON_FILE_NAME_FAR, size, &config);
-    io.Fonts->AddFontFromFileTTF(FONT_ICON_FILE_NAME_FAS, size, &config);
+    io.Fonts->AddFontFromFileTTF(FONT_ICON_FILE_NAME_FAS, 14.f, &config);
     io.Fonts->Build();
 
     fs::current_path(currentPath);
