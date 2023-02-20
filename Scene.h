@@ -10,14 +10,16 @@ class Scene
 public:
 	Scene(const aiScene&);
 
-	entt::entity Instantiate(entt::registry&) const;
+	entt::entity CopyInto(entt::registry&) const; // Returns root entity
 
 private:
 	void LoadMaterials(std::span<aiMaterial*>);
 	void LoadMeshes(std::span<aiMesh*>);
-	void LoadTransforms(Transform::Ptr aTransform, aiNode* aNode);
+	void LoadTransforms(Transform::Ptr, aiNode*); // Recursive
 	void LoadCameras(std::span<aiCamera*>);
 	void LoadLights(std::span<aiLight*>);
+
+	entt::handle DeepCopy(entt::registry&, Transform::Ptr) const; // Recursive
 
 	Transform::Ptr myRootTransform{ Transform::Create() };
 	std::vector<Material::Ptr> myMaterials{};
@@ -27,7 +29,7 @@ private:
 	std::vector<std::pair<Light, Transform::Ptr>> myLights{};
 };
 
-class SceneManager : public Singleton<SceneManager>
+class SceneFactory : public Singleton<SceneFactory>
 {
 public:
 	std::shared_ptr<const Scene> GetScene(const fs::path&);

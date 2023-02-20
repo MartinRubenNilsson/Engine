@@ -10,6 +10,20 @@ Transform::Ptr Transform::Create()
 	return Ptr(new Transform());
 }
 
+//Transform::Ptr Transform::DeepCopy() const
+//{
+//	Ptr copy{ Create() };
+//	copy->myLocalMatrix = myLocalMatrix;
+//	copy->myName = myName;
+//	for (const Ptr& child : myChildren)
+//	{
+//		Ptr childCopy{ child->DeepCopy() };
+//		childCopy->myParent = copy.get();
+//		copy->myChildren.push_back(childCopy);
+//	}
+//	return copy;
+//}
+
 Transform::Ptr Transform::CreateChild()
 {
 	auto child = myChildren.emplace_back(Create());
@@ -44,7 +58,7 @@ Matrix Transform::GetWorldMatrix() const
 	return result;
 }
 
-void Transform::SetParent(Ptr aParent)
+void Transform::SetParent(Ptr aParent, bool aWorldPositionStays)
 {
 	if (!aParent)
 		return;
@@ -57,9 +71,16 @@ void Transform::SetParent(Ptr aParent)
 		auto& siblings = myParent->myChildren;
 		siblings.erase(std::remove(siblings.begin(), siblings.end(), me));
 	}
-	Matrix worldMatrix = GetWorldMatrix();
-	myParent = aParent.get();
-	SetWorldMatrix(worldMatrix);
+	if (aWorldPositionStays)
+	{
+		Matrix worldMatrix = GetWorldMatrix();
+		myParent = aParent.get();
+		SetWorldMatrix(worldMatrix);
+	}
+	else
+	{
+		myParent = aParent.get();
+	}
 }
 
 Transform::Ptr Transform::GetParent() const

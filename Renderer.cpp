@@ -20,7 +20,7 @@ Renderer::Renderer(unsigned aWidth, unsigned aHeight)
 		myCBuffers[i].PSSetBuffer(i);
 	}
 
-	if (!ResizeTextures(aWidth, aHeight))
+	if (!Resize(aWidth, aHeight))
 		return;
 
 	// Skybox
@@ -43,7 +43,7 @@ Renderer::Renderer(unsigned aWidth, unsigned aHeight)
 	mySucceeded = true;
 }
 
-bool Renderer::ResizeTextures(unsigned aWidth, unsigned aHeight)
+bool Renderer::Resize(unsigned aWidth, unsigned aHeight)
 {
 	static constexpr std::array geometryFormats
 	{

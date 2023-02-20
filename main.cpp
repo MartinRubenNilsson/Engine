@@ -63,7 +63,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
     if (!renderer)
         return EXIT_FAILURE;
 
-    SceneManager sceneMgr{};
+    SceneFactory sceneFactory{};
 
     Camera camera{};
     Matrix cameraTransform{};
@@ -90,7 +90,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
         if (theResize)
         {
             backBuffer.Resize();
-            renderer.ResizeTextures(backBuffer.GetWidth(), backBuffer.GetHeight());
+            renderer.Resize(backBuffer.GetWidth(), backBuffer.GetHeight());
             theResize = false;
         }
 
@@ -98,7 +98,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
         if (theDrop)
         {
             registry.clear();
-            sceneMgr.GetScene(theDrop.GetPaths().front())->Instantiate(registry);
+            sceneFactory.GetScene(theDrop.GetPaths().front())->CopyInto(registry);
             theDrop = {};
         }
 

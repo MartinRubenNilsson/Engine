@@ -7,17 +7,18 @@ public:
 
 	static Ptr Create();
 
+	/*Ptr DeepCopy() const;*/
 	Ptr CreateChild();
 	Ptr Find(std::string_view aName);
 
-	void SetName(const std::string& aName)		{ myName = aName; }
+	void SetName(std::string_view aName)		{ myName = aName; }
 	std::string_view GetName() const			{ return myName; }
 	void SetLocalMatrix(const Matrix& aMatrix)	{ myLocalMatrix = aMatrix; }
 	const Matrix& GetLocalMatrix()				{ return myLocalMatrix; }
 	void SetWorldMatrix(const Matrix& aMatrix);
 	Matrix GetWorldMatrix() const;
 
-	void SetParent(Ptr aParent);
+	void SetParent(Ptr aParent, bool aWorldPositionStays = true);
 	Ptr GetParent() const;
 
 	const auto& GetChildren() const { return myChildren; }

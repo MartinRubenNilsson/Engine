@@ -14,8 +14,7 @@ public:
 	Renderer() = default;
 	Renderer(unsigned aWidth, unsigned aHeight);
 
-	bool ResizeTextures(unsigned aWidth, unsigned aHeight);
-
+	bool Resize(unsigned aWidth, unsigned aHeight);
 	void SetCamera(const Camera& aCamera, const Matrix& aTransform);
 	void Render(entt::registry&);
 	void RenderGBufferTexture(size_t anIndex);

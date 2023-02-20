@@ -15,37 +15,9 @@ Scene::Scene(const aiScene& aScene)
     LoadLights({ aScene.mLights, aScene.mNumLights });
 }
 
-entt::entity Scene::Instantiate(entt::registry& aRegistry) const
+entt::entity Scene::CopyInto(entt::registry& aRegistry) const
 {
-    for (auto& [transform, meshIndex] : myTransforms)
-    {
-        auto& [mesh, materialIndex] = myMeshes.at(meshIndex);
-        auto& material = myMaterials.at(materialIndex);
-
-        entt::handle handle{ aRegistry, aRegistry.create() };
-        handle.emplace<Transform::Ptr>(transform);
-        handle.emplace<Mesh::Ptr>(mesh);
-        handle.emplace<Material::Ptr>(material);
-    }
-
-    for (auto& [camera, transform] : myCameras)
-    {
-        entt::handle handle{ aRegistry, aRegistry.create() };
-        handle.emplace<Transform::Ptr>(transform);
-        handle.emplace<Camera>(camera);
-    }
-
-    for (auto& [light, transform] : myLights)
-    {
-        entt::handle handle{ aRegistry, aRegistry.create() };
-        handle.emplace<Transform::Ptr>(transform);
-        handle.emplace<Light>(light);
-    }
-
-    entt::entity entity{ aRegistry.create() };
-    aRegistry.emplace<Transform::Ptr>(entity, myRootTransform);
-
-    return entity;
+    return DeepCopy(aRegistry, myRootTransform).entity();
 }
 
 void Scene::LoadMaterials(std::span<aiMaterial*> someMaterials)
@@ -85,11 +57,55 @@ void Scene::LoadLights(std::span<aiLight*> someLights)
         myLights.emplace_back(*light, myRootTransform->Find(light->mName.C_Str()));
 }
 
+entt::handle Scene::DeepCopy(entt::registry& aRegistry, Transform::Ptr aTransform) const
+{
+    entt::handle handle{ aRegistry, aRegistry.create() };
+    
+    for (auto& [transform, meshIndex] : myTransforms)
+    {
+        if (transform == aTransform)
+        {
+            auto& [mesh, materialIndex] = myMeshes.at(meshIndex);
+            auto& material = myMaterials.at(materialIndex);
+            handle.emplace<Mesh::Ptr>(mesh);
+            handle.emplace<Material::Ptr>(material);
+            break;
+        }
+    }
+
+    for (auto& [camera, transform] : myCameras)
+    {
+        if (transform == aTransform)
+        {
+            handle.emplace<Camera>(camera);
+            break;
+        }
+    }
+
+    for (auto& [light, transform] : myLights)
+    {
+        if (transform == aTransform)
+        {
+            handle.emplace<Light>(light);
+            break;
+        }
+    }
+
+    auto& transform{ handle.emplace<Transform::Ptr>(Transform::Create()) };
+    transform->SetName(aTransform->GetName());
+    transform->SetLocalMatrix(aTransform->GetLocalMatrix());
+
+    for (auto& child : aTransform->GetChildren())
+        DeepCopy(aRegistry, child).get<Transform::Ptr>()->SetParent(transform, false);
+
+    return handle;
+}
+
 /*
-* class SceneManager
+* class SceneFactory
 */
 
-std::shared_ptr<const Scene> SceneManager::GetScene(const fs::path& aPath)
+std::shared_ptr<const Scene> SceneFactory::GetScene(const fs::path& aPath)
 {
     auto itr = myScenes.find(aPath);
     if (itr != myScenes.end())
@@ -105,8 +121,8 @@ std::shared_ptr<const Scene> SceneManager::GetScene(const fs::path& aPath)
     if (!importedScene)
         return nullptr;
 
-    fs::path currentPath = fs::current_path();
-    fs::current_path(aPath.parent_path());
+    fs::path currentPath{ fs::current_path() };
+    fs::current_path(aPath.parent_path()); // Since textures are relative to scene's directory
 
     auto scene = std::make_shared<Scene>(*importedScene);
     myScenes.emplace(aPath, scene);
