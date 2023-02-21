@@ -24,24 +24,6 @@ const char* TextureTypeToString(TextureType aType)
 Material::Material(const aiMaterial& aMaterial)
     : myName{ aMaterial.GetName().C_Str() }
 {
-    LoadPaths(aMaterial);
-    LoadImages();
-    CreateTextures();
-    CreateShaderResources();
-}
-
-const fs::path& Material::GetPath(TextureType aType) const
-{
-    return myPaths.at(std::to_underlying(aType));
-}
-
-ShaderResourcePtr Material::GetShaderResource(TextureType aType) const
-{
-    return myShaderResources.at(std::to_underlying(aType));
-}
-
-void Material::LoadPaths(const aiMaterial& aMaterial)
-{
     for (int i = aiTextureType_DIFFUSE; i < aiTextureType_UNKNOWN; ++i)
     {
         aiTextureType aiType{ static_cast<aiTextureType>(i) };
@@ -69,7 +51,7 @@ void Material::LoadPaths(const aiMaterial& aMaterial)
         case aiTextureType_SHININESS:
             type = TextureType::Roughness;
             break;
-        // todo: handle ambient occlusion
+            // todo: handle ambient occlusion
         case aiTextureType_EMISSIVE:
             [[fallthrough]];
         default:
@@ -77,59 +59,65 @@ void Material::LoadPaths(const aiMaterial& aMaterial)
             continue;
         }
 
-        myPaths[std::to_underlying(type)] = path.C_Str();
+        myTexturePaths[std::to_underlying(type)] = path.C_Str();
     }
+
+    LoadAndCreateTextures();
 }
 
-void Material::LoadImages()
+const fs::path& Material::GetPath(TextureType aType) const
+{
+    return myTexturePaths.at(std::to_underlying(aType));
+}
+
+ShaderResourcePtr Material::GetShaderResource(TextureType aType) const
+{
+    return myShaderResources.at(std::to_underlying(aType));
+}
+
+void Material::LoadAndCreateTextures()
 {
     for (size_t i = 0; i < ourCount; ++i)
     {
-        if (!myPaths[i].empty())
-            myImages[i] = { myPaths[i], ourChannels[i] };
-    }
-}
+        if (myTexturePaths[i].empty())
+            continue;
 
-void Material::CreateTextures()
-{
-    for (size_t i = 0; i < ourCount; ++i)
-    {
-        if (!myImages[i])
+        Image image{ myTexturePaths[i], ourChannels[i] };
+        if (!image)
             continue;
 
         D3D11_TEXTURE2D_DESC desc{};
-        desc.Width = myImages[i].GetWidth();
-        desc.Height = myImages[i].GetHeight();
-        desc.MipLevels = 1;
+        desc.Width = image.GetWidth();
+        desc.Height = image.GetHeight();
+        desc.MipLevels = 0;
         desc.ArraySize = 1;
         desc.Format = ourFormats[i];
         desc.SampleDesc.Count = 1;
         desc.SampleDesc.Quality = 0;
-        desc.Usage = D3D11_USAGE_IMMUTABLE;
-        desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+        desc.Usage = D3D11_USAGE_DEFAULT;
+        desc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
         desc.CPUAccessFlags = 0;
-        desc.MiscFlags = 0;
+        desc.MiscFlags = D3D11_RESOURCE_MISC_GENERATE_MIPS;
 
-        D3D11_SUBRESOURCE_DATA data{};
-        data.pSysMem = myImages[i].Data();
-        data.SysMemPitch = desc.Width * myImages[i].GetChannels();
-        data.SysMemSlicePitch = 0;
+        DX11_DEVICE->CreateTexture2D(&desc, NULL, &myTextures[i]);
+        if (!myTextures[i])
+            continue;
 
-        DX11_DEVICE->CreateTexture2D(&desc, &data, &myTextures[i]);
-    }
-}
+        DX11_CONTEXT->UpdateSubresource(
+            myTextures[i].Get(), 0, NULL,
+            image.Data(), image.GetWidth() * image.GetChannels(), 0
+        );
 
-void Material::CreateShaderResources()
-{
-    for (size_t i = 0; i < ourCount; ++i)
-    {
-        if (myTextures[i])
-            DX11_DEVICE->CreateShaderResourceView(myTextures[i].Get(), NULL, &myShaderResources[i]);
+        DX11_DEVICE->CreateShaderResourceView(myTextures[i].Get(), NULL, &myShaderResources[i]);
+        if (!myShaderResources[i])
+            continue;
+
+        DX11_CONTEXT->GenerateMips(myShaderResources[i].Get());
     }
 }
 
 /*
-* ImGui
+* namespace ImGui
 */
 
 void ImGui::InspectMaterial(const Material& aMaterial)

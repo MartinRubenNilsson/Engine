@@ -51,14 +51,10 @@ private:
 		//DXGI_FORMAT_R8_UNORM,			 // Emissive
 	};
 
-	void LoadPaths(const aiMaterial&);
-	void LoadImages();
-	void CreateTextures();
-	void CreateShaderResources();
+	void LoadAndCreateTextures();
 
 	std::string myName{};
-	std::array<fs::path, ourCount> myPaths{};
-	std::array<Image, ourCount> myImages{};
+	std::array<fs::path, ourCount> myTexturePaths{};
 	std::array<TexturePtr, ourCount> myTextures{};
 	std::array<ShaderResourcePtr, ourCount> myShaderResources{};
 };
@@ -67,3 +63,4 @@ namespace ImGui
 {
 	void InspectMaterial(const Material&);
 }
+
