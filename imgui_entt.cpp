@@ -41,34 +41,43 @@ void ImGui::Inspector(entt::handle aHandle)
 
 void ImGui::Hierarchy(entt::registry& aRegistry, entt::entity& aSelection)
 {
-	Transform::Ptr selection;
+	Transform::Ptr selectionTransform;
 
 	if (auto transform = aRegistry.try_get<Transform::Ptr>(aSelection))
-		selection = *transform;
+		selectionTransform = *transform;
 
+	// For each root transform, edit its full tree
 	for (auto [entity, transform] : aRegistry.view<Transform::Ptr>().each())
 	{
+		// What happens if we modify the tree while looping over view????
 		if (!transform->HasParent())
-			Hierarchy(transform, selection);
+			Hierarchy(transform, selectionTransform);
 	}
 
 	for (auto [entity, transform] : aRegistry.view<Transform::Ptr>().each())
 	{
-		if (transform == selection)
+		if (transform == selectionTransform)
 			aSelection = entity;
 	}
 
-
-	// TOdo: If destroying parent, also destroy all children
-	if (aRegistry.valid(aSelection) && IsKeyPressed(ImGuiKey_Delete))
+	if (IsKeyPressed(ImGuiKey_Delete) && aRegistry.all_of<Transform::Ptr>(aSelection))
 	{
-		aRegistry.destroy(aSelection);
-		aSelection = entt::null;
+		std::unordered_map<Transform::Ptr, entt::entity> transformToEntity{};
 
 		for (auto [entity, transform] : aRegistry.view<Transform::Ptr>().each())
+			transformToEntity.emplace(transform, entity);
+
+		auto destroyRecursive = [&aRegistry, &transformToEntity](this auto aSelf, Transform::Ptr aTransform) -> void
 		{
-			if (!transform)
-				aRegistry.destroy(entity);
-		}
+			aRegistry.destroy(transformToEntity.at(aTransform));
+			for (const auto& child : aTransform->GetChildren())
+				aSelf(child);
+		};
+
+		auto transform{ aRegistry.get<Transform::Ptr>(aSelection) };
+		destroyRecursive(transform);
+		transform->SetParent(nullptr, false);
+
+		aSelection = entt::null;
 	}
 }

@@ -9,7 +9,6 @@ public:
 
 	~Transform();
 
-	/*Ptr DeepCopy() const;*/
 	Ptr CreateChild();
 	Ptr Find(std::string_view aName);
 

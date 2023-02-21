@@ -62,7 +62,7 @@ Material::Material(const aiMaterial& aMaterial)
         myTexturePaths[std::to_underlying(type)] = path.C_Str();
     }
 
-    LoadAndCreateTextures();
+    LoadAndCreateTexturesAndResources();
 }
 
 const fs::path& Material::GetPath(TextureType aType) const
@@ -75,7 +75,7 @@ ShaderResourcePtr Material::GetShaderResource(TextureType aType) const
     return myShaderResources.at(std::to_underlying(aType));
 }
 
-void Material::LoadAndCreateTextures()
+void Material::LoadAndCreateTexturesAndResources()
 {
     for (size_t i = 0; i < ourCount; ++i)
     {

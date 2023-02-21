@@ -10,20 +10,6 @@ Transform::Ptr Transform::Create()
 	return Ptr(new Transform());
 }
 
-//Transform::Ptr Transform::DeepCopy() const
-//{
-//	Ptr copy{ Create() };
-//	copy->myLocalMatrix = myLocalMatrix;
-//	copy->myName = myName;
-//	for (const Ptr& child : myChildren)
-//	{
-//		Ptr childCopy{ child->DeepCopy() };
-//		childCopy->myParent = copy.get();
-//		copy->myChildren.push_back(childCopy);
-//	}
-//	return copy;
-//}
-
 Transform::Ptr Transform::CreateChild()
 {
 	auto child = myChildren.emplace_back(Create());
@@ -60,12 +46,13 @@ Matrix Transform::GetWorldMatrix() const
 
 void Transform::SetParent(Ptr aParent, bool aWorldPositionStays)
 {
-	if (!aParent)
-		return;
 	auto me = shared_from_this();
-	if (aParent->IsChildOf(me))
-		return;
-	aParent->myChildren.push_back(me);
+	if (aParent)
+	{
+		if (aParent->IsChildOf(me))
+			return;
+		aParent->myChildren.push_back(me);
+	}
 	if (myParent)
 	{
 		auto& siblings = myParent->myChildren;

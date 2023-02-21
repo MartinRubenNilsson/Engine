@@ -51,7 +51,7 @@ private:
 		//DXGI_FORMAT_R8_UNORM,			 // Emissive
 	};
 
-	void LoadAndCreateTextures();
+	void LoadAndCreateTexturesAndResources();
 
 	std::string myName{};
 	std::array<fs::path, ourCount> myTexturePaths{};
