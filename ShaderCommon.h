@@ -8,6 +8,13 @@ enum CBufferSlot : unsigned
 	CBufferCount,
 };
 
+enum SamplerSlot : unsigned
+{
+	SamplerPoint,
+	SamplerLinear,
+	SamplerCount
+};
+
 #define TEXTURE_SLOT_GBUFFER 0
 #define TEXTURE_SLOT_GBUFFER_ENTITY 5
 

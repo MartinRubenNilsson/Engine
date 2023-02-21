@@ -78,7 +78,8 @@ Texture2D MaterialOcclusion : register(t14);
 * Samplers
 */
 
-SamplerState DefaultSampler : register(s0);
+SamplerState SamplerPoint : register(s0);
+SamplerState SamplerLinear : register(s1);
 
 /*
 * Functions

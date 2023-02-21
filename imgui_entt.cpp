@@ -58,6 +58,8 @@ void ImGui::Hierarchy(entt::registry& aRegistry, entt::entity& aSelection)
 			aSelection = entity;
 	}
 
+
+	// TOdo: If destroying parent, also destroy all children
 	if (aRegistry.valid(aSelection) && IsKeyPressed(ImGuiKey_Delete))
 	{
 		aRegistry.destroy(aSelection);
