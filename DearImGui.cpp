@@ -47,6 +47,7 @@ void DearImGui::AddFonts()
     static constexpr ImWchar glyphRanges[]{ ICON_MIN_FA, ICON_MAX_16_FA, 0 };
 
     ImFontConfig config{};
+    config.PixelSnapH = true;
     config.GlyphOffset.y = 2.f;
     config.GlyphRanges = glyphRanges;
     config.MergeMode = true;
@@ -56,7 +57,7 @@ void DearImGui::AddFonts()
 
     ImGuiIO& io = ImGui::GetIO();
     io.Fonts->AddFontDefault();
-    io.Fonts->AddFontFromFileTTF(FONT_ICON_FILE_NAME_FAS, 14.f, &config);
+    io.Fonts->AddFontFromFileTTF(FONT_ICON_FILE_NAME_FAS, 13.f, &config);
     io.Fonts->Build();
 
     fs::current_path(currentPath);

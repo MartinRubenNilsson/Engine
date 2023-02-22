@@ -9,7 +9,8 @@
 #include "Scene.h"
 #include "Scopes.h"
 #include "Camera.h"
-#include "imgui_entt.h"
+#include "Hierarchy.h"
+#include "Inspector.h"
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 

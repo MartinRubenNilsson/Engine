@@ -59,9 +59,6 @@
     <ClInclude Include="BackBuffer.h">
       <Filter>graphics\buffers</Filter>
     </ClInclude>
-    <ClInclude Include="imgui_entt.h">
-      <Filter>imgui</Filter>
-    </ClInclude>
     <ClInclude Include="RenderTargets.h">
       <Filter>graphics</Filter>
     </ClInclude>
@@ -85,6 +82,12 @@
     </ClInclude>
     <ClInclude Include="InputLayoutManager.h">
       <Filter>graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Inspector.h">
+      <Filter>editor</Filter>
+    </ClInclude>
+    <ClInclude Include="Hierarchy.h">
+      <Filter>editor</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -143,9 +146,6 @@
     <ClCompile Include="BackBuffer.cpp">
       <Filter>graphics\buffers</Filter>
     </ClCompile>
-    <ClCompile Include="imgui_entt.cpp">
-      <Filter>imgui</Filter>
-    </ClCompile>
     <ClCompile Include="RenderTargets.cpp">
       <Filter>graphics</Filter>
     </ClCompile>
@@ -166,6 +166,12 @@
     </ClCompile>
     <ClCompile Include="InputLayoutManager.cpp">
       <Filter>graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Inspector.cpp">
+      <Filter>editor</Filter>
+    </ClCompile>
+    <ClCompile Include="Hierarchy.cpp">
+      <Filter>editor</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -192,6 +198,9 @@
     </Filter>
     <Filter Include="shaders\lights">
       <UniqueIdentifier>{ff3380cb-75a3-4a1c-894d-50ec2b167785}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="editor">
+      <UniqueIdentifier>{bc0f9596-c99b-424d-8618-c2df2f90bfac}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
