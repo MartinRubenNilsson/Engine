@@ -3,6 +3,7 @@
 enum class ShaderType
 {
 	Vertex,
+	Geometry,
 	Pixel,
 };
 
@@ -30,6 +31,21 @@ public:
 
 private:
 	ComPtr<ID3D11VertexShader> myShader{};
+};
+
+class GeometryShader : public Shader
+{
+public:
+	GeometryShader() = default;
+	GeometryShader(std::string_view someBytecode);
+
+	void SetShader() const override;
+	void GetShader() override;
+	ShaderType GetType() const override { return ShaderType::Geometry; }
+	explicit operator bool() const override { return myShader; }
+
+private:
+	ComPtr<ID3D11GeometryShader> myShader{};
 };
 
 class PixelShader : public Shader
@@ -83,5 +99,6 @@ inline std::shared_ptr<const T> ShaderFactory::GetShader(const fs::path& aPath)
 }
 
 #define VERTEX_SHADER(aPath) ShaderFactory::Get().GetShader<VertexShader>(aPath)
+#define GEOMETRY_SHADER(aPath) ShaderFactory::Get().GetShader<GeometryShader>(aPath)
 #define PIXEL_SHADER(aPath) ShaderFactory::Get().GetShader<PixelShader>(aPath)
 

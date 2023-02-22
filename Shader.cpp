@@ -21,6 +21,25 @@ void VertexShader::GetShader()
 }
 
 /*
+* class GeometryShader
+*/
+
+GeometryShader::GeometryShader(std::string_view someBytecode)
+{
+	DX11_DEVICE->CreateGeometryShader(someBytecode.data(), someBytecode.size(), NULL, &myShader);
+}
+
+void GeometryShader::SetShader() const
+{
+	DX11_CONTEXT->GSSetShader(myShader.Get(), NULL, 0);
+}
+
+void GeometryShader::GetShader()
+{
+	DX11_CONTEXT->GSGetShader(&myShader, NULL, NULL);
+}
+
+/*
 * class PixelShader
 */
 

@@ -217,12 +217,14 @@ namespace
 	constexpr std::array theSetters
 	{
 		&ID3D11DeviceContext::VSSetShaderResources,
+		&ID3D11DeviceContext::GSSetShaderResources,
 		&ID3D11DeviceContext::PSSetShaderResources,
 	};
 
 	constexpr std::array theGetters
 	{
 		&ID3D11DeviceContext::VSGetShaderResources,
+		&ID3D11DeviceContext::GSGetShaderResources,
 		&ID3D11DeviceContext::PSGetShaderResources,
 	};
 }
