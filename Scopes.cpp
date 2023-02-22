@@ -60,6 +60,9 @@ ScopedShader::ScopedShader(std::shared_ptr<const Shader> aShader)
 	case ShaderType::Vertex:
 		myPreviousShader = std::make_shared<VertexShader>();
 		break;
+	case ShaderType::Geometry:
+		myPreviousShader = std::make_shared<GeometryShader>();
+		break;
 	case ShaderType::Pixel:
 		myPreviousShader = std::make_shared<PixelShader>();
 		break;
