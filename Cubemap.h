@@ -16,6 +16,7 @@ private:
 	HRESULT myResult{ E_FAIL };
 	TexturePtr myTexture{};
 	ShaderResourcePtr myShaderResource{};
+	RenderTargetPtr myRenderTarget{};
 	unsigned myWidth{}, myHeight{};
 };
 
