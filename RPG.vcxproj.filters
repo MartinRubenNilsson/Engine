@@ -208,12 +208,12 @@
     <Filter Include="shaders\skybox">
       <UniqueIdentifier>{1cec854a-a799-4c14-9d15-ace99050e7f0}</UniqueIdentifier>
     </Filter>
+    <Filter Include="shaders\fullscreen">
+      <UniqueIdentifier>{f9557109-809f-436d-b38e-d5d5c4f4ff98}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="VsBasic.hlsl">
-      <Filter>shaders</Filter>
-    </FxCompile>
-    <FxCompile Include="VsFullscreenTriangle.hlsl">
       <Filter>shaders</Filter>
     </FxCompile>
     <FxCompile Include="PsGBufferWorldPosition.hlsl">
@@ -236,9 +236,6 @@
     </FxCompile>
     <FxCompile Include="PsGBufferEntity.hlsl">
       <Filter>shaders\gbuffer</Filter>
-    </FxCompile>
-    <FxCompile Include="PsTonemapAndGamma.hlsl">
-      <Filter>shaders</Filter>
     </FxCompile>
     <FxCompile Include="PsUintMax.hlsl">
       <Filter>shaders</Filter>
@@ -263,6 +260,12 @@
     </FxCompile>
     <FxCompile Include="PsSkybox.hlsl">
       <Filter>shaders\skybox</Filter>
+    </FxCompile>
+    <FxCompile Include="VsFullscreenTriangle.hlsl">
+      <Filter>shaders\fullscreen</Filter>
+    </FxCompile>
+    <FxCompile Include="PsTonemapAndGamma.hlsl">
+      <Filter>shaders\fullscreen</Filter>
     </FxCompile>
   </ItemGroup>
   <ItemGroup>

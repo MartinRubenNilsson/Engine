@@ -14,21 +14,22 @@ Image::Image()
 Image::Image(const fs::path& aPath, unsigned aDesiredChannels)
 	: Image()
 {
-	int width, height, channelsInFile;
+	bool hdr{ stbi_is_hdr(aPath.string().c_str()) != 0 };
+	int x, y, comp, req_comp{ static_cast<int>(aDesiredChannels) };
 
-	myData.reset(stbi_load(
-		aPath.string().c_str(),
-		&width, &height, &channelsInFile,
-		static_cast<int>(aDesiredChannels)
-	));
+	if (hdr)
+		myData.reset(stbi_loadf(aPath.string().c_str(), &x, &y, &comp, req_comp));
+	else
+		myData.reset(stbi_load(aPath.string().c_str(), &x, &y, &comp, req_comp));
 	
 	if (!myData)
 		return;
 
-	myWidth = static_cast<unsigned>(width);
-	myHeight = static_cast<unsigned>(height);
-	myChannelsInFile = static_cast<unsigned>(channelsInFile);
+	myWidth = static_cast<unsigned>(x);
+	myHeight = static_cast<unsigned>(y);
+	myChannelsInFile = static_cast<unsigned>(req_comp);
 	myChannels = aDesiredChannels;
+	myHdr = hdr;
 }
 
 const void* Image::Data() const

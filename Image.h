@@ -11,15 +11,15 @@ public:
 	unsigned GetChannelsInFile() const	{ return myChannelsInFile; }
 	unsigned GetChannels() const		{ return myChannels; }
 
+	bool IsHdr() const { return myHdr; }
+
 	const void* Data() const;
 
 	explicit operator bool() const;
 
 private:
-	using Element = unsigned char;
-	using Deleter = void(void*);
-
+	std::unique_ptr<void, void(*)(void*)> myData;
 	unsigned myWidth{}, myHeight{}, myChannelsInFile{}, myChannels{};
-	std::unique_ptr<Element, Deleter*> myData;
+	bool myHdr{};
 };
 
