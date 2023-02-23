@@ -32,7 +32,7 @@ Cubemap::Cubemap(std::span<const fs::path, 6> someImagePaths)
 	textureDesc.SampleDesc.Quality = 0;
 	textureDesc.Usage = D3D11_USAGE_DEFAULT;
 	textureDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
-	// textureDesc.BindFlags |= D3D11_BIND_RENDER_TARGET;
+	textureDesc.BindFlags |= D3D11_BIND_RENDER_TARGET;
 	textureDesc.CPUAccessFlags = 0;
 	textureDesc.MiscFlags = D3D11_RESOURCE_MISC_TEXTURECUBE;
 
@@ -50,12 +50,12 @@ Cubemap::Cubemap(std::span<const fs::path, 6> someImagePaths)
 	resourceDesc.TextureCube.MostDetailedMip = 0;
 	resourceDesc.TextureCube.MipLevels = textureDesc.MipLevels;
 
-	/*D3D11_RENDER_TARGET_VIEW_DESC targetDesc{};
+	D3D11_RENDER_TARGET_VIEW_DESC targetDesc{};
 	targetDesc.Format = textureDesc.Format;
 	targetDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2DARRAY;
 	targetDesc.Texture2DArray.MipSlice = 0;
 	targetDesc.Texture2DArray.FirstArraySlice = 0;
-	targetDesc.Texture2DArray.ArraySize = textureDesc.ArraySize;*/
+	targetDesc.Texture2DArray.ArraySize = textureDesc.ArraySize;
 
 	myResult = DX11_DEVICE->CreateTexture2D(&textureDesc, data, &myTexture);
 	if (FAILED(myResult))
@@ -65,20 +65,30 @@ Cubemap::Cubemap(std::span<const fs::path, 6> someImagePaths)
 	if (FAILED(myResult))
 		return;
 
-	/*myResult = DX11_DEVICE->CreateRenderTargetView(myTexture.Get(), &targetDesc, &myRenderTarget);
+	myResult = DX11_DEVICE->CreateRenderTargetView(myTexture.Get(), &targetDesc, &myRenderTarget);
 	if (FAILED(myResult))
-		return;*/
+		return;
 
 	myWidth = width;
 	myHeight = height;
 
 
-	///*
-	//* TESTING
-	//*/
+	/*
+	* TESTING
+	*/
 
-	//ScopedRenderTargets scopedTargets{ myRenderTarget };
-	//ScopedShaderResources scopedResources{ SHader}
+	auto vs = VERTEX_SHADER("VsFullscreenPass.cso");
+	auto gs = GEOMETRY_SHADER("GsCubemapTest.cso");
+	auto ps = PIXEL_SHADER("PsCubemapTest.cso");
+
+	ScopedPrimitiveTopology scopedTopology{ D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST };
+	ScopedInputLayout scopedLayout{ typeid(EmptyVertex) };
+	ScopedShader scopedVs{ vs };
+	ScopedShader scopedGs{ gs };
+	ScopedShader scopedPs{ ps };
+	ScopedRenderTargets scopedTargets{ myRenderTarget };
+	ScopedViewports scopedViewports{ CD3D11_VIEWPORT{ myTexture.Get(), myRenderTarget.Get() } };
+	DX11_CONTEXT->Draw(3, 0);
 }
 
 void Cubemap::DrawSkybox() const

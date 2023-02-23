@@ -252,6 +252,12 @@
     <FxCompile Include="PsSpotLight.hlsl">
       <Filter>shaders\lights</Filter>
     </FxCompile>
+    <FxCompile Include="GsCubemapTest.hlsl">
+      <Filter>shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="PsCubemapTest.hlsl">
+      <Filter>shaders</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="ShaderCommon.hlsli">

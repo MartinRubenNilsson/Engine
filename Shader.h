@@ -80,7 +80,7 @@ inline std::shared_ptr<const T> ShaderFactory::GetShader(const fs::path& aPath)
 
 	auto itr = myShaders.find(aPath);
 	if (itr != myShaders.end())
-		return std::dynamic_pointer_cast<T>(itr->second);
+		return std::dynamic_pointer_cast<const T>(itr->second);
 
 	std::ifstream file{ aPath, std::ios::binary };
 	if (!file)
