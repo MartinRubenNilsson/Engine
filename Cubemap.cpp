@@ -74,7 +74,7 @@ Cubemap::Cubemap(const fs::path& anEquirectHdrImage)
 
 	// 1. Load equirectangular map and create corresponding shader resource.
 	{
-		Image image{ anEquirectHdrImage, 3 };
+		Image image{ anEquirectHdrImage, 4 };
 		if (!image || !image.IsHdr())
 			return;
 
@@ -83,7 +83,7 @@ Cubemap::Cubemap(const fs::path& anEquirectHdrImage)
 		textureDesc.Height = image.GetHeight();
 		textureDesc.MipLevels = 1;
 		textureDesc.ArraySize = 1;
-		textureDesc.Format = DXGI_FORMAT_R32G32B32_FLOAT;
+		textureDesc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
 		textureDesc.SampleDesc.Count = 1;
 		textureDesc.SampleDesc.Quality = 0;
 		textureDesc.Usage = D3D11_USAGE_DEFAULT;
@@ -93,7 +93,7 @@ Cubemap::Cubemap(const fs::path& anEquirectHdrImage)
 
 		D3D11_SUBRESOURCE_DATA textureData{};
 		textureData.pSysMem = image.Data();
-		textureData.SysMemPitch = image.GetChannels() * image.GetWidth();
+		textureData.SysMemPitch = sizeof(float) * image.GetChannels() * image.GetWidth();
 		textureData.SysMemSlicePitch = 0;
 
 		D3D11_SHADER_RESOURCE_VIEW_DESC resourceDesc{};
@@ -101,13 +101,14 @@ Cubemap::Cubemap(const fs::path& anEquirectHdrImage)
 		resourceDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
 		resourceDesc.Texture2D.MostDetailedMip = 0;
 		resourceDesc.Texture2D.MipLevels = textureDesc.MipLevels;
+		
+		TexturePtr requirectTexture{};
 
-		TexturePtr texture{};
-		myResult = DX11_DEVICE->CreateTexture2D(&textureDesc, &textureData, &texture);
+		myResult = DX11_DEVICE->CreateTexture2D(&textureDesc, &textureData, &requirectTexture);
 		if (FAILED(myResult))
 			return;
 
-		myResult = DX11_DEVICE->CreateShaderResourceView(texture.Get(), &resourceDesc, &equirectResource);
+		myResult = DX11_DEVICE->CreateShaderResourceView(requirectTexture.Get(), &resourceDesc, &equirectResource);
 		if (FAILED(myResult))
 			return;
 	}

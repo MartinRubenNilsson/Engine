@@ -27,8 +27,8 @@ Image::Image(const fs::path& aPath, unsigned aDesiredChannels)
 
 	myWidth = static_cast<unsigned>(x);
 	myHeight = static_cast<unsigned>(y);
-	myChannelsInFile = static_cast<unsigned>(req_comp);
-	myChannels = aDesiredChannels;
+	myChannelsInFile = static_cast<unsigned>(comp);
+	myChannels = aDesiredChannels ? aDesiredChannels : myChannelsInFile;
 	myHdr = hdr;
 }
 
