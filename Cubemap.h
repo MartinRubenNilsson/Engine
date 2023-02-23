@@ -4,7 +4,8 @@ class Cubemap
 {
 public:
 	Cubemap() = default;
-	Cubemap(std::span<const fs::path, 6> someImagePaths);
+	Cubemap(std::span<const fs::path, 6> someLdrImages);
+	Cubemap(const fs::path& anEquirectHdrImage);
 
 	void DrawSkybox() const;
 
@@ -14,9 +15,6 @@ public:
 
 private:
 	HRESULT myResult{ E_FAIL };
-	TexturePtr myTexture{};
 	ShaderResourcePtr myShaderResource{};
-	RenderTargetPtr myRenderTarget{};
-	unsigned myWidth{}, myHeight{};
 };
 
