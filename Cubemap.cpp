@@ -77,15 +77,11 @@ Cubemap::Cubemap(std::span<const fs::path, 6> someImagePaths)
 	* TESTING
 	*/
 
-	auto vs = VERTEX_SHADER("VsFullscreenPass.cso");
-	auto gs = GEOMETRY_SHADER("GsCubemapTest.cso");
-	auto ps = PIXEL_SHADER("PsCubemapTest.cso");
-
 	ScopedPrimitiveTopology scopedTopology{ D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST };
 	ScopedInputLayout scopedLayout{ typeid(EmptyVertex) };
-	ScopedShader scopedVs{ vs };
-	ScopedShader scopedGs{ gs };
-	ScopedShader scopedPs{ ps };
+	ScopedShader scopedVs{ VERTEX_SHADER("VsFullscreenTriangle.cso") };
+	ScopedShader scopedGs{ GEOMETRY_SHADER("GsCubemap.cso") };
+	ScopedShader scopedPs{ PIXEL_SHADER("PsCubemapTest.cso") };
 	ScopedRenderTargets scopedTargets{ myRenderTarget };
 	ScopedViewports scopedViewports{ CD3D11_VIEWPORT{ myTexture.Get(), myRenderTarget.Get() } };
 	DX11_CONTEXT->Draw(3, 0);

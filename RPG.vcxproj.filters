@@ -202,18 +202,18 @@
     <Filter Include="editor">
       <UniqueIdentifier>{bc0f9596-c99b-424d-8618-c2df2f90bfac}</UniqueIdentifier>
     </Filter>
+    <Filter Include="shaders\cubemap">
+      <UniqueIdentifier>{37970a16-97f0-4868-a09f-c0a9869aab1e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="shaders\skybox">
+      <UniqueIdentifier>{1cec854a-a799-4c14-9d15-ace99050e7f0}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="VsBasic.hlsl">
       <Filter>shaders</Filter>
     </FxCompile>
-    <FxCompile Include="VsFullscreenPass.hlsl">
-      <Filter>shaders</Filter>
-    </FxCompile>
-    <FxCompile Include="VsSkybox.hlsl">
-      <Filter>shaders</Filter>
-    </FxCompile>
-    <FxCompile Include="PsSkybox.hlsl">
+    <FxCompile Include="VsFullscreenTriangle.hlsl">
       <Filter>shaders</Filter>
     </FxCompile>
     <FxCompile Include="PsGBufferWorldPosition.hlsl">
@@ -252,22 +252,28 @@
     <FxCompile Include="PsSpotLight.hlsl">
       <Filter>shaders\lights</Filter>
     </FxCompile>
-    <FxCompile Include="GsCubemapTest.hlsl">
-      <Filter>shaders</Filter>
+    <FxCompile Include="GsCubemap.hlsl">
+      <Filter>shaders\cubemap</Filter>
     </FxCompile>
     <FxCompile Include="PsCubemapTest.hlsl">
-      <Filter>shaders</Filter>
+      <Filter>shaders\cubemap</Filter>
+    </FxCompile>
+    <FxCompile Include="VsSkybox.hlsl">
+      <Filter>shaders\skybox</Filter>
+    </FxCompile>
+    <FxCompile Include="PsSkybox.hlsl">
+      <Filter>shaders\skybox</Filter>
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="ShaderCommon.hlsli">
       <Filter>shaders</Filter>
     </None>
-    <None Include="Skybox.hlsli">
-      <Filter>shaders</Filter>
-    </None>
     <None Include="PbrFunctions.hlsli">
       <Filter>shaders</Filter>
+    </None>
+    <None Include="Skybox.hlsli">
+      <Filter>shaders\skybox</Filter>
     </None>
   </ItemGroup>
 </Project>

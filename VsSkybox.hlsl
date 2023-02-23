@@ -8,20 +8,20 @@ SkyboxPixel main(uint id : SV_VertexID)
 
     static const float3 skyboxVertices[] =
     {
-        -1,  1, -1, // Front-top-left
-         1,  1, -1, // Front-top-right
-        -1, -1, -1, // Front-bottom-left
-         1, -1, -1, // Front-bottom-right
-         1, -1,  1, // Back-bottom-right
-         1,  1, -1, // Front-top-right
-         1,  1,  1, // Back-top-right
-        -1,  1, -1, // Front-top-left
-        -1,  1,  1, // Back-top-left
-        -1, -1, -1, // Front-bottom-left
-        -1, -1,  1, // Back-bottom-left
-         1, -1,  1, // Back-bottom-right
-        -1,  1,  1, // Back-top-left
-         1,  1,  1 // Back-top-right
+        -1.0,  1.0, -1.0, // Front-top-left
+         1.0,  1.0, -1.0, // Front-top-right
+        -1.0, -1.0, -1.0, // Front-bottom-left
+         1.0, -1.0, -1.0, // Front-bottom-right
+         1.0, -1.0,  1.0, // Back-bottom-right
+         1.0,  1.0, -1.0, // Front-top-right
+         1.0,  1.0,  1.0, // Back-top-right
+        -1.0,  1.0, -1.0, // Front-top-left
+        -1.0,  1.0,  1.0, // Back-top-left
+        -1.0, -1.0, -1.0, // Front-bottom-left
+        -1.0, -1.0,  1.0, // Back-bottom-left
+         1.0, -1.0,  1.0, // Back-bottom-right
+        -1.0,  1.0,  1.0, // Back-top-left
+         1.0,  1.0,  1.0, // Back-top-right
     };
     
     // By setting z=w=1 in pixelPosition, we ensure that the skybox always lie on the far plane 
