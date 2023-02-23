@@ -98,13 +98,13 @@ void Cubemap::DrawSkybox() const
 	CD3D11_DEPTH_STENCIL_DESC depthStencilDesc{ CD3D11_DEFAULT{} };
 	depthStencilDesc.DepthFunc = D3D11_COMPARISON_LESS_EQUAL; // Otherwise z=1 will fail the depth test
 	
-	ScopedPrimitiveTopology topology{ D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP };
-	ScopedInputLayout layout{ typeid(EmptyVertex) };
-	ScopedShaderResources resources{ ShaderType::Pixel, 0, *this };
-	ScopedShader vertexShader{ VERTEX_SHADER("VsSkybox.cso") };
-	ScopedShader pixelShader{ PIXEL_SHADER("PsSkybox.cso") };
-	ScopedRasterizerState rasterizer{ rasterizerDesc };
-	ScopedDepthStencilState depthStencil{ depthStencilDesc };
+	ScopedPrimitiveTopology scopedTopology{ D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP };
+	ScopedInputLayout scopedLayout{ typeid(EmptyVertex) };
+	ScopedShaderResources scopedResources{ ShaderType::Pixel, 0, myShaderResource };
+	ScopedShader scopedVs{ VERTEX_SHADER("VsSkybox.cso") };
+	ScopedShader scopedPs{ PIXEL_SHADER("PsSkybox.cso") };
+	ScopedRasterizerState scopedRasterizer{ rasterizerDesc };
+	ScopedDepthStencilState scopedDepthStencil{ depthStencilDesc };
 
 	DX11_CONTEXT->Draw(14, 0);
 }
@@ -112,9 +112,4 @@ void Cubemap::DrawSkybox() const
 Cubemap::operator bool() const
 {
 	return SUCCEEDED(myResult);
-}
-
-Cubemap::operator std::span<const ShaderResourcePtr>() const
-{
-	return { std::addressof(myShaderResource), 1 };
 }

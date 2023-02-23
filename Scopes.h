@@ -114,6 +114,7 @@ private:
 class ScopedShaderResources : Scope
 {
 public:
+	ScopedShaderResources(ShaderType aType, UINT aStartSlot, ShaderResourcePtr aResource);
 	ScopedShaderResources(ShaderType aType, UINT aStartSlot, std::span<const ShaderResourcePtr> someResources);
 	~ScopedShaderResources();
 

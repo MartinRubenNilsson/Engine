@@ -124,7 +124,7 @@ ScopedSamplerStates::ScopedSamplerStates(UINT aStartSlot, const std::vector<ID3D
 ScopedSamplerStates::~ScopedSamplerStates()
 {
 	DX11_CONTEXT->PSSetSamplers(myStartSlot, (UINT)myStates.size(), myStates.data());
-	ReleaseAll(std::span(myStates));
+	ReleaseAll(std::span{ myStates });
 }
 
 /*
@@ -185,7 +185,7 @@ ScopedRenderTargets::ScopedRenderTargets(const std::vector<ID3D11RenderTargetVie
 ScopedRenderTargets::~ScopedRenderTargets()
 {
 	DX11_CONTEXT->OMSetRenderTargets((UINT)myTargets.size(), myTargets.data(), myDepthStencil.Get());
-	ReleaseAll(std::span(myTargets));
+	ReleaseAll(std::span{ myTargets });
 }
 
 /*
@@ -232,6 +232,11 @@ namespace
 	};
 }
 
+ScopedShaderResources::ScopedShaderResources(ShaderType aType, UINT aStartSlot, ShaderResourcePtr aResource)
+	: ScopedShaderResources{ aType, aStartSlot, { std::addressof(aResource), 1 } }
+{
+}
+
 ScopedShaderResources::ScopedShaderResources(ShaderType aType, UINT aStartSlot, std::span<const ShaderResourcePtr> someResources)
 	: ScopedShaderResources{
 		aType,
@@ -256,6 +261,6 @@ ScopedShaderResources::ScopedShaderResources(ShaderType aType, UINT aStartSlot, 
 ScopedShaderResources::~ScopedShaderResources()
 {
 	std::invoke(theSetters.at(std::to_underlying(myType)), DX11_CONTEXT, myStartSlot, (UINT)myResources.size(), myResources.data());
-	ReleaseAll(std::span(myResources));
+	ReleaseAll(std::span{ myResources });
 }
 

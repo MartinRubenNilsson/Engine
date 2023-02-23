@@ -8,7 +8,7 @@ public:
 
 	void DrawSkybox() const;
 
-	operator std::span<const ShaderResourcePtr>() const;
+	ShaderResourcePtr GetResource() const { return myShaderResource; }
 
 	explicit operator bool() const;
 
