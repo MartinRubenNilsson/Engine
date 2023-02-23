@@ -100,6 +100,11 @@ ScopedRasterizerState::~ScopedRasterizerState()
 * class ScopedSamplerStates
 */
 
+ScopedSamplerStates::ScopedSamplerStates(UINT aStartSlot, const D3D11_SAMPLER_DESC& aDesc)
+	: ScopedSamplerStates{ aStartSlot, std::span{ &aDesc, 1 } }
+{
+}
+
 ScopedSamplerStates::ScopedSamplerStates(UINT aStartSlot, std::span<const D3D11_SAMPLER_DESC> someDescs)
 	: ScopedSamplerStates{
 		aStartSlot,

@@ -74,7 +74,7 @@ Cubemap::Cubemap(const fs::path& anEquirectHdrImage)
 
 	// 1. Load equirectangular map and create corresponding shader resource.
 	{
-		Image image{ anEquirectHdrImage, 4 };
+		Image image{ anEquirectHdrImage, 3 };
 		if (!image || !image.IsHdr())
 			return;
 
@@ -83,7 +83,7 @@ Cubemap::Cubemap(const fs::path& anEquirectHdrImage)
 		textureDesc.Height = image.GetHeight();
 		textureDesc.MipLevels = 1;
 		textureDesc.ArraySize = 1;
-		textureDesc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+		textureDesc.Format = DXGI_FORMAT_R32G32B32_FLOAT;
 		textureDesc.SampleDesc.Count = 1;
 		textureDesc.SampleDesc.Quality = 0;
 		textureDesc.Usage = D3D11_USAGE_DEFAULT;
@@ -158,8 +158,10 @@ Cubemap::Cubemap(const fs::path& anEquirectHdrImage)
 	ScopedInputLayout scopedLayout{ typeid(EmptyVertex) };
 	ScopedShader scopedVs{ VERTEX_SHADER("VsFullscreenTriangle.cso") };
 	ScopedShader scopedGs{ GEOMETRY_SHADER("GsCubemap.cso") };
-	ScopedShader scopedPs{ PIXEL_SHADER("PsCubemapTest.cso") };
-	ScopedRenderTargets scopedTargets{ cubemapTarget };
+	ScopedShader scopedPs{ PIXEL_SHADER("PsCubemap.cso") };
+	ScopedSamplerStates scopedSampler{ 0, CD3D11_SAMPLER_DESC{ CD3D11_DEFAULT{} } };
+	ScopedShaderResources scopedResource{ ShaderType::Pixel, 0, equirectResource };
+	ScopedRenderTargets scopedTarget{ cubemapTarget };
 	ScopedViewports scopedViewports{ CD3D11_VIEWPORT{ cubemapTexture.Get(), cubemapTarget.Get() } };
 	DX11_CONTEXT->Draw(3, 0);
 }

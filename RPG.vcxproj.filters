@@ -252,7 +252,7 @@
     <FxCompile Include="GsCubemap.hlsl">
       <Filter>shaders\cubemap</Filter>
     </FxCompile>
-    <FxCompile Include="PsCubemapTest.hlsl">
+    <FxCompile Include="PsCubemap.hlsl">
       <Filter>shaders\cubemap</Filter>
     </FxCompile>
     <FxCompile Include="VsSkybox.hlsl">

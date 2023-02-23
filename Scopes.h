@@ -53,6 +53,7 @@ private:
 class ScopedSamplerStates : Scope
 {
 public:
+	ScopedSamplerStates(UINT aStartSlot, const D3D11_SAMPLER_DESC& aDesc);
 	ScopedSamplerStates(UINT aStartSlot, std::span<const D3D11_SAMPLER_DESC> someDescs);
 	~ScopedSamplerStates();
 
