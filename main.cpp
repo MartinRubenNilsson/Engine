@@ -11,6 +11,7 @@
 #include "Camera.h"
 #include "Hierarchy.h"
 #include "Inspector.h"
+#include "GameScene.h"
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
@@ -69,7 +70,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
     Camera camera{};
     Matrix cameraTransform{};
 
-    entt::registry registry{};
+    GameScene gameScene{};
     entt::entity selection{ entt::null };
 
     bool run = true;
@@ -98,8 +99,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
         // Drag and drop
         if (theDrop)
         {
-            registry.clear();
-            sceneFactory.GetScene(theDrop.GetPaths().front())->CopyInto(registry);
+            gameScene.GetRegistry().clear();
+            sceneFactory.GetScene(theDrop.GetPaths().front())->CopyTo(gameScene.GetRegistry());
             theDrop = {};
         }
 
@@ -158,14 +159,14 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
             }
 
             ImGui::Begin(ICON_FA_LIST" Hierarchy");
-            ImGui::Hierarchy(registry, selection);
+            ImGui::Hierarchy(gameScene.GetRegistry(), selection);
             ImGui::End();
 
             ImGui::Begin(ICON_FA_CIRCLE_INFO" Inspector");
-            ImGui::Inspector({ registry, selection });
+            ImGui::Inspector({ gameScene.GetRegistry(), selection });
             ImGui::End();
 
-            if (auto transform = registry.try_get<Transform::Ptr>(selection))
+            if (auto transform = gameScene.GetRegistry().try_get<Transform::Ptr>(selection))
             {
                 static ImGuizmo::OPERATION op = ImGuizmo::TRANSLATE;
                 static ImGuizmo::MODE mode = ImGuizmo::LOCAL;
@@ -195,7 +196,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
             ScopedRenderTargets scopedTarget{ backBuffer.GetTarget() };
 
             backBuffer.Clear();
-            renderer.Render(registry);
+            renderer.Render(gameScene.GetRegistry());
             imGui.Render();
             backBuffer.Present();
         }

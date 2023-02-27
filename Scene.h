@@ -10,7 +10,7 @@ class Scene
 public:
 	Scene(const aiScene&);
 
-	entt::entity CopyInto(entt::registry&) const; // Returns root entity
+	entt::entity CopyTo(entt::registry&) const; // Returns root entity
 
 private:
 	void LoadMaterials(std::span<aiMaterial*>);

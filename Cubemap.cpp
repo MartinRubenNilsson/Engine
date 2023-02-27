@@ -157,9 +157,9 @@ Cubemap::Cubemap(const fs::path& anEquirectHdrImage)
 	// 3. Project (render) equirectangular map onto cubemap.
 	ScopedPrimitiveTopology scopedTopology{ D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST };
 	ScopedInputLayout scopedLayout{ typeid(EmptyVertex) };
-	ScopedShader scopedVs{ VERTEX_SHADER("VsFullscreenTriangle.cso") };
-	ScopedShader scopedGs{ GEOMETRY_SHADER("GsCubemap.cso") };
-	ScopedShader scopedPs{ PIXEL_SHADER("PsCubemap.cso") };
+	ScopedShader scopedVs{ VERTEX_SHADER("VsGenerateCubemap.cso") };
+	ScopedShader scopedGs{ GEOMETRY_SHADER("GsGenerateCubemap.cso") };
+	ScopedShader scopedPs{ PIXEL_SHADER("PsGenerateCubemap.cso") };
 	ScopedSamplerStates scopedSampler{ 0, CD3D11_SAMPLER_DESC{ CD3D11_DEFAULT{} } };
 	ScopedShaderResources scopedResource{ ShaderType::Pixel, 0, equirectResource };
 	ScopedRenderTargets scopedTarget{ cubemapTarget };

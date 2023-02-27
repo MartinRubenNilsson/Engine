@@ -25,7 +25,7 @@ Renderer::Renderer(unsigned aWidth, unsigned aHeight)
 
 	// Skybox
 	{
-		/*std::array<fs::path, 6> skyboxImagePaths
+		std::array<fs::path, 6> skyboxImagePaths
 		{
 			"cubemap/Sorsele/posx.jpg",
 			"cubemap/Sorsele/negx.jpg",
@@ -33,10 +33,10 @@ Renderer::Renderer(unsigned aWidth, unsigned aHeight)
 			"cubemap/Sorsele/negy.jpg",
 			"cubemap/Sorsele/posz.jpg",
 			"cubemap/Sorsele/negz.jpg",
-		};*/
+		};
 
-		//mySkybox = { skyboxImagePaths };
-		mySkybox = { "cubemap/hdr/Newport_Loft_Ref.hdr" };
+		mySkybox = { skyboxImagePaths };
+		//mySkybox = { "cubemap/hdr/Newport_Loft_Ref.hdr" };
 		if (!mySkybox)
 			return;
 	}

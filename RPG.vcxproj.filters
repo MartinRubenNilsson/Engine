@@ -89,6 +89,7 @@
     <ClInclude Include="Hierarchy.h">
       <Filter>editor</Filter>
     </ClInclude>
+    <ClInclude Include="GameScene.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
@@ -173,6 +174,7 @@
     <ClCompile Include="Hierarchy.cpp">
       <Filter>editor</Filter>
     </ClCompile>
+    <ClCompile Include="GameScene.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="graphics">
@@ -249,10 +251,10 @@
     <FxCompile Include="PsSpotLight.hlsl">
       <Filter>shaders\lights</Filter>
     </FxCompile>
-    <FxCompile Include="GsCubemap.hlsl">
+    <FxCompile Include="GsGenerateCubemap.hlsl">
       <Filter>shaders\cubemap</Filter>
     </FxCompile>
-    <FxCompile Include="PsCubemap.hlsl">
+    <FxCompile Include="PsGenerateCubemap.hlsl">
       <Filter>shaders\cubemap</Filter>
     </FxCompile>
     <FxCompile Include="VsSkybox.hlsl">
@@ -266,6 +268,9 @@
     </FxCompile>
     <FxCompile Include="PsTonemapAndGamma.hlsl">
       <Filter>shaders\fullscreen</Filter>
+    </FxCompile>
+    <FxCompile Include="VsGenerateCubemap.hlsl">
+      <Filter>shaders\cubemap</Filter>
     </FxCompile>
   </ItemGroup>
   <ItemGroup>

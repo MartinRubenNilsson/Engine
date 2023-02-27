@@ -15,7 +15,7 @@ Scene::Scene(const aiScene& aScene)
     LoadLights({ aScene.mLights, aScene.mNumLights });
 }
 
-entt::entity Scene::CopyInto(entt::registry& aRegistry) const
+entt::entity Scene::CopyTo(entt::registry& aRegistry) const
 {
     return DeepCopy(aRegistry, myRootTransform).entity();
 }
