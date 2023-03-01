@@ -4,11 +4,11 @@
 float4 main(float4 aPixelPosition : SV_Position) : SV_TARGET
 {
     uint2 dim;
-    GBufferWorldPosition.GetDimensions(dim.x, dim.y);
+    GBufferPixelNormal.GetDimensions(dim.x, dim.y);
     const float2 uv = aPixelPosition.xy / dim;
     
-    const float4 worldPosition = GBufferWorldPosition.Sample(SamplerPoint, uv);
-    const float3 toLight = LightPosition.xyz - worldPosition.xyz;
+    const float3 worldPosition = GetWorldPosition(uv);
+    const float3 toLight = LightPosition.xyz - worldPosition;
     const float distanceToLight = length(toLight);
     if (distanceToLight > LightParams.x) // if outside range
         return float4(0.0, 0.0, 0.0, 1.0);
@@ -18,7 +18,7 @@ float4 main(float4 aPixelPosition : SV_Position) : SV_TARGET
         return float4(0.0, 0.0, 0.0, 1.0);
     
     const float3 L = toLight / distanceToLight;
-    const float3 V = normalize(CameraPosition.xyz - worldPosition.xyz);
+    const float3 V = normalize(CameraPosition.xyz - worldPosition);
     const float3 N = normalize(pixelNormal.xyz * 2.0 - 1.0); // Unpack normals
     
     const float4 albedo = GBufferAlbedo.Sample(SamplerPoint, uv);

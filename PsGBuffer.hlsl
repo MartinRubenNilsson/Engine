@@ -1,23 +1,23 @@
 #include "ShaderCommon.hlsli"
 
-GBufferTarget main(BasicPixel aPixel)
+PsOutGBuffer main(VsOutBasic input)
 {
-    const float3 T = normalize(aPixel.tangent);
-    const float3 B = normalize(aPixel.bitangent);
-    const float3 N = normalize(aPixel.normal);
+    const float3 T = normalize(input.tangent);
+    const float3 B = normalize(input.bitangent);
+    const float3 N = normalize(input.normal);
     
-    float3 localNormal = MaterialNormal.Sample(SamplerLinear, aPixel.uv).xyz;
+    float3 localNormal = MaterialNormal.Sample(SamplerLinear, input.uv).xyz;
     localNormal.g = 1.0 - localNormal.g; // Convert from OpenGL to DirectX
     localNormal = localNormal * 2.0 - 1.0; // Unpack normals
     
-    GBufferTarget target;
-    target.worldPosition  = float4(aPixel.worldPosition, 0.0);
+    PsOutGBuffer target;
+    target.depth = input.position.z;
     target.vertexNormal   = float4(N, 0.0);
     target.pixelNormal    = float4(mul(localNormal, float3x3(T, B, N)), 0.0);
-    target.albedo         = MaterialAlbedo.Sample(SamplerLinear, aPixel.uv);
-    target.metalRoughAo.r = MaterialMetallic.Sample(SamplerLinear, aPixel.uv).r;
-    target.metalRoughAo.g = MaterialRoughness.Sample(SamplerLinear, aPixel.uv).r;
-    target.metalRoughAo.b = MaterialOcclusion.Sample(SamplerLinear, aPixel.uv).r;
+    target.albedo         = MaterialAlbedo.Sample(SamplerLinear, input.uv);
+    target.metalRoughAo.r = MaterialMetallic.Sample(SamplerLinear, input.uv).r;
+    target.metalRoughAo.g = MaterialRoughness.Sample(SamplerLinear, input.uv).r;
+    target.metalRoughAo.b = MaterialOcclusion.Sample(SamplerLinear, input.uv).r;
     target.metalRoughAo.a = 0.0;
     target.entity = MeshEntity[0];
     

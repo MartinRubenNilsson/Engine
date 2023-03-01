@@ -10,7 +10,7 @@ struct EmptyVertex
 	static constexpr std::string_view Shader = "VsFullscreen.cso";
 };
 
-struct BasicVertex
+struct VsInBasic
 {
 	Vector3 position;
 	Vector3 normal;

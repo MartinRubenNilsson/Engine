@@ -1,14 +1,13 @@
 #include "ShaderCommon.hlsli"
 
-BasicPixel main(BasicVertex aVertex)
+VsOutBasic main(VsInBasic input)
 {
-    BasicPixel pixel;
-    pixel.worldPosition = mul(MeshMatrix, float4(aVertex.position, 1.f)).xyz;
-    pixel.pixelPosition = mul(CameraViewProjMatrix, float4(pixel.worldPosition, 1.f));
-    pixel.normal    = normalize(mul((float3x3)MeshMatrixInverseTranspose, aVertex.normal));
-    pixel.tangent   = normalize(mul((float3x3)MeshMatrix, aVertex.tangent));
-    pixel.bitangent = normalize(mul((float3x3)MeshMatrix, aVertex.bitangent));
-    pixel.uv = aVertex.uv;
+    VsOutBasic output;
+    output.position  = mul(CameraViewProj, mul(MeshMatrix, float4(input.position, 1.f)));
+    output.normal    = normalize(mul((float3x3)MeshMatrixInvTrans, input.normal));
+    output.tangent   = normalize(mul((float3x3)MeshMatrix, input.tangent));
+    output.bitangent = normalize(mul((float3x3)MeshMatrix, input.bitangent));
+    output.uv = input.uv;
     
-    return pixel;
+    return output;
 }

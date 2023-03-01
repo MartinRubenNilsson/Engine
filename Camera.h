@@ -43,6 +43,8 @@ public:
 	void SetPerspective(const PerspectiveCamera&);
 	void SetOrthographic(const OrthographicCamera&);
 
+	void GetClipPlanes(float& aNearZ, float& aFarZ) const;
+
 protected:
 	friend void ImGui::InspectCamera(Camera&);
 

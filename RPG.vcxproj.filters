@@ -218,7 +218,7 @@
     <FxCompile Include="VsBasic.hlsl">
       <Filter>shaders</Filter>
     </FxCompile>
-    <FxCompile Include="PsGBufferWorldPosition.hlsl">
+    <FxCompile Include="PsGBufferDepth.hlsl">
       <Filter>shaders\gbuffer</Filter>
     </FxCompile>
     <FxCompile Include="PsGBuffer.hlsl">
@@ -238,9 +238,6 @@
     </FxCompile>
     <FxCompile Include="PsGBufferEntity.hlsl">
       <Filter>shaders\gbuffer</Filter>
-    </FxCompile>
-    <FxCompile Include="PsUintMax.hlsl">
-      <Filter>shaders</Filter>
     </FxCompile>
     <FxCompile Include="PsDirectionalLight.hlsl">
       <Filter>shaders\lights</Filter>
@@ -271,6 +268,12 @@
     </FxCompile>
     <FxCompile Include="VsGenerateCubemap.hlsl">
       <Filter>shaders\cubemap</Filter>
+    </FxCompile>
+    <FxCompile Include="PsClearDepth.hlsl">
+      <Filter>shaders\fullscreen</Filter>
+    </FxCompile>
+    <FxCompile Include="PsClearEntity.hlsl">
+      <Filter>shaders\fullscreen</Filter>
     </FxCompile>
   </ItemGroup>
   <ItemGroup>

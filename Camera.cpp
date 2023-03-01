@@ -15,6 +15,23 @@ namespace
 			return XMMatrixOrthographicLH(aCamera.width, aCamera.height, aCamera.nearZ, aCamera.farZ);
 		}
 	};
+
+	struct ClipPlaneGetter
+	{
+		float nearZ{}, farZ{};
+
+		void operator()(const PerspectiveCamera& aCamera)
+		{
+			nearZ = aCamera.nearZ;
+			farZ = aCamera.farZ;
+		}
+
+		void operator()(const OrthographicCamera& aCamera)
+		{
+			nearZ = aCamera.nearZ;
+			farZ = aCamera.farZ;
+		}
+	};
 }
 
 /*
@@ -77,6 +94,14 @@ void Camera::SetOrthographic(const OrthographicCamera& aCamera)
 {
 	// todo: validae values
 	myCamera = aCamera;
+}
+
+void Camera::GetClipPlanes(float& aNearZ, float& aFarZ) const
+{
+	ClipPlaneGetter getter{};
+	std::visit(getter, myCamera);
+	aNearZ = getter.nearZ;
+	aFarZ = getter.farZ;
 }
 
 /*

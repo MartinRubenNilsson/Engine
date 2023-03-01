@@ -35,7 +35,7 @@ InputLayoutManager::InputLayoutManager()
 	: myInputLayouts
 	{
 		PAIR(EmptyVertex),
-		PAIR(BasicVertex),
+		PAIR(VsInBasic),
 	}
 {}
 

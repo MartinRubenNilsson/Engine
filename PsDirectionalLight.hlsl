@@ -1,20 +1,18 @@
 #include "ShaderCommon.hlsli"
 #include "PbrFunctions.hlsli"
 
-float4 main(float4 aPixelPosition : SV_Position) : SV_TARGET
+float4 main(float4 pos : SV_POSITION) : SV_TARGET
 {
     uint2 dim;
     GBufferPixelNormal.GetDimensions(dim.x, dim.y);
-    const float2 uv = aPixelPosition.xy / dim;
+    const float2 uv = pos.xy / dim;
     
     const float4 pixelNormal = GBufferPixelNormal.Sample(SamplerPoint, uv);
     if (!any(pixelNormal))
         return float4(0.0, 0.0, 0.0, 1.0);
     
-    const float4 worldPosition = GBufferWorldPosition.Sample(SamplerPoint, uv);
-    
     const float3 L = normalize(-LightDirection.xyz);
-    const float3 V = normalize(CameraPosition.xyz - worldPosition.xyz);
+    const float3 V = normalize(CameraPosition.xyz - GetWorldPosition(uv));
     const float3 N = normalize(pixelNormal.xyz * 2.0 - 1.0); // Unpack normals
     
     const float4 albedo = GBufferAlbedo.Sample(SamplerPoint, uv);

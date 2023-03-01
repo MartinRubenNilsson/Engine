@@ -16,7 +16,7 @@ Mesh::Mesh(const aiMesh& aMesh)
 	assert(aMesh.HasFaces());
 	assert(aMesh.mPrimitiveTypes == aiPrimitiveType_TRIANGLE);
 
-	std::vector<BasicVertex> vertices(aMesh.mNumVertices);
+	std::vector<VsInBasic> vertices(aMesh.mNumVertices);
 	std::vector<unsigned> indices(3 * aMesh.mNumFaces);
 
 	for (unsigned i = 0; i < aMesh.mNumVertices; ++i)

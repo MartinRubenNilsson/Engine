@@ -1,3 +1,5 @@
+#include "ShaderCommon.hlsli"
+
 float4 main(uint id : SV_VertexID) : SV_POSITION
 {
     const float4 vertices[3] =

@@ -52,7 +52,7 @@ bool Renderer::Resize(unsigned aWidth, unsigned aHeight)
 {
 	static constexpr std::array geometryFormats
 	{
-		DXGI_FORMAT_R32G32B32A32_FLOAT, // World position
+		DXGI_FORMAT_R16_UNORM,			// Depth
 		DXGI_FORMAT_R10G10B10A2_UNORM,  // Vertex normal
 		DXGI_FORMAT_R10G10B10A2_UNORM,  // Pixel normal
 		DXGI_FORMAT_R8G8B8A8_UNORM,		// Albedo
@@ -75,8 +75,10 @@ bool Renderer::Resize(unsigned aWidth, unsigned aHeight)
 void Renderer::SetCamera(const Camera& aCamera, const Matrix& aTransform)
 {
 	CameraBuffer buffer{};
-	buffer.cameraViewProjMatrix = aTransform.Invert() * aCamera.GetViewMatrix() * aCamera.GetProjectionMatrix();
-	buffer.cameraPosition = { aTransform.Translation().operator XMVECTOR() };
+	buffer.viewProj = aTransform.Invert() * aCamera.GetViewMatrix() * aCamera.GetProjectionMatrix();
+	buffer.invViewProj = buffer.viewProj.Invert();
+	buffer.position = { aTransform.Translation().operator XMVECTOR() };
+	aCamera.GetClipPlanes(buffer.clipPlanes.x, buffer.clipPlanes.y);
 
 	myCBuffers.at(CBufferCamera).Update(&buffer);
 }
@@ -109,9 +111,9 @@ void Renderer::Render(entt::registry& aRegistry)
 
 void Renderer::RenderGBufferTexture(size_t anIndex)
 {
-	FullscreenPass passes[]
+	std::array<FullscreenPass, 6> passes
 	{
-		PIXEL_SHADER("PsGBufferWorldPosition.cso"),
+		PIXEL_SHADER("PsGBufferDepth.cso"),
 		PIXEL_SHADER("PsGBufferVertexNormal.cso"),
 		PIXEL_SHADER("PsGBufferPixelNormal.cso"),
 		PIXEL_SHADER("PsGBufferAlbedo.cso"),
@@ -119,11 +121,11 @@ void Renderer::RenderGBufferTexture(size_t anIndex)
 		PIXEL_SHADER("PsGBufferEntity.cso"),
 	};
 
-	if (anIndex >= std::size(passes))
-		return;
-
-	ScopedShaderResources scopedResources{ ShaderType::Pixel, 0, myGeometryBuffer };
-	passes[anIndex].Render();
+	if (anIndex < passes.size())
+	{
+		ScopedShaderResources scopedResources{ ShaderType::Pixel, 0, myGeometryBuffer };
+		passes.at(anIndex).Render();
+	}
 }
 
 entt::entity Renderer::PickEntity(unsigned x, unsigned y)
@@ -148,8 +150,14 @@ void Renderer::Clear()
 	myGeometryBuffer.Clear();
 	myLightningBuffer.Clear();
 
-	ScopedRenderTargets scopedTargets{ myGeometryBuffer.GetRenderTarget(TEXTURE_SLOT_GBUFFER_ENTITY) };
-	FullscreenPass{ PIXEL_SHADER("PsUintMax.cso") }.Render();
+	{
+		ScopedRenderTargets scopedTargets{ myGeometryBuffer.GetRenderTarget(TEXTURE_SLOT_GBUFFER_DEPTH) };
+		FullscreenPass{ PIXEL_SHADER("PsClearDepth.cso") }.Render();
+	}
+	{
+		ScopedRenderTargets scopedTargets{ myGeometryBuffer.GetRenderTarget(TEXTURE_SLOT_GBUFFER_ENTITY) };
+		FullscreenPass{ PIXEL_SHADER("PsClearEntity.cso") }.Render();
+	}
 }
 
 void Renderer::RenderGeometry(entt::registry& aRegistry)
@@ -157,7 +165,7 @@ void Renderer::RenderGeometry(entt::registry& aRegistry)
 	if (aRegistry.empty())
 		return;
 
-	ScopedInputLayout scopedLayout{ typeid(BasicVertex) };
+	ScopedInputLayout scopedLayout{ typeid(VsInBasic) };
 	ScopedShader scopedVs{ VERTEX_SHADER("VsBasic.cso") };
 	ScopedShader scopedPs{ PIXEL_SHADER("PsGBuffer.cso") };
 	ScopedRenderTargets scopedTargets{ myGeometryBuffer, myDepthBuffer };
@@ -170,9 +178,9 @@ void Renderer::RenderGeometry(entt::registry& aRegistry)
 		ScopedShaderResources scopedResources{ ShaderType::Pixel, 10, *material }; // TODO: turn hardcoded 10 into am acro
 		
 		MeshBuffer buffer{};
-		buffer.meshMatrix = transform->GetWorldMatrix();
-		buffer.meshMatrixInverseTranspose = buffer.meshMatrix.Invert().Transpose();
-		std::ranges::fill(buffer.meshEntity, std::to_underlying(entity));
+		buffer.matrix = transform->GetWorldMatrix();
+		buffer.matrixInvTrans = buffer.matrix.Invert().Transpose();
+		std::ranges::fill(buffer.entity, std::to_underlying(entity));
 
 		myCBuffers.at(CBufferMesh).Update(&buffer);
 
@@ -259,8 +267,8 @@ void Renderer::RenderDirectionalLights(std::span<const DirectionalLight> someLig
 	for (const DirectionalLight& light : someLights)
 	{
 		LightBuffer buffer{};
-		buffer.lightColor = light.color;
-		buffer.lightDirection = { light.direction.x, light.direction.y, light.direction.z, 0.f };
+		buffer.color = light.color;
+		buffer.direction = { light.direction.x, light.direction.y, light.direction.z, 0.f };
 
 		myCBuffers.at(CBufferLight).Update(&buffer);
 
@@ -276,9 +284,9 @@ void Renderer::RenderPointLights(std::span<const PointLight> someLights)
 	for (const PointLight& light : someLights)
 	{
 		LightBuffer buffer{};
-		buffer.lightColor = light.color;
-		buffer.lightPosition = { light.position.x, light.position.y, light.position.z, 1.f };
-		buffer.lightParameters = light.parameters;
+		buffer.color = light.color;
+		buffer.position = { light.position.x, light.position.y, light.position.z, 1.f };
+		buffer.parameters = light.parameters;
 
 		myCBuffers.at(CBufferLight).Update(&buffer);
 
@@ -294,11 +302,11 @@ void Renderer::RenderSpotLights(std::span<const SpotLight> someLights)
 	for (const SpotLight& light : someLights)
 	{
 		LightBuffer buffer{};
-		buffer.lightColor = light.color;
-		buffer.lightPosition = { light.position.x, light.position.y, light.position.z, 1.f };
-		buffer.lightDirection = { light.direction.x, light.direction.y, light.direction.z, 0.f };
-		buffer.lightParameters = light.parameters;
-		buffer.lightConeAngles = { light.innerAngle, light.outerAngle, 0.f, 0.f };
+		buffer.color = light.color;
+		buffer.position = { light.position.x, light.position.y, light.position.z, 1.f };
+		buffer.direction = { light.direction.x, light.direction.y, light.direction.z, 0.f };
+		buffer.parameters = light.parameters;
+		buffer.coneAngles = { light.innerAngle, light.outerAngle, 0.f, 0.f };
 
 		myCBuffers.at(CBufferLight).Update(&buffer);
 
