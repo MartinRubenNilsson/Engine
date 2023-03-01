@@ -8,6 +8,10 @@
 #include "FullscreenPass.h"
 #include "Pixel.h"
 
+/*
+* class Renderer
+*/
+
 Renderer::Renderer(unsigned aWidth, unsigned aHeight)
 {
 	myCBuffers = { sizeof(CameraBuffer), sizeof(MeshBuffer), sizeof(LightBuffer) };
@@ -74,13 +78,18 @@ void Renderer::SetCamera(const Camera& aCamera, const Matrix& aTransform)
 	buffer.cameraViewProjMatrix = aTransform.Invert() * aCamera.GetViewMatrix() * aCamera.GetProjectionMatrix();
 	buffer.cameraPosition = { aTransform.Translation().operator XMVECTOR() };
 
-	myCBuffers.at(CBufferCamera).WriteToBuffer(&buffer);
+	myCBuffers.at(CBufferCamera).Update(&buffer);
 }
 
 void Renderer::Render(entt::registry& aRegistry)
 {
 	if (!operator bool())
 		return;
+
+	namespace ch = std::chrono;
+	const auto now = ch::steady_clock::now();
+
+	Clear();
 
 	std::array<D3D11_SAMPLER_DESC, SamplerCount> samplers{};
 	samplers.fill(CD3D11_SAMPLER_DESC{ CD3D11_DEFAULT{} });
@@ -89,11 +98,13 @@ void Renderer::Render(entt::registry& aRegistry)
 
 	ScopedSamplerStates scopedSamplers{ 0, samplers };
 
-	Clear();
 	RenderGeometry(aRegistry);
 	RenderLightning(aRegistry);
 	RenderSkybox();
 	TonemapAndGamma();
+
+	const auto duration = ch::duration_cast<ch::milliseconds>(ch::steady_clock::now() - now);
+	myStatistics.renderTimeMs = static_cast<unsigned>(duration.count());
 }
 
 void Renderer::RenderGBufferTexture(size_t anIndex)
@@ -131,6 +142,8 @@ entt::entity Renderer::PickEntity(unsigned x, unsigned y)
 
 void Renderer::Clear()
 {
+	myStatistics = {};
+
 	myDepthBuffer.Clear();
 	myGeometryBuffer.Clear();
 	myLightningBuffer.Clear();
@@ -161,9 +174,10 @@ void Renderer::RenderGeometry(entt::registry& aRegistry)
 		buffer.meshMatrixInverseTranspose = buffer.meshMatrix.Invert().Transpose();
 		std::ranges::fill(buffer.meshEntity, std::to_underlying(entity));
 
-		myCBuffers.at(CBufferMesh).WriteToBuffer(&buffer);
+		myCBuffers.at(CBufferMesh).Update(&buffer);
 
 		DX11_CONTEXT->DrawIndexed(mesh->GetIndexCount(), 0, 0);
+		myStatistics.meshDrawCalls++;
 	}
 }
 
@@ -248,9 +262,10 @@ void Renderer::RenderDirectionalLights(std::span<const DirectionalLight> someLig
 		buffer.lightColor = light.color;
 		buffer.lightDirection = { light.direction.x, light.direction.y, light.direction.z, 0.f };
 
-		myCBuffers.at(CBufferLight).WriteToBuffer(&buffer);
+		myCBuffers.at(CBufferLight).Update(&buffer);
 
 		pass.Render();
+		myStatistics.dirLightDrawCalls++;
 	}
 }
 
@@ -265,9 +280,10 @@ void Renderer::RenderPointLights(std::span<const PointLight> someLights)
 		buffer.lightPosition = { light.position.x, light.position.y, light.position.z, 1.f };
 		buffer.lightParameters = light.parameters;
 
-		myCBuffers.at(CBufferLight).WriteToBuffer(&buffer);
+		myCBuffers.at(CBufferLight).Update(&buffer);
 
 		pass.Render();
+		myStatistics.pointLightDrawCalls++;
 	}
 }
 
@@ -284,9 +300,27 @@ void Renderer::RenderSpotLights(std::span<const SpotLight> someLights)
 		buffer.lightParameters = light.parameters;
 		buffer.lightConeAngles = { light.innerAngle, light.outerAngle, 0.f, 0.f };
 
-		myCBuffers.at(CBufferLight).WriteToBuffer(&buffer);
+		myCBuffers.at(CBufferLight).Update(&buffer);
 
 		pass.Render();
+		myStatistics.spotLightDrawCalls++;
 	}
 }
 
+/*
+* namespace ImGui
+*/
+
+void ImGui::InspectRenderStatistics(const RenderStatistics& someStats)
+{
+	Value("Render Time (ms)", someStats.renderTimeMs);
+
+	if (TreeNodeEx("Draw Calls", ImGuiTreeNodeFlags_DefaultOpen))
+	{
+		Value("Meshes", someStats.meshDrawCalls);
+		Value("Dir. Lights", someStats.dirLightDrawCalls);
+		Value("Point Lights", someStats.pointLightDrawCalls);
+		Value("Spot Lights", someStats.spotLightDrawCalls);
+		TreePop();
+	}
+}

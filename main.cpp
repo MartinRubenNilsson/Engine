@@ -186,6 +186,10 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
                 (*transform)->SetWorldMatrix(m);
             }
 
+            ImGui::Begin(ICON_FA_CHART_SIMPLE" Render Statistics");
+            ImGui::InspectRenderStatistics(renderer.GetStatistics());
+            ImGui::End();
+
             renderer.SetCamera(camera, cameraTransform);
         }
 

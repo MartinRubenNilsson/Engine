@@ -6,7 +6,7 @@ public:
 	ConstantBuffer() = default;
 	ConstantBuffer(unsigned aByteWidth);
 
-	void WriteToBuffer(const void* someData);
+	void Update(const void* someData);
 
 	void VSSetBuffer(unsigned aSlot) const;
 	void PSSetBuffer(unsigned aSlot) const;

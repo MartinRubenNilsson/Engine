@@ -7,8 +7,16 @@
 #include "Light.h"
 #include "Cubemap.h"
 
-class Renderer
+struct RenderStatistics
+{
+	unsigned renderTimeMs{};
+	unsigned meshDrawCalls{};
+	unsigned dirLightDrawCalls{};
+	unsigned pointLightDrawCalls{};
+	unsigned spotLightDrawCalls{};
+};
 
+class Renderer
 {
 public:
 	Renderer() = default;
@@ -20,6 +28,8 @@ public:
 	void RenderGBufferTexture(size_t anIndex);
 
 	entt::entity PickEntity(unsigned x, unsigned y);
+
+	RenderStatistics GetStatistics() const { return myStatistics; }
 
 	explicit operator bool() const { return mySucceeded; }
 
@@ -39,6 +49,13 @@ private:
 	RenderTargets myGeometryBuffer{}, myLightningBuffer{};
 	Cubemap mySkybox{};
 
+	RenderStatistics myStatistics{};
+
 	bool mySucceeded{ false };
 };
+
+namespace ImGui
+{
+	void InspectRenderStatistics(const RenderStatistics&);
+}
 
