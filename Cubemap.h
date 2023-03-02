@@ -5,16 +5,19 @@ class Cubemap
 public:
 	Cubemap() = default;
 	Cubemap(std::span<const fs::path, 6> someLdrImages);
-	Cubemap(const fs::path& anEquirectHdrImage);
+	//Cubemap(const fs::path& anEquirectHdrImage);
 
 	void DrawSkybox() const;
 
-	ShaderResourcePtr GetResource() const { return myShaderResource; }
+	ShaderResourcePtr GetResource() const { return myEnvironmentMap; }
 
 	explicit operator bool() const;
 
 private:
+	void CreateIrradianceMap();
+
 	HRESULT myResult{ E_FAIL };
-	ShaderResourcePtr myShaderResource{};
+	ShaderResourcePtr myEnvironmentMap{};
+	ShaderResourcePtr myIrradianceMap{};
 };
 

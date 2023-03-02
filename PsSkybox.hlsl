@@ -1,7 +1,7 @@
 #include "ShaderCommon.hlsli"
-#include "Skybox.hlsli"
+#include "CubemapCommon.hlsli"
 
-float4 main(SkyboxPixel pixel) : SV_Target
+float4 main(VsOutSkybox pixel) : SV_Target
 {
-    return SkyboxCubemap.Sample(SamplerLinear, pixel.localPosition);
+    return EnvironmentMap.Sample(SamplerLinear, pixel.localPosition);
 }

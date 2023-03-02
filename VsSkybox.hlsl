@@ -1,34 +1,34 @@
 #include "ShaderCommon.hlsli"
-#include "Skybox.hlsli"
+#include "CubemapCommon.hlsli"
 
-SkyboxPixel main(uint id : SV_VertexID)
+// https://stackoverflow.com/questions/28375338/cube-using-single-gl-triangle-strip
+
+// The primitive topology for this cube is a triangle strip.
+static const float3 CubeStrip[] =
 {
-    // https://stackoverflow.com/questions/28375338/cube-using-single-gl-triangle-strip
-    // The z-axis has been inverted compared to the answer from stackoverflow, since DX11 is left-handed
+    -1.0,  1.0, -1.0, // Front-top-left
+     1.0,  1.0, -1.0, // Front-top-right
+    -1.0, -1.0, -1.0, // Front-bottom-left
+     1.0, -1.0, -1.0, // Front-bottom-right
+     1.0, -1.0,  1.0, // Back-bottom-right
+     1.0,  1.0, -1.0, // Front-top-right
+     1.0,  1.0,  1.0, // Back-top-right
+    -1.0,  1.0, -1.0, // Front-top-left
+    -1.0,  1.0,  1.0, // Back-top-left
+    -1.0, -1.0, -1.0, // Front-bottom-left
+    -1.0, -1.0,  1.0, // Back-bottom-left
+     1.0, -1.0,  1.0, // Back-bottom-right
+    -1.0,  1.0,  1.0, // Back-top-left
+     1.0,  1.0,  1.0, // Back-top-right
+};
 
-    static const float3 skyboxVertices[] =
-    {
-        -1.0,  1.0, -1.0, // Front-top-left
-         1.0,  1.0, -1.0, // Front-top-right
-        -1.0, -1.0, -1.0, // Front-bottom-left
-         1.0, -1.0, -1.0, // Front-bottom-right
-         1.0, -1.0,  1.0, // Back-bottom-right
-         1.0,  1.0, -1.0, // Front-top-right
-         1.0,  1.0,  1.0, // Back-top-right
-        -1.0,  1.0, -1.0, // Front-top-left
-        -1.0,  1.0,  1.0, // Back-top-left
-        -1.0, -1.0, -1.0, // Front-bottom-left
-        -1.0, -1.0,  1.0, // Back-bottom-left
-         1.0, -1.0,  1.0, // Back-bottom-right
-        -1.0,  1.0,  1.0, // Back-top-left
-         1.0,  1.0,  1.0, // Back-top-right
-    };
+VsOutSkybox main(uint id : SV_VertexID)
+{
+    // By setting z=w=1 in pixelPosition, we ensure that the skybox always lie on the far plane.
     
-    // By setting z=w=1 in pixelPosition, we ensure that the skybox always lie on the far plane 
+    VsOutSkybox output;
+    output.localPosition = CubeStrip[id];
+    output.pixelPosition = mul(CameraViewProj, float4(output.localPosition, 0.f)).xyww;
     
-    SkyboxPixel pixel;
-    pixel.localPosition = skyboxVertices[id];
-    pixel.pixelPosition = mul(CameraViewProj, float4(pixel.localPosition, 0.f)).xyww;
-    
-    return pixel;
+    return output;
 }

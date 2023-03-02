@@ -414,7 +414,7 @@
   <ItemGroup>
     <None Include="PbrFunctions.hlsli" />
     <None Include="ShaderCommon.hlsli" />
-    <None Include="Skybox.hlsli" />
+    <None Include="CubemapCommon.hlsli" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
