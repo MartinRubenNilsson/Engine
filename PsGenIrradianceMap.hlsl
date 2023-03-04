@@ -28,7 +28,6 @@ float4 main(GsOutGenCubemap input) : SV_TARGET
             float3 sampleDir = mul(SphericalToCartesian(theta, phi), TBN);
             irradiance += EnvironmentMap.Sample(TrilinearSampler, sampleDir).rgb * cos(theta) * sin(theta);
             sampleCount++;
-
         }
     }
     

@@ -21,6 +21,7 @@ Renderer::Renderer(unsigned aWidth, unsigned aHeight)
 	for (unsigned i = 0; i < CBufferCount; ++i)
 	{
 		myCBuffers[i].VSSetBuffer(i);
+		myCBuffers[i].GSSetBuffer(i);
 		myCBuffers[i].PSSetBuffer(i);
 	}
 

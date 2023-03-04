@@ -196,21 +196,15 @@ void Cubemap::DrawSkybox() const
 	if (!operator bool())
 		return;
 
-	CD3D11_RASTERIZER_DESC rasterizerDesc{ CD3D11_DEFAULT{} };
-	rasterizerDesc.CullMode = D3D11_CULL_FRONT; // Since the skybox surrounds us
+	CD3D11_DEPTH_STENCIL_DESC depthStencil{ CD3D11_DEFAULT{} };
+	depthStencil.DepthFunc = D3D11_COMPARISON_LESS_EQUAL; // Otherwise skybox will fail the depth test since z=1.
 
-	CD3D11_DEPTH_STENCIL_DESC depthStencilDesc{ CD3D11_DEFAULT{} };
-	depthStencilDesc.DepthFunc = D3D11_COMPARISON_LESS_EQUAL; // Otherwise z=1 will fail the depth test
-	
-	ScopedPrimitiveTopology scopedTopology{ D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP };
-	ScopedInputLayout scopedLayout{ typeid(EmptyVertex) };
 	ScopedShaderResources scopedResources{ ShaderType::Pixel, 0, myEnvironmentMap };
-	ScopedShader scopedVs{ VERTEX_SHADER("VsSkybox.cso") };
+	ScopedShader scopedGs{ GEOMETRY_SHADER("GsSkybox.cso") };
 	ScopedShader scopedPs{ PIXEL_SHADER("PsSkybox.cso") };
-	ScopedRasterizerState scopedRasterizer{ rasterizerDesc };
-	ScopedDepthStencilState scopedDepthStencil{ depthStencilDesc };
+	ScopedDepthStencilState scopedDepthStencil{ depthStencil };
 
-	DX11_CONTEXT->Draw(14, 0);
+	DrawInternal();
 }
 
 Cubemap::operator bool() const
@@ -263,23 +257,24 @@ void Cubemap::CreateIrradianceMap()
 	if (FAILED(myResult))
 		return;
 
-	CD3D11_RASTERIZER_DESC rasterizerDesc{ CD3D11_DEFAULT{} };
-	rasterizerDesc.CullMode = D3D11_CULL_FRONT; // Since the cubemap surrounds us
-
-	ScopedPrimitiveTopology scopedTopology{ D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP };
-	ScopedInputLayout scopedLayout{ typeid(EmptyVertex) };
-	ScopedShader scopedVs{ VERTEX_SHADER("VsCubemap.cso") };
+	ScopedSamplerStates scopedSamplers{ 0, CD3D11_SAMPLER_DESC{ CD3D11_DEFAULT{} } };
 	ScopedShader scopedGs{ GEOMETRY_SHADER("GsGenCubemap.cso") };
 	ScopedShader scopedPs{ PIXEL_SHADER("PsGenIrradianceMap.cso") };
-	ScopedShaderResources scopedResources{ ShaderType::Pixel, 0, myEnvironmentMap };
 	ScopedRenderTargets scopedTargets{ irradianceTarget };
 	ScopedViewports scopedViewports{ CD3D11_VIEWPORT{ irradianceTexture.Get(), irradianceTarget.Get() } };
-	ScopedRasterizerState scopedRasterizer{ rasterizerDesc };
-	ScopedSamplerStates scopedSamplers{ 0, CD3D11_SAMPLER_DESC{ CD3D11_DEFAULT{} } };
 
 	ConstantBuffer cubeFaceViewProjs{ sizeof(theCubeFaceViewProjs) };
 	cubeFaceViewProjs.Update(&theCubeFaceViewProjs);
 	cubeFaceViewProjs.GSSetBuffer(10);
+
+	DrawInternal();
+}
+
+void Cubemap::DrawInternal() const
+{
+	ScopedPrimitiveTopology scopedTopology{ D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP };
+	ScopedInputLayout scopedLayout{ typeid(EmptyVertex) };
+	ScopedShader scopedVs{ VERTEX_SHADER("VsCubemap.cso") };
 
 	DX11_CONTEXT->Draw(14, 0);
 }

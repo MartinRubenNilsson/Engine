@@ -2,17 +2,17 @@
 #define PI2 6.283185307
 #define PIDIV2 1.570796327
 
-struct VsOutSkybox
-{
-    float4 pixelPosition : SV_Position;
-    float3 localPosition : POSITION;
-};
-
 struct GsOutGenCubemap
 {
     float4 pos : SV_Position;
     float3 worldPos : POSITION;
     uint targetIndex : SV_RenderTargetArrayIndex;
+};
+
+struct GsOutSkybox
+{
+    float4 pos : SV_Position;
+    float3 worldPos : POSITION;
 };
 
 cbuffer CubemapCameraBuffer : register(b10)

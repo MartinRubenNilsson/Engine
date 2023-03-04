@@ -15,6 +15,7 @@ public:
 
 private:
 	void CreateIrradianceMap();
+	void DrawInternal() const;
 
 	HRESULT myResult{ E_FAIL };
 	ShaderResourcePtr myEnvironmentMap{};

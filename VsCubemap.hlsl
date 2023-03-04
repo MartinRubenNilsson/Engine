@@ -1,7 +1,7 @@
 // https://stackoverflow.com/questions/28375338/cube-using-single-gl-triangle-strip
 // When drawing, set primitive topology to triangle strip and call ID3D11DeviceContext::Draw(14, 0).
 
-static const float3 CubemapVertices[] =
+static const float3 CubeStrip[] =
 {
     -1.0, +1.0, -1.0, // Front-top-left
     +1.0, +1.0, -1.0, // Front-top-right
@@ -21,5 +21,6 @@ static const float3 CubemapVertices[] =
 
 float3 main(uint id : SV_VertexID) : POSITION
 {
-    return CubemapVertices[id];
+    float3 vertex = CubeStrip[id];
+    return float3(vertex.x, vertex.y, -vertex.z);
 }
