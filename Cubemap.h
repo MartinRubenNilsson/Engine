@@ -9,8 +9,6 @@ public:
 
 	void DrawSkybox() const;
 
-	ShaderResourcePtr GetResource() const { return myEnvironmentMap; }
-
 	explicit operator bool() const;
 
 private:

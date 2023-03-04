@@ -260,6 +260,7 @@ void Cubemap::CreateIrradianceMap()
 	ScopedSamplerStates scopedSamplers{ 0, CD3D11_SAMPLER_DESC{ CD3D11_DEFAULT{} } };
 	ScopedShader scopedGs{ GEOMETRY_SHADER("GsGenCubemap.cso") };
 	ScopedShader scopedPs{ PIXEL_SHADER("PsGenIrradianceMap.cso") };
+	ScopedShaderResources scopedResources{ ShaderType::Pixel, 0, myEnvironmentMap };
 	ScopedRenderTargets scopedTargets{ irradianceTarget };
 	ScopedViewports scopedViewports{ CD3D11_VIEWPORT{ irradianceTexture.Get(), irradianceTarget.Get() } };
 

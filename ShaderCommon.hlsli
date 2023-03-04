@@ -79,8 +79,8 @@ Texture2D MaterialOcclusion : register(t14);
 * Samplers
 */
 
-SamplerState SamplerPoint : register(s0);
-SamplerState SamplerLinear : register(s1);
+SamplerState PointSampler : register(s0);
+SamplerState TrilinearSampler : register(s1);
 
 /*
 * Functions
@@ -96,6 +96,6 @@ float3 GetWorldPosition(float2 uv)
 {
     float4 farPlaneClipPos = { uv.x * 2.0 - 1.0, 1.0 - uv.y * 2.0, 1.0, 1.0 };
     float3 farPlaneWorldPos = mul(CameraInvViewProj, farPlaneClipPos).xyz;
-    float depth = GBufferDepth.Sample(SamplerPoint, uv).x;
+    float depth = GBufferDepth.Sample(PointSampler, uv).x;
     return lerp(CameraPosition.xyz, farPlaneWorldPos, depth);
 }

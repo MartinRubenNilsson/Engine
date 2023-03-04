@@ -96,8 +96,8 @@ void Renderer::Render(entt::registry& aRegistry)
 
 	std::array<D3D11_SAMPLER_DESC, SamplerCount> samplers{};
 	samplers.fill(CD3D11_SAMPLER_DESC{ CD3D11_DEFAULT{} });
-	samplers[SamplerPoint].Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
-	samplers[SamplerLinear].Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+	samplers[PointSampler].Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
+	samplers[TrilinearSampler].Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
 
 	ScopedSamplerStates scopedSamplers{ 0, samplers };
 

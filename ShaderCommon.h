@@ -10,8 +10,8 @@ enum CBufferSlot : unsigned
 
 enum SamplerSlot : unsigned
 {
-	SamplerPoint,
-	SamplerLinear,
+	PointSampler,
+	TrilinearSampler,
 	SamplerCount
 };
 
