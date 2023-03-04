@@ -35,7 +35,9 @@ using Microsoft::WRL::ComPtr;
 
 // dx11
 #include <dxgi.h>
+#include <d3dcompiler.h>
 #include <d3d11.h>
+#include <d3d11shader.h>
 #include <DirectXMath.h>
 #include <DirectXCollision.h>
 #include <directxtk/SimpleMath.h>
@@ -54,6 +56,14 @@ using RasterizerStatePtr = ComPtr<ID3D11RasterizerState>;
 using SamplerStatePtr = ComPtr<ID3D11SamplerState>;
 using DepthStencilStatePtr = ComPtr<ID3D11DepthStencilState>;
 using BlendStatePtr = ComPtr<ID3D11BlendState>;
+
+using PixelShaderPtr = ComPtr<ID3D11PixelShader>;
+using VertexShaderPtr = ComPtr<ID3D11VertexShader>;
+using GeometryShaderPtr = ComPtr<ID3D11GeometryShader>;
+using HullShaderPtr = ComPtr<ID3D11HullShader>;
+using DomainShaderPtr = ComPtr<ID3D11DomainShader>;
+using ComputeShaderPtr = ComPtr<ID3D11ComputeShader>;
+
 
 // imgui
 #include <imgui/imgui_impl_win32.h>

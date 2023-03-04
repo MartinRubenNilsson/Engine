@@ -52,33 +52,18 @@ ScopedInputLayout::~ScopedInputLayout()
 
 ScopedShader::ScopedShader(std::shared_ptr<const Shader> aShader)
 {
-	if (!aShader)
+	if (!aShader || !*aShader)
 		return;
 
-	switch (aShader->GetType())
-	{
-	case ShaderType::Vertex:
-		myPreviousShader = std::make_shared<VertexShader>();
-		break;
-	case ShaderType::Geometry:
-		myPreviousShader = std::make_shared<GeometryShader>();
-		break;
-	case ShaderType::Pixel:
-		myPreviousShader = std::make_shared<PixelShader>();
-		break;
-	default:
-		assert(false);
-		break;
-	}
-
-	myPreviousShader->GetShader();
+	myShader = *aShader;
+	myShader.GetShader();
 	aShader->SetShader();
 }
 
 ScopedShader::~ScopedShader()
 {
-	if (myPreviousShader)
-		myPreviousShader->SetShader();
+	if (myShader)
+		myShader.SetShader();
 }
 
 /*
@@ -224,16 +209,22 @@ namespace
 {
 	constexpr std::array theSetters
 	{
+		&ID3D11DeviceContext::PSSetShaderResources,
 		&ID3D11DeviceContext::VSSetShaderResources,
 		&ID3D11DeviceContext::GSSetShaderResources,
-		&ID3D11DeviceContext::PSSetShaderResources,
+		&ID3D11DeviceContext::HSSetShaderResources,
+		&ID3D11DeviceContext::DSSetShaderResources,
+		&ID3D11DeviceContext::CSSetShaderResources,
 	};
 
 	constexpr std::array theGetters
 	{
+		&ID3D11DeviceContext::PSGetShaderResources,
 		&ID3D11DeviceContext::VSGetShaderResources,
 		&ID3D11DeviceContext::GSGetShaderResources,
-		&ID3D11DeviceContext::PSGetShaderResources,
+		&ID3D11DeviceContext::HSGetShaderResources,
+		&ID3D11DeviceContext::DSGetShaderResources,
+		&ID3D11DeviceContext::CSGetShaderResources,
 	};
 }
 

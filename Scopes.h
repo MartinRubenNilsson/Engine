@@ -37,7 +37,7 @@ public:
 	~ScopedShader();
 
 private:
-	std::shared_ptr<Shader> myPreviousShader{};
+	Shader myShader{};
 };
 
 class ScopedRasterizerState : Scope

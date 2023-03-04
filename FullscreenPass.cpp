@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "FullscreenPass.h"
 
-FullscreenPass::FullscreenPass(std::shared_ptr<const PixelShader> aPixelShader)
+FullscreenPass::FullscreenPass(std::shared_ptr<const Shader> aPixelShader)
 	: myPixelShader{ aPixelShader }
 {
 }
@@ -12,7 +12,7 @@ void FullscreenPass::Render() const
 		return;
 
 	ScopedInputLayout scopedLayout{ typeid(EmptyVertex) };
-	ScopedShader scopedVs{ VERTEX_SHADER("VsFullscreenTriangle.cso") };
+	ScopedShader scopedVs{ GET_SHADER("VsFullscreenTriangle.cso") };
 	ScopedShader scopedPs{ myPixelShader };
 
 	DX11_CONTEXT->Draw(3, 0);
@@ -20,5 +20,5 @@ void FullscreenPass::Render() const
 
 FullscreenPass::operator bool() const
 {
-	return myPixelShader.operator bool();
+	return myPixelShader && *myPixelShader && myPixelShader->GetType() == ShaderType::Pixel;
 }
