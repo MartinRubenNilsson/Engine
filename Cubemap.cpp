@@ -3,6 +3,7 @@
 #include "Image.h"
 #include "Scopes.h"
 #include "ConstantBuffer.h"
+#include "ShaderCommon.h"
 
 namespace
 {
@@ -199,12 +200,15 @@ void Cubemap::DrawSkybox() const
 	CD3D11_DEPTH_STENCIL_DESC depthStencil{ CD3D11_DEFAULT{} };
 	depthStencil.DepthFunc = D3D11_COMPARISON_LESS_EQUAL; // Otherwise skybox will fail the depth test since z=1.
 
-	ScopedShaderResources scopedResources{ ShaderType::Pixel, 0, myEnvironmentMap };
+	ScopedPrimitiveTopology scopedTopology{ D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP };
+	ScopedInputLayout scopedLayout{ typeid(EmptyVertex) };
+	ScopedShader scopedVs{ VERTEX_SHADER("VsCubemap.cso") };
 	ScopedShader scopedGs{ GEOMETRY_SHADER("GsSkybox.cso") };
 	ScopedShader scopedPs{ PIXEL_SHADER("PsSkybox.cso") };
+	ScopedShaderResources scopedResources{ ShaderType::Pixel, t_EnvironmentMap, myEnvironmentMap };
 	ScopedDepthStencilState scopedDepthStencil{ depthStencil };
 
-	DrawInternal();
+	DX11_CONTEXT->Draw(14, 0);
 }
 
 Cubemap::operator bool() const
@@ -257,25 +261,19 @@ void Cubemap::CreateIrradianceMap()
 	if (FAILED(myResult))
 		return;
 
-	ScopedSamplerStates scopedSamplers{ 0, CD3D11_SAMPLER_DESC{ CD3D11_DEFAULT{} } };
+	ScopedPrimitiveTopology scopedTopology{ D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP };
+	ScopedInputLayout scopedLayout{ typeid(EmptyVertex) };
+	ScopedShader scopedVs{ VERTEX_SHADER("VsCubemap.cso") };
 	ScopedShader scopedGs{ GEOMETRY_SHADER("GsGenCubemap.cso") };
 	ScopedShader scopedPs{ PIXEL_SHADER("PsGenIrradianceMap.cso") };
-	ScopedShaderResources scopedResources{ ShaderType::Pixel, 0, myEnvironmentMap };
+	ScopedShaderResources scopedResources{ ShaderType::Pixel, t_EnvironmentMap, myEnvironmentMap };
+	ScopedSamplerStates scopedSamplers{ s_TrilinearSampler, CD3D11_SAMPLER_DESC{ CD3D11_DEFAULT{} } };
 	ScopedRenderTargets scopedTargets{ irradianceTarget };
 	ScopedViewports scopedViewports{ CD3D11_VIEWPORT{ irradianceTexture.Get(), irradianceTarget.Get() } };
 
 	ConstantBuffer cubeFaceViewProjs{ sizeof(theCubeFaceViewProjs) };
 	cubeFaceViewProjs.Update(&theCubeFaceViewProjs);
-	cubeFaceViewProjs.GSSetBuffer(10);
-
-	DrawInternal();
-}
-
-void Cubemap::DrawInternal() const
-{
-	ScopedPrimitiveTopology scopedTopology{ D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP };
-	ScopedInputLayout scopedLayout{ typeid(EmptyVertex) };
-	ScopedShader scopedVs{ VERTEX_SHADER("VsCubemap.cso") };
+	cubeFaceViewProjs.GSSetBuffer(b_Cubemap);
 
 	DX11_CONTEXT->Draw(14, 0);
 }

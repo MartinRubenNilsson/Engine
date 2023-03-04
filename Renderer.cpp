@@ -18,7 +18,7 @@ Renderer::Renderer(unsigned aWidth, unsigned aHeight)
 	if (!std::ranges::all_of(myCBuffers, &ConstantBuffer::operator bool))
 		return;
 
-	for (unsigned i = 0; i < CBufferCount; ++i)
+	for (unsigned i = 0; i < myCBuffers.size(); ++i)
 	{
 		myCBuffers[i].VSSetBuffer(i);
 		myCBuffers[i].GSSetBuffer(i);
@@ -40,9 +40,9 @@ Renderer::Renderer(unsigned aWidth, unsigned aHeight)
 			"cubemap/Sorsele/negz.jpg",
 		};
 
-		mySkybox = { skyboxImagePaths };
+		myCubemap = { skyboxImagePaths };
 		//mySkybox = { "cubemap/hdr/Newport_Loft_Ref.hdr" };
-		if (!mySkybox)
+		if (!myCubemap)
 			return;
 	}
 
@@ -81,7 +81,7 @@ void Renderer::SetCamera(const Camera& aCamera, const Matrix& aTransform)
 	buffer.position = { aTransform.Translation().operator XMVECTOR() };
 	aCamera.GetClipPlanes(buffer.clipPlanes.x, buffer.clipPlanes.y);
 
-	myCBuffers.at(CBufferCamera).Update(&buffer);
+	myCBuffers.at(b_Camera).Update(&buffer);
 }
 
 void Renderer::Render(entt::registry& aRegistry)
@@ -94,10 +94,10 @@ void Renderer::Render(entt::registry& aRegistry)
 
 	Clear();
 
-	std::array<D3D11_SAMPLER_DESC, SamplerCount> samplers{};
+	std::array<D3D11_SAMPLER_DESC, 2> samplers{};
 	samplers.fill(CD3D11_SAMPLER_DESC{ CD3D11_DEFAULT{} });
-	samplers[PointSampler].Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
-	samplers[TrilinearSampler].Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+	samplers[s_PointSampler].Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
+	samplers[s_TrilinearSampler].Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
 
 	ScopedSamplerStates scopedSamplers{ 0, samplers };
 
@@ -136,7 +136,7 @@ entt::entity Renderer::PickEntity(unsigned x, unsigned y)
 	Pixel pixel{ DXGI_FORMAT_R32_UINT };
 	if (pixel)
 	{
-		pixel.Copy(myGeometryBuffer.GetTexture(TEXTURE_SLOT_GBUFFER_ENTITY), x, y);
+		pixel.Copy(myGeometryBuffer.GetTexture(t_GBufferEntity), x, y);
 		pixel.Read(&entity, sizeof(entity));
 	}
 
@@ -152,11 +152,11 @@ void Renderer::Clear()
 	myLightningBuffer.Clear();
 
 	{
-		ScopedRenderTargets scopedTargets{ myGeometryBuffer.GetRenderTarget(TEXTURE_SLOT_GBUFFER_DEPTH) };
+		ScopedRenderTargets scopedTargets{ myGeometryBuffer.GetRenderTarget(t_GBufferDepth) };
 		FullscreenPass{ PIXEL_SHADER("PsClearDepth.cso") }.Render();
 	}
 	{
-		ScopedRenderTargets scopedTargets{ myGeometryBuffer.GetRenderTarget(TEXTURE_SLOT_GBUFFER_ENTITY) };
+		ScopedRenderTargets scopedTargets{ myGeometryBuffer.GetRenderTarget(t_GBufferEntity) };
 		FullscreenPass{ PIXEL_SHADER("PsClearEntity.cso") }.Render();
 	}
 }
@@ -183,7 +183,7 @@ void Renderer::RenderGeometry(entt::registry& aRegistry)
 		buffer.matrixInvTrans = buffer.matrix.Invert().Transpose();
 		std::ranges::fill(buffer.entity, std::to_underlying(entity));
 
-		myCBuffers.at(CBufferMesh).Update(&buffer);
+		myCBuffers.at(b_Mesh).Update(&buffer);
 
 		DX11_CONTEXT->DrawIndexed(mesh->GetIndexCount(), 0, 0);
 		myStatistics.meshDrawCalls++;
@@ -239,19 +239,20 @@ void Renderer::RenderLightning(entt::registry& aRegistry)
 	blendDesc.RenderTarget[0].DestBlend = D3D11_BLEND_ONE;
 	blendDesc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
 
-	ScopedShaderResources scopedResources{ ShaderType::Pixel, TEXTURE_SLOT_GBUFFER, myGeometryBuffer };
-	ScopedRenderTargets scopedTargets{ myLightningBuffer };
 	ScopedBlendState scopedBlend{ blendDesc };
+	ScopedShaderResources scopedResources{ ShaderType::Pixel, t_GBufferDepth, myGeometryBuffer };
+	ScopedRenderTargets scopedTargets{ myLightningBuffer };
 
 	RenderDirectionalLights(dLights);
 	RenderPointLights(pLights);
 	RenderSpotLights(sLights);
+	RenderImageBasedLight();
 }
 
 void Renderer::RenderSkybox()
 {
 	ScopedRenderTargets scopedTargets{ myLightningBuffer, myDepthBuffer };
-	mySkybox.DrawSkybox();
+	myCubemap.DrawSkybox();
 }
 
 void Renderer::TonemapAndGamma()
@@ -271,7 +272,7 @@ void Renderer::RenderDirectionalLights(std::span<const DirectionalLight> someLig
 		buffer.color = light.color;
 		buffer.direction = { light.direction.x, light.direction.y, light.direction.z, 0.f };
 
-		myCBuffers.at(CBufferLight).Update(&buffer);
+		myCBuffers.at(b_Light).Update(&buffer);
 
 		pass.Render();
 		myStatistics.dirLightDrawCalls++;
@@ -289,7 +290,7 @@ void Renderer::RenderPointLights(std::span<const PointLight> someLights)
 		buffer.position = { light.position.x, light.position.y, light.position.z, 1.f };
 		buffer.parameters = light.parameters;
 
-		myCBuffers.at(CBufferLight).Update(&buffer);
+		myCBuffers.at(b_Light).Update(&buffer);
 
 		pass.Render();
 		myStatistics.pointLightDrawCalls++;
@@ -309,11 +310,18 @@ void Renderer::RenderSpotLights(std::span<const SpotLight> someLights)
 		buffer.parameters = light.parameters;
 		buffer.coneAngles = { light.innerAngle, light.outerAngle, 0.f, 0.f };
 
-		myCBuffers.at(CBufferLight).Update(&buffer);
+		myCBuffers.at(b_Light).Update(&buffer);
 
 		pass.Render();
 		myStatistics.spotLightDrawCalls++;
 	}
+}
+
+void Renderer::RenderImageBasedLight()
+{
+	ScopedShaderResources scopedResources{ ShaderType::Pixel, t_IrradianceMap, myCubemap.GetIrradianceMap() };
+	FullscreenPass pass{ PIXEL_SHADER("PsImageBasedLight.cso") };
+	pass.Render();
 }
 
 /*

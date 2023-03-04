@@ -1,4 +1,4 @@
-#include "CubemapCommon.hlsli"
+#include "ShaderCommon.hlsli"
 
 [maxvertexcount(18)] // why 18?
 void main(triangle float3 input[3] : POSITION, inout TriangleStream<GsOutGenCubemap> stream)

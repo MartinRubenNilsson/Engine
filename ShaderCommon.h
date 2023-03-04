@@ -2,22 +2,36 @@
 
 enum CBufferSlot : unsigned
 {
-	CBufferCamera,
-	CBufferMesh,
-	CBufferLight,
-	CBufferCount,
+	b_Camera = 0,
+	b_Mesh = 1,
+	b_Light = 2,
+	b_Cubemap = 3,
+};
+
+enum TextureSlot : unsigned
+{
+	t_GBufferDepth = 0,
+	t_GBufferVertexNormal = 1,
+	t_GBufferPixelNormal = 2,
+	t_GBufferAlbedo = 3,
+	t_GBufferMetalRoughAo = 4,
+	t_GBufferEntity = 5,
+
+	t_MaterialAlbedo = 10,
+	t_MaterialNormal = 11,
+	t_MaterialMetallic = 12,
+	t_MaterialRoughness = 13,
+	t_MaterialOcclusion = 14,
+
+	t_EnvironmentMap = 20,
+	t_IrradianceMap = 21,
 };
 
 enum SamplerSlot : unsigned
 {
-	PointSampler,
-	TrilinearSampler,
-	SamplerCount
+	s_PointSampler = 0,
+	s_TrilinearSampler = 1,
 };
-
-#define TEXTURE_SLOT_GBUFFER 0
-#define TEXTURE_SLOT_GBUFFER_DEPTH 0
-#define TEXTURE_SLOT_GBUFFER_ENTITY 5
 
 struct alignas(16) CameraBuffer
 {

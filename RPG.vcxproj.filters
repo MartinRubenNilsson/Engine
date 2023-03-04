@@ -275,6 +275,9 @@
     <FxCompile Include="GsSkybox.hlsl">
       <Filter>shaders\cubemap</Filter>
     </FxCompile>
+    <FxCompile Include="PsImageBasedLight.hlsl">
+      <Filter>shaders\lights</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="ShaderCommon.hlsli">
@@ -282,9 +285,6 @@
     </None>
     <None Include="PbrFunctions.hlsli">
       <Filter>shaders</Filter>
-    </None>
-    <None Include="CubemapCommon.hlsli">
-      <Filter>shaders\cubemap</Filter>
     </None>
   </ItemGroup>
 </Project>

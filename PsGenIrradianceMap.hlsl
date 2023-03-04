@@ -1,6 +1,4 @@
-#include "CubemapCommon.hlsli"
-
-SamplerState TrilinearSampler : register(s0);
+#include "ShaderCommon.hlsli"
 
 float3 SphericalToCartesian(float theta, float phi)
 {

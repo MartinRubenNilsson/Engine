@@ -43,11 +43,12 @@ private:
 	void RenderDirectionalLights(std::span<const DirectionalLight>);
 	void RenderPointLights(std::span<const PointLight>);
 	void RenderSpotLights(std::span<const SpotLight>);
+	void RenderImageBasedLight();
 
-	std::array<ConstantBuffer, CBufferCount> myCBuffers{};
+	std::array<ConstantBuffer, 3> myCBuffers{};
 	DepthBuffer myDepthBuffer{};
 	RenderTargets myGeometryBuffer{}, myLightningBuffer{};
-	Cubemap mySkybox{};
+	Cubemap myCubemap{};
 
 	RenderStatistics myStatistics{};
 

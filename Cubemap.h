@@ -9,11 +9,13 @@ public:
 
 	void DrawSkybox() const;
 
+	ShaderResourcePtr GetEnvironmentMap() const { return myEnvironmentMap; }
+	ShaderResourcePtr GetIrradianceMap() const { return myIrradianceMap; }
+
 	explicit operator bool() const;
 
 private:
 	void CreateIrradianceMap();
-	void DrawInternal() const;
 
 	HRESULT myResult{ E_FAIL };
 	ShaderResourcePtr myEnvironmentMap{};
