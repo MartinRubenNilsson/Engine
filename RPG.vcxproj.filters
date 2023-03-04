@@ -245,10 +245,10 @@
     <FxCompile Include="PsSpotLight.hlsl">
       <Filter>shaders\lights</Filter>
     </FxCompile>
-    <FxCompile Include="GsGenerateCubemap.hlsl">
+    <FxCompile Include="trash.hlsl">
       <Filter>shaders\cubemap</Filter>
     </FxCompile>
-    <FxCompile Include="PsGenerateCubemap.hlsl">
+    <FxCompile Include="PsGenCubemap.hlsl">
       <Filter>shaders\cubemap</Filter>
     </FxCompile>
     <FxCompile Include="VsFullscreenTriangle.hlsl">
@@ -257,7 +257,7 @@
     <FxCompile Include="PsTonemapAndGamma.hlsl">
       <Filter>shaders\fullscreen</Filter>
     </FxCompile>
-    <FxCompile Include="VsGenerateCubemap.hlsl">
+    <FxCompile Include="VsCubemap.hlsl">
       <Filter>shaders\cubemap</Filter>
     </FxCompile>
     <FxCompile Include="PsClearDepth.hlsl">
@@ -270,6 +270,12 @@
       <Filter>shaders\cubemap</Filter>
     </FxCompile>
     <FxCompile Include="PsSkybox.hlsl">
+      <Filter>shaders\cubemap</Filter>
+    </FxCompile>
+    <FxCompile Include="PsGenIrradianceMap.hlsl">
+      <Filter>shaders\cubemap</Filter>
+    </FxCompile>
+    <FxCompile Include="GsGenCubemap.hlsl">
       <Filter>shaders\cubemap</Filter>
     </FxCompile>
   </ItemGroup>

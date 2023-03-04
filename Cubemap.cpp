@@ -2,6 +2,28 @@
 #include "Cubemap.h"
 #include "Image.h"
 #include "Scopes.h"
+#include "ConstantBuffer.h"
+
+namespace
+{
+	using namespace DirectX;
+
+	const XMVECTOR theOrigin{ 0.f, 0.f, 0.f, 1.f };
+	const XMVECTOR theX{ 1.f, 0.f, 0.f, 0.f };
+	const XMVECTOR theY{ 0.f, 1.f, 0.f, 0.f };
+	const XMVECTOR theZ{ 0.f, 0.f, 1.f, 0.f };
+	const XMMATRIX theProj{ XMMatrixPerspectiveFovLH(XM_PIDIV2, 1.f, 0.1f, 10.f) };
+
+	const std::array<XMMATRIX, 6> theCubeFaceViewProjs
+	{
+		XMMatrixLookToLH(theOrigin, +theX, +theY) * theProj, // +X
+		XMMatrixLookToLH(theOrigin, -theX, +theY) * theProj, // -X
+		XMMatrixLookToLH(theOrigin, +theY, -theZ) * theProj, // +Y
+		XMMatrixLookToLH(theOrigin, -theY, +theZ) * theProj, // -Y
+		XMMatrixLookToLH(theOrigin, +theZ, +theY) * theProj, // +Z
+		XMMatrixLookToLH(theOrigin, -theZ, +theY) * theProj, // -Z
+	};
+}
 
 Cubemap::Cubemap(std::span<const fs::path, 6> someLdrImages)
 {
@@ -241,6 +263,23 @@ void Cubemap::CreateIrradianceMap()
 	if (FAILED(myResult))
 		return;
 
+	CD3D11_RASTERIZER_DESC rasterizerDesc{ CD3D11_DEFAULT{} };
+	rasterizerDesc.CullMode = D3D11_CULL_FRONT; // Since the cubemap surrounds us
+
+	ScopedPrimitiveTopology scopedTopology{ D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP };
+	ScopedInputLayout scopedLayout{ typeid(EmptyVertex) };
+	ScopedShader scopedVs{ VERTEX_SHADER("VsCubemap.cso") };
+	ScopedShader scopedGs{ GEOMETRY_SHADER("GsGenCubemap.cso") };
+	ScopedShader scopedPs{ PIXEL_SHADER("PsGenIrradianceMap.cso") };
 	ScopedShaderResources scopedResources{ ShaderType::Pixel, 0, myEnvironmentMap };
 	ScopedRenderTargets scopedTargets{ irradianceTarget };
+	ScopedViewports scopedViewports{ CD3D11_VIEWPORT{ irradianceTexture.Get(), irradianceTarget.Get() } };
+	ScopedRasterizerState scopedRasterizer{ rasterizerDesc };
+	ScopedSamplerStates scopedSamplers{ 0, CD3D11_SAMPLER_DESC{ CD3D11_DEFAULT{} } };
+
+	ConstantBuffer cubeFaceViewProjs{ sizeof(theCubeFaceViewProjs) };
+	cubeFaceViewProjs.Update(&theCubeFaceViewProjs);
+	cubeFaceViewProjs.GSSetBuffer(10);
+
+	DX11_CONTEXT->Draw(14, 0);
 }

@@ -31,6 +31,11 @@ void ConstantBuffer::VSSetBuffer(unsigned aSlot) const
 	DX11_CONTEXT->VSSetConstantBuffers(aSlot, 1, myBuffer.GetAddressOf());
 }
 
+void ConstantBuffer::GSSetBuffer(unsigned aSlot) const
+{
+	DX11_CONTEXT->GSSetConstantBuffers(aSlot, 1, myBuffer.GetAddressOf());
+}
+
 void ConstantBuffer::PSSetBuffer(unsigned aSlot) const
 {
 	DX11_CONTEXT->PSSetConstantBuffers(aSlot, 1, myBuffer.GetAddressOf());
