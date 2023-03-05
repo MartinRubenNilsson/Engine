@@ -7,10 +7,8 @@ public:
 	Cubemap(std::span<const fs::path, 6> someLdrImages);
 	//Cubemap(const fs::path& anEquirectHdrImage);
 
-	void DrawSkybox() const;
-
-	ShaderResourcePtr GetEnvironmentMap() const { return myEnvironmentMap; }
-	ShaderResourcePtr GetIrradianceMap() const { return myIrradianceMap; }
+	// Returns environment/irradiance/prefiltered maps in that order.
+	std::vector<ShaderResourcePtr> GetMaps() const;
 
 	explicit operator bool() const;
 
@@ -18,7 +16,8 @@ private:
 	void CreateIrradianceMap();
 
 	HRESULT myResult{ E_FAIL };
-	ShaderResourcePtr myEnvironmentMap{};
-	ShaderResourcePtr myIrradianceMap{};
+	ShaderResourcePtr myEnvironmentMap{}; // Skybox
+	ShaderResourcePtr myIrradianceMap{};  // Diffuse IBL
+	ShaderResourcePtr myPrefilteredMap{}; // Specular IBL
 };
 

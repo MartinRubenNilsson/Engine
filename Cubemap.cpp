@@ -192,23 +192,9 @@ Cubemap::Cubemap(std::span<const fs::path, 6> someLdrImages)
 //	DX11_CONTEXT->Draw(3, 0);
 //}
 
-void Cubemap::DrawSkybox() const
+std::vector<ShaderResourcePtr> Cubemap::GetMaps() const
 {
-	if (!operator bool())
-		return;
-
-	CD3D11_DEPTH_STENCIL_DESC depthStencil{ CD3D11_DEFAULT{} };
-	depthStencil.DepthFunc = D3D11_COMPARISON_LESS_EQUAL; // Otherwise skybox will fail the depth test since z=1.
-
-	ScopedPrimitiveTopology scopedTopology{ D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP };
-	ScopedInputLayout scopedLayout{ typeid(EmptyVertex) };
-	ScopedShader scopedVs{ "VsCubemap.cso" };
-	ScopedShader scopedGs{ "GsSkybox.cso" };
-	ScopedShader scopedPs{ "PsSkybox.cso" };
-	ScopedShaderResources scopedResources{ ShaderType::Pixel, t_EnvironmentMap, myEnvironmentMap };
-	ScopedDepthStencilState scopedDepthStencil{ depthStencil };
-
-	DX11_CONTEXT->Draw(14, 0);
+	return { myEnvironmentMap, myIrradianceMap, myPrefilteredMap };
 }
 
 Cubemap::operator bool() const

@@ -79,7 +79,6 @@ void Renderer::SetCamera(const Camera& aCamera, const Matrix& aTransform)
 	buffer.viewProj = aTransform.Invert() * aCamera.GetViewMatrix() * aCamera.GetProjectionMatrix();
 	buffer.invViewProj = buffer.viewProj.Invert();
 	buffer.position = { aTransform.Translation().operator XMVECTOR() };
-	aCamera.GetClipPlanes(buffer.clipPlanes.x, buffer.clipPlanes.y);
 
 	myCBuffers.at(b_Camera).Update(&buffer);
 }
@@ -102,9 +101,19 @@ void Renderer::Render(entt::registry& aRegistry)
 	ScopedSamplerStates scopedSamplers{ 0, samplers };
 
 	RenderGeometry(aRegistry);
-	RenderLightning(aRegistry);
-	RenderSkybox();
-	TonemapAndGamma();
+
+	{
+		ScopedShaderResources scopedGBuffer{ ShaderType::Pixel, t_GBufferDepth, myGeometryBuffer };
+		ScopedShaderResources scopedCubemap{ ShaderType::Pixel, t_EnvironmentMap, myCubemap.GetMaps() };
+
+		RenderLightning(aRegistry);
+		RenderSkybox();
+	}
+
+	{
+		ScopedShaderResources scopedLightning{ ShaderType::Pixel, 0, myLightningBuffer };
+		FullscreenPass{ "PsTonemapAndGamma.cso" }.Render();
+	}
 
 	const auto duration = ch::duration_cast<ch::milliseconds>(ch::steady_clock::now() - now);
 	myStatistics.renderTimeMs = static_cast<unsigned>(duration.count());
@@ -239,27 +248,29 @@ void Renderer::RenderLightning(entt::registry& aRegistry)
 	blendDesc.RenderTarget[0].DestBlend = D3D11_BLEND_ONE;
 	blendDesc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
 
-	ScopedBlendState scopedBlend{ blendDesc };
-	ScopedShaderResources scopedResources{ ShaderType::Pixel, t_GBufferDepth, myGeometryBuffer };
 	ScopedRenderTargets scopedTargets{ myLightningBuffer };
+	ScopedBlendState scopedBlend{ blendDesc };
 
+	FullscreenPass{ "PsImageBasedLight.cso" }.Render();
 	RenderDirectionalLights(dLights);
 	RenderPointLights(pLights);
 	RenderSpotLights(sLights);
-	RenderImageBasedLight();
 }
 
 void Renderer::RenderSkybox()
 {
-	ScopedRenderTargets scopedTargets{ myLightningBuffer, myDepthBuffer };
-	myCubemap.DrawSkybox();
-}
+	CD3D11_DEPTH_STENCIL_DESC depthStencil{ CD3D11_DEFAULT{} };
+	depthStencil.DepthFunc = D3D11_COMPARISON_LESS_EQUAL; // Otherwise skybox will fail the depth test since z=1.
 
-void Renderer::TonemapAndGamma()
-{
-	ScopedShaderResources scopedResources{ ShaderType::Pixel, 0, myLightningBuffer };
-	FullscreenPass pass{ "PsTonemapAndGamma.cso" };
-	pass.Render();
+	ScopedPrimitiveTopology scopedTopology{ D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP };
+	ScopedInputLayout scopedLayout{ typeid(EmptyVertex) };
+	ScopedShader scopedVs{ "VsCubemap.cso" };
+	ScopedShader scopedGs{ "GsSkybox.cso" };
+	ScopedShader scopedPs{ "PsSkybox.cso" };
+	ScopedRenderTargets scopedTargets{ myLightningBuffer, myDepthBuffer };
+	ScopedDepthStencilState scopedDepthStencil{ depthStencil };
+
+	DX11_CONTEXT->Draw(14, 0);
 }
 
 void Renderer::RenderDirectionalLights(std::span<const DirectionalLight> someLights)
@@ -317,12 +328,6 @@ void Renderer::RenderSpotLights(std::span<const SpotLight> someLights)
 	}
 }
 
-void Renderer::RenderImageBasedLight()
-{
-	ScopedShaderResources scopedResources{ ShaderType::Pixel, t_IrradianceMap, myCubemap.GetIrradianceMap() };
-	FullscreenPass pass{ "PsImageBasedLight.cso" };
-	pass.Render();
-}
 
 /*
 * namespace ImGui

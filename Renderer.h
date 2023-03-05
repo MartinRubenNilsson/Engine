@@ -35,15 +35,14 @@ public:
 
 private:
 	void Clear();
+
 	void RenderGeometry(entt::registry&);
 	void RenderLightning(entt::registry&);
 	void RenderSkybox();
-	void TonemapAndGamma();
 
 	void RenderDirectionalLights(std::span<const DirectionalLight>);
 	void RenderPointLights(std::span<const PointLight>);
 	void RenderSpotLights(std::span<const SpotLight>);
-	void RenderImageBasedLight();
 
 	std::array<ConstantBuffer, 3> myCBuffers{};
 	DepthBuffer myDepthBuffer{};

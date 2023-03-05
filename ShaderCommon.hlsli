@@ -61,7 +61,6 @@ cbuffer CameraBuffer : register(b0)
     float4x4 CameraViewProj;
     float4x4 CameraInvViewProj;
     float4 CameraPosition;
-    float4 CameraClipPlanes; // (near, far, [unused], [unused])
 }
 
 cbuffer MeshBuffer : register(b1)
@@ -102,8 +101,9 @@ Texture2D MaterialMetallic  : register(t12);
 Texture2D MaterialRoughness : register(t13);
 Texture2D MaterialOcclusion : register(t14);
 
-TextureCube EnvironmentMap : register(t20);
-TextureCube IrradianceMap : register(t21);
+TextureCube EnvironmentMap : register(t20); // Skybox
+TextureCube IrradianceMap : register(t21);  // Diffuse IBL
+TextureCube PrefilteredMap : register(t22); // Specular IBL
 
 /*
 * Samplers
