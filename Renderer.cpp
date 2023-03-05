@@ -8,15 +8,52 @@
 #include "FullscreenPass.h"
 #include "Pixel.h"
 
+namespace
+{
+	auto GetSamplerDescs()
+	{
+		std::array<D3D11_SAMPLER_DESC, 2> samplers{};
+		samplers.fill(CD3D11_SAMPLER_DESC{ CD3D11_DEFAULT{} });
+		samplers[s_PointSampler].Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
+		samplers[s_TrilinearSampler].Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+
+		return samplers;
+	}
+
+	const CubemapBuffer& GetCubemapBuffer()
+	{
+		static const XMVECTOR o{ 0.f, 0.f, 0.f, 1.f };
+		static const XMVECTOR x{ 1.f, 0.f, 0.f, 0.f };
+		static const XMVECTOR y{ 0.f, 1.f, 0.f, 0.f };
+		static const XMVECTOR z{ 0.f, 0.f, 1.f, 0.f };
+		static const XMMATRIX proj{ XMMatrixPerspectiveFovLH(XM_PIDIV2, 1.f, 0.1f, 10.f) };
+
+		static CubemapBuffer buffer
+		{
+			XMMatrixLookToLH(o, +x, +y) * proj, // +X
+			XMMatrixLookToLH(o, -x, +y) * proj, // -X
+			XMMatrixLookToLH(o, +y, -z) * proj, // +Y
+			XMMatrixLookToLH(o, -y, +z) * proj, // -Y
+			XMMatrixLookToLH(o, +z, +y) * proj, // +Z
+			XMMatrixLookToLH(o, -z, +y) * proj, // -Z
+		};
+
+		return buffer;
+	}
+}
+
 /*
 * class Renderer
 */
 
 Renderer::Renderer(unsigned aWidth, unsigned aHeight)
+	: mySamplers{ 0, GetSamplerDescs() }
+	, myCBuffers{ sizeof(CameraBuffer), sizeof(MeshBuffer), sizeof(LightBuffer), sizeof(CubemapBuffer) }
 {
-	myCBuffers = { sizeof(CameraBuffer), sizeof(MeshBuffer), sizeof(LightBuffer) };
 	if (!std::ranges::all_of(myCBuffers, &ConstantBuffer::operator bool))
 		return;
+
+	myCBuffers.at(b_Cubemap).Update(&GetCubemapBuffer());
 
 	for (unsigned i = 0; i < myCBuffers.size(); ++i)
 	{
@@ -28,23 +65,9 @@ Renderer::Renderer(unsigned aWidth, unsigned aHeight)
 	if (!Resize(aWidth, aHeight))
 		return;
 
-	// Skybox
-	{
-		std::array<fs::path, 6> skyboxImagePaths
-		{
-			"cubemap/Sorsele/posx.jpg",
-			"cubemap/Sorsele/negx.jpg",
-			"cubemap/Sorsele/posy.jpg",
-			"cubemap/Sorsele/negy.jpg",
-			"cubemap/Sorsele/posz.jpg",
-			"cubemap/Sorsele/negz.jpg",
-		};
-
-		myCubemap = { skyboxImagePaths };
-		//mySkybox = { "cubemap/hdr/Newport_Loft_Ref.hdr" };
-		if (!myCubemap)
-			return;
-	}
+	myCubemap = { "cubemap/hdr/Newport_Loft_Ref.hdr" };
+	if (!myCubemap)
+		return;
 
 	mySucceeded = true;
 }
@@ -92,24 +115,13 @@ void Renderer::Render(entt::registry& aRegistry)
 	const auto now = ch::steady_clock::now();
 
 	Clear();
-
-	std::array<D3D11_SAMPLER_DESC, 2> samplers{};
-	samplers.fill(CD3D11_SAMPLER_DESC{ CD3D11_DEFAULT{} });
-	samplers[s_PointSampler].Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
-	samplers[s_TrilinearSampler].Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
-
-	ScopedSamplerStates scopedSamplers{ 0, samplers };
-
 	RenderGeometry(aRegistry);
-
 	{
 		ScopedShaderResources scopedGBuffer{ ShaderType::Pixel, t_GBufferDepth, myGeometryBuffer };
 		ScopedShaderResources scopedCubemap{ ShaderType::Pixel, t_EnvironmentMap, myCubemap.GetMaps() };
-
 		RenderLightning(aRegistry);
 		RenderSkybox();
 	}
-
 	{
 		ScopedShaderResources scopedLightning{ ShaderType::Pixel, 0, myLightningBuffer };
 		FullscreenPass{ "PsTonemapAndGamma.cso" }.Render();

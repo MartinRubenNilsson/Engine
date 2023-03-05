@@ -2,8 +2,7 @@
 // OpenGL - PBR (physically based rendering) [https://www.youtube.com/watch?v=5p0e7YNONr8]
 // Hammon, Earl, Jr., “PBR Diffuse Lighting for GGX+Smith Microsurfaces,” Game Developers Conference, Feb.–Mar. 2017.
 
-#define PI 3.1415926538
-#define EPSILON 0.0001
+#include "Constants.hlsli"
 
 float3 FresnelSchlick(float LdH, float3 F0)
 {
@@ -15,7 +14,7 @@ float NormalDistributionGGX(float NdH, float alpha)
     float alpha2 = alpha * alpha;
     float denom = 1.0 + NdH * NdH * (alpha2 - 1.0);
     denom = PI * denom * denom;
-    return alpha2 / max(denom, EPSILON);
+    return alpha2 / max(denom, 0.0001);
 }
 
 // Important! Subsumes denominator of full specular BRDF!

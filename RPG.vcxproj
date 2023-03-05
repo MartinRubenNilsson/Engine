@@ -287,7 +287,7 @@
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
     </FxCompile>
-    <FxCompile Include="PsGenCubemap.hlsl">
+    <FxCompile Include="PsEquirectToCubemap.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
@@ -428,7 +428,9 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <None Include="Constants.hlsli" />
     <None Include="PbrFunctions.hlsli" />
+    <None Include="Random.hlsli" />
     <None Include="ShaderCommon.hlsli" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -44,7 +44,9 @@ private:
 	void RenderPointLights(std::span<const PointLight>);
 	void RenderSpotLights(std::span<const SpotLight>);
 
-	std::array<ConstantBuffer, 3> myCBuffers{};
+	ScopedSamplerStates mySamplers;
+	std::array<ConstantBuffer, CBufferCount> myCBuffers{};
+
 	DepthBuffer myDepthBuffer{};
 	RenderTargets myGeometryBuffer{}, myLightningBuffer{};
 	Cubemap myCubemap{};

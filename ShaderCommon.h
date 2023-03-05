@@ -1,5 +1,8 @@
 #pragma once
 
+#define FULLSCREEN_VERTEX_COUNT 3
+#define CUBEMAP_VERTEX_COUNT 14
+
 struct alignas(16) CameraBuffer
 {
 	Matrix viewProj;
@@ -23,12 +26,18 @@ struct alignas(16) LightBuffer
 	Vector4 coneAngles{}; // (inner, outer, [unused], [unused])
 };
 
+struct alignas(16) CubemapBuffer
+{
+	Matrix cubeFaceViewProjs[6];
+};
+
 enum CBufferSlot : unsigned
 {
 	b_Camera = 0,
 	b_Mesh = 1,
 	b_Light = 2,
 	b_Cubemap = 3,
+	CBufferCount,
 };
 
 enum TextureSlot : unsigned

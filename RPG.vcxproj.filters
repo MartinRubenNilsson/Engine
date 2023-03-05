@@ -245,7 +245,7 @@
     <FxCompile Include="PsSpotLight.hlsl">
       <Filter>shaders\lights</Filter>
     </FxCompile>
-    <FxCompile Include="PsGenCubemap.hlsl">
+    <FxCompile Include="PsEquirectToCubemap.hlsl">
       <Filter>shaders\cubemap</Filter>
     </FxCompile>
     <FxCompile Include="VsFullscreenTriangle.hlsl">
@@ -284,6 +284,12 @@
       <Filter>shaders</Filter>
     </None>
     <None Include="PbrFunctions.hlsli">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="Random.hlsli">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="Constants.hlsli">
       <Filter>shaders</Filter>
     </None>
   </ItemGroup>

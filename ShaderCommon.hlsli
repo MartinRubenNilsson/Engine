@@ -1,10 +1,4 @@
-/*
-* Constants
-*/
-
-#define PI 3.141592654
-#define PI2 6.283185307
-#define PIDIV2 1.570796327
+#include "Constants.hlsli"
 
 /*
 * Shader input/output
