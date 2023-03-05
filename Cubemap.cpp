@@ -4,23 +4,23 @@
 #include "Scopes.h"
 #include "ShaderCommon.h"
 
-Cubemap::Cubemap(std::span<const fs::path, 6> someLdrImages)
+Cubemap::Cubemap(std::span<const fs::path, 6> someLdrCubeFaces)
 {
-	std::array<Image, 6> images{};
+	std::array<Image, 6> faces{};
 
 	for (size_t i = 0; i < 6; ++i)
 	{
-		images[i] = { someLdrImages[i], 4 };
-		if (!images[i])
+		faces[i] = { someLdrCubeFaces[i], 4 };
+		if (!faces[i])
 			return;
 	}
 
-	const unsigned width = images[0].GetWidth();
-	const unsigned height = images[0].GetHeight();
+	const unsigned width = faces[0].GetWidth();
+	const unsigned height = faces[0].GetHeight();
 
-	if (std::ranges::count(images, width, &Image::GetWidth) != 6)
+	if (std::ranges::count(faces, width, &Image::GetWidth) != 6)
 		return;
-	if (std::ranges::count(images, height, &Image::GetHeight) != 6)
+	if (std::ranges::count(faces, height, &Image::GetHeight) != 6)
 		return;
 
 	D3D11_TEXTURE2D_DESC textureDesc{};
@@ -39,7 +39,7 @@ Cubemap::Cubemap(std::span<const fs::path, 6> someLdrImages)
 	D3D11_SUBRESOURCE_DATA textureData[6]{};
 	for (size_t i = 0; i < 6; ++i)
 	{
-		textureData[i].pSysMem = images[i].Data();
+		textureData[i].pSysMem = faces[i].Data();
 		textureData[i].SysMemPitch = width * 4;
 		textureData[i].SysMemSlicePitch = 0;
 	}
@@ -69,7 +69,7 @@ Cubemap::Cubemap(std::span<const fs::path, 6> someLdrImages)
 	CreateIrradianceMap();
 }
 
-Cubemap::Cubemap(const fs::path& anEquirectHdrImage)
+Cubemap::Cubemap(const fs::path& anHdrEquirectMap)
 {
 	constexpr UINT size{ 512 };
 
@@ -79,7 +79,7 @@ Cubemap::Cubemap(const fs::path& anEquirectHdrImage)
 
 	// 1. Load equirectangular map and create corresponding shader resource.
 	{
-		Image image{ anEquirectHdrImage, 4 };
+		Image image{ anHdrEquirectMap, 4 };
 		if (!image || !image.IsHdr())
 			return;
 

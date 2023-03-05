@@ -4,8 +4,8 @@ class Cubemap
 {
 public:
 	Cubemap() = default;
-	Cubemap(std::span<const fs::path, 6> someLdrImages);
-	Cubemap(const fs::path& anEquirectHdrImage);
+	Cubemap(std::span<const fs::path, 6> someLdrCubeFaces);
+	Cubemap(const fs::path& anHdrEquirectMap);
 
 	std::vector<ShaderResourcePtr> GetMaps() const; // { Environment, Irradiance, Prefiltered }
 
