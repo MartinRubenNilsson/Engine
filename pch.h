@@ -47,11 +47,13 @@ using namespace DirectX;
 using namespace DirectX::SimpleMath;
 
 using SwapChainPtr = ComPtr<IDXGISwapChain>;
+using InputLayoutPtr = ComPtr<ID3D11InputLayout>;
 using BufferPtr = ComPtr<ID3D11Buffer>;
 using TexturePtr = ComPtr<ID3D11Texture2D>;
 using RenderTargetPtr = ComPtr<ID3D11RenderTargetView>;
 using DepthStencilPtr = ComPtr<ID3D11DepthStencilView>;
 using ShaderResourcePtr = ComPtr<ID3D11ShaderResourceView>;
+
 using RasterizerStatePtr = ComPtr<ID3D11RasterizerState>;
 using SamplerStatePtr = ComPtr<ID3D11SamplerState>;
 using DepthStencilStatePtr = ComPtr<ID3D11DepthStencilState>;

@@ -17,7 +17,7 @@ public:
 	~ScopedPrimitiveTopology();
 
 private:
-	D3D11_PRIMITIVE_TOPOLOGY myPreviousTopology{ D3D_PRIMITIVE_TOPOLOGY_UNDEFINED };
+	D3D11_PRIMITIVE_TOPOLOGY myTopology{ D3D_PRIMITIVE_TOPOLOGY_UNDEFINED };
 };
 
 class ScopedInputLayout : Scope
@@ -27,13 +27,13 @@ public:
 	~ScopedInputLayout();
 
 private:
-	ComPtr<ID3D11InputLayout> myPreviousLayout{};
+	InputLayoutPtr myLayout{};
 };
 
 class ScopedShader : Scope
 {
 public:
-	ScopedShader(std::shared_ptr<const Shader> aShader);
+	ScopedShader(const fs::path& aPath);
 	~ScopedShader();
 
 private:

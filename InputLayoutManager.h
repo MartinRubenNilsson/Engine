@@ -10,6 +10,6 @@ public:
 	explicit operator bool() const;
 
 private:
-	std::unordered_map<std::type_index, ComPtr<ID3D11InputLayout>> myInputLayouts;
+	std::unordered_map<std::type_index, InputLayoutPtr> myInputLayouts;
 };
 

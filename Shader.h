@@ -45,5 +45,3 @@ private:
 	std::unordered_map<fs::path, std::shared_ptr<Shader>> myShaders{};
 };
 
-#define GET_SHADER(aPath) ShaderFactory::Get().GetShader(aPath)
-

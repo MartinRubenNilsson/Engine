@@ -5,7 +5,7 @@ namespace
 {
 	auto CreateInputLayout(std::span<const D3D11_INPUT_ELEMENT_DESC> someElements, std::string_view someBytecode)
 	{
-		ComPtr<ID3D11InputLayout> layout{};
+		InputLayoutPtr layout{};
 		DX11_DEVICE->CreateInputLayout(
 			someElements.data(), (UINT)someElements.size(),
 			someBytecode.data(), someBytecode.size(),

@@ -79,13 +79,13 @@ Shader::Shader(std::string_view someBytecode)
 
 void Shader::SetShader() const
 {
-	if (*this)
+	if (operator bool())
 		std::visit(Setter{}, myShader);
 }
 
 void Shader::GetShader()
 {
-	if (*this)
+	if (operator bool())
 		std::visit(Getter{}, myShader);
 }
 

@@ -114,12 +114,12 @@ void Renderer::RenderGBufferTexture(size_t anIndex)
 {
 	std::array<FullscreenPass, 6> passes
 	{
-		GET_SHADER("PsGBufferDepth.cso"),
-		GET_SHADER("PsGBufferVertexNormal.cso"),
-		GET_SHADER("PsGBufferPixelNormal.cso"),
-		GET_SHADER("PsGBufferAlbedo.cso"),
-		GET_SHADER("PsGBufferMetalRoughAo.cso"),
-		GET_SHADER("PsGBufferEntity.cso"),
+		fs::path{ "PsGBufferDepth.cso" },
+		fs::path{ "PsGBufferVertexNormal.cso" },
+		fs::path{ "PsGBufferPixelNormal.cso" },
+		fs::path{ "PsGBufferAlbedo.cso" },
+		fs::path{ "PsGBufferMetalRoughAo.cso" },
+		fs::path{ "PsGBufferEntity.cso" },
 	};
 
 	if (anIndex < passes.size())
@@ -153,11 +153,11 @@ void Renderer::Clear()
 
 	{
 		ScopedRenderTargets scopedTargets{ myGeometryBuffer.GetRenderTarget(t_GBufferDepth) };
-		FullscreenPass{ GET_SHADER("PsClearDepth.cso") }.Render();
+		FullscreenPass{ "PsClearDepth.cso" }.Render();
 	}
 	{
 		ScopedRenderTargets scopedTargets{ myGeometryBuffer.GetRenderTarget(t_GBufferEntity) };
-		FullscreenPass{ GET_SHADER("PsClearEntity.cso") }.Render();
+		FullscreenPass{ "PsClearEntity.cso" }.Render();
 	}
 }
 
@@ -167,8 +167,8 @@ void Renderer::RenderGeometry(entt::registry& aRegistry)
 		return;
 
 	ScopedInputLayout scopedLayout{ typeid(VsInBasic) };
-	ScopedShader scopedVs{ GET_SHADER("VsBasic.cso") };
-	ScopedShader scopedPs{ GET_SHADER("PsGBuffer.cso") };
+	ScopedShader scopedVs{ "VsBasic.cso" };
+	ScopedShader scopedPs{ "PsGBuffer.cso" };
 	ScopedRenderTargets scopedTargets{ myGeometryBuffer, myDepthBuffer };
 
 	auto view = aRegistry.view<const Material::Ptr, const Mesh::Ptr, const Transform::Ptr>();
@@ -258,13 +258,13 @@ void Renderer::RenderSkybox()
 void Renderer::TonemapAndGamma()
 {
 	ScopedShaderResources scopedResources{ ShaderType::Pixel, 0, myLightningBuffer };
-	FullscreenPass pass{ GET_SHADER("PsTonemapAndGamma.cso") };
+	FullscreenPass pass{ "PsTonemapAndGamma.cso" };
 	pass.Render();
 }
 
 void Renderer::RenderDirectionalLights(std::span<const DirectionalLight> someLights)
 {
-	FullscreenPass pass{ GET_SHADER("PsDirectionalLight.cso") };
+	FullscreenPass pass{ "PsDirectionalLight.cso" };
 
 	for (const DirectionalLight& light : someLights)
 	{
@@ -281,7 +281,7 @@ void Renderer::RenderDirectionalLights(std::span<const DirectionalLight> someLig
 
 void Renderer::RenderPointLights(std::span<const PointLight> someLights)
 {
-	FullscreenPass pass{ GET_SHADER("PsPointLight.cso") };
+	FullscreenPass pass{ "PsPointLight.cso" };
 
 	for (const PointLight& light : someLights)
 	{
@@ -299,7 +299,7 @@ void Renderer::RenderPointLights(std::span<const PointLight> someLights)
 
 void Renderer::RenderSpotLights(std::span<const SpotLight> someLights)
 {
-	FullscreenPass pass{ GET_SHADER("PsSpotLight.cso") };
+	FullscreenPass pass{ "PsSpotLight.cso" };
 
 	for (const SpotLight& light : someLights)
 	{
@@ -320,7 +320,7 @@ void Renderer::RenderSpotLights(std::span<const SpotLight> someLights)
 void Renderer::RenderImageBasedLight()
 {
 	ScopedShaderResources scopedResources{ ShaderType::Pixel, t_IrradianceMap, myCubemap.GetIrradianceMap() };
-	FullscreenPass pass{ GET_SHADER("PsImageBasedLight.cso") };
+	FullscreenPass pass{ "PsImageBasedLight.cso" };
 	pass.Render();
 }
 

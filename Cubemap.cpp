@@ -202,9 +202,9 @@ void Cubemap::DrawSkybox() const
 
 	ScopedPrimitiveTopology scopedTopology{ D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP };
 	ScopedInputLayout scopedLayout{ typeid(EmptyVertex) };
-	ScopedShader scopedVs{ GET_SHADER("VsCubemap.cso") };
-	ScopedShader scopedGs{ GET_SHADER("GsSkybox.cso") };
-	ScopedShader scopedPs{ GET_SHADER("PsSkybox.cso") };
+	ScopedShader scopedVs{ "VsCubemap.cso" };
+	ScopedShader scopedGs{ "GsSkybox.cso" };
+	ScopedShader scopedPs{ "PsSkybox.cso" };
 	ScopedShaderResources scopedResources{ ShaderType::Pixel, t_EnvironmentMap, myEnvironmentMap };
 	ScopedDepthStencilState scopedDepthStencil{ depthStencil };
 
@@ -263,9 +263,9 @@ void Cubemap::CreateIrradianceMap()
 
 	ScopedPrimitiveTopology scopedTopology{ D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP };
 	ScopedInputLayout scopedLayout{ typeid(EmptyVertex) };
-	ScopedShader scopedVs{ GET_SHADER("VsCubemap.cso") };
-	ScopedShader scopedGs{ GET_SHADER("GsGenCubemap.cso") };
-	ScopedShader scopedPs{ GET_SHADER("PsGenIrradianceMap.cso") };
+	ScopedShader scopedVs{ "VsCubemap.cso" };
+	ScopedShader scopedGs{ "GsGenCubemap.cso" };
+	ScopedShader scopedPs{ "PsGenIrradianceMap.cso" };
 	ScopedShaderResources scopedResources{ ShaderType::Pixel, t_EnvironmentMap, myEnvironmentMap };
 	ScopedSamplerStates scopedSamplers{ s_TrilinearSampler, CD3D11_SAMPLER_DESC{ CD3D11_DEFAULT{} } };
 	ScopedRenderTargets scopedTargets{ irradianceTarget };

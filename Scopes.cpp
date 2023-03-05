@@ -22,13 +22,13 @@ namespace
 
 ScopedPrimitiveTopology::ScopedPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY aTopology)
 {
-	DX11_CONTEXT->IAGetPrimitiveTopology(&myPreviousTopology);
+	DX11_CONTEXT->IAGetPrimitiveTopology(&myTopology);
 	DX11_CONTEXT->IASetPrimitiveTopology(aTopology);
 }
 
 ScopedPrimitiveTopology::~ScopedPrimitiveTopology()
 {
-	DX11_CONTEXT->IASetPrimitiveTopology(myPreviousTopology);
+	DX11_CONTEXT->IASetPrimitiveTopology(myTopology);
 }
 
 /*
@@ -37,27 +37,27 @@ ScopedPrimitiveTopology::~ScopedPrimitiveTopology()
 
 ScopedInputLayout::ScopedInputLayout(std::type_index aVertexType)
 {
-	DX11_CONTEXT->IAGetInputLayout(&myPreviousLayout);
+	DX11_CONTEXT->IAGetInputLayout(&myLayout);
 	InputLayoutManager::Get().SetInputLayout(aVertexType);
 }
 
 ScopedInputLayout::~ScopedInputLayout()
 {
-	DX11_CONTEXT->IASetInputLayout(myPreviousLayout.Get());
+	DX11_CONTEXT->IASetInputLayout(myLayout.Get());
 }
 
 /*
 * class ScopedShader
 */
 
-ScopedShader::ScopedShader(std::shared_ptr<const Shader> aShader)
+ScopedShader::ScopedShader(const fs::path& aPath)
 {
-	if (!aShader || !*aShader)
-		return;
-
-	myShader = *aShader;
-	myShader.GetShader();
-	aShader->SetShader();
+	if (auto shader{ ShaderFactory::Get().GetShader(aPath) })
+	{
+		myShader = *shader;
+		myShader.GetShader();
+		shader->SetShader();
+	}
 }
 
 ScopedShader::~ScopedShader()
