@@ -52,13 +52,17 @@ void DearImGui::AddFonts()
     config.GlyphRanges = glyphRanges;
     config.MergeMode = true;
 
-    fs::path currentPath{ fs::current_path() };
-    fs::current_path(currentPath / "font");
+    const fs::path prevPath{ fs::current_path() };
+    const fs::path nextPath{ prevPath / "font" };
+    if (!fs::exists(nextPath))
+        return;
+
+    fs::current_path(nextPath);
 
     ImGuiIO& io = ImGui::GetIO();
     io.Fonts->AddFontDefault();
     io.Fonts->AddFontFromFileTTF(FONT_ICON_FILE_NAME_FAS, 13.f, &config);
     io.Fonts->Build();
 
-    fs::current_path(currentPath);
+    fs::current_path(prevPath);
 }
