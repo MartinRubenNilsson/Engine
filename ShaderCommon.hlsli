@@ -8,7 +8,7 @@ struct VsInBasic
 {
     float3 position : POSITION;
     float3 normal : NORMAL;
-    float3 tangent : TANGENT;
+    float3 tangent : TANGENT; 
     float3 bitangent : BINORMAL;
     float2 uv : TEXCOORD;
 };
