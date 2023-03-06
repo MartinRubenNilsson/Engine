@@ -1,8 +1,8 @@
 #pragma once
 #include "ShaderCommon.h"
-#include "DepthBuffer.h"
-#include "RenderTargets.h"
 #include "ConstantBuffer.h"
+#include "RenderTexture.h"
+#include "DepthBuffer.h"
 #include "Camera.h"
 #include "Light.h"
 #include "Cubemap.h"
@@ -22,7 +22,7 @@ public:
 	Renderer() = default;
 	Renderer(unsigned aWidth, unsigned aHeight);
 
-	bool Resize(unsigned aWidth, unsigned aHeight);
+	bool ResizeTextures(unsigned aWidth, unsigned aHeight);
 	void SetCamera(const Camera& aCamera, const Matrix& aTransform);
 	void Render(entt::registry&);
 	void RenderGBufferTexture(size_t anIndex);
@@ -44,11 +44,13 @@ private:
 	void RenderPointLights(std::span<const PointLight>);
 	void RenderSpotLights(std::span<const SpotLight>);
 
+	std::vector<RenderTargetPtr> GetGBufferTargets() const;
+	std::vector<ShaderResourcePtr> GetGBufferResources() const;
+
 	ScopedSamplerStates mySamplers;
 	std::array<ConstantBuffer, CBufferCount> myCBuffers{};
-
+	std::array<RenderTexture, t_LightingBuffer + 1> myRenderTextures{};
 	DepthBuffer myDepthBuffer{};
-	RenderTargets myGeometryBuffer{}, myLightningBuffer{};
 	Cubemap myCubemap{};
 
 	RenderStatistics myStatistics{};

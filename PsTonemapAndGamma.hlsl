@@ -1,13 +1,12 @@
 #include "ShaderCommon.hlsli"
 
-Texture2D Texture : register(t0);
-
-float4 main(float4 aPixelPosition : SV_Position) : SV_TARGET
+float4 main(float4 pos : SV_Position) : SV_TARGET
 {
     uint2 dim;
-    Texture.GetDimensions(dim.x, dim.y);
+    LightningBuffer.GetDimensions(dim.x, dim.y);
+    const float2 uv = pos.xy / dim;
     
-    float3 color = Texture.Sample(PointSampler, aPixelPosition.xy / dim).rgb;
+    float3 color = LightningBuffer.Sample(PointSampler, uv).rgb;
     
     color = color / (1.0 + color); // Reinhard tonemapping
     color = pow(color, 1.0 / 2.2); // Gamma correction

@@ -92,7 +92,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
         if (theResize)
         {
             backBuffer.Resize();
-            renderer.Resize(backBuffer.GetWidth(), backBuffer.GetHeight());
+            renderer.ResizeTextures(backBuffer.GetWidth(), backBuffer.GetHeight());
             theResize = false;
         }
 

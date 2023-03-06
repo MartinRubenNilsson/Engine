@@ -206,7 +206,7 @@
     <ClInclude Include="Light.h" />
     <ClInclude Include="Pixel.h" />
     <ClInclude Include="Renderer.h" />
-    <ClInclude Include="RenderTargets.h" />
+    <ClInclude Include="RenderTexture.h" />
     <ClInclude Include="Image.h" />
     <ClInclude Include="Hierarchy.h" />
     <ClInclude Include="IndexBuffer.h" />
@@ -241,7 +241,7 @@
     <ClCompile Include="Light.cpp" />
     <ClCompile Include="Pixel.cpp" />
     <ClCompile Include="Renderer.cpp" />
-    <ClCompile Include="RenderTargets.cpp" />
+    <ClCompile Include="RenderTexture.cpp" />
     <ClCompile Include="Image.cpp" />
     <ClCompile Include="Hierarchy.cpp" />
     <ClCompile Include="IndexBuffer.cpp" />

@@ -59,7 +59,7 @@
     <ClInclude Include="BackBuffer.h">
       <Filter>graphics\buffers</Filter>
     </ClInclude>
-    <ClInclude Include="RenderTargets.h">
+    <ClInclude Include="RenderTexture.h">
       <Filter>graphics</Filter>
     </ClInclude>
     <ClInclude Include="ShaderCommon.h">
@@ -147,7 +147,7 @@
     <ClCompile Include="BackBuffer.cpp">
       <Filter>graphics\buffers</Filter>
     </ClCompile>
-    <ClCompile Include="RenderTargets.cpp">
+    <ClCompile Include="RenderTexture.cpp">
       <Filter>graphics</Filter>
     </ClCompile>
     <ClCompile Include="Pixel.cpp">

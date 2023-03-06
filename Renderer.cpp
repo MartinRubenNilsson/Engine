@@ -62,7 +62,7 @@ Renderer::Renderer(unsigned aWidth, unsigned aHeight)
 		myCBuffers[i].PSSetBuffer(i);
 	}
 
-	if (!Resize(aWidth, aHeight))
+	if (!ResizeTextures(aWidth, aHeight))
 		return;
 
 	myCubemap = { "cubemap/hdr/Newport_Loft_Ref.hdr" };
@@ -72,28 +72,33 @@ Renderer::Renderer(unsigned aWidth, unsigned aHeight)
 	mySucceeded = true;
 }
 
-bool Renderer::Resize(unsigned aWidth, unsigned aHeight)
+bool Renderer::ResizeTextures(unsigned aWidth, unsigned aHeight)
 {
-	static constexpr std::array geometryFormats
+	static constexpr std::array formats
 	{
-		DXGI_FORMAT_R16_UNORM,			// Depth
-		DXGI_FORMAT_R10G10B10A2_UNORM,  // Vertex normal
-		DXGI_FORMAT_R10G10B10A2_UNORM,  // Pixel normal
-		DXGI_FORMAT_R8G8B8A8_UNORM,		// Albedo
-		DXGI_FORMAT_R8G8B8A8_UNORM,		// Metallic + Roughness + AO + [Unused]
-		DXGI_FORMAT_R32_UINT,			// Entity
+		DXGI_FORMAT_R16_UNORM,			// GBuffer Depth
+		DXGI_FORMAT_R10G10B10A2_UNORM,  // GBuffer Vertex normal
+		DXGI_FORMAT_R10G10B10A2_UNORM,  // GBuffer Pixel normal
+		DXGI_FORMAT_R8G8B8A8_UNORM,		// GBuffer Albedo
+		DXGI_FORMAT_R8G8B8A8_UNORM,		// GBuffer Metallic + Roughness + AO + [Unused]
+		DXGI_FORMAT_R32_UINT,			// GBuffer Entity
+		DXGI_FORMAT_R32G32B32A32_FLOAT  // Linear color space
 	};
 
-	static constexpr std::array lightningFormats
+	assert(formats.size() == myRenderTextures.size());
+
+	for (size_t i = 0; i < formats.size(); ++i)
 	{
-		DXGI_FORMAT_R32G32B32A32_FLOAT // Linear color space
-	};
+		myRenderTextures[i] = { aWidth, aHeight, formats[i] };
+		if (!myRenderTextures[i])
+			return false;
+	}
 
 	myDepthBuffer = { aWidth, aHeight };
-	myGeometryBuffer = { aWidth, aHeight, geometryFormats };
-	myLightningBuffer = { aWidth, aHeight, lightningFormats };
+	if (!myDepthBuffer)
+		return false;
 
-	return myDepthBuffer && myGeometryBuffer && myLightningBuffer;
+	return true;
 }
 
 void Renderer::SetCamera(const Camera& aCamera, const Matrix& aTransform)
@@ -117,13 +122,13 @@ void Renderer::Render(entt::registry& aRegistry)
 	Clear();
 	RenderGeometry(aRegistry);
 	{
-		ScopedShaderResources scopedGBuffer{ ShaderType::Pixel, t_GBufferDepth, myGeometryBuffer };
+		ScopedShaderResources scopedGBuffer{ ShaderType::Pixel, GBUFFER_BEGIN, GetGBufferResources() };
 		ScopedShaderResources scopedCubemap{ ShaderType::Pixel, t_EnvironmentMap, myCubemap.GetMaps() };
 		RenderLightning(aRegistry);
 		RenderSkybox();
 	}
 	{
-		ScopedShaderResources scopedLightning{ ShaderType::Pixel, 0, myLightningBuffer };
+		ScopedShaderResources scopedLightning{ ShaderType::Pixel, t_LightingBuffer, myRenderTextures.at(t_LightingBuffer) };
 		FullscreenPass{ "PsTonemapAndGamma.cso" }.Render();
 	}
 
@@ -144,7 +149,7 @@ void Renderer::RenderGBufferTexture(size_t anIndex)
 		fs::path{ "PsGBufferEntity.cso" },
 	};
 
-	ScopedShaderResources scopedResources{ ShaderType::Pixel, 0, myGeometryBuffer };
+	ScopedShaderResources scopedResources{ ShaderType::Pixel, GBUFFER_BEGIN, GetGBufferResources() };
 	passes.at(anIndex).Render();
 }
 
@@ -155,7 +160,7 @@ entt::entity Renderer::PickEntity(unsigned x, unsigned y)
 	Pixel pixel{ DXGI_FORMAT_R32_UINT };
 	if (pixel)
 	{
-		pixel.Copy(myGeometryBuffer.GetTexture(t_GBufferEntity), x, y);
+		pixel.Copy(myRenderTextures.at(t_GBufferEntity), x, y);
 		pixel.Read(&entity, sizeof(entity));
 	}
 
@@ -164,20 +169,21 @@ entt::entity Renderer::PickEntity(unsigned x, unsigned y)
 
 void Renderer::Clear()
 {
-	myStatistics = {};
+	for (RenderTexture& texture : myRenderTextures)
+		texture.Clear();
 
 	myDepthBuffer.Clear();
-	myGeometryBuffer.Clear();
-	myLightningBuffer.Clear();
 
 	{
-		ScopedRenderTargets scopedTargets{ myGeometryBuffer.GetRenderTarget(t_GBufferDepth) };
+		ScopedRenderTargets scopedTargets{ myRenderTextures.at(t_GBufferDepth) };
 		FullscreenPass{ "PsClearDepth.cso" }.Render();
 	}
 	{
-		ScopedRenderTargets scopedTargets{ myGeometryBuffer.GetRenderTarget(t_GBufferEntity) };
+		ScopedRenderTargets scopedTargets{ myRenderTextures.at(t_GBufferEntity) };
 		FullscreenPass{ "PsClearEntity.cso" }.Render();
 	}
+
+	myStatistics = {};
 }
 
 void Renderer::RenderGeometry(entt::registry& aRegistry)
@@ -188,7 +194,7 @@ void Renderer::RenderGeometry(entt::registry& aRegistry)
 	ScopedInputLayout scopedLayout{ typeid(VsInBasic) };
 	ScopedShader scopedVs{ "VsBasic.cso" };
 	ScopedShader scopedPs{ "PsGBuffer.cso" };
-	ScopedRenderTargets scopedTargets{ myGeometryBuffer, myDepthBuffer };
+	ScopedRenderTargets scopedTargets{ GetGBufferTargets(), myDepthBuffer};
 
 	auto view = aRegistry.view<const Material::Ptr, const Mesh::Ptr, const Transform::Ptr>();
 	for (auto [entity, material, mesh, transform] : view.each())
@@ -258,7 +264,7 @@ void Renderer::RenderLightning(entt::registry& aRegistry)
 	blendDesc.RenderTarget[0].DestBlend = D3D11_BLEND_ONE;
 	blendDesc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
 
-	ScopedRenderTargets scopedTargets{ myLightningBuffer };
+	ScopedRenderTargets scopedTargets{ myRenderTextures.at(t_LightingBuffer) };
 	ScopedBlendState scopedBlend{ blendDesc };
 
 	FullscreenPass{ "PsImageBasedLight.cso" }.Render();
@@ -277,7 +283,7 @@ void Renderer::RenderSkybox()
 	ScopedShader scopedVs{ "VsCubemap.cso" };
 	ScopedShader scopedGs{ "GsSkybox.cso" };
 	ScopedShader scopedPs{ "PsSkybox.cso" };
-	ScopedRenderTargets scopedTargets{ myLightningBuffer, myDepthBuffer };
+	ScopedRenderTargets scopedTargets{ myRenderTextures.at(t_LightingBuffer), myDepthBuffer };
 	ScopedDepthStencilState scopedDepthStencil{ depthStencil };
 
 	DX11_CONTEXT->Draw(14, 0);
@@ -336,6 +342,22 @@ void Renderer::RenderSpotLights(std::span<const SpotLight> someLights)
 		pass.Render();
 		myStatistics.spotLightDrawCalls++;
 	}
+}
+
+std::vector<RenderTargetPtr> Renderer::GetGBufferTargets() const
+{
+	std::vector<RenderTargetPtr> targets{};
+	for (size_t i = GBUFFER_BEGIN; i < GBUFFER_END; ++i)
+		targets.emplace_back(myRenderTextures.at(i));
+	return targets;
+}
+
+std::vector<ShaderResourcePtr> Renderer::GetGBufferResources() const
+{
+	std::vector<ShaderResourcePtr> resources{};
+	for (size_t i = GBUFFER_BEGIN; i < GBUFFER_END; ++i)
+		resources.emplace_back(myRenderTextures.at(i));
+	return resources;
 }
 
 

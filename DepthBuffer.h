@@ -16,5 +16,6 @@ private:
 	HRESULT myResult{ E_FAIL };
 	TexturePtr myTexture{};
 	DepthStencilPtr myDepthStencil{};
+	unsigned myWidth{}, myHeight{};
 };
 

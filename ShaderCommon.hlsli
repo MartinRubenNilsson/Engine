@@ -89,6 +89,8 @@ Texture2D GBufferAlbedo         : register(t3);
 Texture2D GBufferMetalRoughAo   : register(t4);
 Texture2D<uint> GBufferEntity   : register(t5);
 
+Texture2D LightningBuffer   : register(t6);
+
 Texture2D MaterialAlbedo    : register(t10);
 Texture2D MaterialNormal    : register(t11);
 Texture2D MaterialMetallic  : register(t12);

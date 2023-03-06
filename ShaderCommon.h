@@ -31,7 +31,7 @@ struct alignas(16) CubemapBuffer
 	Matrix cubeFaceViewProjs[6];
 };
 
-enum CBufferSlot : unsigned
+enum CBufferSlots : unsigned
 {
 	b_Camera = 0,
 	b_Mesh = 1,
@@ -49,6 +49,8 @@ enum TextureSlot : unsigned
 	t_GBufferMetalRoughAo = 4,
 	t_GBufferEntity = 5,
 
+	t_LightingBuffer = 6,
+
 	t_MaterialAlbedo = 10,
 	t_MaterialNormal = 11,
 	t_MaterialMetallic = 12,
@@ -59,6 +61,9 @@ enum TextureSlot : unsigned
 	t_IrradianceMap = 21,
 	t_PrefilteredMap = 22,
 };
+
+#define GBUFFER_BEGIN t_GBufferDepth
+#define GBUFFER_END t_GBufferEntity + 1
 
 enum SamplerSlot : unsigned
 {
