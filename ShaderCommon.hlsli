@@ -82,7 +82,7 @@ cbuffer CubemapBuffer : register(b3)
 * Textures
 */
 
-Texture2D GBufferDepth          : register(t0);
+Texture2D<float> GBufferDepth   : register(t0);
 Texture2D GBufferVertexNormal   : register(t1);
 Texture2D GBufferPixelNormal    : register(t2);
 Texture2D GBufferAlbedo         : register(t3);
@@ -116,10 +116,14 @@ float DistanceAttenuation(float aDistanceToLight)
     return 1.f / max(0.01, LightParams.y + aDistanceToLight * (LightParams.z + aDistanceToLight * LightParams.w));
 }
 
-float3 GetWorldPosition(float2 uv)
+float3 ClipToWorld(float3 clipPos)
 {
-    float4 farPlaneClipPos = { uv.x * 2.0 - 1.0, 1.0 - uv.y * 2.0, 1.0, 1.0 };
-    float3 farPlaneWorldPos = mul(CameraInvViewProj, farPlaneClipPos).xyz;
-    float depth = GBufferDepth.Sample(PointSampler, uv).x;
-    return lerp(CameraPosition.xyz, farPlaneWorldPos, depth);
+    float4 worldPos = mul(CameraInvViewProj, float4(clipPos, 1.0));
+    return worldPos / worldPos.w;
+}
+
+float3 UVDepthToWorld(float2 uv, float depth)
+{
+    float3 clipPos = { uv.x * 2.0 - 1.0, 1.0 - uv.y * 2.0, depth };
+    return ClipToWorld(clipPos);
 }

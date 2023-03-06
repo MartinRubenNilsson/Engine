@@ -101,7 +101,7 @@ void Renderer::SetCamera(const Camera& aCamera, const Matrix& aTransform)
 	CameraBuffer buffer{};
 	buffer.viewProj = aTransform.Invert() * aCamera.GetViewMatrix() * aCamera.GetProjectionMatrix();
 	buffer.invViewProj = buffer.viewProj.Invert();
-	buffer.position = { aTransform.Translation().operator XMVECTOR() };
+	buffer.position = { aTransform._41, aTransform._42, aTransform._43, 1.0 };
 
 	myCBuffers.at(b_Camera).Update(&buffer);
 }
@@ -133,9 +133,10 @@ void Renderer::Render(entt::registry& aRegistry)
 
 void Renderer::RenderGBufferTexture(size_t anIndex)
 {
-	std::array<FullscreenPass, 6> passes
+	std::array<FullscreenPass, 7> passes
 	{
 		fs::path{ "PsGBufferDepth.cso" },
+		fs::path{ "PsGBufferWorldPosition.cso" },
 		fs::path{ "PsGBufferVertexNormal.cso" },
 		fs::path{ "PsGBufferPixelNormal.cso" },
 		fs::path{ "PsGBufferAlbedo.cso" },
@@ -143,11 +144,8 @@ void Renderer::RenderGBufferTexture(size_t anIndex)
 		fs::path{ "PsGBufferEntity.cso" },
 	};
 
-	if (anIndex < passes.size())
-	{
-		ScopedShaderResources scopedResources{ ShaderType::Pixel, 0, myGeometryBuffer };
-		passes.at(anIndex).Render();
-	}
+	ScopedShaderResources scopedResources{ ShaderType::Pixel, 0, myGeometryBuffer };
+	passes.at(anIndex).Render();
 }
 
 entt::entity Renderer::PickEntity(unsigned x, unsigned y)
