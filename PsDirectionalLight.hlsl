@@ -12,11 +12,11 @@ float4 main(float4 pos : SV_POSITION) : SV_TARGET
         return float4(0.0, 0.0, 0.0, 1.0);
     
     const float3 worldPos = UVDepthToWorld(uv, depth);
-    const float4 pixelNormal = GBufferPixelNormal.Sample(PointSampler, uv);
+    const float4 normal = GBufferNormal.Sample(PointSampler, uv);
     
     const float3 L = normalize(-LightDirection.xyz);
     const float3 V = normalize(CameraPosition.xyz - worldPos);
-    const float3 N = normalize(pixelNormal.xyz * 2.0 - 1.0); // Unpack normals
+    const float3 N = normalize(normal.xyz * 2.0 - 1.0); // Unpack normals
     
     const float4 albedo = GBufferAlbedo.Sample(PointSampler, uv);
     const float4 metalRoughAo = GBufferMetalRoughAo.Sample(PointSampler, uv);

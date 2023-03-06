@@ -74,25 +74,15 @@ Renderer::Renderer(unsigned aWidth, unsigned aHeight)
 
 bool Renderer::ResizeTextures(unsigned aWidth, unsigned aHeight)
 {
-	static constexpr std::array formats
-	{
-		DXGI_FORMAT_R16_UNORM,			// GBuffer Depth
-		DXGI_FORMAT_R10G10B10A2_UNORM,  // GBuffer Vertex normal
-		DXGI_FORMAT_R10G10B10A2_UNORM,  // GBuffer Pixel normal
-		DXGI_FORMAT_R8G8B8A8_UNORM,		// GBuffer Albedo
-		DXGI_FORMAT_R8G8B8A8_UNORM,		// GBuffer Metallic + Roughness + AO + [Unused]
-		DXGI_FORMAT_R32_UINT,			// GBuffer Entity
-		DXGI_FORMAT_R32G32B32A32_FLOAT  // Linear color space
-	};
+	myRenderTextures.at(t_GBufferDepth)			= { aWidth, aHeight, DXGI_FORMAT_R16_UNORM };
+	myRenderTextures.at(t_GBufferNormal)		= { aWidth, aHeight, DXGI_FORMAT_R10G10B10A2_UNORM };
+	myRenderTextures.at(t_GBufferAlbedo)		= { aWidth, aHeight, DXGI_FORMAT_R8G8B8A8_UNORM };
+	myRenderTextures.at(t_GBufferMetalRoughAo)	= { aWidth, aHeight, DXGI_FORMAT_R8G8B8A8_UNORM };
+	myRenderTextures.at(t_GBufferEntity)		= { aWidth, aHeight, DXGI_FORMAT_R32_UINT };
+	myRenderTextures.at(t_LightingBuffer)		= { aWidth, aHeight, DXGI_FORMAT_R32G32B32A32_FLOAT };
 
-	assert(formats.size() == myRenderTextures.size());
-
-	for (size_t i = 0; i < formats.size(); ++i)
-	{
-		myRenderTextures[i] = { aWidth, aHeight, formats[i] };
-		if (!myRenderTextures[i])
-			return false;
-	}
+	if (!std::ranges::all_of(myRenderTextures, &RenderTexture::operator bool))
+		return false;
 
 	myDepthBuffer = { aWidth, aHeight };
 	if (!myDepthBuffer)
@@ -138,12 +128,11 @@ void Renderer::Render(entt::registry& aRegistry)
 
 void Renderer::RenderGBufferTexture(size_t anIndex)
 {
-	std::array<FullscreenPass, 7> passes
+	std::array<FullscreenPass, 6> passes
 	{
 		fs::path{ "PsGBufferDepth.cso" },
 		fs::path{ "PsGBufferWorldPosition.cso" },
-		fs::path{ "PsGBufferVertexNormal.cso" },
-		fs::path{ "PsGBufferPixelNormal.cso" },
+		fs::path{ "PsGBufferNormal.cso" },
 		fs::path{ "PsGBufferAlbedo.cso" },
 		fs::path{ "PsGBufferMetalRoughAo.cso" },
 		fs::path{ "PsGBufferEntity.cso" },

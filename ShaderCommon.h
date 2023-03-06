@@ -43,23 +43,22 @@ enum CBufferSlots : unsigned
 enum TextureSlot : unsigned
 {
 	t_GBufferDepth = 0,
-	t_GBufferVertexNormal = 1,
-	t_GBufferPixelNormal = 2,
-	t_GBufferAlbedo = 3,
-	t_GBufferMetalRoughAo = 4,
-	t_GBufferEntity = 5,
+	t_GBufferNormal,
+	t_GBufferAlbedo,
+	t_GBufferMetalRoughAo,
+	t_GBufferEntity,
 
-	t_LightingBuffer = 6,
+	t_LightingBuffer,
 
 	t_MaterialAlbedo = 10,
-	t_MaterialNormal = 11,
-	t_MaterialMetallic = 12,
-	t_MaterialRoughness = 13,
-	t_MaterialOcclusion = 14,
+	t_MaterialNormal,
+	t_MaterialMetallic,
+	t_MaterialRoughness,
+	t_MaterialOcclusion,
 
 	t_EnvironmentMap = 20,
-	t_IrradianceMap = 21,
-	t_PrefilteredMap = 22,
+	t_IrradianceMap,
+	t_PrefilteredMap,
 };
 
 #define GBUFFER_BEGIN t_GBufferDepth

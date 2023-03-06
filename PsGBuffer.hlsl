@@ -12,8 +12,7 @@ PsOutGBuffer main(VsOutBasic input)
     
     PsOutGBuffer target;
     target.depth = input.position.z;
-    target.vertexNormal   = float4(N, 0.0);
-    target.pixelNormal    = float4(mul(localNormal, float3x3(T, B, N)), 0.0);
+    target.normal         = float4(mul(localNormal, float3x3(T, B, N)), 0.0);
     target.albedo         = MaterialAlbedo.Sample(TrilinearSampler, input.uv);
     target.metalRoughAo.r = MaterialMetallic.Sample(TrilinearSampler, input.uv).r;
     target.metalRoughAo.g = MaterialRoughness.Sample(TrilinearSampler, input.uv).r;
@@ -21,8 +20,7 @@ PsOutGBuffer main(VsOutBasic input)
     target.metalRoughAo.a = 0.0;
     target.entity = MeshEntity[0];
     
-    target.vertexNormal.xyz = target.vertexNormal.xyz * 0.5 + 0.5; // Pack normals
-    target.pixelNormal.xyz = target.pixelNormal.xyz * 0.5 + 0.5; // Pack normals
+    target.normal.xyz = target.normal.xyz * 0.5 + 0.5; // Pack normals
     
     return target;
 }
