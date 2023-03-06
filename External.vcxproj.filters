@@ -271,13 +271,13 @@
     <ClInclude Include="External\directxtk\Mouse.h">
       <Filter>directxtk</Filter>
     </ClInclude>
-    <ClInclude Include="External\directxtk\SimpleMath.h">
-      <Filter>directxtk</Filter>
-    </ClInclude>
     <ClInclude Include="External\directxtk\pch.h">
       <Filter>directxtk</Filter>
     </ClInclude>
     <ClInclude Include="External\directxtk\PlatformHelpers.h">
+      <Filter>directxtk</Filter>
+    </ClInclude>
+    <ClInclude Include="External\directxtk\SimpleMath.h">
       <Filter>directxtk</Filter>
     </ClInclude>
   </ItemGroup>
@@ -309,9 +309,6 @@
     <ClCompile Include="External\imgui\ImGuizmo.cpp">
       <Filter>imgui</Filter>
     </ClCompile>
-    <ClCompile Include="External\directxtk\SimpleMath.cpp">
-      <Filter>directxtk</Filter>
-    </ClCompile>
     <ClCompile Include="External\directxtk\Keyboard.cpp">
       <Filter>directxtk</Filter>
     </ClCompile>
@@ -319,6 +316,9 @@
       <Filter>directxtk</Filter>
     </ClCompile>
     <ClCompile Include="External\directxtk\pch.cpp">
+      <Filter>directxtk</Filter>
+    </ClCompile>
+    <ClCompile Include="External\directxtk\SimpleMath.cpp">
       <Filter>directxtk</Filter>
     </ClCompile>
   </ItemGroup>
