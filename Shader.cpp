@@ -109,7 +109,7 @@ std::shared_ptr<const Shader> ShaderFactory::GetShader(const fs::path& aPath)
 	if (itr != myShaders.end())
 		return itr->second;
 
-	std::ifstream file{ aPath, std::ios::binary };
+	std::ifstream file{ "shaders" / aPath, std::ios::binary};
 	if (!file)
 		return nullptr;
 

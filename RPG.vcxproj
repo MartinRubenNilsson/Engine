@@ -114,6 +114,7 @@
     </Link>
     <FxCompile>
       <ShaderModel>5.0</ShaderModel>
+      <ObjectFileOutput>$(OutDir)shaders\%(Filename).cso</ObjectFileOutput>
     </FxCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -139,6 +140,7 @@
     </Link>
     <FxCompile>
       <ShaderModel>5.0</ShaderModel>
+      <ObjectFileOutput>$(OutDir)shaders\%(Filename).cso</ObjectFileOutput>
     </FxCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -160,6 +162,7 @@
     </Link>
     <FxCompile>
       <ShaderModel>5.0</ShaderModel>
+      <ObjectFileOutput>$(OutDir)shaders\%(Filename).cso</ObjectFileOutput>
     </FxCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -185,6 +188,7 @@
     </Link>
     <FxCompile>
       <ShaderModel>5.0</ShaderModel>
+      <ObjectFileOutput>$(OutDir)shaders\%(Filename).cso</ObjectFileOutput>
     </FxCompile>
   </ItemDefinitionGroup>
   <ItemGroup>

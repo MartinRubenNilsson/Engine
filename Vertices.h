@@ -7,7 +7,7 @@ struct EmptyVertex
 		{ "SV_VertexID", 0, DXGI_FORMAT_R32_UINT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 	};
 
-	static constexpr std::string_view Shader = "VsFullscreenTriangle.cso";
+	static constexpr std::string_view Shader = "shaders/VsFullscreenTriangle.cso";
 };
 
 struct VsInBasic
@@ -27,6 +27,6 @@ struct VsInBasic
 		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 	};
 
-	static constexpr std::string_view Shader = "VsBasic.cso";
+	static constexpr std::string_view Shader = "shaders/VsBasic.cso";
 };
 
