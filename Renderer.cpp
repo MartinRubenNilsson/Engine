@@ -179,26 +179,32 @@ void Renderer::Render(TextureSlot aSlot)
 	case t_Normal:
 	{
 		ScopedShaderResources scopedResource{ ShaderType::Pixel, t_GBufferNormalDepth, myRenderTextures.at(t_GBufferNormalDepth) };
-		FullscreenPass{ "PsSampleNormal.cso" }.Render();
+		FullscreenPass{ "PsGetNormal.cso" }.Render();
 		break;
 	}
 	case t_Depth:
 	{
 		ScopedShaderResources scopedResource{ ShaderType::Pixel, t_GBufferNormalDepth, myRenderTextures.at(t_GBufferNormalDepth) };
-		FullscreenPass{ "PsSampleDepth.cso" }.Render();
+		FullscreenPass{ "PsGetDepth.cso" }.Render();
+		break;
+	}
+	case t_Position:
+	{
+		ScopedShaderResources scopedResource{ ShaderType::Pixel, t_GBufferNormalDepth, myRenderTextures.at(t_GBufferNormalDepth) };
+		FullscreenPass{ "PsGetPosition.cso" }.Render();
 		break;
 	}
 	case t_GBufferEntity:
 	{
 		ScopedShaderResources scopedResource{ ShaderType::Pixel, aSlot, myRenderTextures.at(aSlot) };
-		FullscreenPass{ "PsSampleEntity.cso" }.Render();
+		FullscreenPass{ "PsGetEntity.cso" }.Render();
 		break;
 	}
 	default:
 	{
 		if (aSlot < myRenderTextures.size())
 		{
-			ScopedShaderResources scopedResource{ ShaderType::Pixel, aSlot, myRenderTextures.at(aSlot) };
+			ScopedShaderResources scopedResource{ ShaderType::Pixel, 0, myRenderTextures.at(aSlot) };
 			FullscreenPass{ "PsPointSample.cso" }.Render();
 		}
 		break;

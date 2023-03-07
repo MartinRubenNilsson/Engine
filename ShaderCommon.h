@@ -64,6 +64,7 @@ enum TextureSlot : unsigned
 	// "Virtual" textures that don't exist in memory but can be computed from other textures
 	t_Normal = D3D11_COMMONSHADER_INPUT_RESOURCE_REGISTER_COUNT,
 	t_Depth,
+	t_Position
 };
 
 #define GBUFFER_BEGIN t_GBufferNormalDepth
