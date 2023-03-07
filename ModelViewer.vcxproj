@@ -209,7 +209,6 @@
     <ClInclude Include="RenderTexture.h" />
     <ClInclude Include="Image.h" />
     <ClInclude Include="Hierarchy.h" />
-    <ClInclude Include="IndexBuffer.h" />
     <ClInclude Include="InputLayoutManager.h" />
     <ClInclude Include="Material.h" />
     <ClInclude Include="Mesh.h" />
@@ -222,7 +221,6 @@
     <ClInclude Include="Singleton.h" />
     <ClInclude Include="BackBuffer.h" />
     <ClInclude Include="Transform.h" />
-    <ClInclude Include="VertexBuffer.h" />
     <ClInclude Include="Vertices.h" />
     <ClInclude Include="Window.h" />
   </ItemGroup>
@@ -244,7 +242,6 @@
     <ClCompile Include="RenderTexture.cpp" />
     <ClCompile Include="Image.cpp" />
     <ClCompile Include="Hierarchy.cpp" />
-    <ClCompile Include="IndexBuffer.cpp" />
     <ClCompile Include="InputLayoutManager.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Material.cpp" />
@@ -261,7 +258,6 @@
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="BackBuffer.cpp" />
     <ClCompile Include="Transform.cpp" />
-    <ClCompile Include="VertexBuffer.cpp" />
     <ClCompile Include="Window.cpp" />
   </ItemGroup>
   <ItemGroup>

@@ -16,23 +16,57 @@ Mesh::Mesh(const aiMesh& aMesh)
 	assert(aMesh.HasFaces());
 	assert(aMesh.mPrimitiveTypes == aiPrimitiveType_TRIANGLE);
 
-	std::vector<VsInBasic> vertices(aMesh.mNumVertices);
-	std::vector<unsigned> indices(3 * aMesh.mNumFaces);
+	const unsigned vertexCount{ aMesh.mNumVertices };
+	const unsigned indexCount{ aMesh.mNumFaces * 3 };
 
-	for (unsigned i = 0; i < aMesh.mNumVertices; ++i)
+	// Create vertex buffer
 	{
-		std::memcpy(&vertices[i].position,	&aMesh.mVertices[i],		 sizeof(Vector3));
-		std::memcpy(&vertices[i].normal,	&aMesh.mNormals[i],			 sizeof(Vector3));
-		std::memcpy(&vertices[i].tangent,	&aMesh.mTangents[i],		 sizeof(Vector3));
-		std::memcpy(&vertices[i].bitangent, &aMesh.mBitangents[i],		 sizeof(Vector3));
-		std::memcpy(&vertices[i].uv,		&aMesh.mTextureCoords[0][i], sizeof(Vector2));
+		std::vector<VsInBasic> vertices(vertexCount);
+
+		for (unsigned i = 0; i < aMesh.mNumVertices; ++i)
+		{
+			std::memcpy(&vertices[i].position, &aMesh.mVertices[i], sizeof(Vector3));
+			std::memcpy(&vertices[i].normal, &aMesh.mNormals[i], sizeof(Vector3));
+			std::memcpy(&vertices[i].tangent, &aMesh.mTangents[i], sizeof(Vector3));
+			std::memcpy(&vertices[i].bitangent, &aMesh.mBitangents[i], sizeof(Vector3));
+			std::memcpy(&vertices[i].uv, &aMesh.mTextureCoords[0][i], sizeof(Vector2));
+		}
+
+		D3D11_BUFFER_DESC desc{};
+		desc.ByteWidth = vertexCount * sizeof(VsInBasic);
+		desc.Usage = D3D11_USAGE_IMMUTABLE;
+		desc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+
+		D3D11_SUBRESOURCE_DATA data{};
+		data.pSysMem = vertices.data();
+
+		myResult = DX11_DEVICE->CreateBuffer(&desc, &data, &myVertexBuffer);
+		if (FAILED(myResult))
+			return;
 	}
 
-	for (unsigned i = 0; i < aMesh.mNumFaces; ++i)
-		std::memcpy(&indices[3 * i], aMesh.mFaces[i].mIndices, 3 * sizeof(unsigned));
+	// Create index buffer
+	{
+		std::vector<unsigned> indices(indexCount);
 
-	myVertexBuffer = { std::span{ vertices } };
-	myIndexBuffer = { std::span{ indices } };
+		for (unsigned i = 0; i < aMesh.mNumFaces; ++i)
+			std::memcpy(&indices[3 * i], aMesh.mFaces[i].mIndices, 3 * sizeof(unsigned));
+
+		D3D11_BUFFER_DESC desc{};
+		desc.ByteWidth = indexCount * sizeof(unsigned);
+		desc.Usage = D3D11_USAGE_IMMUTABLE;
+		desc.BindFlags = D3D11_BIND_INDEX_BUFFER;
+
+		D3D11_SUBRESOURCE_DATA data{};
+		data.pSysMem = indices.data();
+
+		myResult = DX11_DEVICE->CreateBuffer(&desc, &data, &myIndexBuffer);
+		if (FAILED(myResult))
+			return;
+	}
+
+	myVertexCount = vertexCount;
+	myIndexCount = indexCount;
 
 	BoundingBox::CreateFromPoints(
 		myBoundingBox,
@@ -41,35 +75,22 @@ Mesh::Mesh(const aiMesh& aMesh)
 	);
 }
 
-void Mesh::SetVertexAndIndexBuffers() const
+void Mesh::Draw() const
 {
-	myVertexBuffer.SetVertexBuffer();
-	myIndexBuffer.SetIndexBuffer();
-}
+	if (!operator bool())
+		return;
 
-std::string_view Mesh::GetName() const
-{
-	return myName;
-}
+	static constexpr UINT stride{ sizeof(VsInBasic) };
+	static constexpr UINT offset{ 0 };
 
-unsigned Mesh::GetVertexCount() const
-{
-	return myVertexBuffer.GetVertexCount();
-}
-
-unsigned Mesh::GetIndexCount() const
-{
-	return myIndexBuffer.GetIndexCount();
-}
-
-const BoundingBox& Mesh::GetBoundingBox() const
-{
-	return myBoundingBox;
+	DX11_CONTEXT->IASetVertexBuffers(0, 1, myVertexBuffer.GetAddressOf(), &stride, &offset);
+	DX11_CONTEXT->IASetIndexBuffer(myIndexBuffer.Get(), DXGI_FORMAT_R32_UINT, 0);
+	DX11_CONTEXT->DrawIndexed(myIndexCount, 0, 0);
 }
 
 Mesh::operator bool() const
 {
-	return myVertexBuffer && myIndexBuffer;
+	return SUCCEEDED(myResult);
 }
 
 /*

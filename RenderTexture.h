@@ -6,7 +6,7 @@ public:
 	RenderTexture() = default;
 	RenderTexture(unsigned aWidth, unsigned aHeight, DXGI_FORMAT aFormat);
 
-	void Clear(const Color& aColor = { 0.f, 0.f, 0.f, 0.f });
+	void Clear(const Color& aColor = {});
 
 	operator TexturePtr() const { return myTexture; }
 	operator ShaderResourcePtr() const { return myShaderResource; }

@@ -256,10 +256,6 @@ void Renderer::RenderGeometry(entt::registry& aRegistry)
 	auto view = aRegistry.view<const Material::Ptr, const Mesh::Ptr, const Transform::Ptr>();
 	for (auto [entity, material, mesh, transform] : view.each())
 	{
-		mesh->SetVertexAndIndexBuffers();
-
-		ScopedShaderResources scopedResources{ ShaderType::Pixel, 10, *material }; // TODO: turn hardcoded 10 into am acro
-		
 		MeshBuffer buffer{};
 		buffer.matrix = transform->GetWorldMatrix();
 		buffer.matrixInvTrans = buffer.matrix.Invert().Transpose();
@@ -267,7 +263,9 @@ void Renderer::RenderGeometry(entt::registry& aRegistry)
 
 		myCBuffers.at(b_Mesh).Update(&buffer);
 
-		DX11_CONTEXT->DrawIndexed(mesh->GetIndexCount(), 0, 0);
+		ScopedShaderResources scopedResources{ ShaderType::Pixel, MATERIAL_BEGIN, *material };
+
+		mesh->Draw();
 		myStatistics.meshDrawCalls++;
 	}
 }

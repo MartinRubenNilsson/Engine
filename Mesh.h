@@ -1,6 +1,4 @@
 #pragma once
-#include "VertexBuffer.h"
-#include "IndexBuffer.h"
 
 class Mesh
 {
@@ -9,19 +7,20 @@ public:
 
 	Mesh(const aiMesh&);
 
-	void SetVertexAndIndexBuffers() const;
+	void Draw() const;
 
-	std::string_view GetName() const;
-	unsigned GetVertexCount() const;
-	unsigned GetIndexCount() const;
-	const BoundingBox& GetBoundingBox() const;
+	std::string_view GetName() const { return myName; }
+	unsigned GetVertexCount() const { return myVertexCount; }
+	unsigned GetIndexCount() const { return myIndexCount; }
+	const BoundingBox& GetBoundingBox() const { return myBoundingBox; }
 
 	explicit operator bool() const;
 
 private:
 	std::string myName{};
-	VertexBuffer myVertexBuffer{};
-	IndexBuffer myIndexBuffer{};
+	HRESULT myResult{ E_FAIL };
+	BufferPtr myVertexBuffer{}, myIndexBuffer{};
+	unsigned myVertexCount{}, myIndexCount{};
 	BoundingBox myBoundingBox{};
 };
 
