@@ -14,6 +14,7 @@
 #include <fstream>
 #include <initializer_list>
 #include <memory>
+#include <random>
 #include <ranges>
 #include <span>
 #include <string>

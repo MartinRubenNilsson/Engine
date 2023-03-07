@@ -40,6 +40,48 @@ namespace
 
 		return buffer;
 	}
+
+	auto GetOffsetVectors()
+	{ 
+		std::array vectors
+		{
+			// 8 pairwise opposite corners
+
+			Vector4{ +1.f, +1.f, +1.f, 0.f },
+			Vector4{ -1.f, -1.f, -1.f, 0.f },
+
+			Vector4{ -1.f, +1.f, +1.f, 0.f },
+			Vector4{ +1.f, -1.f, -1.f, 0.f },
+
+			Vector4{ +1.f, +1.f, -1.f, 0.f },
+			Vector4{ -1.f, -1.f, +1.f, 0.f },
+
+			Vector4{ -1.f, +1.f, -1.f, 0.f },
+			Vector4{ +1.f, -1.f, +1.f, 0.f },
+
+			// 6 pairwise opposite face centers
+
+			Vector4{ -1.f, 0.f, 0.f, 0.f },
+			Vector4{ +1.f, 0.f, 0.f, 0.f },
+
+			Vector4{ 0.f, -1.f, 0.f, 0.f },
+			Vector4{ 0.f, +1.f, 0.f, 0.f },
+
+			Vector4{ 0.f, 0.f, -1.f, 0.f },
+			Vector4{ 0.f, 0.f, +1.f, 0.f },
+		};
+
+		std::default_random_engine engine{ 1337 };
+		std::uniform_real_distribution<float> dist{ 0.25f, 1.f };
+
+		for (Vector4& v : vectors)
+		{
+			v.Normalize();
+			v *= dist(engine);
+		}
+
+		return vectors;
+	}
 }
 
 /*
@@ -136,23 +178,24 @@ void Renderer::Render(TextureSlot aSlot)
 	if (aSlot >= myRenderTextures.size())
 		return;
 
-	ScopedShaderResources scopedResource{ ShaderType::Pixel, aSlot, myRenderTextures.at(aSlot) };
-
 	switch (aSlot)
 	{
 	case t_GBufferSSAO:
 	{
+		ScopedShaderResources scopedResource{ ShaderType::Pixel, aSlot, myRenderTextures.at(aSlot) };
 		FullscreenPass{ "PsGBufferDepth.cso" }.Render();
 		break;
 	}
 	case t_GBufferEntity:
 	{
+		ScopedShaderResources scopedResource{ ShaderType::Pixel, aSlot, myRenderTextures.at(aSlot) };
 		FullscreenPass{ "PsGBufferEntity.cso" }.Render();
 		break;
 	}
 	default:
 	{
-		FullscreenPass{ "PsPointSampler.cso" }.Render();
+		ScopedShaderResources scopedResource{ ShaderType::Pixel, 0, myRenderTextures.at(aSlot) };
+		FullscreenPass{ "PsPointSample.cso" }.Render();
 		break;
 	}
 	}
