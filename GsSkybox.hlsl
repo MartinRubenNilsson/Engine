@@ -8,7 +8,7 @@ void main(triangle float3 input[3] : POSITION, inout TriangleStream<GsOutSkybox>
         // By setting z=w=1, we ensure that the skybox always lie on the far plane.
         
         GsOutSkybox output;
-        output.pos = mul(CameraViewProj, float4(input[v], 0.f)).xyww;
+        output.pos = mul(ViewProj, float4(input[v], 0.f)).xyww;
         output.worldPos = input[v];
         stream.Append(output);
     }

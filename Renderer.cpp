@@ -74,12 +74,14 @@ Renderer::Renderer(unsigned aWidth, unsigned aHeight)
 
 bool Renderer::ResizeTextures(unsigned aWidth, unsigned aHeight)
 {
-	myRenderTextures.at(t_GBufferDepth)			= { aWidth, aHeight, DXGI_FORMAT_R16_UNORM };
+	myRenderTextures.at(t_GBufferSSAO)			= { aWidth, aHeight, DXGI_FORMAT_R16G16B16A16_UNORM };
 	myRenderTextures.at(t_GBufferNormal)		= { aWidth, aHeight, DXGI_FORMAT_R10G10B10A2_UNORM };
 	myRenderTextures.at(t_GBufferAlbedo)		= { aWidth, aHeight, DXGI_FORMAT_R8G8B8A8_UNORM };
 	myRenderTextures.at(t_GBufferMetalRoughAo)	= { aWidth, aHeight, DXGI_FORMAT_R8G8B8A8_UNORM };
 	myRenderTextures.at(t_GBufferEntity)		= { aWidth, aHeight, DXGI_FORMAT_R32_UINT };
-	myRenderTextures.at(t_LightingBuffer)		= { aWidth, aHeight, DXGI_FORMAT_R32G32B32A32_FLOAT };
+
+	myRenderTextures.at(t_SSAOTexture) = { aWidth / 2, aHeight / 2, DXGI_FORMAT_R16_UNORM };
+	myRenderTextures.at(t_LightingTexture) = { aWidth, aHeight, DXGI_FORMAT_R32G32B32A32_FLOAT };
 
 	if (!std::ranges::all_of(myRenderTextures, &RenderTexture::operator bool))
 		return false;
@@ -93,9 +95,12 @@ bool Renderer::ResizeTextures(unsigned aWidth, unsigned aHeight)
 
 void Renderer::SetCamera(const Camera& aCamera, const Matrix& aTransform)
 {
+	const Matrix view{ aTransform.Invert() * aCamera.GetViewMatrix() };
+
 	CameraBuffer buffer{};
-	buffer.viewProj = aTransform.Invert() * aCamera.GetViewMatrix() * aCamera.GetProjectionMatrix();
+	buffer.viewProj = view * aCamera.GetProjectionMatrix();
 	buffer.invViewProj = buffer.viewProj.Invert();
+	buffer.invTransView = view.Invert().Transpose();
 	buffer.position = { aTransform._41, aTransform._42, aTransform._43, 1.0 };
 
 	myCBuffers.at(b_Camera).Update(&buffer);
@@ -118,7 +123,7 @@ void Renderer::Render(entt::registry& aRegistry)
 		RenderSkybox();
 	}
 	{
-		ScopedShaderResources scopedLightning{ ShaderType::Pixel, t_LightingBuffer, myRenderTextures.at(t_LightingBuffer) };
+		ScopedShaderResources scopedLightning{ ShaderType::Pixel, t_LightingTexture, myRenderTextures.at(t_LightingTexture) };
 		FullscreenPass{ "PsTonemapAndGamma.cso" }.Render();
 	}
 
@@ -126,20 +131,31 @@ void Renderer::Render(entt::registry& aRegistry)
 	myStatistics.renderTimeMs = static_cast<unsigned>(duration.count());
 }
 
-void Renderer::RenderGBufferTexture(size_t anIndex)
+void Renderer::Render(TextureSlot aSlot)
 {
-	std::array<FullscreenPass, 6> passes
-	{
-		fs::path{ "PsGBufferDepth.cso" },
-		fs::path{ "PsGBufferWorldPosition.cso" },
-		fs::path{ "PsGBufferNormal.cso" },
-		fs::path{ "PsGBufferAlbedo.cso" },
-		fs::path{ "PsGBufferMetalRoughAo.cso" },
-		fs::path{ "PsGBufferEntity.cso" },
-	};
+	if (aSlot >= myRenderTextures.size())
+		return;
 
-	ScopedShaderResources scopedResources{ ShaderType::Pixel, GBUFFER_BEGIN, GetGBufferResources() };
-	passes.at(anIndex).Render();
+	ScopedShaderResources scopedResource{ ShaderType::Pixel, aSlot, myRenderTextures.at(aSlot) };
+
+	switch (aSlot)
+	{
+	case t_GBufferSSAO:
+	{
+		FullscreenPass{ "PsGBufferDepth.cso" }.Render();
+		break;
+	}
+	case t_GBufferEntity:
+	{
+		FullscreenPass{ "PsGBufferEntity.cso" }.Render();
+		break;
+	}
+	default:
+	{
+		FullscreenPass{ "PsPointSampler.cso" }.Render();
+		break;
+	}
+	}
 }
 
 entt::entity Renderer::PickEntity(unsigned x, unsigned y)
@@ -161,12 +177,10 @@ void Renderer::Clear()
 	for (RenderTexture& texture : myRenderTextures)
 		texture.Clear();
 
+	myRenderTextures.at(t_GBufferSSAO).Clear({ 0.f, 0.f, 0.f, 1.f });
+
 	myDepthBuffer.Clear();
 
-	{
-		ScopedRenderTargets scopedTargets{ myRenderTextures.at(t_GBufferDepth) };
-		FullscreenPass{ "PsClearDepth.cso" }.Render();
-	}
 	{
 		ScopedRenderTargets scopedTargets{ myRenderTextures.at(t_GBufferEntity) };
 		FullscreenPass{ "PsClearEntity.cso" }.Render();
@@ -253,7 +267,7 @@ void Renderer::RenderLightning(entt::registry& aRegistry)
 	blendDesc.RenderTarget[0].DestBlend = D3D11_BLEND_ONE;
 	blendDesc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
 
-	ScopedRenderTargets scopedTargets{ myRenderTextures.at(t_LightingBuffer) };
+	ScopedRenderTargets scopedTargets{ myRenderTextures.at(t_LightingTexture) };
 	ScopedBlendState scopedBlend{ blendDesc };
 
 	FullscreenPass{ "PsImageBasedLight.cso" }.Render();
@@ -272,7 +286,7 @@ void Renderer::RenderSkybox()
 	ScopedShader scopedVs{ "VsCubemap.cso" };
 	ScopedShader scopedGs{ "GsSkybox.cso" };
 	ScopedShader scopedPs{ "PsSkybox.cso" };
-	ScopedRenderTargets scopedTargets{ myRenderTextures.at(t_LightingBuffer), myDepthBuffer };
+	ScopedRenderTargets scopedTargets{ myRenderTextures.at(t_LightingTexture), myDepthBuffer };
 	ScopedDepthStencilState scopedDepthStencil{ depthStencil };
 
 	DX11_CONTEXT->Draw(14, 0);

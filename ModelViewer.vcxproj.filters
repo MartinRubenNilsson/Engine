@@ -221,15 +221,6 @@
     <FxCompile Include="PsGBuffer.hlsl">
       <Filter>shaders\gbuffer</Filter>
     </FxCompile>
-    <FxCompile Include="PsGBufferAlbedo.hlsl">
-      <Filter>shaders\gbuffer</Filter>
-    </FxCompile>
-    <FxCompile Include="PsGBufferMetalRoughAo.hlsl">
-      <Filter>shaders\gbuffer</Filter>
-    </FxCompile>
-    <FxCompile Include="PsGBufferNormal.hlsl">
-      <Filter>shaders\gbuffer</Filter>
-    </FxCompile>
     <FxCompile Include="PsGBufferEntity.hlsl">
       <Filter>shaders\gbuffer</Filter>
     </FxCompile>
@@ -254,9 +245,6 @@
     <FxCompile Include="VsCubemap.hlsl">
       <Filter>shaders\cubemap</Filter>
     </FxCompile>
-    <FxCompile Include="PsClearDepth.hlsl">
-      <Filter>shaders\fullscreen</Filter>
-    </FxCompile>
     <FxCompile Include="PsClearEntity.hlsl">
       <Filter>shaders\fullscreen</Filter>
     </FxCompile>
@@ -277,6 +265,9 @@
     </FxCompile>
     <FxCompile Include="PsGBufferWorldPosition.hlsl">
       <Filter>shaders\gbuffer</Filter>
+    </FxCompile>
+    <FxCompile Include="PsPointSample.hlsl">
+      <Filter>shaders\fullscreen</Filter>
     </FxCompile>
   </ItemGroup>
   <ItemGroup>

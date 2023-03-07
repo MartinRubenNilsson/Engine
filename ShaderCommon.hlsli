@@ -24,7 +24,7 @@ struct VsOutBasic
 
 struct PsOutGBuffer
 {
-    float depth : SV_Target0;
+    float4 ssao : SV_Target0; // (viewNormal.xyz, viewDepth)
     float4 normal : SV_Target1;
     float4 albedo : SV_Target2;
     float4 metalRoughAo : SV_Target3;
@@ -51,8 +51,9 @@ struct GsOutSkybox
 
 cbuffer CameraBuffer : register(b0)
 {
-    float4x4 CameraViewProj;
-    float4x4 CameraInvViewProj;
+    float4x4 ViewProj;
+    float4x4 InvViewProj;
+    float4x4 InvTransView;
     float4 CameraPosition;
 }
 
@@ -81,13 +82,14 @@ cbuffer CubemapBuffer : register(b3)
 * Textures
 */
 
-Texture2D<float> GBufferDepth   : register(t0);
+Texture2D GBufferSSAO           : register(t0); // (viewNormal.xyz, viewDepth)
 Texture2D GBufferNormal         : register(t1);
 Texture2D GBufferAlbedo         : register(t2);
 Texture2D GBufferMetalRoughAo   : register(t3);
 Texture2D<uint> GBufferEntity   : register(t4);
 
-Texture2D LightningBuffer   : register(t5);
+Texture2D SSAOTexture      : register(t5);
+Texture2D LightningTexture : register(t6);
 
 Texture2D MaterialAlbedo    : register(t10);
 Texture2D MaterialNormal    : register(t11);
@@ -96,7 +98,7 @@ Texture2D MaterialRoughness : register(t13);
 Texture2D MaterialOcclusion : register(t14);
 
 TextureCube EnvironmentMap : register(t20); // Skybox
-TextureCube IrradianceMap : register(t21);  // Diffuse IBL
+TextureCube IrradianceMap  : register(t21);  // Diffuse IBL
 TextureCube PrefilteredMap : register(t22); // Specular IBL
 
 /*
@@ -110,6 +112,16 @@ SamplerState TrilinearSampler : register(s1);
 * Functions
 */
 
+float3 PackNormal(float3 N)
+{
+    return N * 0.5 + 0.5;
+}
+
+float3 UnpackNormal(float3 N)
+{
+    return N * 2.0 - 1.0;
+}
+
 // To be multiplied by outgoing radiance.
 float DistanceAttenuation(float aDistanceToLight)
 {
@@ -118,7 +130,7 @@ float DistanceAttenuation(float aDistanceToLight)
 
 float3 ClipToWorld(float3 clipPos)
 {
-    float4 worldPos = mul(CameraInvViewProj, float4(clipPos, 1.0));
+    float4 worldPos = mul(InvViewProj, float4(clipPos, 1.0));
     return worldPos / worldPos.w;
 }
 

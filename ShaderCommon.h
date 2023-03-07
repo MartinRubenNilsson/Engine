@@ -7,6 +7,7 @@ struct alignas(16) CameraBuffer
 {
 	Matrix viewProj;
 	Matrix invViewProj;
+	Matrix invTransView;
 	Vector4 position;
 };
 
@@ -19,7 +20,7 @@ struct alignas(16) MeshBuffer
 
 struct alignas(16) LightBuffer
 {
-	Vector4 color{};	   // (r, g, b, [unused])
+	Vector4 color{};	  // (r, g, b, [unused])
 	Vector4 position{};   // (x, y, z, 1)
 	Vector4 direction{};  // (x, y, z, 0)
 	Vector4 parameters{}; // (range, constant attn, linear attn, quadratic attn)
@@ -42,13 +43,14 @@ enum CBufferSlots : unsigned
 
 enum TextureSlot : unsigned
 {
-	t_GBufferDepth = 0,
+	t_GBufferSSAO = 0, // (viewNormal.xyz (packed), viewDepth)
 	t_GBufferNormal,
 	t_GBufferAlbedo,
 	t_GBufferMetalRoughAo,
 	t_GBufferEntity,
 
-	t_LightingBuffer,
+	t_SSAOTexture,
+	t_LightingTexture,
 
 	t_MaterialAlbedo = 10,
 	t_MaterialNormal,
@@ -61,7 +63,7 @@ enum TextureSlot : unsigned
 	t_PrefilteredMap,
 };
 
-#define GBUFFER_BEGIN t_GBufferDepth
+#define GBUFFER_BEGIN t_GBufferSSAO
 #define GBUFFER_END t_GBufferEntity + 1
 
 enum SamplerSlot : unsigned

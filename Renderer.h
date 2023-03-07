@@ -25,7 +25,7 @@ public:
 	bool ResizeTextures(unsigned aWidth, unsigned aHeight);
 	void SetCamera(const Camera& aCamera, const Matrix& aTransform);
 	void Render(entt::registry&);
-	void RenderGBufferTexture(size_t anIndex);
+	void Render(TextureSlot);
 
 	entt::entity PickEntity(unsigned x, unsigned y);
 
@@ -49,7 +49,7 @@ private:
 
 	ScopedSamplerStates mySamplers;
 	std::array<ConstantBuffer, CBufferCount> myCBuffers{};
-	std::array<RenderTexture, t_LightingBuffer + 1> myRenderTextures{};
+	std::array<RenderTexture, t_LightingTexture + 1> myRenderTextures{};
 	DepthBuffer myDepthBuffer{};
 	Cubemap myCubemap{};
 
