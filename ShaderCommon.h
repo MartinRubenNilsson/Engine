@@ -43,8 +43,7 @@ enum CBufferSlots : unsigned
 
 enum TextureSlot : unsigned
 {
-	t_GBufferSSAO = 0, // (viewNormal.xyz (packed), viewDepth)
-	t_GBufferNormal,
+	t_GBufferNormalDepth = 0,
 	t_GBufferAlbedo,
 	t_GBufferMetalRoughAo,
 	t_GBufferEntity,
@@ -61,9 +60,13 @@ enum TextureSlot : unsigned
 	t_EnvironmentMap = 20,
 	t_IrradianceMap,
 	t_PrefilteredMap,
+
+	// "Virtual" textures that don't exist in memory but can be computed from other textures
+	t_Normal = D3D11_COMMONSHADER_INPUT_RESOURCE_REGISTER_COUNT,
+	t_Depth,
 };
 
-#define GBUFFER_BEGIN t_GBufferSSAO
+#define GBUFFER_BEGIN t_GBufferNormalDepth
 #define GBUFFER_END t_GBufferEntity + 1
 
 enum SamplerSlot : unsigned

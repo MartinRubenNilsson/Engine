@@ -116,8 +116,7 @@ Renderer::Renderer(unsigned aWidth, unsigned aHeight)
 
 bool Renderer::ResizeTextures(unsigned aWidth, unsigned aHeight)
 {
-	myRenderTextures.at(t_GBufferSSAO)			= { aWidth, aHeight, DXGI_FORMAT_R16G16B16A16_UNORM };
-	myRenderTextures.at(t_GBufferNormal)		= { aWidth, aHeight, DXGI_FORMAT_R10G10B10A2_UNORM };
+	myRenderTextures.at(t_GBufferNormalDepth)	= { aWidth, aHeight, DXGI_FORMAT_R16G16B16A16_UNORM };
 	myRenderTextures.at(t_GBufferAlbedo)		= { aWidth, aHeight, DXGI_FORMAT_R8G8B8A8_UNORM };
 	myRenderTextures.at(t_GBufferMetalRoughAo)	= { aWidth, aHeight, DXGI_FORMAT_R8G8B8A8_UNORM };
 	myRenderTextures.at(t_GBufferEntity)		= { aWidth, aHeight, DXGI_FORMAT_R32_UINT };
@@ -175,27 +174,33 @@ void Renderer::Render(entt::registry& aRegistry)
 
 void Renderer::Render(TextureSlot aSlot)
 {
-	if (aSlot >= myRenderTextures.size())
-		return;
-
 	switch (aSlot)
 	{
-	case t_GBufferSSAO:
+	case t_Normal:
 	{
-		ScopedShaderResources scopedResource{ ShaderType::Pixel, aSlot, myRenderTextures.at(aSlot) };
-		FullscreenPass{ "PsGBufferDepth.cso" }.Render();
+		ScopedShaderResources scopedResource{ ShaderType::Pixel, t_GBufferNormalDepth, myRenderTextures.at(t_GBufferNormalDepth) };
+		FullscreenPass{ "PsSampleNormal.cso" }.Render();
+		break;
+	}
+	case t_Depth:
+	{
+		ScopedShaderResources scopedResource{ ShaderType::Pixel, t_GBufferNormalDepth, myRenderTextures.at(t_GBufferNormalDepth) };
+		FullscreenPass{ "PsSampleDepth.cso" }.Render();
 		break;
 	}
 	case t_GBufferEntity:
 	{
 		ScopedShaderResources scopedResource{ ShaderType::Pixel, aSlot, myRenderTextures.at(aSlot) };
-		FullscreenPass{ "PsGBufferEntity.cso" }.Render();
+		FullscreenPass{ "PsSampleEntity.cso" }.Render();
 		break;
 	}
 	default:
 	{
-		ScopedShaderResources scopedResource{ ShaderType::Pixel, 0, myRenderTextures.at(aSlot) };
-		FullscreenPass{ "PsPointSample.cso" }.Render();
+		if (aSlot < myRenderTextures.size())
+		{
+			ScopedShaderResources scopedResource{ ShaderType::Pixel, aSlot, myRenderTextures.at(aSlot) };
+			FullscreenPass{ "PsPointSample.cso" }.Render();
+		}
 		break;
 	}
 	}
@@ -220,7 +225,7 @@ void Renderer::Clear()
 	for (RenderTexture& texture : myRenderTextures)
 		texture.Clear();
 
-	myRenderTextures.at(t_GBufferSSAO).Clear({ 0.f, 0.f, 0.f, 1.f });
+	myRenderTextures.at(t_GBufferNormalDepth).Clear({ 0.f, 0.f, 0.f, 1.f });
 
 	myDepthBuffer.Clear();
 

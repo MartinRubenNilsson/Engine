@@ -8,10 +8,8 @@ float3 Hash3(uint n) // https://www.shadertoy.com/view/llGSzw
     return float3(k & 0x7fffffffU) / float(0x7fffffff);
 }
 
-float4 main(float4 aPixelPosition : SV_POSITION) : SV_TARGET
+float4 main(float4 pos : SV_POSITION) : SV_TARGET
 {
-    uint2 dim;
-    GBufferEntity.GetDimensions(dim.x, dim.y);
-    uint entity = GBufferEntity.Load(uint3(aPixelPosition.x, aPixelPosition.y, 0));
+    uint entity = GBufferEntity.Load(uint3(pos.x, pos.y, 0));
     return float4(Hash3(entity), 1.0);
 }

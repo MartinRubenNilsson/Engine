@@ -215,13 +215,13 @@
     <FxCompile Include="VsBasic.hlsl">
       <Filter>shaders</Filter>
     </FxCompile>
-    <FxCompile Include="PsGBufferDepth.hlsl">
+    <FxCompile Include="PsSampleNormal.hlsl">
       <Filter>shaders\gbuffer</Filter>
     </FxCompile>
     <FxCompile Include="PsGBuffer.hlsl">
       <Filter>shaders\gbuffer</Filter>
     </FxCompile>
-    <FxCompile Include="PsGBufferEntity.hlsl">
+    <FxCompile Include="PsSampleEntity.hlsl">
       <Filter>shaders\gbuffer</Filter>
     </FxCompile>
     <FxCompile Include="PsDirectionalLight.hlsl">
@@ -263,7 +263,7 @@
     <FxCompile Include="PsImageBasedLight.hlsl">
       <Filter>shaders\lights</Filter>
     </FxCompile>
-    <FxCompile Include="PsGBufferWorldPosition.hlsl">
+    <FxCompile Include="PsSampleWorldPosition.hlsl">
       <Filter>shaders\gbuffer</Filter>
     </FxCompile>
     <FxCompile Include="PsPointSample.hlsl">
@@ -271,6 +271,9 @@
     </FxCompile>
     <FxCompile Include="PsSSAO.hlsl">
       <Filter>shaders\fullscreen</Filter>
+    </FxCompile>
+    <FxCompile Include="PsSampleDepth.hlsl">
+      <Filter>shaders\gbuffer</Filter>
     </FxCompile>
   </ItemGroup>
   <ItemGroup>

@@ -24,11 +24,10 @@ struct VsOutBasic
 
 struct PsOutGBuffer
 {
-    float4 ssao : SV_Target0; // (viewNormal.xyz, viewDepth)
-    float4 normal : SV_Target1;
-    float4 albedo : SV_Target2;
-    float4 metalRoughAo : SV_Target3;
-    uint entity : SV_Target4;
+    float4 normalDepth  : SV_Target0;
+    float4 albedo       : SV_Target1;
+    float4 metalRoughAo : SV_Target2;
+    uint entity         : SV_Target3;
 };
 
 
@@ -82,14 +81,13 @@ cbuffer CubemapBuffer : register(b3)
 * Textures
 */
 
-Texture2D GBufferSSAO           : register(t0); // (viewNormal.xyz, viewDepth)
-Texture2D GBufferNormal         : register(t1);
-Texture2D GBufferAlbedo         : register(t2);
-Texture2D GBufferMetalRoughAo   : register(t3);
-Texture2D<uint> GBufferEntity   : register(t4);
+Texture2D GBufferNormalDepth    : register(t0);
+Texture2D GBufferAlbedo         : register(t1);
+Texture2D GBufferMetalRoughAo   : register(t2);
+Texture2D<uint> GBufferEntity   : register(t3);
 
-Texture2D<float> SSAOTexture : register(t5);
-Texture2D LightningTexture   : register(t6);
+Texture2D<float> SSAOTexture : register(t4);
+Texture2D LightningTexture   : register(t5);
 
 Texture2D MaterialAlbedo    : register(t10);
 Texture2D MaterialNormal    : register(t11);
