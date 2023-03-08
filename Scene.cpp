@@ -2,22 +2,45 @@
 #include "Scene.h"
 #pragma comment(lib, "assimp-vc142-mt")
 
+#define IMPORT_FLAGS \
+    aiProcess_ConvertToLeftHanded | \
+    aiProcessPreset_TargetRealtime_MaxQuality | \
+    static_cast<unsigned>(aiProcess_GenBoundingBoxes) 
+
 /*
 * class Scene
 */
 
-Scene::Scene(const aiScene& aScene)
+Scene::Scene(const fs::path& aPath)
 {
-    LoadMaterials({ aScene.mMaterials, aScene.mNumMaterials });
-    LoadMeshes({ aScene.mMeshes, aScene.mNumMeshes });
-    LoadTransforms(myRootTransform, aScene.mRootNode);
-    LoadCameras({ aScene.mCameras, aScene.mNumCameras });
-    LoadLights({ aScene.mLights, aScene.mNumLights });
+    Assimp::Importer importer{};
+    const aiScene* scene{ importer.ReadFile(aPath.string().c_str(), IMPORT_FLAGS) };
+    if (!scene)
+        return;
+
+    const fs::path prevPath{ fs::current_path() };
+    fs::current_path(aPath.parent_path()); // Since textures are relative to scene's directory
+
+    LoadMaterials({ scene->mMaterials, scene->mNumMaterials });
+    LoadMeshes({ scene->mMeshes, scene->mNumMeshes });
+    LoadTransforms(myRootTransform, scene->mRootNode);
+    LoadCameras({ scene->mCameras, scene->mNumCameras });
+    LoadLights({ scene->mLights, scene->mNumLights });
+
+    fs::current_path(prevPath);
+
+    myPath = aPath;
+    mySucceeded = true;
 }
 
 entt::entity Scene::CopyTo(entt::registry& aRegistry) const
 {
     return DeepCopy(aRegistry, myRootTransform).entity();
+}
+
+Scene::operator bool() const
+{
+    return mySucceeded;
 }
 
 void Scene::LoadMaterials(std::span<aiMaterial*> someMaterials)
@@ -111,23 +134,10 @@ std::shared_ptr<const Scene> SceneFactory::GetScene(const fs::path& aPath)
     if (itr != myScenes.end())
         return itr->second;
 
-    constexpr unsigned flags =
-        aiProcess_ConvertToLeftHanded |
-        aiProcessPreset_TargetRealtime_MaxQuality |
-        static_cast<unsigned>(aiProcess_GenBoundingBoxes);
-    
-    Assimp::Importer importer{};
-    const aiScene* importedScene = importer.ReadFile(aPath.string().c_str(), flags);
-    if (!importedScene)
+    auto scene{ std::make_shared<Scene>(aPath) };
+    if (!*scene)
         return nullptr;
 
-    fs::path currentPath{ fs::current_path() };
-    fs::current_path(aPath.parent_path()); // Since textures are relative to scene's directory
-
-    auto scene = std::make_shared<Scene>(*importedScene);
     myScenes.emplace(aPath, scene);
-
-    fs::current_path(currentPath);
-
     return scene;
 }

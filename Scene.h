@@ -8,9 +8,14 @@
 class Scene
 {
 public:
-	Scene(const aiScene&);
+	Scene() = default;
+	Scene(const fs::path&);
 
 	entt::entity CopyTo(entt::registry&) const; // Returns root entity
+
+	const fs::path& GetPath() const { return myPath; }
+
+	explicit operator bool() const;
 
 private:
 	void LoadMaterials(std::span<aiMaterial*>);
@@ -27,6 +32,8 @@ private:
 	std::vector<std::pair<Transform::Ptr, unsigned>> myTransforms{};
 	std::vector<std::pair<Camera, Transform::Ptr>> myCameras{};
 	std::vector<std::pair<Light, Transform::Ptr>> myLights{};
+	fs::path myPath{};
+	bool mySucceeded{};
 };
 
 class SceneFactory : public Singleton<SceneFactory>

@@ -38,7 +38,7 @@ Material::Material(const aiMaterial& aMaterial)
             type = TextureType::Roughness;
             break;
         default:
-            Debug::Println(std::format("Warning: Unrecognized texture type {}", TextureTypeToString(type)));
+            Debug::Println(std::format("Warning: Unrecognized texture type {}", TextureTypeToString(aiType)));
             continue;
         }
 
@@ -60,7 +60,7 @@ void ImGui::InspectMaterial(const Material& aMaterial)
         if (texture && TreeNode(TextureTypeToString(texture->GetType())))
         {
             TextWrapped(texture->GetPath().string().c_str());
-            Image(texture->GetResource().Get(), {200.f, 200.f});
+            Image(texture->GetResource().Get(), { 200.f, 200.f });
             TreePop();
         }
     }
