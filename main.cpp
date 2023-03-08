@@ -51,17 +51,16 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
     if (!imGui)
         return EXIT_FAILURE;
 
+    BackBuffer backBuffer{ window };
+    if (!backBuffer)
+        return EXIT_FAILURE;
+
     InputLayoutManager inputLayoutMgr{};
     if (!inputLayoutMgr)
         return EXIT_FAILURE;
 
     StateFactory stateFactory{};
     ShaderFactory shaderFactory{};
-
-    BackBuffer backBuffer{ window };
-    if (!backBuffer)
-        return EXIT_FAILURE;
-
     TextureFactory textureFactory{};
     SceneFactory sceneFactory{};
 

@@ -3,6 +3,7 @@
 #include "Image.h"
 #include "Scopes.h"
 #include "ShaderCommon.h"
+#include "Texture.h"
 
 Cubemap::Cubemap(std::span<const fs::path, 6> someLdrCubeFaces)
 {
@@ -71,54 +72,15 @@ Cubemap::Cubemap(std::span<const fs::path, 6> someLdrCubeFaces)
 
 Cubemap::Cubemap(const fs::path& anHdrEquirectMap)
 {
-	constexpr UINT size{ 512 };
+	// 1. Load equirectangular map.
+	Texture::Ptr equirectMap{ TextureFactory::Get().GetAsset(anHdrEquirectMap, TextureType::Hdr) };
+	if (!equirectMap)
+		return;
 
-	ShaderResourcePtr equirectResource{}; // We will render from this resource...
-	TexturePtr cubemapTexture{};
-	RenderTargetPtr cubemapTarget{}; // ...to this target.
-
-	// 1. Load equirectangular map and create corresponding shader resource.
-	{
-		Image image{ anHdrEquirectMap, 4 };
-		if (!image || !image.IsHdr())
-			return;
-
-		D3D11_TEXTURE2D_DESC textureDesc{};
-		textureDesc.Width = image.GetWidth();
-		textureDesc.Height = image.GetHeight();
-		textureDesc.MipLevels = 1;
-		textureDesc.ArraySize = 1;
-		textureDesc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
-		textureDesc.SampleDesc.Count = 1;
-		textureDesc.SampleDesc.Quality = 0;
-		textureDesc.Usage = D3D11_USAGE_DEFAULT;
-		textureDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
-		textureDesc.CPUAccessFlags = 0;
-		textureDesc.MiscFlags = 0;
-
-		D3D11_SUBRESOURCE_DATA textureData{};
-		textureData.pSysMem = image.Data();
-		textureData.SysMemPitch = sizeof(float) * image.GetChannels() * image.GetWidth();
-		textureData.SysMemSlicePitch = 0;
-
-		D3D11_SHADER_RESOURCE_VIEW_DESC resourceDesc{};
-		resourceDesc.Format = textureDesc.Format;
-		resourceDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
-		resourceDesc.Texture2D.MostDetailedMip = 0;
-		resourceDesc.Texture2D.MipLevels = textureDesc.MipLevels;
-		
-		TexturePtr requirectTexture{};
-
-		myResult = DX11_DEVICE->CreateTexture2D(&textureDesc, &textureData, &requirectTexture);
-		if (FAILED(myResult))
-			return;
-
-		myResult = DX11_DEVICE->CreateShaderResourceView(requirectTexture.Get(), &resourceDesc, &equirectResource);
-		if (FAILED(myResult))
-			return;
-	}
-	
 	// 2. Create cubemap shader resource and render target.
+	static constexpr UINT size{ 512 };
+	TexturePtr cubemapTexture{};
+	RenderTargetPtr cubemapTarget{};
 	{
 		D3D11_TEXTURE2D_DESC textureDesc{};
 		textureDesc.Width = size;
@@ -166,7 +128,7 @@ Cubemap::Cubemap(const fs::path& anHdrEquirectMap)
 		ScopedShader scopedVs{ "VsCubemap.cso" };
 		ScopedShader scopedGs{ "GsGenCubemap.cso" };
 		ScopedShader scopedPs{ "PsEquirectToCubemap.cso" };
-		ScopedShaderResources scopedResource{ ShaderType::Pixel, 0, equirectResource };
+		ScopedShaderResources scopedResource{ ShaderType::Pixel, 0, equirectMap->GetResource() };
 		ScopedRenderTargets scopedTarget{ cubemapTarget };
 		ScopedViewports scopedViewports{ CD3D11_VIEWPORT{ cubemapTexture.Get(), cubemapTarget.Get() } };
 

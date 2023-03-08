@@ -8,6 +8,7 @@ enum class TextureType
 	Metallic,
 	Roughness,
 	Occlusion,
+	Hdr,
 };
 
 const char* TextureTypeToString(TextureType); // Returns null-terminated name of texture

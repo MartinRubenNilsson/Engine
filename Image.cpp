@@ -32,6 +32,11 @@ Image::Image(const fs::path& aPath, unsigned aDesiredChannels)
 	myHdr = hdr;
 }
 
+unsigned Image::GetRowPitch() const
+{
+	return myWidth * myChannels * (myHdr ? sizeof(float) : sizeof(stbi_uc));
+}
+
 const void* Image::Data() const
 {
 	return myData.get();

@@ -10,7 +10,7 @@ public:
 	unsigned GetHeight() const			{ return myHeight; }
 	unsigned GetChannelsInFile() const	{ return myChannelsInFile; }
 	unsigned GetChannels() const		{ return myChannels; }
-	unsigned GetRowPitch() const { return myWidth * myChannels; }
+	unsigned GetRowPitch() const;
 
 	bool IsHdr() const { return myHdr; }
 
