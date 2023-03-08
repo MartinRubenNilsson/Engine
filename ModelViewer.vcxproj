@@ -220,6 +220,7 @@
     <ClInclude Include="Shader.h" />
     <ClInclude Include="Singleton.h" />
     <ClInclude Include="BackBuffer.h" />
+    <ClInclude Include="Texture.h" />
     <ClInclude Include="Transform.h" />
     <ClInclude Include="Vertices.h" />
     <ClInclude Include="Window.h" />
@@ -257,6 +258,7 @@
     <ClCompile Include="Scopes.cpp" />
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="BackBuffer.cpp" />
+    <ClCompile Include="Texture.cpp" />
     <ClCompile Include="Transform.cpp" />
     <ClCompile Include="Window.cpp" />
   </ItemGroup>

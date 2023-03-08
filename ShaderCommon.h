@@ -68,9 +68,12 @@ enum TextureSlot : unsigned
 };
 
 #define GBUFFER_BEGIN t_GBufferNormalDepth
-#define GBUFFER_END t_GBufferEntity + 1
+#define GBUFFER_END (t_GBufferEntity + 1)
+#define GBUFFER_COUNT (GBUFFER_END - GBUFFER_BEGIN)
+
 #define MATERIAL_BEGIN t_MaterialAlbedo
-#define MATERIAL_END t_MaterialOcclusion + 1
+#define MATERIAL_END (t_MaterialOcclusion + 1)
+#define MATERIAL_COUNT (MATERIAL_END - MATERIAL_BEGIN)
 
 enum SamplerSlot : unsigned
 {

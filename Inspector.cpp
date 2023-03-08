@@ -19,9 +19,9 @@ void ImGui::Inspector(entt::handle aHandle)
 		if (CollapsingHeader(ICON_FA_CIRCLE_NODES" Mesh", ImGuiTreeNodeFlags_DefaultOpen))
 			InspectMesh(**mesh);
 
-	if (auto material = aHandle.try_get<Material::Ptr>())
+	if (auto material = aHandle.try_get<Material>())
 		if (CollapsingHeader(ICON_FA_PALETTE" Material", ImGuiTreeNodeFlags_DefaultOpen))
-			InspectMaterial(**material);
+			InspectMaterial(*material);
 
 	if (auto camera = aHandle.try_get<Camera>())
 	{

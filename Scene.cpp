@@ -23,7 +23,7 @@ entt::entity Scene::CopyTo(entt::registry& aRegistry) const
 void Scene::LoadMaterials(std::span<aiMaterial*> someMaterials)
 {
     for (aiMaterial* material : someMaterials)
-        myMaterials.emplace_back(std::make_shared<Material>(*material));
+        myMaterials.emplace_back(*material);
 }
 
 void Scene::LoadMeshes(std::span<aiMesh*> someMeshes)
@@ -68,7 +68,7 @@ entt::handle Scene::DeepCopy(entt::registry& aRegistry, Transform::Ptr aTransfor
             auto& [mesh, materialIndex] = myMeshes.at(meshIndex);
             auto& material = myMaterials.at(materialIndex);
             handle.emplace<Mesh::Ptr>(mesh);
-            handle.emplace<Material::Ptr>(material);
+            handle.emplace<Material>(material);
             break;
         }
     }

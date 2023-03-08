@@ -6,6 +6,7 @@
 #include "InputLayoutManager.h"
 #include "BackBuffer.h"
 #include "Renderer.h"
+#include "Texture.h"
 #include "Scene.h"
 #include "Scopes.h"
 #include "Camera.h"
@@ -61,11 +62,12 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
     if (!backBuffer)
         return EXIT_FAILURE;
 
+    TextureFactory textureFactory{};
+    SceneFactory sceneFactory{};
+
     Renderer renderer{ backBuffer.GetWidth(), backBuffer.GetHeight() };
     if (!renderer)
         return EXIT_FAILURE;
-
-    SceneFactory sceneFactory{};
 
     Camera camera{};
     Matrix cameraTransform{};

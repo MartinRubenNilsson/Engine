@@ -22,7 +22,7 @@ private:
 	entt::handle DeepCopy(entt::registry&, Transform::Ptr) const; // Recursive
 
 	Transform::Ptr myRootTransform{ Transform::Create() };
-	std::vector<Material::Ptr> myMaterials{};
+	std::vector<Material> myMaterials{};
 	std::vector<std::pair<Mesh::Ptr, unsigned>> myMeshes{};
 	std::vector<std::pair<Transform::Ptr, unsigned>> myTransforms{};
 	std::vector<std::pair<Camera, Transform::Ptr>> myCameras{};

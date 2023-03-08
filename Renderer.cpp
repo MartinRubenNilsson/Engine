@@ -82,6 +82,35 @@ namespace
 
 		return vectors;
 	}
+
+	auto AssembleMaterialResources(std::span<const Texture::Ptr> someTextures)
+	{
+		std::vector<ShaderResourcePtr> resources(MATERIAL_COUNT);
+
+		for (const auto& texture : someTextures)
+		{
+			if (!texture)
+				continue;
+
+			switch (texture->GetType())
+			{
+			case TextureType::Albedo:
+				resources.at(t_MaterialAlbedo - MATERIAL_BEGIN) = texture->GetResource();
+				break;
+			case TextureType::Normal:
+				resources.at(t_MaterialNormal - MATERIAL_BEGIN) = texture->GetResource();
+				break;
+			case TextureType::Metallic:
+				resources.at(t_MaterialMetallic - MATERIAL_BEGIN) = texture->GetResource();
+				break;
+			case TextureType::Roughness:
+				resources.at(t_MaterialRoughness - MATERIAL_BEGIN) = texture->GetResource();
+				break;
+			}
+		}
+
+		return resources;
+	}
 }
 
 /*
@@ -142,7 +171,7 @@ void Renderer::SetCamera(const Camera& aCamera, const Matrix& aTransform)
 	buffer.viewProj = view * aCamera.GetProjectionMatrix();
 	buffer.invViewProj = buffer.viewProj.Invert();
 	buffer.invTransView = view.Invert().Transpose();
-	buffer.position = { aTransform._41, aTransform._42, aTransform._43, 1.0 };
+	buffer.position = { aTransform._41, aTransform._42, aTransform._43, 1.f };
 
 	myCBuffers.at(b_Camera).Update(&buffer);
 }
@@ -253,17 +282,25 @@ void Renderer::RenderGeometry(entt::registry& aRegistry)
 	ScopedShader scopedPs{ "PsGBuffer.cso" };
 	ScopedRenderTargets scopedTargets{ GetGBufferTargets(), myDepthBuffer};
 
-	auto view = aRegistry.view<const Material::Ptr, const Mesh::Ptr, const Transform::Ptr>();
-	for (auto [entity, material, mesh, transform] : view.each())
+	auto view = aRegistry.view<const Mesh::Ptr, const Material, const Transform::Ptr>();
+	for (auto [entity, mesh, material, transform] : view.each())
 	{
-		MeshBuffer buffer{};
-		buffer.matrix = transform->GetWorldMatrix();
-		buffer.matrixInvTrans = buffer.matrix.Invert().Transpose();
-		std::ranges::fill(buffer.entity, std::to_underlying(entity));
+		// todo: frustum culling
 
-		myCBuffers.at(b_Mesh).Update(&buffer);
+		{
+			MeshBuffer buffer{};
+			buffer.matrix = transform->GetWorldMatrix();
+			buffer.matrixInvTrans = buffer.matrix.Invert().Transpose();
+			std::ranges::fill(buffer.entity, std::to_underlying(entity));
 
-		ScopedShaderResources scopedResources{ ShaderType::Pixel, MATERIAL_BEGIN, *material };
+			myCBuffers.at(b_Mesh).Update(&buffer);
+		}
+
+		ScopedShaderResources scopedResources
+		{
+			ShaderType::Pixel, MATERIAL_BEGIN,
+			AssembleMaterialResources(material.GetTextures())
+		};
 
 		mesh->Draw();
 		myStatistics.meshDrawCalls++;

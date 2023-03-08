@@ -3,11 +3,10 @@
 
 void Debug::Print(std::string_view aString)
 {
-	OutputDebugStringA(aString.data());
+	OutputDebugStringA(std::string{ aString }.c_str());
 }
 
 void Debug::Println(std::string_view aString)
 {
-	Print(aString);
-	Print("\n");
+	OutputDebugStringA((std::string{ aString } + '\n').c_str());
 }

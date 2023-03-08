@@ -9,12 +9,6 @@
     <ClInclude Include="DearImGui.h">
       <Filter>imgui</Filter>
     </ClInclude>
-    <ClInclude Include="ConstantBuffer.h">
-      <Filter>graphics\buffers</Filter>
-    </ClInclude>
-    <ClInclude Include="DepthBuffer.h">
-      <Filter>graphics\buffers</Filter>
-    </ClInclude>
     <ClInclude Include="Camera.h">
       <Filter>objects</Filter>
     </ClInclude>
@@ -50,9 +44,6 @@
     <ClInclude Include="Material.h">
       <Filter>objects</Filter>
     </ClInclude>
-    <ClInclude Include="BackBuffer.h">
-      <Filter>graphics\buffers</Filter>
-    </ClInclude>
     <ClInclude Include="ShaderCommon.h">
       <Filter>graphics</Filter>
     </ClInclude>
@@ -82,7 +73,19 @@
     </ClInclude>
     <ClInclude Include="GameScene.h" />
     <ClInclude Include="RenderTexture.h">
-      <Filter>graphics\buffers</Filter>
+      <Filter>graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="BackBuffer.h">
+      <Filter>graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="ConstantBuffer.h">
+      <Filter>graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="DepthBuffer.h">
+      <Filter>graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Texture.h">
+      <Filter>graphics</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -94,12 +97,6 @@
     <ClCompile Include="Debug.cpp" />
     <ClCompile Include="DearImGui.cpp">
       <Filter>imgui</Filter>
-    </ClCompile>
-    <ClCompile Include="ConstantBuffer.cpp">
-      <Filter>graphics\buffers</Filter>
-    </ClCompile>
-    <ClCompile Include="DepthBuffer.cpp">
-      <Filter>graphics\buffers</Filter>
     </ClCompile>
     <ClCompile Include="Camera.cpp">
       <Filter>objects</Filter>
@@ -132,9 +129,6 @@
     <ClCompile Include="Material.cpp">
       <Filter>objects</Filter>
     </ClCompile>
-    <ClCompile Include="BackBuffer.cpp">
-      <Filter>graphics\buffers</Filter>
-    </ClCompile>
     <ClCompile Include="Pixel.cpp">
       <Filter>graphics</Filter>
     </ClCompile>
@@ -160,8 +154,20 @@
       <Filter>editor</Filter>
     </ClCompile>
     <ClCompile Include="GameScene.cpp" />
+    <ClCompile Include="BackBuffer.cpp">
+      <Filter>graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="ConstantBuffer.cpp">
+      <Filter>graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="DepthBuffer.cpp">
+      <Filter>graphics</Filter>
+    </ClCompile>
     <ClCompile Include="RenderTexture.cpp">
-      <Filter>graphics\buffers</Filter>
+      <Filter>graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Texture.cpp">
+      <Filter>graphics</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -173,9 +179,6 @@
     </Filter>
     <Filter Include="imgui">
       <UniqueIdentifier>{1e33c815-f7de-412d-ab70-bb300b84bbb7}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="graphics\buffers">
-      <UniqueIdentifier>{e28b3a7a-3a70-474d-ab62-9672b857f544}</UniqueIdentifier>
     </Filter>
     <Filter Include="objects">
       <UniqueIdentifier>{545fdeb4-0f2f-46c3-ac4c-1a93a1a6f995}</UniqueIdentifier>
