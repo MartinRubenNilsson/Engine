@@ -99,12 +99,15 @@ TextureCube EnvironmentMap : register(t20); // Skybox
 TextureCube IrradianceMap  : register(t21);  // Diffuse IBL
 TextureCube PrefilteredMap : register(t22); // Specular IBL
 
+Texture2D GaussianMap : register(t30);
+
 /*
 * Samplers
 */
 
-SamplerState PointSampler : register(s0);
+SamplerState PointSampler     : register(s0);
 SamplerState TrilinearSampler : register(s1);
+SamplerState GaussianSampler  : register(s2);
 
 /*
 * Functions
@@ -129,7 +132,7 @@ float DistanceAttenuation(float aDistanceToLight)
 float3 ClipToWorld(float3 clipPos)
 {
     float4 worldPos = mul(InvViewProj, float4(clipPos, 1.0));
-    return worldPos / worldPos.w;
+    return worldPos.xyz / worldPos.w;
 }
 
 float3 UVDepthToWorld(float2 uv, float depth)

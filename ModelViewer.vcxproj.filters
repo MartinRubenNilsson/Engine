@@ -10,13 +10,16 @@
       <Filter>imgui</Filter>
     </ClInclude>
     <ClInclude Include="Camera.h">
-      <Filter>components</Filter>
+      <Filter>objects</Filter>
     </ClInclude>
     <ClInclude Include="Mesh.h">
-      <Filter>components</Filter>
+      <Filter>objects</Filter>
     </ClInclude>
     <ClInclude Include="Transform.h">
-      <Filter>components</Filter>
+      <Filter>objects</Filter>
+    </ClInclude>
+    <ClInclude Include="Scene.h">
+      <Filter>objects</Filter>
     </ClInclude>
     <ClInclude Include="FullscreenPass.h">
       <Filter>graphics</Filter>
@@ -25,9 +28,6 @@
       <Filter>graphics</Filter>
     </ClInclude>
     <ClInclude Include="Image.h" />
-    <ClInclude Include="Cubemap.h">
-      <Filter>graphics</Filter>
-    </ClInclude>
     <ClInclude Include="Vertices.h">
       <Filter>graphics</Filter>
     </ClInclude>
@@ -38,7 +38,7 @@
       <Filter>windows</Filter>
     </ClInclude>
     <ClInclude Include="Material.h">
-      <Filter>components</Filter>
+      <Filter>objects</Filter>
     </ClInclude>
     <ClInclude Include="ShaderCommon.h">
       <Filter>graphics</Filter>
@@ -50,7 +50,7 @@
       <Filter>graphics</Filter>
     </ClInclude>
     <ClInclude Include="Light.h">
-      <Filter>components</Filter>
+      <Filter>objects</Filter>
     </ClInclude>
     <ClInclude Include="StateFactory.h">
       <Filter>graphics</Filter>
@@ -68,19 +68,7 @@
       <Filter>editor</Filter>
     </ClInclude>
     <ClInclude Include="GameScene.h" />
-    <ClInclude Include="RenderTexture.h">
-      <Filter>graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="BackBuffer.h">
-      <Filter>graphics</Filter>
-    </ClInclude>
     <ClInclude Include="ConstantBuffer.h">
-      <Filter>graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="DepthBuffer.h">
-      <Filter>graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="Texture.h">
       <Filter>graphics</Filter>
     </ClInclude>
     <ClInclude Include="AssetFactory.h">
@@ -89,7 +77,21 @@
     <ClInclude Include="Singleton.h">
       <Filter>utilities</Filter>
     </ClInclude>
-    <ClInclude Include="Scene.h" />
+    <ClInclude Include="Texture.h">
+      <Filter>graphics\textures</Filter>
+    </ClInclude>
+    <ClInclude Include="BackBuffer.h">
+      <Filter>graphics\textures</Filter>
+    </ClInclude>
+    <ClInclude Include="DepthBuffer.h">
+      <Filter>graphics\textures</Filter>
+    </ClInclude>
+    <ClInclude Include="Cubemap.h">
+      <Filter>graphics\textures</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderTexture.h">
+      <Filter>graphics\textures</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
@@ -102,21 +104,21 @@
       <Filter>imgui</Filter>
     </ClCompile>
     <ClCompile Include="Camera.cpp">
-      <Filter>components</Filter>
+      <Filter>objects</Filter>
     </ClCompile>
     <ClCompile Include="Mesh.cpp">
-      <Filter>components</Filter>
+      <Filter>objects</Filter>
     </ClCompile>
     <ClCompile Include="Transform.cpp">
-      <Filter>components</Filter>
+      <Filter>objects</Filter>
+    </ClCompile>
+    <ClCompile Include="Scene.cpp">
+      <Filter>objects</Filter>
     </ClCompile>
     <ClCompile Include="FullscreenPass.cpp">
       <Filter>graphics</Filter>
     </ClCompile>
     <ClCompile Include="Scopes.cpp">
-      <Filter>graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="Cubemap.cpp">
       <Filter>graphics</Filter>
     </ClCompile>
     <ClCompile Include="Image.cpp" />
@@ -127,7 +129,7 @@
       <Filter>windows</Filter>
     </ClCompile>
     <ClCompile Include="Material.cpp">
-      <Filter>components</Filter>
+      <Filter>objects</Filter>
     </ClCompile>
     <ClCompile Include="Pixel.cpp">
       <Filter>graphics</Filter>
@@ -136,7 +138,7 @@
       <Filter>graphics</Filter>
     </ClCompile>
     <ClCompile Include="Light.cpp">
-      <Filter>components</Filter>
+      <Filter>objects</Filter>
     </ClCompile>
     <ClCompile Include="Shader.cpp">
       <Filter>graphics</Filter>
@@ -154,22 +156,27 @@
       <Filter>editor</Filter>
     </ClCompile>
     <ClCompile Include="GameScene.cpp" />
-    <ClCompile Include="BackBuffer.cpp">
-      <Filter>graphics</Filter>
-    </ClCompile>
     <ClCompile Include="ConstantBuffer.cpp">
       <Filter>graphics</Filter>
     </ClCompile>
+    <ClCompile Include="Texture.cpp">
+      <Filter>graphics\textures</Filter>
+    </ClCompile>
+    <ClCompile Include="BackBuffer.cpp">
+      <Filter>graphics\textures</Filter>
+    </ClCompile>
+    <ClCompile Include="Cubemap.cpp">
+      <Filter>graphics\textures</Filter>
+    </ClCompile>
     <ClCompile Include="DepthBuffer.cpp">
-      <Filter>graphics</Filter>
+      <Filter>graphics\textures</Filter>
     </ClCompile>
     <ClCompile Include="RenderTexture.cpp">
+      <Filter>graphics\textures</Filter>
+    </ClCompile>
+    <ClCompile Include="ShaderCommon.cpp">
       <Filter>graphics</Filter>
     </ClCompile>
-    <ClCompile Include="Texture.cpp">
-      <Filter>graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="Scene.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="graphics">
@@ -180,6 +187,9 @@
     </Filter>
     <Filter Include="imgui">
       <UniqueIdentifier>{1e33c815-f7de-412d-ab70-bb300b84bbb7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="objects">
+      <UniqueIdentifier>{545fdeb4-0f2f-46c3-ac4c-1a93a1a6f995}</UniqueIdentifier>
     </Filter>
     <Filter Include="windows">
       <UniqueIdentifier>{bffff0c7-e125-46a2-aa9e-59024fddbf31}</UniqueIdentifier>
@@ -202,8 +212,8 @@
     <Filter Include="utilities">
       <UniqueIdentifier>{3ceb0d57-e2e6-4aae-98c0-b0d24d33b596}</UniqueIdentifier>
     </Filter>
-    <Filter Include="components">
-      <UniqueIdentifier>{545fdeb4-0f2f-46c3-ac4c-1a93a1a6f995}</UniqueIdentifier>
+    <Filter Include="graphics\textures">
+      <UniqueIdentifier>{88f0b685-467e-4cc6-8d22-6fa987d83cb9}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -269,6 +279,9 @@
     </FxCompile>
     <FxCompile Include="PsGetDepth.hlsl">
       <Filter>shaders\gbuffer</Filter>
+    </FxCompile>
+    <FxCompile Include="PsGetGaussian.hlsl">
+      <Filter>shaders\fullscreen</Filter>
     </FxCompile>
   </ItemGroup>
   <ItemGroup>

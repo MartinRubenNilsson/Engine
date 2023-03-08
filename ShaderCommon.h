@@ -61,6 +61,8 @@ enum TextureSlot : unsigned
 	t_IrradianceMap,
 	t_PrefilteredMap,
 
+	t_GaussianMap = 30,
+
 	// "Virtual" textures that don't exist in memory but can be computed from other textures
 	t_Normal = D3D11_COMMONSHADER_INPUT_RESOURCE_REGISTER_COUNT,
 	t_Depth,
@@ -77,7 +79,11 @@ enum TextureSlot : unsigned
 
 enum SamplerSlot : unsigned
 {
-	s_PointSampler = 0,
-	s_TrilinearSampler = 1,
+	s_PointSampler,
+	s_TrilinearSampler,
+	s_GaussianSampler,
+	SamplerCount
 };
+
+std::span<const D3D11_SAMPLER_DESC> GetSamplerDescs();
 

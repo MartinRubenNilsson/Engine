@@ -34,12 +34,11 @@ public:
 	explicit operator bool() const { return mySucceeded; }
 
 private:
+	bool CreateGaussianMap();
 	void Clear();
-
 	void RenderGeometry(entt::registry&);
 	void RenderLightning(entt::registry&);
 	void RenderSkybox();
-
 	void RenderDirectionalLights(std::span<const DirectionalLight>);
 	void RenderPointLights(std::span<const PointLight>);
 	void RenderSpotLights(std::span<const SpotLight>);
@@ -51,6 +50,8 @@ private:
 	std::array<ConstantBuffer, CBufferCount> myCBuffers{};
 	std::array<RenderTexture, t_LightingTexture + 1> myRenderTextures{};
 	DepthBuffer myDepthBuffer{};
+	ShaderResourcePtr myGaussianMap{};
+
 	Cubemap myCubemap{};
 
 	BoundingFrustum myFrustum{};

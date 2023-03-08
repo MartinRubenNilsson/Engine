@@ -10,16 +10,6 @@
 
 namespace
 {
-	auto GetSamplerDescs()
-	{
-		std::array<D3D11_SAMPLER_DESC, 2> samplers{};
-		samplers.fill(CD3D11_SAMPLER_DESC{ CD3D11_DEFAULT{} });
-		samplers[s_PointSampler].Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
-		samplers[s_TrilinearSampler].Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
-
-		return samplers;
-	}
-
 	const CubemapBuffer& GetCubemapBuffer()
 	{
 		static const XMVECTOR o{ 0.f, 0.f, 0.f, 1.f };
@@ -136,6 +126,9 @@ Renderer::Renderer(unsigned aWidth, unsigned aHeight)
 	if (!ResizeTextures(aWidth, aHeight))
 		return;
 
+	if (!CreateGaussianMap())
+		return;
+
 	myCubemap = { "cubemap/hdr/Newport_Loft_Ref.hdr" };
 	if (!myCubemap)
 		return;
@@ -239,6 +232,11 @@ void Renderer::Render(TextureSlot aSlot)
 		FullscreenPass{ "PsGetEntity.cso" }.Render();
 		break;
 	}
+	case t_GaussianMap:
+	{
+		ScopedShaderResources scopedResource{ ShaderType::Pixel, t_GaussianMap, myGaussianMap };
+		FullscreenPass{ "PsGetGaussian.cso" }.Render();
+	}
 	default:
 	{
 		if (aSlot < myRenderTextures.size())
@@ -263,6 +261,50 @@ entt::entity Renderer::PickEntity(unsigned x, unsigned y)
 	}
 
 	return entity;
+}
+
+bool Renderer::CreateGaussianMap()
+{
+	static constexpr unsigned size{ 256 };
+	static constexpr unsigned seed{ 1337 };
+
+	std::vector<float> samples(size * size * 4);
+
+	{
+		std::default_random_engine engine{ seed };
+		std::normal_distribution<float> gaussian{};
+
+		for (float& sample : samples)
+			sample = gaussian(engine);
+	}
+
+	D3D11_TEXTURE2D_DESC desc{};
+	desc.Width = size;
+	desc.Height = size;
+	desc.MipLevels = 1;
+	desc.ArraySize = 1;
+	desc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+	desc.SampleDesc.Count = 1;
+	desc.SampleDesc.Quality = 0;
+	desc.Usage = D3D11_USAGE_IMMUTABLE;
+	desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+	desc.CPUAccessFlags = 0;
+	desc.MiscFlags = 0;
+
+	D3D11_SUBRESOURCE_DATA data{};
+	data.pSysMem = samples.data();
+	data.SysMemPitch = size * 4 * sizeof(float);
+	data.SysMemSlicePitch = 0;
+
+	TexturePtr texture{};
+
+	if (FAILED(DX11_DEVICE->CreateTexture2D(&desc, &data, &texture)))
+		return false;
+
+	if (FAILED(DX11_DEVICE->CreateShaderResourceView(texture.Get(), NULL, &myGaussianMap)))
+		return false;
+	
+	return true;
 }
 
 void Renderer::Clear()
