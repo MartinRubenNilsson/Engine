@@ -40,12 +40,5 @@ private:
 	unsigned myWidth{}, myHeight{};
 };
 
-class TextureFactory : public Singleton<TextureFactory>
-{
-public:
-	Texture::Ptr GetTexture(const fs::path& aPath, TextureType aType = TextureType::Unknown);
-
-private:
-	std::unordered_map<fs::path, Texture::Ptr> myTextures{};
-};
+using TextureFactory = AssetFactory<Texture>;
 

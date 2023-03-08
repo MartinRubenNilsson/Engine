@@ -102,7 +102,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
         if (theDrop)
         {
             gameScene.GetRegistry().clear();
-            sceneFactory.GetScene(theDrop.GetPaths().front())->CopyTo(gameScene.GetRegistry());
+            sceneFactory.GetAsset(theDrop.GetPaths().front())->CopyTo(gameScene.GetRegistry());
             theDrop = {};
         }
 

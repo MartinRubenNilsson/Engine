@@ -86,6 +86,7 @@ using ComputeShaderPtr = ComPtr<ID3D11ComputeShader>;
 
 // other
 #include "Singleton.h"
+#include "AssetFactory.h"
 #include "Debug.h"
 #include "DX11.h"
 #include "Vertices.h"

@@ -52,7 +52,7 @@ ScopedInputLayout::~ScopedInputLayout()
 
 ScopedShader::ScopedShader(const fs::path& aPath)
 {
-	if (auto shader{ ShaderFactory::Get().GetShader(aPath) })
+	if (auto shader{ ShaderFactory::Get().GetAsset(aPath) })
 	{
 		myShader = *shader;
 		myShader.GetShader();

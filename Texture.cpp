@@ -95,21 +95,3 @@ Texture::operator bool() const
 {
 	return SUCCEEDED(myResult);
 }
-
-/*
-* class TextureFactory
-*/
-
-Texture::Ptr TextureFactory::GetTexture(const fs::path& aPath, TextureType aType)
-{
-    auto itr{ myTextures.find(aPath) };
-    if (itr != myTextures.end())
-        return itr->second;
-
-    auto texture{ std::make_shared<Texture>(aPath, aType) };
-    if (!*texture)
-        return nullptr;
-
-    myTextures.emplace(aPath, texture);
-    return texture;
-}

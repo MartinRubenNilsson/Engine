@@ -36,12 +36,5 @@ private:
 	bool mySucceeded{};
 };
 
-class SceneFactory : public Singleton<SceneFactory>
-{
-public:
-	std::shared_ptr<const Scene> GetScene(const fs::path&);
-
-private:
-	std::unordered_map<fs::path, std::shared_ptr<Scene>> myScenes;
-};
+using SceneFactory = AssetFactory<Scene>;
 

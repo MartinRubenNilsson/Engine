@@ -42,7 +42,7 @@ Material::Material(const aiMaterial& aMaterial)
             continue;
         }
 
-        if (Texture::Ptr texture{ factory.GetTexture(path.C_Str(), type) })
+        if (Texture::Ptr texture{ factory.GetAsset(path.C_Str(), type) })
             myTextures.push_back(texture);
     }
 }

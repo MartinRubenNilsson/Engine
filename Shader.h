@@ -15,33 +15,30 @@ class Shader
 {
 public:
 	Shader() = default;
-	Shader(std::string_view someBytecode);
+	Shader(const fs::path&);
 
 	void SetShader() const;
 	void GetShader();
 
 	ShaderType GetType() const;
 
+	const fs::path& GetPath() const { return myPath; }
+	std::string_view GetBytecode() const { return myBytecode; }
+
 	operator bool() const noexcept;
 
 private:
+	using ShaderVariant = std::variant
+	<
+		PixelShaderPtr, VertexShaderPtr, GeometryShaderPtr,
+		HullShaderPtr, DomainShaderPtr, ComputeShaderPtr
+	>;
+
 	HRESULT myResult{ E_FAIL };
-	std::variant<
-		PixelShaderPtr,
-		VertexShaderPtr,
-		GeometryShaderPtr,
-		HullShaderPtr,
-		DomainShaderPtr,
-		ComputeShaderPtr
-	> myShader{};
+	ShaderVariant myShader{};
+	fs::path myPath{};
+	std::string myBytecode{};
 };
 
-class ShaderFactory : public Singleton<ShaderFactory>
-{
-public:
-	std::shared_ptr<const Shader> GetShader(const fs::path& aPath);
-
-private:
-	std::unordered_map<fs::path, std::shared_ptr<Shader>> myShaders{};
-};
+using ShaderFactory = AssetFactory<Shader>;
 

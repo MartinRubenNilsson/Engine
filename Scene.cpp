@@ -7,10 +7,6 @@
     aiProcessPreset_TargetRealtime_MaxQuality | \
     static_cast<unsigned>(aiProcess_GenBoundingBoxes) 
 
-/*
-* class Scene
-*/
-
 Scene::Scene(const fs::path& aPath)
 {
     Assimp::Importer importer{};
@@ -122,22 +118,4 @@ entt::handle Scene::DeepCopy(entt::registry& aRegistry, Transform::Ptr aTransfor
         DeepCopy(aRegistry, child).get<Transform::Ptr>()->SetParent(transform, false);
 
     return handle;
-}
-
-/*
-* class SceneFactory
-*/
-
-std::shared_ptr<const Scene> SceneFactory::GetScene(const fs::path& aPath)
-{
-    auto itr = myScenes.find(aPath);
-    if (itr != myScenes.end())
-        return itr->second;
-
-    auto scene{ std::make_shared<Scene>(aPath) };
-    if (!*scene)
-        return nullptr;
-
-    myScenes.emplace(aPath, scene);
-    return scene;
 }

@@ -21,7 +21,6 @@
     <ClInclude Include="Scene.h">
       <Filter>objects</Filter>
     </ClInclude>
-    <ClInclude Include="Singleton.h" />
     <ClInclude Include="FullscreenPass.h">
       <Filter>graphics</Filter>
     </ClInclude>
@@ -86,6 +85,12 @@
     </ClInclude>
     <ClInclude Include="Texture.h">
       <Filter>graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetFactory.h">
+      <Filter>utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="Singleton.h">
+      <Filter>utilities</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -200,6 +205,9 @@
     </Filter>
     <Filter Include="shaders\fullscreen">
       <UniqueIdentifier>{f9557109-809f-436d-b38e-d5d5c4f4ff98}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="utilities">
+      <UniqueIdentifier>{3ceb0d57-e2e6-4aae-98c0-b0d24d33b596}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

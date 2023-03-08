@@ -40,10 +40,18 @@ namespace
 * class Shader
 */
 
-Shader::Shader(std::string_view someBytecode)
+Shader::Shader(const fs::path& aPath)
 {
+	std::ifstream file{ "shaders" / aPath, std::ios::binary };
+	if (!file)
+		return;
+
+	std::string bytecode{ std::istreambuf_iterator{ file }, {} };
+	if (bytecode.empty())
+		return;
+
 	ComPtr<ID3D11ShaderReflection> reflector{};
-	myResult = D3DReflect(someBytecode.data(), someBytecode.size(), IID_PPV_ARGS(&reflector));
+	myResult = D3DReflect(bytecode.data(), bytecode.size(), IID_PPV_ARGS(&reflector));
 	if (FAILED(myResult))
 		return;
 
@@ -74,7 +82,12 @@ Shader::Shader(std::string_view someBytecode)
 		break;
 	}
 
-	myResult = std::visit(Creator{ someBytecode }, myShader);
+	myResult = std::visit(Creator{ bytecode }, myShader);
+	if (FAILED(myResult))
+		return;
+
+	myPath = aPath;
+	myBytecode = std::move(bytecode);
 }
 
 void Shader::SetShader() const
@@ -97,30 +110,4 @@ ShaderType Shader::GetType() const
 Shader::operator bool() const noexcept
 {
 	return SUCCEEDED(myResult);
-}
-
-/*
-* class ShaderFactory
-*/
-
-std::shared_ptr<const Shader> ShaderFactory::GetShader(const fs::path& aPath)
-{
-	auto itr = myShaders.find(aPath);
-	if (itr != myShaders.end())
-		return itr->second;
-
-	std::ifstream file{ "shaders" / aPath, std::ios::binary};
-	if (!file)
-		return nullptr;
-
-	std::string bytecode{ std::istreambuf_iterator{ file }, {} };
-	if (bytecode.empty())
-		return nullptr;
-
-	auto shader{ std::make_shared<Shader>(bytecode) };
-	if (!*shader)
-		return nullptr;
-
-	myShaders.emplace(aPath, shader);
-	return shader;
 }
