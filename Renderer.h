@@ -53,6 +53,7 @@ private:
 	DepthBuffer myDepthBuffer{};
 	Cubemap myCubemap{};
 
+	BoundingFrustum myFrustum{};
 	RenderStatistics myStatistics{};
 
 	bool mySucceeded{ false };

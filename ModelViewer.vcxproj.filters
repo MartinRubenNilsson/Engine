@@ -10,16 +10,13 @@
       <Filter>imgui</Filter>
     </ClInclude>
     <ClInclude Include="Camera.h">
-      <Filter>objects</Filter>
+      <Filter>components</Filter>
     </ClInclude>
     <ClInclude Include="Mesh.h">
-      <Filter>objects</Filter>
+      <Filter>components</Filter>
     </ClInclude>
     <ClInclude Include="Transform.h">
-      <Filter>objects</Filter>
-    </ClInclude>
-    <ClInclude Include="Scene.h">
-      <Filter>objects</Filter>
+      <Filter>components</Filter>
     </ClInclude>
     <ClInclude Include="FullscreenPass.h">
       <Filter>graphics</Filter>
@@ -41,7 +38,7 @@
       <Filter>windows</Filter>
     </ClInclude>
     <ClInclude Include="Material.h">
-      <Filter>objects</Filter>
+      <Filter>components</Filter>
     </ClInclude>
     <ClInclude Include="ShaderCommon.h">
       <Filter>graphics</Filter>
@@ -53,7 +50,7 @@
       <Filter>graphics</Filter>
     </ClInclude>
     <ClInclude Include="Light.h">
-      <Filter>objects</Filter>
+      <Filter>components</Filter>
     </ClInclude>
     <ClInclude Include="StateFactory.h">
       <Filter>graphics</Filter>
@@ -92,6 +89,7 @@
     <ClInclude Include="Singleton.h">
       <Filter>utilities</Filter>
     </ClInclude>
+    <ClInclude Include="Scene.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
@@ -104,16 +102,13 @@
       <Filter>imgui</Filter>
     </ClCompile>
     <ClCompile Include="Camera.cpp">
-      <Filter>objects</Filter>
+      <Filter>components</Filter>
     </ClCompile>
     <ClCompile Include="Mesh.cpp">
-      <Filter>objects</Filter>
+      <Filter>components</Filter>
     </ClCompile>
     <ClCompile Include="Transform.cpp">
-      <Filter>objects</Filter>
-    </ClCompile>
-    <ClCompile Include="Scene.cpp">
-      <Filter>objects</Filter>
+      <Filter>components</Filter>
     </ClCompile>
     <ClCompile Include="FullscreenPass.cpp">
       <Filter>graphics</Filter>
@@ -132,7 +127,7 @@
       <Filter>windows</Filter>
     </ClCompile>
     <ClCompile Include="Material.cpp">
-      <Filter>objects</Filter>
+      <Filter>components</Filter>
     </ClCompile>
     <ClCompile Include="Pixel.cpp">
       <Filter>graphics</Filter>
@@ -141,7 +136,7 @@
       <Filter>graphics</Filter>
     </ClCompile>
     <ClCompile Include="Light.cpp">
-      <Filter>objects</Filter>
+      <Filter>components</Filter>
     </ClCompile>
     <ClCompile Include="Shader.cpp">
       <Filter>graphics</Filter>
@@ -174,6 +169,7 @@
     <ClCompile Include="Texture.cpp">
       <Filter>graphics</Filter>
     </ClCompile>
+    <ClCompile Include="Scene.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="graphics">
@@ -184,9 +180,6 @@
     </Filter>
     <Filter Include="imgui">
       <UniqueIdentifier>{1e33c815-f7de-412d-ab70-bb300b84bbb7}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="objects">
-      <UniqueIdentifier>{545fdeb4-0f2f-46c3-ac4c-1a93a1a6f995}</UniqueIdentifier>
     </Filter>
     <Filter Include="windows">
       <UniqueIdentifier>{bffff0c7-e125-46a2-aa9e-59024fddbf31}</UniqueIdentifier>
@@ -208,6 +201,9 @@
     </Filter>
     <Filter Include="utilities">
       <UniqueIdentifier>{3ceb0d57-e2e6-4aae-98c0-b0d24d33b596}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="components">
+      <UniqueIdentifier>{545fdeb4-0f2f-46c3-ac4c-1a93a1a6f995}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

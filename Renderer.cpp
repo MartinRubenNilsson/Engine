@@ -166,14 +166,24 @@ bool Renderer::ResizeTextures(unsigned aWidth, unsigned aHeight)
 void Renderer::SetCamera(const Camera& aCamera, const Matrix& aTransform)
 {
 	const Matrix view{ aTransform.Invert() * aCamera.GetViewMatrix() };
+	const Matrix proj{ aCamera.GetProjectionMatrix() };
 
-	CameraBuffer buffer{};
-	buffer.viewProj = view * aCamera.GetProjectionMatrix();
-	buffer.invViewProj = buffer.viewProj.Invert();
-	buffer.invTransView = view.Invert().Transpose();
-	buffer.position = { aTransform._41, aTransform._42, aTransform._43, 1.f };
+	// Update constant buffer
+	{
+		CameraBuffer buffer{};
+		buffer.viewProj = view * proj;
+		buffer.invViewProj = buffer.viewProj.Invert();
+		buffer.invTransView = view.Invert().Transpose();
+		buffer.position = { aTransform._41, aTransform._42, aTransform._43, 1.f };
 
-	myCBuffers.at(b_Camera).Update(&buffer);
+		myCBuffers.at(b_Camera).Update(&buffer);
+	}
+
+	// Update bounding frustum
+	{
+		BoundingFrustum::CreateFromMatrix(myFrustum, proj);
+		myFrustum.Transform(myFrustum, aTransform);
+	}
 }
 
 void Renderer::Render(entt::registry& aRegistry)
@@ -282,15 +292,26 @@ void Renderer::RenderGeometry(entt::registry& aRegistry)
 	ScopedShader scopedPs{ "PsGBuffer.cso" };
 	ScopedRenderTargets scopedTargets{ GetGBufferTargets(), myDepthBuffer};
 
-	auto view = aRegistry.view<const Mesh::Ptr, const Material, const Transform::Ptr>();
-	for (auto [entity, mesh, material, transform] : view.each())
+	auto view = aRegistry.view<const Transform::Ptr, const Mesh::Ptr, const Material>();
+	for (auto [entity, transform, mesh, material] : view.each())
 	{
-		// todo: frustum culling
+		const Matrix worldMatrix{ transform->GetWorldMatrix() };
 
+		// Frustum culling
+		{
+			BoundingOrientedBox box{};
+			BoundingOrientedBox::CreateFromBoundingBox(box, mesh->GetBoundingBox());
+			box.Transform(box, worldMatrix);
+
+			if (!myFrustum.Intersects(box))
+				continue;
+		}
+
+		// Update constant buffer
 		{
 			MeshBuffer buffer{};
-			buffer.matrix = transform->GetWorldMatrix();
-			buffer.matrixInvTrans = buffer.matrix.Invert().Transpose();
+			buffer.matrix = worldMatrix;
+			buffer.matrixInvTrans = worldMatrix.Invert().Transpose();
 			std::ranges::fill(buffer.entity, std::to_underlying(entity));
 
 			myCBuffers.at(b_Mesh).Update(&buffer);

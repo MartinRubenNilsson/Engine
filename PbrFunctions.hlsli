@@ -9,13 +9,28 @@ float3 FresnelSchlick(float LdH, float3 F0)
     return F0 + (1.0 - F0) * pow(1.0 - LdH, 5);
 }
 
-float NormalDistributionGGX(float NdH, float alpha)
+// Important! Pass a = roughness^2 as input param.
+float NormalDistributionGGX(float NdH, float a)
 {
-    float alpha2 = alpha * alpha;
-    float denom = 1.0 + NdH * NdH * (alpha2 - 1.0);
-    denom = PI * denom * denom;
-    return alpha2 / max(denom, 0.0001);
+    float a2 = a * a;
+    float denom = 1.0 + NdH * NdH * (a2 - 1.0);
+    denom = denom * denom;
+    return a2 / max(denom, 0.0001);
 }
+
+//// k should be either:
+//// k = (a + 1)^2 / 8 for analytic light
+//// k = a^2 / 2 for image based light 
+//float GeometrySchlickGGX(float NdV, float k)
+//{
+//    float denom = lerp(NdV, 1.0, k);
+//    return NdV / max(denom, 0.0001);
+//}
+
+//float GeometrySmith(float NdL, float NdV, float k)
+//{
+//    return GeometrySchlickGGX(NdL, k) * GeometrySchlickGGX(NdV, k);
+//}
 
 // Important! Subsumes denominator of full specular BRDF!
 float SmithHammonGGX(float NdL, float NdV, float alpha)
