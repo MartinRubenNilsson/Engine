@@ -274,6 +274,9 @@
     <FxCompile Include="PsGBuffer.hlsl">
       <Filter>shaders</Filter>
     </FxCompile>
+    <FxCompile Include="PsHorizontalBlur.hlsl">
+      <Filter>shaders\fullscreen</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="ShaderCommon.hlsli">
