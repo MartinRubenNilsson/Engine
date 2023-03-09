@@ -18,7 +18,7 @@ public:
 	explicit operator bool() const;
 
 private:
-	bool CreateTexel();
+	bool LazyInitTexel();
 
 	HRESULT myResult{ E_FAIL };
 	TexturePtr myTexture{}, myTexel{};

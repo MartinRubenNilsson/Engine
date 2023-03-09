@@ -48,7 +48,7 @@ void RenderTexture::GetTexel(std::span<std::byte> aBuffer, unsigned x, unsigned 
 	if (x >= myWidth || y >= myHeight)
 		return;
 
-	if (!myTexel && !CreateTexel())
+	if (!LazyInitTexel())
 		return;
 
 	D3D11_BOX box{};
@@ -77,8 +77,11 @@ RenderTexture::operator bool() const
 	return SUCCEEDED(myResult);
 }
 
-bool RenderTexture::CreateTexel()
+bool RenderTexture::LazyInitTexel()
 {
+	if (myTexel)
+		return true;
+
 	D3D11_TEXTURE2D_DESC desc{};
 	myTexture->GetDesc(&desc);
 	desc.Width = 1;
