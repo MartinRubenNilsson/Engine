@@ -7,14 +7,14 @@ static const float OcclusionFadeStart = 0.2;
 static const float OcclusionFadeEnd = 2.0;
 static const float OcclusionRadius = 0.5; 
 
-float OcclusionFunc(float deltaWiewDepth)
+float OcclusionFunc(float deltaWorldDepth)
 {
-    float f = step(OcclusionEpsilon, deltaWiewDepth);
-    float g = saturate((OcclusionFadeEnd - deltaWiewDepth) / (OcclusionFadeEnd - OcclusionFadeStart));
+    float f = step(OcclusionEpsilon, deltaWorldDepth);
+    float g = saturate((OcclusionFadeEnd - deltaWorldDepth) / (OcclusionFadeEnd - OcclusionFadeStart));
     return f * g;
 }
 
-// todo: replace trilinear sampler with NormalDepthSampler to avoid false occlusions
+// todo: replace trilinear sampler with NormalDepthSampler to avoid false occlusions... or do we need to?
 
 float main(VsOutFullscreen input) : SV_TARGET
 {
@@ -29,7 +29,7 @@ float main(VsOutFullscreen input) : SV_TARGET
     const float4 normalDepthP = GBufferNormalDepth.Sample(TrilinearSampler, input.uv);
     const float depthP = normalDepthP.w;
     if (depthP == 1.0)
-        return 1.0; // no occlusion == full access
+        return 1.0; // at far plane -> no occlusion -> full access
     
     const float3 N = normalize(UnpackNormal(normalDepthP.xyz));
     
@@ -50,8 +50,8 @@ float main(VsOutFullscreen input) : SV_TARGET
         const float depthR = GBufferNormalDepth.Sample(TrilinearSampler, uv).w;
         const float3 R = UVDepthToWorld(uv, depthR);
         
-        const float deltaViewDepth = distance(CameraPosition.xyz, P) - distance(CameraPosition.xyz, R);
-        const float occlusion = OcclusionFunc(deltaViewDepth);
+        const float deltaWorldDepth = distance(CameraPosition.xyz, P) - distance(CameraPosition.xyz, R);
+        const float occlusion = OcclusionFunc(deltaWorldDepth);
         const float weight = saturate(dot(N, normalize(R - P))); // only points in front of P can occlude P
         
         totalOcclusion += occlusion * weight;

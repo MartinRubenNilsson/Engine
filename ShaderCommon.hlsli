@@ -67,7 +67,6 @@ cbuffer CameraBuffer : register(b1)
     float4x4 ViewProj;
     float4x4 InvViewProj;
     float4 CameraPosition;
-    float4 ClipPlanes; // (near, far, [unused], [unused])
 }
 
 cbuffer MeshBuffer : register(b2)
@@ -95,8 +94,8 @@ Texture2D GBufferAlbedo         : register(t1);
 Texture2D GBufferMetalRoughAo   : register(t2);
 Texture2D<uint> GBufferEntity   : register(t3);
 
-Texture2D<float> SSAOTexture : register(t4);
-Texture2D LightningTexture   : register(t5);
+Texture2D AmbientAccessMap : register(t4);
+Texture2D LightningTexture : register(t5);
 
 Texture2D MaterialAlbedo    : register(t10);
 Texture2D MaterialNormal    : register(t11);

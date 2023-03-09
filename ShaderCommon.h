@@ -20,7 +20,6 @@ struct alignas(16) CameraBuffer
 	Matrix viewProj;
 	Matrix invViewProj;
 	Vector4 position;
-	Vector4 clipPlanes; // (near, far, [unused], [unused])
 };
 
 struct alignas(16) MeshBuffer
@@ -59,7 +58,7 @@ enum TextureSlot : unsigned
 	t_GBufferMetalRoughAo,
 	t_GBufferEntity,
 
-	t_SSAOTexture,
+	t_AmbientAccessMap,
 	t_LightingTexture,
 
 	t_MaterialAlbedo = 10,

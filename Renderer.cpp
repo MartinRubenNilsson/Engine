@@ -87,7 +87,7 @@ bool Renderer::ResizeTextures(unsigned aWidth, unsigned aHeight)
 	myRenderTextures.at(t_GBufferAlbedo)		= { aWidth, aHeight, DXGI_FORMAT_R8G8B8A8_UNORM };
 	myRenderTextures.at(t_GBufferMetalRoughAo)	= { aWidth, aHeight, DXGI_FORMAT_R8G8B8A8_UNORM };
 	myRenderTextures.at(t_GBufferEntity)		= { aWidth, aHeight, DXGI_FORMAT_R32_UINT };
-	myRenderTextures.at(t_SSAOTexture)			= { aWidth / 2, aHeight / 2, DXGI_FORMAT_R16_UNORM };
+	myRenderTextures.at(t_AmbientAccessMap)		= { aWidth / 2, aHeight / 2, DXGI_FORMAT_R16_UNORM };
 	myRenderTextures.at(t_LightingTexture)		= { aWidth, aHeight, DXGI_FORMAT_R32G32B32A32_FLOAT };
 
 	return std::ranges::all_of(myRenderTextures, &RenderTexture::operator bool);
@@ -104,7 +104,6 @@ void Renderer::SetCamera(const Camera& aCamera, const Matrix& aTransform)
 		buffer.viewProj = view * proj;
 		buffer.invViewProj = buffer.viewProj.Invert();
 		buffer.position = { aTransform._41, aTransform._42, aTransform._43, 1.f };
-		aCamera.GetClipPlanes(buffer.clipPlanes.x, buffer.clipPlanes.y);
 
 		myCBuffers.at(b_Camera).Update(&buffer);
 	}
@@ -258,8 +257,8 @@ void Renderer::RenderGeometry(entt::registry& aRegistry)
 void Renderer::RenderSSAO()
 {
 	ScopedShaderResources scopedGaussianMap{ ShaderType::Pixel, t_GaussianMap, myGaussianMap };
-	ScopedRenderTargets scopedTarget{ myRenderTextures.at(t_SSAOTexture) };
-	ScopedViewports scopedViewports{ myRenderTextures.at(t_SSAOTexture).GetViewport() };
+	ScopedRenderTargets scopedTarget{ myRenderTextures.at(t_AmbientAccessMap) };
+	ScopedViewports scopedViewports{ myRenderTextures.at(t_AmbientAccessMap).GetViewport() };
 
 	FullscreenPass{ "PsSSAO.cso" }.Render();
 }
