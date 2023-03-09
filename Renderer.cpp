@@ -6,7 +6,6 @@
 #include "Transform.h"
 #include "Light.h"
 #include "FullscreenPass.h"
-#include "Pixel.h"
 
 namespace
 {
@@ -185,14 +184,8 @@ void Renderer::Render(TextureSlot aSlot)
 entt::entity Renderer::PickEntity(unsigned x, unsigned y)
 {
 	entt::entity entity{ entt::null };
-
-	Pixel pixel{ DXGI_FORMAT_R32_UINT };
-	if (pixel)
-	{
-		pixel.Copy(myRenderTextures.at(t_GBufferEntity), x, y);
-		pixel.Read(&entity, sizeof(entity));
-	}
-
+	std::span span{ &entity, 1 };
+	myRenderTextures.at(t_GBufferEntity).GetTexel(std::as_writable_bytes(span), x, y);
 	return entity;
 }
 

@@ -43,6 +43,31 @@ void RenderTexture::Clear(const Color& aColor)
 		DX11_CONTEXT->ClearRenderTargetView(myRenderTarget.Get(), aColor);
 }
 
+void RenderTexture::GetTexel(std::span<std::byte> aBuffer, unsigned x, unsigned y)
+{
+	if (x >= myWidth || y >= myHeight)
+		return;
+	if (!myTexel)
+		CreateTexel();
+	if (!myTexel)
+		return;
+
+	D3D11_BOX box{};
+	box.left = x;
+	box.right = x + 1;
+	box.top = y;
+	box.bottom = y + 1;
+	box.front = 0;
+	box.back = 1;
+
+	DX11_CONTEXT->CopySubresourceRegion(myTexel.Get(), 0, 0, 0, 0, myTexture.Get(), 0, &box);
+
+	D3D11_MAPPED_SUBRESOURCE resource{};
+	DX11_CONTEXT->Map(myTexel.Get(), 0, D3D11_MAP_READ, 0, &resource);
+	std::memcpy(aBuffer.data(), resource.pData, aBuffer.size_bytes());
+	DX11_CONTEXT->Unmap(myTexel.Get(), 0);
+}
+
 Viewport RenderTexture::GetViewport() const
 {
 	return Viewport{ CD3D11_VIEWPORT{ myTexture.Get(), myRenderTarget.Get() } };
@@ -51,4 +76,17 @@ Viewport RenderTexture::GetViewport() const
 RenderTexture::operator bool() const
 {
 	return SUCCEEDED(myResult);
+}
+
+void RenderTexture::CreateTexel()
+{
+	D3D11_TEXTURE2D_DESC desc{};
+	myTexture->GetDesc(&desc);
+	desc.Width = 1;
+	desc.Height = 1;
+	desc.Usage = D3D11_USAGE_STAGING;
+	desc.BindFlags = 0;
+	desc.CPUAccessFlags = D3D11_CPU_ACCESS_READ;
+
+	DX11_DEVICE->CreateTexture2D(&desc, NULL, &myTexel);
 }

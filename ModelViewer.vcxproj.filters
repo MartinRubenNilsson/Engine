@@ -46,9 +46,6 @@
     <ClInclude Include="Renderer.h">
       <Filter>graphics</Filter>
     </ClInclude>
-    <ClInclude Include="Pixel.h">
-      <Filter>graphics</Filter>
-    </ClInclude>
     <ClInclude Include="Light.h">
       <Filter>objects</Filter>
     </ClInclude>
@@ -130,9 +127,6 @@
     </ClCompile>
     <ClCompile Include="Material.cpp">
       <Filter>objects</Filter>
-    </ClCompile>
-    <ClCompile Include="Pixel.cpp">
-      <Filter>graphics</Filter>
     </ClCompile>
     <ClCompile Include="Renderer.cpp">
       <Filter>graphics</Filter>
