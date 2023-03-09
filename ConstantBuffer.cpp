@@ -20,9 +20,9 @@ ConstantBuffer::ConstantBuffer(unsigned aByteWidth)
 
 void ConstantBuffer::Update(const void* someData)
 {
-	D3D11_MAPPED_SUBRESOURCE subresource{};
-	DX11_CONTEXT->Map(myBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &subresource);
-	std::memcpy(subresource.pData, someData, myByteWidth);
+	D3D11_MAPPED_SUBRESOURCE resource{};
+	DX11_CONTEXT->Map(myBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &resource);
+	std::memcpy(resource.pData, someData, myByteWidth);
 	DX11_CONTEXT->Unmap(myBuffer.Get(), 0);
 }
 

@@ -10,69 +10,6 @@
 
 namespace
 {
-	const CubemapBuffer& GetCubemapBuffer()
-	{
-		static const XMVECTOR o{ 0.f, 0.f, 0.f, 1.f };
-		static const XMVECTOR x{ 1.f, 0.f, 0.f, 0.f };
-		static const XMVECTOR y{ 0.f, 1.f, 0.f, 0.f };
-		static const XMVECTOR z{ 0.f, 0.f, 1.f, 0.f };
-		static const XMMATRIX proj{ XMMatrixPerspectiveFovLH(XM_PIDIV2, 1.f, 0.1f, 10.f) };
-
-		static CubemapBuffer buffer
-		{
-			XMMatrixLookToLH(o, +x, +y) * proj, // +X
-			XMMatrixLookToLH(o, -x, +y) * proj, // -X
-			XMMatrixLookToLH(o, +y, -z) * proj, // +Y
-			XMMatrixLookToLH(o, -y, +z) * proj, // -Y
-			XMMatrixLookToLH(o, +z, +y) * proj, // +Z
-			XMMatrixLookToLH(o, -z, +y) * proj, // -Z
-		};
-
-		return buffer;
-	}
-
-	auto GetOffsetVectors()
-	{ 
-		std::array vectors
-		{
-			// 8 pairwise opposite corners
-
-			Vector4{ +1.f, +1.f, +1.f, 0.f },
-			Vector4{ -1.f, -1.f, -1.f, 0.f },
-
-			Vector4{ -1.f, +1.f, +1.f, 0.f },
-			Vector4{ +1.f, -1.f, -1.f, 0.f },
-
-			Vector4{ +1.f, +1.f, -1.f, 0.f },
-			Vector4{ -1.f, -1.f, +1.f, 0.f },
-
-			Vector4{ -1.f, +1.f, -1.f, 0.f },
-			Vector4{ +1.f, -1.f, +1.f, 0.f },
-
-			// 6 pairwise opposite face centers
-
-			Vector4{ -1.f, 0.f, 0.f, 0.f },
-			Vector4{ +1.f, 0.f, 0.f, 0.f },
-
-			Vector4{ 0.f, -1.f, 0.f, 0.f },
-			Vector4{ 0.f, +1.f, 0.f, 0.f },
-
-			Vector4{ 0.f, 0.f, -1.f, 0.f },
-			Vector4{ 0.f, 0.f, +1.f, 0.f },
-		};
-
-		std::default_random_engine engine{ 1337 };
-		std::uniform_real_distribution<float> dist{ 0.25f, 1.f };
-
-		for (Vector4& v : vectors)
-		{
-			v.Normalize();
-			v *= dist(engine);
-		}
-
-		return vectors;
-	}
-
 	auto AssembleMaterialResources(std::span<const Texture::Ptr> someTextures)
 	{
 		std::vector<ShaderResourcePtr> resources(MATERIAL_COUNT);
@@ -109,12 +46,16 @@ namespace
 
 Renderer::Renderer(unsigned aWidth, unsigned aHeight)
 	: mySamplers{ 0, GetSamplerDescs() }
-	, myCBuffers{ sizeof(CameraBuffer), sizeof(MeshBuffer), sizeof(LightBuffer), sizeof(CubemapBuffer) }
+	, myCBuffers{ sizeof(ImmutableBuffer), sizeof(CameraBuffer), sizeof(MeshBuffer), sizeof(LightBuffer) }
+	, myGaussianMap{ CreateGaussianMap() }
 {
 	if (!std::ranges::all_of(myCBuffers, &ConstantBuffer::operator bool))
 		return;
 
-	myCBuffers.at(b_Cubemap).Update(&GetCubemapBuffer());
+	{
+		auto buffer{ ImmutableBuffer::Create() };
+		myCBuffers.at(b_Immutable).Update(&buffer);
+	}
 
 	for (unsigned i = 0; i < myCBuffers.size(); ++i)
 	{
@@ -123,10 +64,10 @@ Renderer::Renderer(unsigned aWidth, unsigned aHeight)
 		myCBuffers[i].PSSetBuffer(i);
 	}
 
-	if (!ResizeTextures(aWidth, aHeight))
+	if (!myGaussianMap)
 		return;
 
-	if (!CreateGaussianMap())
+	if (!ResizeTextures(aWidth, aHeight))
 		return;
 
 	myCubemap = { "cubemap/hdr/Newport_Loft_Ref.hdr" };
@@ -138,22 +79,18 @@ Renderer::Renderer(unsigned aWidth, unsigned aHeight)
 
 bool Renderer::ResizeTextures(unsigned aWidth, unsigned aHeight)
 {
-	myRenderTextures.at(t_GBufferNormalDepth)	= { aWidth, aHeight, DXGI_FORMAT_R16G16B16A16_UNORM };
-	myRenderTextures.at(t_GBufferAlbedo)		= { aWidth, aHeight, DXGI_FORMAT_R8G8B8A8_UNORM };
-	myRenderTextures.at(t_GBufferMetalRoughAo)	= { aWidth, aHeight, DXGI_FORMAT_R8G8B8A8_UNORM };
-	myRenderTextures.at(t_GBufferEntity)		= { aWidth, aHeight, DXGI_FORMAT_R32_UINT };
-
-	myRenderTextures.at(t_SSAOTexture) = { aWidth / 2, aHeight / 2, DXGI_FORMAT_R16_UNORM };
-	myRenderTextures.at(t_LightingTexture) = { aWidth, aHeight, DXGI_FORMAT_R32G32B32A32_FLOAT };
-
-	if (!std::ranges::all_of(myRenderTextures, &RenderTexture::operator bool))
-		return false;
-
 	myDepthBuffer = { aWidth, aHeight };
 	if (!myDepthBuffer)
 		return false;
 
-	return true;
+	myRenderTextures.at(t_GBufferNormalDepth)	= { aWidth, aHeight, DXGI_FORMAT_R16G16B16A16_UNORM };
+	myRenderTextures.at(t_GBufferAlbedo)		= { aWidth, aHeight, DXGI_FORMAT_R8G8B8A8_UNORM };
+	myRenderTextures.at(t_GBufferMetalRoughAo)	= { aWidth, aHeight, DXGI_FORMAT_R8G8B8A8_UNORM };
+	myRenderTextures.at(t_GBufferEntity)		= { aWidth, aHeight, DXGI_FORMAT_R32_UINT };
+	myRenderTextures.at(t_SSAOTexture)			= { aWidth / 2, aHeight / 2, DXGI_FORMAT_R16_UNORM };
+	myRenderTextures.at(t_LightingTexture)		= { aWidth, aHeight, DXGI_FORMAT_R32G32B32A32_FLOAT };
+
+	return std::ranges::all_of(myRenderTextures, &RenderTexture::operator bool);
 }
 
 void Renderer::SetCamera(const Camera& aCamera, const Matrix& aTransform)
@@ -184,9 +121,6 @@ void Renderer::Render(entt::registry& aRegistry)
 	if (!operator bool())
 		return;
 
-	namespace ch = std::chrono;
-	const auto now = ch::steady_clock::now();
-
 	Clear();
 	RenderGeometry(aRegistry);
 	{
@@ -199,9 +133,6 @@ void Renderer::Render(entt::registry& aRegistry)
 		ScopedShaderResources scopedLightning{ ShaderType::Pixel, t_LightingTexture, myRenderTextures.at(t_LightingTexture) };
 		FullscreenPass{ "PsTonemapAndGamma.cso" }.Render();
 	}
-
-	const auto duration = ch::duration_cast<ch::milliseconds>(ch::steady_clock::now() - now);
-	myStatistics.renderTimeMs = static_cast<unsigned>(duration.count());
 }
 
 void Renderer::Render(TextureSlot aSlot)
@@ -236,6 +167,7 @@ void Renderer::Render(TextureSlot aSlot)
 	{
 		ScopedShaderResources scopedResource{ ShaderType::Pixel, t_GaussianMap, myGaussianMap };
 		FullscreenPass{ "PsGetGaussian.cso" }.Render();
+		break;
 	}
 	default:
 	{
@@ -261,50 +193,6 @@ entt::entity Renderer::PickEntity(unsigned x, unsigned y)
 	}
 
 	return entity;
-}
-
-bool Renderer::CreateGaussianMap()
-{
-	static constexpr unsigned size{ 256 };
-	static constexpr unsigned seed{ 1337 };
-
-	std::vector<float> samples(size * size * 4);
-
-	{
-		std::default_random_engine engine{ seed };
-		std::normal_distribution<float> gaussian{};
-
-		for (float& sample : samples)
-			sample = gaussian(engine);
-	}
-
-	D3D11_TEXTURE2D_DESC desc{};
-	desc.Width = size;
-	desc.Height = size;
-	desc.MipLevels = 1;
-	desc.ArraySize = 1;
-	desc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
-	desc.SampleDesc.Count = 1;
-	desc.SampleDesc.Quality = 0;
-	desc.Usage = D3D11_USAGE_IMMUTABLE;
-	desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
-	desc.CPUAccessFlags = 0;
-	desc.MiscFlags = 0;
-
-	D3D11_SUBRESOURCE_DATA data{};
-	data.pSysMem = samples.data();
-	data.SysMemPitch = size * 4 * sizeof(float);
-	data.SysMemSlicePitch = 0;
-
-	TexturePtr texture{};
-
-	if (FAILED(DX11_DEVICE->CreateTexture2D(&desc, &data, &texture)))
-		return false;
-
-	if (FAILED(DX11_DEVICE->CreateShaderResourceView(texture.Get(), NULL, &myGaussianMap)))
-		return false;
-	
-	return true;
 }
 
 void Renderer::Clear()
@@ -522,8 +410,6 @@ std::vector<ShaderResourcePtr> Renderer::GetGBufferResources() const
 
 void ImGui::InspectRenderStatistics(const RenderStatistics& someStats)
 {
-	Value("Render Time (ms)", someStats.renderTimeMs);
-
 	if (TreeNodeEx("Draw Calls", ImGuiTreeNodeFlags_DefaultOpen))
 	{
 		Value("Meshes", someStats.meshDrawCalls);

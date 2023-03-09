@@ -48,7 +48,12 @@ struct GsOutSkybox
 * Constant buffers
 */
 
-cbuffer CameraBuffer : register(b0)
+cbuffer ImmutableBuffer : register(b0)
+{
+    float4x4 CubeFaceViewProjs[6];
+}
+
+cbuffer CameraBuffer : register(b1)
 {
     float4x4 ViewProj;
     float4x4 InvViewProj;
@@ -56,26 +61,21 @@ cbuffer CameraBuffer : register(b0)
     float4 CameraPosition;
 }
 
-cbuffer MeshBuffer : register(b1)
+cbuffer MeshBuffer : register(b2)
 {
     float4x4 MeshMatrix;
     float4x4 MeshMatrixInvTrans;
     uint MeshEntity[4];
 }
 
-cbuffer LightBuffer : register(b2)
+cbuffer LightBuffer : register(b3)
 {
     float4 LightColor;      // (r, g, b, [unused])
     float4 LightPosition;   // (x, y, z, 1)
     float4 LightDirection;  // (x, y, z, 0)
-    float4 LightParams; // (range, constant attn, linear attn, quadratic attn)
+    float4 LightParams;     // (range, constant attn, linear attn, quadratic attn)
     float4 LightConeAngles; // (inner, outer, [unused], [unused])
 };
-
-cbuffer CubemapBuffer : register(b3)
-{
-    float4x4 CubeFaceViewProjs[6];
-}
 
 /*
 * Textures

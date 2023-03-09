@@ -3,6 +3,18 @@
 #define FULLSCREEN_VERTEX_COUNT 3
 #define CUBEMAP_VERTEX_COUNT 14
 
+/*
+* Constant buffers
+*/
+
+struct alignas(16) ImmutableBuffer
+{
+	std::array<Matrix, 6> cubeFaceViewProjs; // Used when rendering to cubemaps
+	std::array<Vector4, 14> offsetVectors; // Used when sampling over the hemisphere in SSAO
+
+	static ImmutableBuffer Create();
+};
+
 struct alignas(16) CameraBuffer
 {
 	Matrix viewProj;
@@ -27,19 +39,18 @@ struct alignas(16) LightBuffer
 	Vector4 coneAngles{}; // (inner, outer, [unused], [unused])
 };
 
-struct alignas(16) CubemapBuffer
-{
-	Matrix cubeFaceViewProjs[6];
-};
-
 enum CBufferSlots : unsigned
 {
-	b_Camera = 0,
-	b_Mesh = 1,
-	b_Light = 2,
-	b_Cubemap = 3,
+	b_Immutable,
+	b_Camera,
+	b_Mesh,
+	b_Light,
 	CBufferCount,
 };
+
+/*
+* Textures
+*/
 
 enum TextureSlot : unsigned
 {
@@ -86,4 +97,6 @@ enum SamplerSlot : unsigned
 };
 
 std::span<const D3D11_SAMPLER_DESC> GetSamplerDescs();
+
+ShaderResourcePtr CreateGaussianMap();
 

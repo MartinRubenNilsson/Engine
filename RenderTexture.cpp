@@ -21,12 +21,6 @@ RenderTexture::RenderTexture(unsigned aWidth, unsigned aHeight, DXGI_FORMAT aFor
 	targetDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
 	targetDesc.Texture2D.MipSlice = 0;
 
-	D3D11_SHADER_RESOURCE_VIEW_DESC resourceDesc{};
-	resourceDesc.Format = aFormat;
-	resourceDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
-	resourceDesc.Texture2D.MostDetailedMip = 0;
-	resourceDesc.Texture2D.MipLevels = static_cast<UINT>(-1);
-
 	myResult = DX11_DEVICE->CreateTexture2D(&textureDesc, NULL, &myTexture);
 	if (FAILED(myResult))
 		return;
@@ -35,7 +29,7 @@ RenderTexture::RenderTexture(unsigned aWidth, unsigned aHeight, DXGI_FORMAT aFor
 	if (FAILED(myResult))
 		return;
 
-	myResult = DX11_DEVICE->CreateShaderResourceView(myTexture.Get(), &resourceDesc, &myShaderResource);
+	myResult = DX11_DEVICE->CreateShaderResourceView(myTexture.Get(), NULL, &myShaderResource);
 	if (FAILED(myResult))
 		return;
 

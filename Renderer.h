@@ -9,7 +9,6 @@
 
 struct RenderStatistics
 {
-	unsigned renderTimeMs{};
 	unsigned meshDrawCalls{};
 	unsigned dirLightDrawCalls{};
 	unsigned pointLightDrawCalls{};
@@ -34,7 +33,6 @@ public:
 	explicit operator bool() const { return mySucceeded; }
 
 private:
-	bool CreateGaussianMap();
 	void Clear();
 	void RenderGeometry(entt::registry&);
 	void RenderLightning(entt::registry&);
@@ -46,6 +44,7 @@ private:
 	std::vector<RenderTargetPtr> GetGBufferTargets() const;
 	std::vector<ShaderResourcePtr> GetGBufferResources() const;
 
+	bool mySucceeded{ false };
 	ScopedSamplerStates mySamplers;
 	std::array<ConstantBuffer, CBufferCount> myCBuffers{};
 	std::array<RenderTexture, t_LightingTexture + 1> myRenderTextures{};
@@ -56,8 +55,6 @@ private:
 
 	BoundingFrustum myFrustum{};
 	RenderStatistics myStatistics{};
-
-	bool mySucceeded{ false };
 };
 
 namespace ImGui
