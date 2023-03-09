@@ -15,12 +15,12 @@ ImmutableBuffer ImmutableBuffer::Create()
 
 		buffer.cubeFaceViewProjs =
 		{
-			XMMatrixLookToLH(origin, +x, +y) * proj, // +X
-			XMMatrixLookToLH(origin, -x, +y) * proj, // -X
-			XMMatrixLookToLH(origin, +y, -z) * proj, // +Y
-			XMMatrixLookToLH(origin, -y, +z) * proj, // -Y
-			XMMatrixLookToLH(origin, +z, +y) * proj, // +Z
-			XMMatrixLookToLH(origin, -z, +y) * proj, // -Z
+			XMMatrixLookToLH(origin, +x, +y) * proj,
+			XMMatrixLookToLH(origin, -x, +y) * proj,
+			XMMatrixLookToLH(origin, +y, -z) * proj,
+			XMMatrixLookToLH(origin, -y, +z) * proj,
+			XMMatrixLookToLH(origin, +z, +y) * proj,
+			XMMatrixLookToLH(origin, -z, +y) * proj,
 		};
 	}
 

@@ -125,6 +125,8 @@ void Renderer::Render(entt::registry& aRegistry)
 	RenderGeometry(aRegistry);
 	{
 		ScopedShaderResources scopedGBuffer{ ShaderType::Pixel, GBUFFER_BEGIN, GetGBufferResources() };
+		RenderSSAO();
+
 		ScopedShaderResources scopedCubemap{ ShaderType::Pixel, t_EnvironmentMap, myCubemap.GetMaps() };
 		RenderLightning(aRegistry);
 		RenderSkybox();
@@ -197,12 +199,10 @@ entt::entity Renderer::PickEntity(unsigned x, unsigned y)
 
 void Renderer::Clear()
 {
+	myDepthBuffer.Clear();
+
 	for (RenderTexture& texture : myRenderTextures)
 		texture.Clear();
-
-	myRenderTextures.at(t_GBufferNormalDepth).Clear({ 0.f, 0.f, 0.f, 1.f });
-
-	myDepthBuffer.Clear();
 
 	{
 		ScopedRenderTargets scopedTargets{ myRenderTextures.at(t_GBufferEntity) };
@@ -214,13 +214,10 @@ void Renderer::Clear()
 
 void Renderer::RenderGeometry(entt::registry& aRegistry)
 {
-	if (aRegistry.empty())
-		return;
-
 	ScopedInputLayout scopedLayout{ typeid(VsInBasic) };
 	ScopedShader scopedVs{ "VsBasic.cso" };
 	ScopedShader scopedPs{ "PsGBuffer.cso" };
-	ScopedRenderTargets scopedTargets{ GetGBufferTargets(), myDepthBuffer};
+	ScopedRenderTargets scopedTargets{ GetGBufferTargets(), myDepthBuffer };
 
 	auto view = aRegistry.view<const Transform::Ptr, const Mesh::Ptr, const Material>();
 	for (auto [entity, transform, mesh, material] : view.each())
@@ -256,6 +253,13 @@ void Renderer::RenderGeometry(entt::registry& aRegistry)
 		mesh->Draw();
 		myStatistics.meshDrawCalls++;
 	}
+}
+
+void Renderer::RenderSSAO()
+{
+	ScopedShaderResources scopedGaussianMap{ ShaderType::Pixel, t_GaussianMap, myGaussianMap };
+	ScopedRenderTargets scopedTarget{ myRenderTextures.at(t_SSAOTexture) };
+	FullscreenPass{ "PsSSAO.cso" }.Render();
 }
 
 void Renderer::RenderLightning(entt::registry& aRegistry)

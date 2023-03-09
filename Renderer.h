@@ -35,6 +35,7 @@ public:
 private:
 	void Clear();
 	void RenderGeometry(entt::registry&);
+	void RenderSSAO();
 	void RenderLightning(entt::registry&);
 	void RenderSkybox();
 	void RenderDirectionalLights(std::span<const DirectionalLight>);

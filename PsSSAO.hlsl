@@ -10,17 +10,16 @@ float OcclusionFunction(float distZ)
 }
 
 // todo: replace trilinear sampler with NormalDepthSampler
-// todo: texture with random vectors
 
 float4 main(float4 pos : SV_POSITION) : SV_TARGET
 {
-    //uint2 dim;
-    //SSAOTexture.GetDimensions(dim.x, dim.y);
-    //const float2 uv = pos.xy / dim;
+    uint2 dim;
+    SSAOTexture.GetDimensions(dim.x, dim.y);
+    const float2 uv = pos.xy / dim;
     
-    //const float4 normalDepth = GBufferSSAO.Sample(TrilinearSampler, uv);
-    //const float3 N = normalize(UnpackNormal(normalDepth.xyz));
-    //const float depth = normalDepth.w;
+    const float4 normalDepth = GBufferNormalDepth.Sample(TrilinearSampler, uv);
+    const float3 N = normalize(UnpackNormal(normalDepth.xyz));
+    const float depth = normalDepth.w;
     
     //const float3 pixelWorldPos = UVDepthToWorld(uv, depth);
     
@@ -35,12 +34,7 @@ float4 main(float4 pos : SV_POSITION) : SV_TARGET
     //    const float2 sampleUV = { sampleClipPos.x * 0.5 + 0.5, 0.5 - sampleClipPos.y * 0.5 };
         
     //    const float sampleDepth = GBufferSSAO.Sample(TrilinearSampler, sampleUV).w;
-    //}
+    //
     
-        
-    
-    
-    
-    
-	return float4(1.0f, 1.0f, 1.0f, 1.0f);
+    return float4(normalDepth.xyz, 1.0f);
 }
