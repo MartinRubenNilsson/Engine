@@ -66,8 +66,8 @@ cbuffer CameraBuffer : register(b1)
 {
     float4x4 ViewProj;
     float4x4 InvViewProj;
-    float4x4 InvTransView;
     float4 CameraPosition;
+    float4 ClipPlanes; // (near, far, [unused], [unused])
 }
 
 cbuffer MeshBuffer : register(b2)

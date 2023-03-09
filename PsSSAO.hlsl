@@ -1,18 +1,20 @@
 #include "ShaderCommon.hlsli"
 
-static const float OcclusionRadius = 10.0; // in world space
-static const float OcclusionEpsilon = 0.05; // in view space
-static const float OcclusionFadeStart = 0.2; // in view space
-static const float OcclusionFadeEnd = 2.0; // in view space
+// Below occlusion parameters use view space units.
 
-float OcclusionFunc(float deltaDepth) // deltaDepth is in view space
+static const float OcclusionEpsilon = 0.05;
+static const float OcclusionFadeStart = 0.2;
+static const float OcclusionFadeEnd = 2.0;
+static const float OcclusionRadius = 0.5; 
+
+float OcclusionFunc(float deltaWiewDepth)
 {
-    float f = step(OcclusionEpsilon, deltaDepth);
-    float g = saturate((OcclusionFadeEnd - deltaDepth) / (OcclusionFadeEnd - OcclusionFadeStart));
+    float f = step(OcclusionEpsilon, deltaWiewDepth);
+    float g = saturate((OcclusionFadeEnd - deltaWiewDepth) / (OcclusionFadeEnd - OcclusionFadeStart));
     return f * g;
 }
 
-// todo: replace trilinear sampler with NormalDepthSampler
+// todo: replace trilinear sampler with NormalDepthSampler to avoid false occlusions
 
 float main(VsOutFullscreen input) : SV_TARGET
 {
@@ -25,8 +27,11 @@ float main(VsOutFullscreen input) : SV_TARGET
     // R = its world position (may or may not equal Q)
     
     const float4 normalDepthP = GBufferNormalDepth.Sample(TrilinearSampler, input.uv);
-    const float3 N = normalize(UnpackNormal(normalDepthP.xyz));
     const float depthP = normalDepthP.w;
+    if (depthP == 1.0)
+        return 1.0; // no occlusion == full access
+    
+    const float3 N = normalize(UnpackNormal(normalDepthP.xyz));
     
     const float3 P = UVDepthToWorld(input.uv, depthP);
     const float3 randUnitVec = GetRandomUnitVec(input.pos.xy);
@@ -45,7 +50,8 @@ float main(VsOutFullscreen input) : SV_TARGET
         const float depthR = GBufferNormalDepth.Sample(TrilinearSampler, uv).w;
         const float3 R = UVDepthToWorld(uv, depthR);
         
-        const float occlusion = OcclusionFunc(depthP - depthR);
+        const float deltaViewDepth = distance(CameraPosition.xyz, P) - distance(CameraPosition.xyz, R);
+        const float occlusion = OcclusionFunc(deltaViewDepth);
         const float weight = saturate(dot(N, normalize(R - P))); // only points in front of P can occlude P
         
         totalOcclusion += occlusion * weight;

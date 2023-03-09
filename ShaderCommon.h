@@ -19,8 +19,8 @@ struct alignas(16) CameraBuffer
 {
 	Matrix viewProj;
 	Matrix invViewProj;
-	Matrix invTransView;
 	Vector4 position;
+	Vector4 clipPlanes; // (near, far, [unused], [unused])
 };
 
 struct alignas(16) MeshBuffer
