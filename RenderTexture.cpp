@@ -43,6 +43,11 @@ void RenderTexture::Clear(const Color& aColor)
 		DX11_CONTEXT->ClearRenderTargetView(myRenderTarget.Get(), aColor);
 }
 
+Viewport RenderTexture::GetViewport() const
+{
+	return Viewport{ CD3D11_VIEWPORT{ myTexture.Get(), myRenderTarget.Get() } };
+}
+
 RenderTexture::operator bool() const
 {
 	return SUCCEEDED(myResult);

@@ -1,5 +1,7 @@
 #include "Constants.hlsli"
 
+#define OFFSET_VECTOR_COUNT 14
+
 /*
 * Shader input/output
 */
@@ -57,6 +59,7 @@ struct GsOutSkybox
 cbuffer ImmutableBuffer : register(b0)
 {
     float4x4 CubeFaceViewProjs[6];
+    float4 OffsetVectors[OFFSET_VECTOR_COUNT];
 }
 
 cbuffer CameraBuffer : register(b1)
@@ -135,6 +138,18 @@ float DistanceAttenuation(float aDistanceToLight)
     return 1.f / max(0.01, LightParams.y + aDistanceToLight * (LightParams.z + aDistanceToLight * LightParams.w));
 }
 
+float3 WorldToClip(float3 worldPos)
+{
+    float4 clipPos = mul(ViewProj, float4(worldPos, 1.0));
+    return clipPos.xyz / clipPos.w;
+}
+
+float3 WorldToUVDepth(float3 worldPos)
+{
+    float3 clipPos = WorldToClip(worldPos);
+    return float3(clipPos.x * 0.5 + 0.5, 0.5 - clipPos.y * 0.5, clipPos.z);
+}
+
 float3 ClipToWorld(float3 clipPos)
 {
     float4 worldPos = mul(InvViewProj, float4(clipPos, 1.0));
@@ -145,4 +160,13 @@ float3 UVDepthToWorld(float2 uv, float depth)
 {
     float3 clipPos = { uv.x * 2.0 - 1.0, 1.0 - uv.y * 2.0, depth };
     return ClipToWorld(clipPos);
+}
+
+// Requires that GaussianMap is set.
+float3 GetRandomUnitVec(float2 pixelPos)
+{
+    uint2 dim;
+    GaussianMap.GetDimensions(dim.x, dim.y);
+    float2 uv = pixelPos / dim;
+    return normalize(GaussianMap.Sample(GaussianSampler, uv).xyz);
 }

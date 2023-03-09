@@ -1,40 +1,58 @@
 #include "ShaderCommon.hlsli"
 
-static const float Epsilon = 0.05;
-static const float FadeStart = 0.2;
-static const float FadeEnd = 2.0;
+static const float OcclusionRadius = 10.0; // in world space
+static const float OcclusionEpsilon = 0.05; // in view space
+static const float OcclusionFadeStart = 0.2; // in view space
+static const float OcclusionFadeEnd = 2.0; // in view space
 
-float OcclusionFunction(float distZ)
+float OcclusionFunc(float deltaDepth) // deltaDepth is in view space
 {
-    return (distZ > Epsilon) ? saturate((FadeEnd - distZ) / (FadeEnd - FadeStart)) : 0.0;
+    float f = step(OcclusionEpsilon, deltaDepth);
+    float g = saturate((OcclusionFadeEnd - deltaDepth) / (OcclusionFadeEnd - OcclusionFadeStart));
+    return f * g;
 }
 
 // todo: replace trilinear sampler with NormalDepthSampler
 
-float4 main(float4 pos : SV_POSITION) : SV_TARGET
+float main(VsOutFullscreen input) : SV_TARGET
 {
-    uint2 dim;
-    SSAOTexture.GetDimensions(dim.x, dim.y);
-    const float2 uv = pos.xy / dim;
+    // Consider the surface geometry at the current pixel. Then let:
+    // P = its world position
+    // N = its world normal
+    // Q = P + offset, where offset is sampled from a hemisphere pointing in direction N
     
-    const float4 normalDepth = GBufferNormalDepth.Sample(TrilinearSampler, uv);
-    const float3 N = normalize(UnpackNormal(normalDepth.xyz));
-    const float depth = normalDepth.w;
+    // Next, consider the surface geometry at the pixel corresponding to Q. Then let:
+    // R = its world position (may or may not equal Q)
     
-    //const float3 pixelWorldPos = UVDepthToWorld(uv, depth);
+    const float4 normalDepthP = GBufferNormalDepth.Sample(TrilinearSampler, input.uv);
+    const float3 N = normalize(UnpackNormal(normalDepthP.xyz));
+    const float depthP = normalDepthP.w;
     
+    const float3 P = UVDepthToWorld(input.uv, depthP);
+    const float3 randUnitVec = GetRandomUnitVec(input.pos.xy);
     
-    //[unroll]
-    //for (uint i = 0; i < 14; ++i)
-    //{
-    //    const float3 sampleWorldPos; // todo: calulate using offsets
+    float totalOcclusion = 0.0;
+    
+    [unroll]
+    for (uint i = 0; i < OFFSET_VECTOR_COUNT; ++i)
+    {
+        const float3 offset = reflect(OffsetVectors[i].xyz, randUnitVec);
+        const float flip = sign(dot(offset, N));
         
-    //    float4 sampleClipPos = mul(ViewProj, float4(sampleWorldPos, 1.0));
-    //    sampleClipPos /= sampleClipPos.w;
-    //    const float2 sampleUV = { sampleClipPos.x * 0.5 + 0.5, 0.5 - sampleClipPos.y * 0.5 };
+        const float3 Q = P + flip * OcclusionRadius * offset;
+        const float2 uv = WorldToUVDepth(Q).xy;
+
+        const float depthR = GBufferNormalDepth.Sample(TrilinearSampler, uv).w;
+        const float3 R = UVDepthToWorld(uv, depthR);
         
-    //    const float sampleDepth = GBufferSSAO.Sample(TrilinearSampler, sampleUV).w;
-    //
+        const float occlusion = OcclusionFunc(depthP - depthR);
+        const float weight = saturate(dot(N, normalize(R - P))); // only points in front of P can occlude P
+        
+        totalOcclusion += occlusion * weight;
+    }
     
-    return float4(normalDepth.xyz, 1.0f);
+    totalOcclusion /= OFFSET_VECTOR_COUNT;
+    const float access = 1.0 - totalOcclusion;
+    
+    return saturate(pow(access, 4.0)); // Sharpen contrast
 }

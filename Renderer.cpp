@@ -259,6 +259,8 @@ void Renderer::RenderSSAO()
 {
 	ScopedShaderResources scopedGaussianMap{ ShaderType::Pixel, t_GaussianMap, myGaussianMap };
 	ScopedRenderTargets scopedTarget{ myRenderTextures.at(t_SSAOTexture) };
+	ScopedViewports scopedViewports{ myRenderTextures.at(t_SSAOTexture).GetViewport() };
+
 	FullscreenPass{ "PsSSAO.cso" }.Render();
 }
 
