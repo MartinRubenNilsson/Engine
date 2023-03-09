@@ -7,6 +7,10 @@ public:
 
 	Mesh(const aiMesh&);
 
+	/*
+	* Sets vertex and index buffers, then dispatches a draw call.
+	* Make sure to update constant buffers and set shaders before calling.
+	*/
 	void Draw() const;
 
 	std::string_view GetName() const { return myName; }
@@ -28,3 +32,4 @@ namespace ImGui
 {
 	void InspectMesh(const Mesh& aMesh);
 }
+

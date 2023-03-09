@@ -22,6 +22,12 @@ struct VsOutBasic
     float2 uv : TEXCOORD;
 };
 
+struct VsOutFullscreen
+{
+    float4 pos : SV_Position;
+    float2 uv : TEXCOORD;
+};
+
 struct PsOutGBuffer
 {
     float4 normalDepth  : SV_Target0;

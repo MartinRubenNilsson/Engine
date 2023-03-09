@@ -2,11 +2,7 @@
 
 Texture2D Texture : register(t0);
 
-float4 main(float4 pos : SV_POSITION) : SV_TARGET
+float4 main(VsOutFullscreen input) : SV_TARGET
 {
-    uint2 dim;
-    Texture.GetDimensions(dim.x, dim.y);
-    const float2 uv = pos.xy / dim;
-    
-    return Texture.Sample(PointSampler, uv);
+    return Texture.Sample(PointSampler, input.uv);
 }

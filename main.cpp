@@ -202,7 +202,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
 
             backBuffer.Clear();
             renderer.Render(gameScene.GetRegistry());
-            renderer.Render(t_SSAOTexture);
+            //renderer.Render(t_GaussianMap);
             imGui.Render();
             backBuffer.Present();
         }
