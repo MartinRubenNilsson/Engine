@@ -18,7 +18,7 @@ public:
 	explicit operator bool() const;
 
 private:
-	void CreateTexel();
+	bool CreateTexel();
 
 	HRESULT myResult{ E_FAIL };
 	TexturePtr myTexture{}, myTexel{};

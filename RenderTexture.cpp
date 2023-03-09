@@ -47,9 +47,8 @@ void RenderTexture::GetTexel(std::span<std::byte> aBuffer, unsigned x, unsigned 
 {
 	if (x >= myWidth || y >= myHeight)
 		return;
-	if (!myTexel)
-		CreateTexel();
-	if (!myTexel)
+
+	if (!myTexel && !CreateTexel())
 		return;
 
 	D3D11_BOX box{};
@@ -78,7 +77,7 @@ RenderTexture::operator bool() const
 	return SUCCEEDED(myResult);
 }
 
-void RenderTexture::CreateTexel()
+bool RenderTexture::CreateTexel()
 {
 	D3D11_TEXTURE2D_DESC desc{};
 	myTexture->GetDesc(&desc);
@@ -88,5 +87,5 @@ void RenderTexture::CreateTexel()
 	desc.BindFlags = 0;
 	desc.CPUAccessFlags = D3D11_CPU_ACCESS_READ;
 
-	DX11_DEVICE->CreateTexture2D(&desc, NULL, &myTexel);
+	return SUCCEEDED(DX11_DEVICE->CreateTexture2D(&desc, NULL, &myTexel));
 }
