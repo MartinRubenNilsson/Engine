@@ -268,8 +268,10 @@ void Renderer::RenderSSAO()
 		ScopedRenderTargets scopedTarget{ ambientMap };
 		FullscreenPass{ "PsSSAO.cso" }.Render();
 	}
+
+	static constexpr size_t blurPassCount{ 4 };
 	
-	for (size_t i = 0; i < 4; ++i)
+	for (size_t i = 0; i < blurPassCount; ++i)
 	{
 		// Blur ambient map horizontally
 		{
@@ -339,7 +341,7 @@ void Renderer::RenderLightning(entt::registry& aRegistry)
 	ScopedRenderTargets scopedTargets{ myRenderTextures.at(t_LightingTexture) };
 	ScopedBlendState scopedBlend{ blendDesc };
 
-	FullscreenPass{ "PsImageBasedLight.cso" }.Render();
+	RenderImageBasedLight();
 	RenderDirectionalLights(dLights);
 	RenderPointLights(pLights);
 	RenderSpotLights(sLights);
@@ -363,6 +365,12 @@ void Renderer::RenderSkybox()
 	ScopedDepthStencilState scopedDepthStencil{ depthStencil };
 
 	DX11_CONTEXT->Draw(14, 0);
+}
+
+void Renderer::RenderImageBasedLight()
+{
+	ScopedShaderResources scopedResource{ ShaderType::Pixel, t_AmbientAccessMap, myRenderTextures.at(t_AmbientAccessMap) };
+	FullscreenPass{ "PsImageBasedLight.cso" }.Render();
 }
 
 void Renderer::RenderDirectionalLights(std::span<const DirectionalLight> someLights)

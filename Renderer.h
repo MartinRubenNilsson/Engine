@@ -34,10 +34,13 @@ public:
 
 private:
 	void Clear();
+
 	void RenderGeometry(entt::registry&);
 	void RenderSSAO();
 	void RenderLightning(entt::registry&);
 	void RenderSkybox();
+
+	void RenderImageBasedLight();
 	void RenderDirectionalLights(std::span<const DirectionalLight>);
 	void RenderPointLights(std::span<const PointLight>);
 	void RenderSpotLights(std::span<const SpotLight>);

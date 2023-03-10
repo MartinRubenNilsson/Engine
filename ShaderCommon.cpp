@@ -85,8 +85,8 @@ std::span<const D3D11_SAMPLER_DESC> GetSamplerDescs()
 
 ShaderResourcePtr CreateGaussianMap()
 {
-	static constexpr unsigned size{ 256 };
-	static constexpr unsigned seed{ 1337 };
+	static constexpr unsigned size{ 512 };
+	static constexpr unsigned seed{ 134534 };
 
 	std::vector<float> samples(size * size * 4);
 

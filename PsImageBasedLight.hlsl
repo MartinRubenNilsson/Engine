@@ -16,7 +16,7 @@ float4 main(VsOutFullscreen input) : SV_TARGET
     if (NdV <= 0.0)
         return float4(0.0, 0.0, 0.0, 1.0);
     
-    const float4 albedo = GBufferAlbedo.Sample(PointSampler, input.uv);
+    const float3 albedo = GBufferAlbedo.Sample(PointSampler, input.uv).rgb;
     const float4 metalRoughAo = GBufferMetalRoughAo.Sample(PointSampler, input.uv);
     const float metallic = metalRoughAo.x;
     
@@ -27,6 +27,7 @@ float4 main(VsOutFullscreen input) : SV_TARGET
     const float3 kD = 1.0 - F;
     
     const float3 ambient = IrradianceMap.Sample(TrilinearSampler, N).rgb * diffuseColor * kD;
+    const float access = AmbientAccessMap.Sample(TrilinearSampler, input.uv).r;
     
-    return float4(ambient, 1.0);
+    return float4(ambient * access, 1.0);
 }
