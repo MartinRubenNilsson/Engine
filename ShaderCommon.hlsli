@@ -2,6 +2,16 @@
 
 #define OFFSET_VECTOR_COUNT 14
 
+#define USE_REVERSE_Z 1
+
+#if USE_REVERSE_Z
+#define NEAR_Z 1.f
+#define FAR_Z 0.f
+#else
+#define NEAR_Z 0.f
+#define FAR_Z 1.f
+#endif
+
 /*
 * Shader input/output
 */
@@ -133,12 +143,16 @@ float3 UnpackNormal(float3 N)
     return N * 2.0 - 1.0;
 }
 
-// TODO: Change
-float HyperbolicDepthToLinear(float depth)
+float HyperbolicDepthToLinear(float z)
 {
-    float n = ClipPlanes.x;
-    float f = ClipPlanes.y;
-    return f * n / lerp(f, n, depth);
+#if USE_REVERSE_Z
+    float z0 = ClipPlanes.y; // far
+    float z1 = ClipPlanes.x; // near
+#else
+    float z0 = ClipPlanes.x; // near
+    float z1 = ClipPlanes.y; // far
+#endif
+    return z0 * z1 / lerp(z1, z0, z);
 }
 
 // To be multiplied by outgoing radiance.

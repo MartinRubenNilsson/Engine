@@ -6,7 +6,7 @@ public:
 	DepthBuffer() = default;
 	DepthBuffer(unsigned aWidth, unsigned aHeight);
 
-	void Clear(float aDepth = 0.f); // 0.f since we use a reversed Z buffer
+	void Clear(float aDepth);
 
 	operator DepthStencilPtr() const { return myDepthStencil; }
 

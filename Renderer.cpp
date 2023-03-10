@@ -95,7 +95,7 @@ bool Renderer::ResizeTextures(unsigned aWidth, unsigned aHeight)
 void Renderer::SetCamera(const Camera& aCamera, const Matrix& aTransform)
 {
 	const Matrix view{ aTransform.Invert() * aCamera.GetViewMatrix() };
-	const Matrix proj{ aCamera.GetProjectionMatrix(true) };
+	const Matrix proj{ aCamera.GetProjectionMatrix(USE_REVERSE_Z) };
 
 	// Update constant buffer
 	{
@@ -110,7 +110,7 @@ void Renderer::SetCamera(const Camera& aCamera, const Matrix& aTransform)
 
 	// Update bounding frustum
 	{
-		BoundingFrustum::CreateFromMatrix(myFrustum, aCamera.GetProjectionMatrix(false) );
+		BoundingFrustum::CreateFromMatrix(myFrustum, aCamera.GetProjectionMatrix() );
 		myFrustum.Transform(myFrustum, aTransform);
 	}
 }
@@ -128,7 +128,7 @@ void Renderer::Render(entt::registry& aRegistry)
 
 		ScopedShaderResources scopedCubemap{ ShaderType::Pixel, t_EnvironmentMap, myCubemap.GetMaps() };
 		RenderLightning(aRegistry);
-		//RenderSkybox();
+		RenderSkybox();
 	}
 	{
 		ScopedShaderResources scopedLightning{ ShaderType::Pixel, t_LightingTexture, myRenderTextures.at(t_LightingTexture) };
@@ -192,7 +192,7 @@ entt::entity Renderer::PickEntity(unsigned x, unsigned y)
 
 void Renderer::Clear()
 {
-	myDepthBuffer.Clear();
+	myDepthBuffer.Clear(FAR_Z);
 
 	for (RenderTexture& texture : myRenderTextures)
 		texture.Clear();
@@ -207,14 +207,16 @@ void Renderer::Clear()
 
 void Renderer::RenderGeometry(entt::registry& aRegistry)
 {
-	CD3D11_DEPTH_STENCIL_DESC depthDesc{};
-	depthDesc.DepthFunc = D3D11_COMPARISON_GREATER; // Since we use a reversed Z buffer
+#if USE_REVERSE_Z
+	CD3D11_DEPTH_STENCIL_DESC depthDesc{ CD3D11_DEFAULT{} };
+	depthDesc.DepthFunc = D3D11_COMPARISON_GREATER;
+	ScopedDepthStencilState scopedDepth{ depthDesc };
+#endif
 
 	ScopedInputLayout scopedLayout{ typeid(VsInBasic) };
 	ScopedShader scopedVs{ "VsBasic.cso" };
 	ScopedShader scopedPs{ "PsGBuffer.cso" };
 	ScopedRenderTargets scopedTargets{ GetGBufferTargets(), myDepthBuffer };
-	ScopedDepthStencilState scopedDepth{ depthDesc };
 
 	auto view = aRegistry.view<const Transform::Ptr, const Mesh::Ptr, const Material>();
 	for (auto [entity, transform, mesh, material] : view.each())
@@ -322,7 +324,11 @@ void Renderer::RenderLightning(entt::registry& aRegistry)
 void Renderer::RenderSkybox()
 {
 	CD3D11_DEPTH_STENCIL_DESC depthStencil{ CD3D11_DEFAULT{} };
-	depthStencil.DepthFunc = D3D11_COMPARISON_LESS_EQUAL; // Otherwise skybox will fail the depth test since z=1.
+#if USE_REVERSE_Z
+	depthStencil.DepthFunc = D3D11_COMPARISON_GREATER_EQUAL;
+#else
+	depthStencil.DepthFunc = D3D11_COMPARISON_LESS_EQUAL;
+#endif
 
 	ScopedPrimitiveTopology scopedTopology{ D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP };
 	ScopedInputLayout scopedLayout{ typeid(EmptyVertex) };

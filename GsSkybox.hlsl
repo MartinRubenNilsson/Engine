@@ -5,11 +5,14 @@ void main(triangle float3 input[3] : POSITION, inout TriangleStream<GsOutSkybox>
 {
     for (uint v = 0; v < 3; ++v)
     {
-        // By setting z=w=1, we ensure that the skybox always lie on the far plane.
+        // Set w=z after transformation to ensure that the skybox always lie on the far plane.
         
         GsOutSkybox output;
-        output.pos = mul(ViewProj, float4(input[v], 0.f)).xyww;
+        output.pos = mul(ViewProj, float4(input[v] + CameraPosition.xyz, 1.f)).xyww;
         output.worldPos = input[v];
+#if USE_REVERSE_Z
+        output.pos.z = 0.0;
+#endif
         stream.Append(output);
     }
 }

@@ -34,7 +34,7 @@ public:
 	CameraType GetType() const;
 
 	Matrix GetViewMatrix() const;
-	Matrix GetProjectionMatrix(bool aSwapClipPlanes = false) const;
+	Matrix GetProjectionMatrix(bool aReverseZ = false) const;
 
 	void SetPerspective(const PerspectiveCamera&);
 	void SetOrthographic(const OrthographicCamera&);

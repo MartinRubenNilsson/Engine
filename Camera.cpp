@@ -62,10 +62,10 @@ Matrix Camera::GetViewMatrix() const
 	return XMMatrixLookToLH(myPosition, myDirection, myUp);
 }
 
-Matrix Camera::GetProjectionMatrix(bool aSwapClipPlanes) const
+Matrix Camera::GetProjectionMatrix(bool aReverseZ) const
 {
 	ProjectionGetter getter{ myNearZ, myFarZ };
-	if (aSwapClipPlanes)
+	if (aReverseZ)
 		std::swap(getter.nearZ, getter.farZ);
 	return std::visit(getter, myCamera);
 }
