@@ -133,6 +133,7 @@ float3 UnpackNormal(float3 N)
     return N * 2.0 - 1.0;
 }
 
+// TODO: Change
 float HyperbolicDepthToLinear(float depth)
 {
     float n = ClipPlanes.x;

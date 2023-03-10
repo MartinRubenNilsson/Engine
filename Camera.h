@@ -10,16 +10,12 @@ struct PerspectiveCamera
 {
 	float fovY = 1.04719755119f; // 60 degrees
 	float aspect = 1.f;
-	float nearZ = 0.3f;
-	float farZ = 1000.f;
 };
 
 struct OrthographicCamera
 {
 	float width = 10.f;
 	float height = 10.f;
-	float nearZ = 0.3f;
-	float farZ = 1000.f;
 };
 
 class Camera;
@@ -38,18 +34,20 @@ public:
 	CameraType GetType() const;
 
 	Matrix GetViewMatrix() const;
-	Matrix GetProjectionMatrix() const;
+	Matrix GetProjectionMatrix(bool aSwapClipPlanes = false) const;
 
 	void SetPerspective(const PerspectiveCamera&);
 	void SetOrthographic(const OrthographicCamera&);
 
-	void GetClipPlanes(float& aNearZ, float& aFarZ) const;
+	float GetNearZ() const { return myNearZ; }
+	float GetFarZ() const { return myFarZ; }
 
 protected:
 	friend void ImGui::InspectCamera(Camera&);
 
 	Vector3 myPosition{ Vector3::Zero }, myDirection{ Vector3::UnitZ }, myUp{ Vector3::UnitY };
 	std::variant<PerspectiveCamera, OrthographicCamera> myCamera{};
+	float myNearZ{ 0.3f }, myFarZ{ 1000.f };
 };
 
 namespace ImGui

@@ -33,10 +33,10 @@ DepthBuffer::DepthBuffer(unsigned aWidth, unsigned aHeight)
 	myHeight = aHeight;
 }
 
-void DepthBuffer::Clear()
+void DepthBuffer::Clear(float aDepth)
 {
 	if (myDepthStencil)
-		DX11_CONTEXT->ClearDepthStencilView(myDepthStencil.Get(), D3D11_CLEAR_DEPTH, 1.f, 0);
+		DX11_CONTEXT->ClearDepthStencilView(myDepthStencil.Get(), D3D11_CLEAR_DEPTH, aDepth, 0);
 }
 
 DepthBuffer::operator bool() const

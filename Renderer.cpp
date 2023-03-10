@@ -95,7 +95,7 @@ bool Renderer::ResizeTextures(unsigned aWidth, unsigned aHeight)
 void Renderer::SetCamera(const Camera& aCamera, const Matrix& aTransform)
 {
 	const Matrix view{ aTransform.Invert() * aCamera.GetViewMatrix() };
-	const Matrix proj{ aCamera.GetProjectionMatrix() };
+	const Matrix proj{ aCamera.GetProjectionMatrix(true) };
 
 	// Update constant buffer
 	{
@@ -103,14 +103,14 @@ void Renderer::SetCamera(const Camera& aCamera, const Matrix& aTransform)
 		buffer.viewProj = view * proj;
 		buffer.invViewProj = buffer.viewProj.Invert();
 		buffer.position = { aTransform._41, aTransform._42, aTransform._43, 1.f };
-		aCamera.GetClipPlanes(buffer.clipPlanes.x, buffer.clipPlanes.y);
+		buffer.clipPlanes = { aCamera.GetNearZ(), aCamera.GetFarZ(), 0.f, 0.f };
 
 		myCBuffers.at(b_Camera).Update(&buffer);
 	}
 
 	// Update bounding frustum
 	{
-		BoundingFrustum::CreateFromMatrix(myFrustum, proj);
+		BoundingFrustum::CreateFromMatrix(myFrustum, aCamera.GetProjectionMatrix(false) );
 		myFrustum.Transform(myFrustum, aTransform);
 	}
 }
@@ -128,7 +128,7 @@ void Renderer::Render(entt::registry& aRegistry)
 
 		ScopedShaderResources scopedCubemap{ ShaderType::Pixel, t_EnvironmentMap, myCubemap.GetMaps() };
 		RenderLightning(aRegistry);
-		RenderSkybox();
+		//RenderSkybox();
 	}
 	{
 		ScopedShaderResources scopedLightning{ ShaderType::Pixel, t_LightingTexture, myRenderTextures.at(t_LightingTexture) };
@@ -207,10 +207,14 @@ void Renderer::Clear()
 
 void Renderer::RenderGeometry(entt::registry& aRegistry)
 {
+	CD3D11_DEPTH_STENCIL_DESC depthDesc{};
+	depthDesc.DepthFunc = D3D11_COMPARISON_GREATER; // Since we use a reversed Z buffer
+
 	ScopedInputLayout scopedLayout{ typeid(VsInBasic) };
 	ScopedShader scopedVs{ "VsBasic.cso" };
 	ScopedShader scopedPs{ "PsGBuffer.cso" };
 	ScopedRenderTargets scopedTargets{ GetGBufferTargets(), myDepthBuffer };
+	ScopedDepthStencilState scopedDepth{ depthDesc };
 
 	auto view = aRegistry.view<const Transform::Ptr, const Mesh::Ptr, const Material>();
 	for (auto [entity, transform, mesh, material] : view.each())

@@ -3,33 +3,18 @@
 
 namespace
 {
-	struct ProjectionBuilder
+	struct ProjectionGetter
 	{
+		float nearZ{}, farZ{};
+
 		Matrix operator()(const PerspectiveCamera& aCamera)
 		{
-			return XMMatrixPerspectiveFovLH(aCamera.fovY, aCamera.aspect, aCamera.nearZ, aCamera.farZ);
+			return XMMatrixPerspectiveFovLH(aCamera.fovY, aCamera.aspect, nearZ, farZ);
 		}
 
 		Matrix operator()(const OrthographicCamera& aCamera)
 		{
-			return XMMatrixOrthographicLH(aCamera.width, aCamera.height, aCamera.nearZ, aCamera.farZ);
-		}
-	};
-
-	struct ClipPlaneGetter
-	{
-		float nearZ{}, farZ{};
-
-		void operator()(const PerspectiveCamera& aCamera)
-		{
-			nearZ = aCamera.nearZ;
-			farZ = aCamera.farZ;
-		}
-
-		void operator()(const OrthographicCamera& aCamera)
-		{
-			nearZ = aCamera.nearZ;
-			farZ = aCamera.farZ;
+			return XMMatrixOrthographicLH(aCamera.width, aCamera.height, nearZ, farZ);
 		}
 	};
 }
@@ -39,6 +24,8 @@ namespace
 */
 
 Camera::Camera(const aiCamera& aCamera)
+	: myNearZ{ aCamera.mClipPlaneNear }
+	, myFarZ{ aCamera.mClipPlaneFar }
 {
 	std::memcpy(&myPosition, &aCamera.mPosition, sizeof(Vector3));
 	std::memcpy(&myDirection, &aCamera.mLookAt, sizeof(Vector3));
@@ -52,8 +39,6 @@ Camera::Camera(const aiCamera& aCamera)
 		PerspectiveCamera camera{};
 		camera.fovY = 2.f * atan(tan(aCamera.mHorizontalFOV) / aCamera.mAspect);
 		camera.aspect = aCamera.mAspect;
-		camera.nearZ = aCamera.mClipPlaneNear;
-		camera.farZ = aCamera.mClipPlaneFar;
 
 		SetPerspective(camera);
 	}
@@ -62,8 +47,6 @@ Camera::Camera(const aiCamera& aCamera)
 		OrthographicCamera camera{};
 		camera.width = 2.f * aCamera.mOrthographicWidth;
 		camera.height = camera.width / aCamera.mAspect;
-		camera.nearZ = aCamera.mClipPlaneNear;
-		camera.farZ = aCamera.mClipPlaneFar;
 
 		SetOrthographic(camera);
 	}
@@ -79,9 +62,12 @@ Matrix Camera::GetViewMatrix() const
 	return XMMatrixLookToLH(myPosition, myDirection, myUp);
 }
 
-Matrix Camera::GetProjectionMatrix() const
+Matrix Camera::GetProjectionMatrix(bool aSwapClipPlanes) const
 {
-	return std::visit(ProjectionBuilder{}, myCamera);
+	ProjectionGetter getter{ myNearZ, myFarZ };
+	if (aSwapClipPlanes)
+		std::swap(getter.nearZ, getter.farZ);
+	return std::visit(getter, myCamera);
 }
 
 void Camera::SetPerspective(const PerspectiveCamera& aCamera)
@@ -96,14 +82,6 @@ void Camera::SetOrthographic(const OrthographicCamera& aCamera)
 	myCamera = aCamera;
 }
 
-void Camera::GetClipPlanes(float& aNearZ, float& aFarZ) const
-{
-	ClipPlaneGetter getter{};
-	std::visit(getter, myCamera);
-	aNearZ = getter.nearZ;
-	aFarZ = getter.farZ;
-}
-
 /*
 * namespace ImGui
 */
@@ -116,16 +94,12 @@ namespace ImGui
 		{
 			DragFloat("FoV", &aCamera.fovY, 0.01f);
 			DragFloat("Aspect", &aCamera.aspect, 0.01f);
-			DragFloat("Near Z", &aCamera.nearZ, 0.1f);
-			DragFloat("Far Z", &aCamera.farZ);
 		}
 
 		void operator()(OrthographicCamera& aCamera)
 		{
 			DragFloat("Width", &aCamera.width, 0.01f);
 			DragFloat("Height", &aCamera.height, 0.01f);
-			DragFloat("Near Z", &aCamera.nearZ, 0.1f);
-			DragFloat("Far Z", &aCamera.farZ);
 		}
 	};
 }
@@ -136,6 +110,8 @@ void ImGui::InspectCamera(Camera& aCamera)
 	if (Combo("Type", &type, "Perspective\0Orthographic\0\0"))
 		type ? aCamera.SetOrthographic({}) : aCamera.SetPerspective({});
 
+	//DragFloat("Near Z", &aCamera.nearZ, 0.1f);
+	//DragFloat("Far Z", &aCamera.farZ);
 	std::visit(CameraInspector{}, aCamera.myCamera);
 }
 
