@@ -87,6 +87,7 @@ bool Renderer::ResizeTextures(unsigned aWidth, unsigned aHeight)
 	myRenderTextures.at(t_GBufferMetalRoughAo)	= { aWidth, aHeight, DXGI_FORMAT_R8G8B8A8_UNORM };
 	myRenderTextures.at(t_GBufferEntity)		= { aWidth, aHeight, DXGI_FORMAT_R32_UINT };
 	myRenderTextures.at(t_AmbientAccessMap)		= { aWidth / 2, aHeight / 2, DXGI_FORMAT_R16_UNORM };
+	myRenderTextures.at(t_BlurInputTexture)		= { aWidth / 2, aHeight / 2, DXGI_FORMAT_R16_UNORM };
 	myRenderTextures.at(t_LightingTexture)		= { aWidth, aHeight, DXGI_FORMAT_R32G32B32A32_FLOAT };
 
 	return std::ranges::all_of(myRenderTextures, &RenderTexture::operator bool);
@@ -256,11 +257,34 @@ void Renderer::RenderGeometry(entt::registry& aRegistry)
 
 void Renderer::RenderSSAO()
 {
-	ScopedShaderResources scopedGaussianMap{ ShaderType::Pixel, t_GaussianMap, myGaussianMap };
-	ScopedRenderTargets scopedTarget{ myRenderTextures.at(t_AmbientAccessMap) };
-	ScopedViewports scopedViewports{ myRenderTextures.at(t_AmbientAccessMap).GetViewport() };
+	auto& ambientMap{ myRenderTextures.at(t_AmbientAccessMap) };
+	auto& blurTexture{ myRenderTextures.at(t_BlurInputTexture) };
 
-	FullscreenPass{ "PsSSAO.cso" }.Render();
+	ScopedViewports scopedViewports{ ambientMap.GetViewport() };
+
+	// Compute (noisy) ambient map
+	{
+		ScopedShaderResources scopedResource{ ShaderType::Pixel, t_GaussianMap, myGaussianMap };
+		ScopedRenderTargets scopedTarget{ ambientMap };
+		FullscreenPass{ "PsSSAO.cso" }.Render();
+	}
+	
+	for (size_t i = 0; i < 4; ++i)
+	{
+		// Blur ambient map horizontally
+		{
+			ScopedShaderResources scopedResource{ ShaderType::Pixel, t_BlurInputTexture, ambientMap };
+			ScopedRenderTargets scopedTarget{ blurTexture };
+			FullscreenPass{ "PsBlurHorizontal.cso" }.Render();
+		}
+
+		// Blur ambient map vertically
+		{
+			ScopedShaderResources scopedResource{ ShaderType::Pixel, t_BlurInputTexture, blurTexture };
+			ScopedRenderTargets scopedTarget{ ambientMap };
+			FullscreenPass{ "PsBlurVertical.cso" }.Render();
+		}
+	}
 }
 
 void Renderer::RenderLightning(entt::registry& aRegistry)

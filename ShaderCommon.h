@@ -70,6 +70,7 @@ enum TextureSlot : unsigned
 	t_GBufferEntity,
 
 	t_AmbientAccessMap,
+	t_BlurInputTexture,
 	t_LightingTexture,
 
 	t_MaterialAlbedo = 10,

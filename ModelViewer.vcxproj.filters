@@ -206,6 +206,9 @@
     <Filter Include="graphics\buffers">
       <UniqueIdentifier>{88f0b685-467e-4cc6-8d22-6fa987d83cb9}</UniqueIdentifier>
     </Filter>
+    <Filter Include="shaders\blur">
+      <UniqueIdentifier>{6b807dd4-58af-480e-9e38-1989104ad1d7}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="VsBasic.hlsl">
@@ -274,8 +277,11 @@
     <FxCompile Include="PsGBuffer.hlsl">
       <Filter>shaders</Filter>
     </FxCompile>
-    <FxCompile Include="PsHorizontalBlur.hlsl">
-      <Filter>shaders\fullscreen</Filter>
+    <FxCompile Include="PsBlurHorizontal.hlsl">
+      <Filter>shaders\blur</Filter>
+    </FxCompile>
+    <FxCompile Include="PsBlurVertical.hlsl">
+      <Filter>shaders\blur</Filter>
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
@@ -290,6 +296,9 @@
     </None>
     <None Include="Constants.hlsli">
       <Filter>shaders</Filter>
+    </None>
+    <None Include="BlurCommon.hlsli">
+      <Filter>shaders\blur</Filter>
     </None>
   </ItemGroup>
 </Project>
