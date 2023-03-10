@@ -28,7 +28,7 @@ float main(VsOutFullscreen input) : SV_TARGET
     
     const float4 normalDepthP = GBufferNormalDepth.Sample(TrilinearSampler, input.uv);
     const float depthP = normalDepthP.w;
-    if (depthP == 1.0)
+    if (depthP == FAR_Z)
         return 1.0; // at far plane -> no occlusion -> full access
     
     const float3 N = normalize(UnpackNormal(normalDepthP.xyz));

@@ -3,7 +3,7 @@
 #define FULLSCREEN_VERTEX_COUNT 3
 #define CUBEMAP_VERTEX_COUNT 14
 
-#define USE_REVERSE_Z 1
+#define USE_REVERSE_Z 0
 
 #if USE_REVERSE_Z
 #define NEAR_Z 1.f
