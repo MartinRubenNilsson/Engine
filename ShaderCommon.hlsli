@@ -67,6 +67,7 @@ cbuffer CameraBuffer : register(b1)
     float4x4 ViewProj;
     float4x4 InvViewProj;
     float4 CameraPosition;
+    float4 ClipPlanes; // (nearZ, farZ, [unused], [unused])
 }
 
 cbuffer MeshBuffer : register(b2)
@@ -130,6 +131,13 @@ float3 PackNormal(float3 N)
 float3 UnpackNormal(float3 N)
 {
     return N * 2.0 - 1.0;
+}
+
+float HyperbolicDepthToLinear(float depth)
+{
+    float n = ClipPlanes.x;
+    float f = ClipPlanes.y;
+    return f * n / lerp(f, n, depth);
 }
 
 // To be multiplied by outgoing radiance.

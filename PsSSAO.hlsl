@@ -50,7 +50,7 @@ float main(VsOutFullscreen input) : SV_TARGET
         const float depthR = GBufferNormalDepth.Sample(TrilinearSampler, uv).w;
         const float3 R = UVDepthToWorld(uv, depthR);
         
-        const float deltaWorldDepth = distance(CameraPosition.xyz, P) - distance(CameraPosition.xyz, R);
+        const float deltaWorldDepth = HyperbolicDepthToLinear(depthP) - HyperbolicDepthToLinear(depthR);
         const float occlusion = OcclusionFunc(deltaWorldDepth);
         const float weight = saturate(dot(N, normalize(R - P))); // only points in front of P can occlude P
         

@@ -103,6 +103,7 @@ void Renderer::SetCamera(const Camera& aCamera, const Matrix& aTransform)
 		buffer.viewProj = view * proj;
 		buffer.invViewProj = buffer.viewProj.Invert();
 		buffer.position = { aTransform._41, aTransform._42, aTransform._43, 1.f };
+		aCamera.GetClipPlanes(buffer.clipPlanes.x, buffer.clipPlanes.y);
 
 		myCBuffers.at(b_Camera).Update(&buffer);
 	}
