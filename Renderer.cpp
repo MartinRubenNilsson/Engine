@@ -198,6 +198,8 @@ void Renderer::Clear()
 	for (RenderTexture& texture : myRenderTextures)
 		texture.Clear();
 
+	myRenderTextures.at(t_GBufferNormalDepth).Clear({ 0.f, 0.f, 0.f, FAR_Z });
+
 	{
 		ScopedRenderTargets scopedTargets{ myRenderTextures.at(t_GBufferEntity) };
 		FullscreenPass{ "PsClearEntity.cso" }.Render();
