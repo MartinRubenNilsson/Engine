@@ -1,5 +1,5 @@
 #include "ShaderCommon.hlsli"
-#include "PbrFunctions.hlsli"
+#include "PbrCommon.hlsli"
 
 float4 main(VsOutFullscreen input) : SV_TARGET
 {

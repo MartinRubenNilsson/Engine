@@ -196,14 +196,14 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
 
         // Rendering
         {
-            ScopedPrimitiveTopology scopedTopology{ D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST };
             ScopedViewports scopedViewport{ backBuffer.GetViewport() };
             ScopedRenderTargets scopedTarget{ backBuffer.GetTarget() };
 
             backBuffer.Clear();
-            renderer.Render(gameScene.GetRegistry());
-            //renderer.Render(t_AmbientAccessMap);
+            renderer.RenderScene(gameScene.GetRegistry());
+            renderer.RenderDebug(t_IntegrationMap);
             imGui.Render();
+
             backBuffer.Present();
         }
     }

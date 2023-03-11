@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "ShaderCommon.h"
+#include "FullscreenPass.h"
 
 ImmutableBuffer ImmutableBuffer::Create()
 {
@@ -128,6 +129,47 @@ ShaderResourcePtr CreateGaussianMap()
 
 	if (FAILED(DX11_DEVICE->CreateTexture2D(&desc, &data, &texture)))
 		return nullptr;
+
+	ShaderResourcePtr resource{};
+
+	if (FAILED(DX11_DEVICE->CreateShaderResourceView(texture.Get(), NULL, &resource)))
+		return nullptr;
+
+	return resource;
+}
+
+ShaderResourcePtr CreateIntegrationMap()
+{
+	static constexpr unsigned size{ 512 }; // todo: adjust size
+
+	D3D11_TEXTURE2D_DESC desc{};
+	desc.Width = size;
+	desc.Height = size;
+	desc.MipLevels = 1;
+	desc.ArraySize = 1;
+	desc.Format = DXGI_FORMAT_R16G16_UNORM;
+	desc.SampleDesc.Count = 1;
+	desc.SampleDesc.Quality = 0;
+	desc.Usage = D3D11_USAGE_DEFAULT;
+	desc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET;
+	desc.CPUAccessFlags = 0;
+	desc.MiscFlags = 0;
+
+	TexturePtr texture{};
+
+	if (FAILED(DX11_DEVICE->CreateTexture2D(&desc, NULL, &texture)))
+		return nullptr;
+
+	RenderTargetPtr target{};
+
+	if (FAILED(DX11_DEVICE->CreateRenderTargetView(texture.Get(), NULL, &target)))
+		return nullptr;
+
+	{
+		ScopedRenderTargets scopedTarget{ target };
+		ScopedViewports scopedViewport{ CD3D11_VIEWPORT{ texture.Get(), target.Get() } };
+		FullscreenPass{ "PsIntegrateBRDF.cso" }.Render();
+	}
 
 	ShaderResourcePtr resource{};
 

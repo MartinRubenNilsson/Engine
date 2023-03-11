@@ -3,7 +3,7 @@
 #define FULLSCREEN_VERTEX_COUNT 3
 #define CUBEMAP_VERTEX_COUNT 14
 
-#define USE_REVERSE_Z 0
+#define USE_REVERSE_Z 1
 
 #if USE_REVERSE_Z
 #define NEAR_Z 1.f
@@ -84,6 +84,7 @@ enum TextureSlot : unsigned
 	t_PrefilteredMap,
 
 	t_GaussianMap = 30,
+	t_IntegrationMap,
 
 	// "Virtual" textures that don't exist in memory but can be computed from other textures
 	t_Normal = D3D11_COMMONSHADER_INPUT_RESOURCE_REGISTER_COUNT,
@@ -110,5 +111,8 @@ enum SamplerSlot : unsigned
 
 std::array<D3D11_SAMPLER_DESC, SamplerCount> GetSamplerDescs();
 
+// Precomputed maps
+
 ShaderResourcePtr CreateGaussianMap();
+ShaderResourcePtr CreateIntegrationMap(); // BRDF LUT for use in specular IBL
 

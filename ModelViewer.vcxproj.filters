@@ -283,12 +283,15 @@
     <FxCompile Include="PsBlurVertical.hlsl">
       <Filter>shaders\blur</Filter>
     </FxCompile>
+    <FxCompile Include="PsIntegrateBRDF.hlsl">
+      <Filter>shaders\fullscreen</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="ShaderCommon.hlsli">
       <Filter>shaders</Filter>
     </None>
-    <None Include="PbrFunctions.hlsli">
+    <None Include="PbrCommon.hlsli">
       <Filter>shaders</Filter>
     </None>
     <None Include="Random.hlsli">

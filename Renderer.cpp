@@ -44,9 +44,10 @@ namespace
 */
 
 Renderer::Renderer(unsigned aWidth, unsigned aHeight)
-	: mySamplers{ 0, GetSamplerDescs() }
+	: myTopology{ D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST }
+	, mySamplers{ 0, GetSamplerDescs() }
+	, myGaussianMap{ CreateGaussianMap() }, myIntegrationMap{ CreateIntegrationMap() }
 	, myCBuffers{ sizeof(ImmutableBuffer), sizeof(CameraBuffer), sizeof(MeshBuffer), sizeof(LightBuffer) }
-	, myGaussianMap{ CreateGaussianMap() }
 {
 	if (!std::ranges::all_of(myCBuffers, &ConstantBuffer::operator bool))
 		return;
@@ -116,7 +117,7 @@ void Renderer::SetCamera(const Camera& aCamera, const Matrix& aTransform)
 	}
 }
 
-void Renderer::Render(entt::registry& aRegistry)
+void Renderer::RenderScene(entt::registry& aRegistry)
 {
 	if (!operator bool())
 		return;
@@ -137,7 +138,7 @@ void Renderer::Render(entt::registry& aRegistry)
 	}
 }
 
-void Renderer::Render(TextureSlot aSlot)
+void Renderer::RenderDebug(TextureSlot aSlot)
 {
 	switch (aSlot)
 	{
@@ -169,6 +170,12 @@ void Renderer::Render(TextureSlot aSlot)
 	{
 		ScopedShaderResources scopedResource{ ShaderType::Pixel, t_GaussianMap, myGaussianMap };
 		FullscreenPass{ "PsGetGaussian.cso" }.Render();
+		break;
+	}
+	case t_IntegrationMap:
+	{
+		ScopedShaderResources scopedResource{ ShaderType::Pixel, 0, myIntegrationMap };
+		FullscreenPass{ "PsPointSample.cso" }.Render();
 		break;
 	}
 	default:

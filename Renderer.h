@@ -23,8 +23,8 @@ public:
 
 	bool ResizeTextures(unsigned aWidth, unsigned aHeight);
 	void SetCamera(const Camera& aCamera, const Matrix& aTransform);
-	void Render(entt::registry&);
-	void Render(TextureSlot);
+	void RenderScene(entt::registry&);
+	void RenderDebug(TextureSlot);
 
 	entt::entity PickEntity(unsigned x, unsigned y);
 
@@ -49,11 +49,12 @@ private:
 	std::vector<ShaderResourcePtr> GetGBufferResources() const;
 
 	bool mySucceeded{ false };
+	ScopedPrimitiveTopology myTopology;
 	ScopedSamplerStates mySamplers;
+	ShaderResourcePtr myGaussianMap{}, myIntegrationMap{}; // Precomputed maps
 	std::array<ConstantBuffer, CBufferCount> myCBuffers{};
 	std::array<RenderTexture, t_LightingTexture + 1> myRenderTextures{};
 	DepthBuffer myDepthBuffer{};
-	ShaderResourcePtr myGaussianMap{};
 
 	Cubemap myCubemap{};
 

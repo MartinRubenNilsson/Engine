@@ -2,7 +2,7 @@
 
 #define OFFSET_VECTOR_COUNT 14
 
-#define USE_REVERSE_Z 0
+#define USE_REVERSE_Z 1
 
 #if USE_REVERSE_Z
 #define NEAR_Z 1.f
@@ -119,7 +119,10 @@ TextureCube EnvironmentMap : register(t20); // Skybox
 TextureCube IrradianceMap  : register(t21);  // Diffuse IBL
 TextureCube PrefilteredMap : register(t22); // Specular IBL
 
-Texture2D GaussianMap : register(t30);
+// Precomputed maps
+
+Texture2D GaussianMap    : register(t30);
+Texture2D IntegrationMap : register(t31); // BRDF LUT for use in specular IBL
 
 /*
 * Samplers
