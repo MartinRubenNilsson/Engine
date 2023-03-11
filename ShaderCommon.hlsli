@@ -125,9 +125,10 @@ Texture2D GaussianMap : register(t30);
 * Samplers
 */
 
-SamplerState PointSampler     : register(s0);
-SamplerState TrilinearSampler : register(s1);
-SamplerState GaussianSampler  : register(s2);
+SamplerState PointSampler       : register(s0);
+SamplerState TrilinearSampler   : register(s1);
+SamplerState NormalDepthSampler : register(s2);
+SamplerState GaussianSampler    : register(s3);
 
 /*
 * Functions

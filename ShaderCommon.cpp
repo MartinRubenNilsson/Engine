@@ -67,14 +67,22 @@ ImmutableBuffer ImmutableBuffer::Create()
 	return buffer;
 }
 
-std::span<const D3D11_SAMPLER_DESC> GetSamplerDescs()
+std::array<D3D11_SAMPLER_DESC, SamplerCount> GetSamplerDescs()
 {
-	static std::array<D3D11_SAMPLER_DESC, SamplerCount> samplers{};
+	std::array<D3D11_SAMPLER_DESC, SamplerCount> samplers{};
 	samplers.fill(CD3D11_SAMPLER_DESC{ CD3D11_DEFAULT{} });
 
 	samplers[s_PointSampler].Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
 
 	samplers[s_TrilinearSampler].Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+
+	samplers[s_NormalDepthSampler].Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+	samplers[s_NormalDepthSampler].AddressU = D3D11_TEXTURE_ADDRESS_BORDER;
+	samplers[s_NormalDepthSampler].AddressV = D3D11_TEXTURE_ADDRESS_BORDER;
+	samplers[s_NormalDepthSampler].BorderColor[0] = 0.f;
+	samplers[s_NormalDepthSampler].BorderColor[1] = 0.f;
+	samplers[s_NormalDepthSampler].BorderColor[2] = 0.f;
+	samplers[s_NormalDepthSampler].BorderColor[3] = FAR_Z;
 
 	samplers[s_GaussianSampler].Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
 	samplers[s_GaussianSampler].AddressU = D3D11_TEXTURE_ADDRESS_WRAP;

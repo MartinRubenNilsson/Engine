@@ -103,11 +103,12 @@ enum SamplerSlot : unsigned
 {
 	s_PointSampler,
 	s_TrilinearSampler,
+	s_NormalDepthSampler,
 	s_GaussianSampler,
 	SamplerCount
 };
 
-std::span<const D3D11_SAMPLER_DESC> GetSamplerDescs();
+std::array<D3D11_SAMPLER_DESC, SamplerCount> GetSamplerDescs();
 
 ShaderResourcePtr CreateGaussianMap();
 

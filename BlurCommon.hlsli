@@ -5,8 +5,8 @@ static const float BlurWeights[11] = { 0.05, 0.05, 0.1, 0.1, 0.1, 0.2, 0.1, 0.1,
 
 bool IsContinuous(float4 normalDepthA, float4 normalDepthB)
 {
-    float3 normalA = UnpackNormal(normalDepthA.xyz);
-    float3 normalB = UnpackNormal(normalDepthB.xyz);
+    float3 normalA = normalize(UnpackNormal(normalDepthA.xyz));
+    float3 normalB = normalize(UnpackNormal(normalDepthB.xyz));
     float depthA = HyperbolicDepthToLinear(normalDepthA.w);
     float depthB = HyperbolicDepthToLinear(normalDepthB.w);
     return dot(normalA, normalB) >= 0.8 && distance(depthA, depthB) <= 0.2;
@@ -14,7 +14,7 @@ bool IsContinuous(float4 normalDepthA, float4 normalDepthB)
 
 float4 EdgePreservingBlur(float2 uvPerPixel, float2 centerUV)
 {
-    const float4 centerNormalDepth = GBufferNormalDepth.Sample(PointSampler, centerUV);
+    const float4 centerNormalDepth = GBufferNormalDepth.Sample(NormalDepthSampler, centerUV);
     
     float4 color = BlurWeights[5] * BlurInputTexture.Sample(PointSampler, centerUV);
     float weight = BlurWeights[5];
@@ -26,7 +26,7 @@ float4 EdgePreservingBlur(float2 uvPerPixel, float2 centerUV)
             continue;
         
         const float2 neighUV = centerUV + i * uvPerPixel;
-        const float4 neighNormalDepth = GBufferNormalDepth.Sample(PointSampler, neighUV);
+        const float4 neighNormalDepth = GBufferNormalDepth.Sample(NormalDepthSampler, neighUV);
         
         if (!IsContinuous(centerNormalDepth, neighNormalDepth))
             continue;

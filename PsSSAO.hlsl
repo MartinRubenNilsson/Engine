@@ -1,6 +1,6 @@
 #include "ShaderCommon.hlsli"
 
-// Below occlusion parameters use view space units.
+// Below occlusion parameters use world space units.
 
 static const float OcclusionEpsilon = 0.05;
 static const float OcclusionFadeStart = 0.2;
@@ -18,36 +18,38 @@ float OcclusionFunc(float deltaWorldDepth)
 
 float main(VsOutFullscreen input) : SV_TARGET
 {
-    // Consider the surface geometry at the current pixel. Then let:
-    // P = its world position
-    // N = its world normal
-    // Q = P + offset, where offset is sampled from a hemisphere pointing in direction N
+    /*
+    * Consider the surface geometry being rendered at the current pixel and let:
+    * P = its world position,
+    * N = its world normal,
+    * Q = P + offset, where offset is randomly sampled from the hemisphere (P, N).
+    *
+    * Next, consider the surface geometry being rendered at the pixel containing Q and let:
+    * R = its world position (which may or may not equal Q).
+    */
     
-    // Next, consider the surface geometry at the pixel corresponding to Q. Then let:
-    // R = its world position (may or may not equal Q)
-    
-    const float4 normalDepthP = GBufferNormalDepth.Sample(TrilinearSampler, input.uv);
+    const float4 normalDepthP = GBufferNormalDepth.Sample(NormalDepthSampler, input.uv);
     const float depthP = normalDepthP.w;
     if (depthP == FAR_Z)
         return 1.0; // at far plane -> no occlusion -> full access
     
+    const float3 P = UVDepthToWorld(input.uv, depthP);
     const float3 N = normalize(UnpackNormal(normalDepthP.xyz));
     
-    const float3 P = UVDepthToWorld(input.uv, depthP);
-    const float3 randUnitVec = GetRandomUnitVec(input.pos.xy);
+    const float3 unitVec = GetRandomUnitVec(input.pos.xy);
     
     float totalOcclusion = 0.0;
     
     [unroll]
     for (uint i = 0; i < OFFSET_VECTOR_COUNT; ++i)
     {
-        const float3 offset = reflect(OffsetVectors[i].xyz, randUnitVec);
+        const float3 offset = reflect(OffsetVectors[i].xyz, unitVec);
         const float flip = sign(dot(offset, N));
         
         const float3 Q = P + flip * OcclusionRadius * offset;
         const float2 uv = WorldToUVDepth(Q).xy;
 
-        const float depthR = GBufferNormalDepth.Sample(TrilinearSampler, uv).w;
+        const float depthR = GBufferNormalDepth.Sample(NormalDepthSampler, uv).w;
         const float3 R = UVDepthToWorld(uv, depthR);
         
         const float deltaWorldDepth = HyperbolicDepthToLinear(depthP) - HyperbolicDepthToLinear(depthR);
