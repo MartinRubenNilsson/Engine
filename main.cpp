@@ -110,7 +110,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
             PerspectiveCamera perspective{};
             perspective.fovY = 1.04719755119f; // 60 degrees
             perspective.aspect = backBuffer.GetViewport().AspectRatio();
-            camera.SetPerspective(perspective);
+            camera.SetVariant(perspective);
 
             Mouse::State state{ mouse.GetState() };
             mouse.SetMode(state.rightButton ? Mouse::MODE_RELATIVE : Mouse::MODE_ABSOLUTE);

@@ -96,16 +96,12 @@ bool Renderer::ResizeTextures(unsigned aWidth, unsigned aHeight)
 
 void Renderer::SetCamera(const Camera& aCamera, const Matrix& aTransform)
 {
-	const Matrix view{ aTransform.Invert() * aCamera.GetViewMatrix() };
-	const Matrix proj{ aCamera.GetProjectionMatrix(USE_REVERSE_Z) };
-
 	// Update constant buffer
 	{
-		CameraBuffer buffer{};
-		buffer.viewProj = view * proj;
-		buffer.invViewProj = buffer.viewProj.Invert();
-		buffer.position = { aTransform._41, aTransform._42, aTransform._43, 1.f };
-		buffer.clipPlanes = { aCamera.GetNearZ(), aCamera.GetFarZ(), 0.f, 0.f };
+		CameraBuffer buffer{ aCamera.GetBuffer(USE_REVERSE_Z) };
+		buffer.viewProj = aTransform.Invert() * buffer.viewProj;
+		buffer.invViewProj = buffer.invViewProj * aTransform;
+		Vector4::Transform(buffer.position, aTransform, buffer.position);
 
 		myCBuffers.at(b_Camera).Update(&buffer);
 	}

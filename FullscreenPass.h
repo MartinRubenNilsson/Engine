@@ -9,6 +9,7 @@ public:
 	void Render() const;
 
 private:
-	fs::path myPixelShader{};
+	ScopedInputLayout myLayout;
+	ScopedShader myVertexShader, myPixelShader;
 };
 

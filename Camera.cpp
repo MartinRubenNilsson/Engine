@@ -1,23 +1,6 @@
 #include "pch.h"
 #include "Camera.h"
-
-namespace
-{
-	struct ProjectionGetter
-	{
-		float nearZ{}, farZ{};
-
-		Matrix operator()(const PerspectiveCamera& aCamera)
-		{
-			return XMMatrixPerspectiveFovLH(aCamera.fovY, aCamera.aspect, nearZ, farZ);
-		}
-
-		Matrix operator()(const OrthographicCamera& aCamera)
-		{
-			return XMMatrixOrthographicLH(aCamera.width, aCamera.height, nearZ, farZ);
-		}
-	};
-}
+#include "ShaderCommon.h"
 
 /*
 * class Camera
@@ -40,7 +23,7 @@ Camera::Camera(const aiCamera& aCamera)
 		camera.fovY = 2.f * atan(tan(aCamera.mHorizontalFOV) / aCamera.mAspect);
 		camera.aspect = aCamera.mAspect;
 
-		SetPerspective(camera);
+		SetVariant(camera);
 	}
 	else
 	{
@@ -48,13 +31,24 @@ Camera::Camera(const aiCamera& aCamera)
 		camera.width = 2.f * aCamera.mOrthographicWidth;
 		camera.height = camera.width / aCamera.mAspect;
 
-		SetOrthographic(camera);
+		SetVariant(camera);
 	}
 }
 
 CameraType Camera::GetType() const
 {
-	return static_cast<CameraType>(myCamera.index());
+	return static_cast<CameraType>(myVariant.index());
+}
+
+CameraBuffer Camera::GetBuffer(bool aReverseZ) const
+{
+	CameraBuffer buffer{};
+	buffer.viewProj = GetViewMatrix() * GetProjectionMatrix(aReverseZ);
+	buffer.invViewProj = buffer.viewProj.Invert();
+	buffer.position = { myPosition.x, myPosition.y, myPosition.z, 1.f };
+	buffer.clipPlanes = { myNearZ, myFarZ, 0.f, 0.f };
+
+	return buffer;
 }
 
 Matrix Camera::GetViewMatrix() const
@@ -64,55 +58,69 @@ Matrix Camera::GetViewMatrix() const
 
 Matrix Camera::GetProjectionMatrix(bool aReverseZ) const
 {
-	ProjectionGetter getter{ myNearZ, myFarZ };
+	struct Projector
+	{
+		float nearZ{}, farZ{};
+
+		Matrix operator()(const PerspectiveCamera& aCamera)
+		{
+			return XMMatrixPerspectiveFovLH(aCamera.fovY, aCamera.aspect, nearZ, farZ);
+		}
+
+		Matrix operator()(const OrthographicCamera& aCamera)
+		{
+			return XMMatrixOrthographicLH(aCamera.width, aCamera.height, nearZ, farZ);
+		}
+	};
+
+	Projector projector{ myNearZ, myFarZ };
 	if (aReverseZ)
-		std::swap(getter.nearZ, getter.farZ);
-	return std::visit(getter, myCamera);
+		std::swap(projector.nearZ, projector.farZ);
+	return std::visit(projector, myVariant);
 }
 
-void Camera::SetPerspective(const PerspectiveCamera& aCamera)
+void Camera::SetVariant(const CameraVariant& aVariant)
 {
-	// todo: validae values
-	myCamera = aCamera;
+	// TODO: VAlidate valures!!!!!
+	myVariant = aVariant;
 }
 
-void Camera::SetOrthographic(const OrthographicCamera& aCamera)
+const CameraVariant& Camera::GetVariant() const
 {
-	// todo: validae values
-	myCamera = aCamera;
+	return myVariant;
 }
 
 /*
 * namespace ImGui
 */
 
-namespace ImGui
+void ImGui::InspectCamera(Camera& aCamera)
 {
-	struct CameraInspector
+	struct Inspector
 	{
 		void operator()(PerspectiveCamera& aCamera)
 		{
+			// TODO: VAlidate valures!!!!!
+
 			DragFloat("FoV", &aCamera.fovY, 0.01f);
 			DragFloat("Aspect", &aCamera.aspect, 0.01f);
 		}
 
 		void operator()(OrthographicCamera& aCamera)
 		{
+			// TODO: VAlidate valures!!!!!
+
 			DragFloat("Width", &aCamera.width, 0.01f);
 			DragFloat("Height", &aCamera.height, 0.01f);
 		}
 	};
-}
 
-void ImGui::InspectCamera(Camera& aCamera)
-{
 	int type{ static_cast<int>(aCamera.GetType()) };
-	if (Combo("Type", &type, "Perspective\0Orthographic\0\0"))
-		type ? aCamera.SetOrthographic({}) : aCamera.SetPerspective({});
+	Combo("Type", &type, "Perspective\0Orthographic\0\0");
 
-	//DragFloat("Near Z", &aCamera.nearZ, 0.1f);
-	//DragFloat("Far Z", &aCamera.farZ);
-	std::visit(CameraInspector{}, aCamera.myCamera);
+	CameraVariant variant{ aCamera.GetVariant() };
+	std::visit(Inspector{}, variant);
+	aCamera.SetVariant(variant);
 }
 
 void ImGui::DrawCubes(const Camera& aCamera, const Matrix& aCameraTransform, std::span<const Matrix> someCubeTransforms)

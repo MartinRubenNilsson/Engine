@@ -3,16 +3,14 @@
 #include "ShaderCommon.h"
 
 FullscreenPass::FullscreenPass(const fs::path& aPixelShader)
-	: myPixelShader{ aPixelShader }
+	: myLayout{ typeid(EmptyVertex) }
+	, myVertexShader{ "VsFullscreen.cso" }
+	, myPixelShader{ aPixelShader }
 {
 }
 
 void FullscreenPass::Render() const
 {
-	ScopedInputLayout scopedLayout{ typeid(EmptyVertex) };
-	ScopedShader scopedVs{ "VsFullscreen.cso" };
-	ScopedShader scopedPs{ myPixelShader };
-
 	DX11_CONTEXT->Draw(FULLSCREEN_VERTEX_COUNT, 0);
 }
 

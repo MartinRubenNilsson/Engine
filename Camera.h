@@ -18,12 +18,9 @@ struct OrthographicCamera
 	float height = 10.f;
 };
 
-class Camera;
+using CameraVariant = std::variant<PerspectiveCamera, OrthographicCamera>;
 
-namespace ImGui
-{
-	void InspectCamera(Camera& aCamera);
-}
+struct CameraBuffer;
 
 class Camera
 {
@@ -32,26 +29,24 @@ public:
 	Camera(const aiCamera&);
 
 	CameraType GetType() const;
+	CameraBuffer GetBuffer(bool aReverseZ = false) const;
 
 	Matrix GetViewMatrix() const;
 	Matrix GetProjectionMatrix(bool aReverseZ = false) const;
 
-	void SetPerspective(const PerspectiveCamera&);
-	void SetOrthographic(const OrthographicCamera&);
-
-	float GetNearZ() const { return myNearZ; }
-	float GetFarZ() const { return myFarZ; }
+	void SetVariant(const CameraVariant&);
+	const CameraVariant& GetVariant() const;
 
 protected:
-	friend void ImGui::InspectCamera(Camera&);
-
 	Vector3 myPosition{ Vector3::Zero }, myDirection{ Vector3::UnitZ }, myUp{ Vector3::UnitY };
-	std::variant<PerspectiveCamera, OrthographicCamera> myCamera{};
 	float myNearZ{ 0.3f }, myFarZ{ 1000.f };
+	CameraVariant myVariant{};
 };
 
 namespace ImGui
 {
+	void InspectCamera(Camera& aCamera);
+
 	void DrawCubes(const Camera& aCamera, const Matrix& aCameraTransform, std::span<const Matrix> someCubeTransforms);
 	void DrawGrid(const Camera& aCamera, const Matrix& aCameraTransform, const Matrix& aGridTransform, float aGridSize);
 	bool Manipulate(const Camera& aCamera, const Matrix& aCameraTransform, ImGuizmo::OPERATION anOperation, ImGuizmo::MODE aMode, Matrix& aTransform);
