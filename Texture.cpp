@@ -12,7 +12,7 @@ const char* TextureTypeToString(TextureType aType)
         "Metallic",
         "Roughness",
         "Occlusion",
-        "Hdr"
+        "HDR"
     };
 
     return strings.at(std::to_underlying(aType));
@@ -28,7 +28,7 @@ DXGI_FORMAT TextureTypeToFormat(TextureType aType)
 		DXGI_FORMAT_R8_UNORM,			 // Metallic
 		DXGI_FORMAT_R8_UNORM,			 // Roughness
 		DXGI_FORMAT_R8_UNORM,			 // Occlusion
-        DXGI_FORMAT_R32G32B32A32_FLOAT,  // Hdr
+        DXGI_FORMAT_R32G32B32A32_FLOAT,  // HDR
 	};
 
 	return formats.at(std::to_underlying(aType));
@@ -44,7 +44,7 @@ unsigned TextureTypeToChannels(TextureType aType)
 		1u, // Metallic
 		1u, // Roughness
 		1u, // Occlusion
-        4u, // Hdr
+        4u, // HDR
 	};
 
 	return channels.at(std::to_underlying(aType));

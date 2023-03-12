@@ -45,78 +45,55 @@ Cubemap::Cubemap(std::span<const fs::path, 6> someLdrCubeFaces)
 		textureData[i].SysMemSlicePitch = 0;
 	}
 
-	D3D11_SHADER_RESOURCE_VIEW_DESC resourceDesc{};
-	resourceDesc.Format = textureDesc.Format;
-	resourceDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURECUBE;
-	resourceDesc.TextureCube.MostDetailedMip = 0;
-	resourceDesc.TextureCube.MipLevels = textureDesc.MipLevels;
-
-	D3D11_RENDER_TARGET_VIEW_DESC targetDesc{};
-	targetDesc.Format = textureDesc.Format;
-	targetDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2DARRAY;
-	targetDesc.Texture2DArray.MipSlice = 0;
-	targetDesc.Texture2DArray.FirstArraySlice = 0;
-	targetDesc.Texture2DArray.ArraySize = textureDesc.ArraySize;
-
 	TexturePtr texture{};
-	myResult = DX11_DEVICE->CreateTexture2D(&textureDesc, textureData, &texture);
+
+	myResult = DX11_DEVICE->CreateTexture2D(&textureDesc, NULL, &texture);
 	if (FAILED(myResult))
 		return;
 
-	myResult = DX11_DEVICE->CreateShaderResourceView(texture.Get(), &resourceDesc, &myEnvironmentMap);
+	myResult = DX11_DEVICE->CreateShaderResourceView(texture.Get(), NULL, &myEnvironmentMap);
 	if (FAILED(myResult))
 		return;
 
 	CreateIrradianceMap();
+	CreatePrefilteredMap();
 }
 
 Cubemap::Cubemap(const fs::path& anHdrEquirectMap)
 {
+	static constexpr UINT size{ 512 };
+
 	// 1. Load equirectangular map.
-	Texture::Ptr equirectMap{ TextureFactory::Get().GetAsset(anHdrEquirectMap, TextureType::Hdr) };
+	Texture::Ptr equirectMap{ TextureFactory::Get().GetAsset(anHdrEquirectMap, TextureType::HDR) };
 	if (!equirectMap)
 		return;
 
 	// 2. Create cubemap shader resource and render target.
-	static constexpr UINT size{ 512 };
 	TexturePtr cubemapTexture{};
 	RenderTargetPtr cubemapTarget{};
 	{
-		D3D11_TEXTURE2D_DESC textureDesc{};
-		textureDesc.Width = size;
-		textureDesc.Height = size;
-		textureDesc.MipLevels = 1;
-		textureDesc.ArraySize = 6;
-		textureDesc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
-		textureDesc.SampleDesc.Count = 1;
-		textureDesc.SampleDesc.Quality = 0;
-		textureDesc.Usage = D3D11_USAGE_DEFAULT;
-		textureDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET;
-		textureDesc.CPUAccessFlags = 0;
-		textureDesc.MiscFlags = D3D11_RESOURCE_MISC_TEXTURECUBE;
+		D3D11_TEXTURE2D_DESC desc{};
+		desc.Width = size;
+		desc.Height = size;
+		desc.MipLevels = 1;
+		desc.ArraySize = 6;
+		desc.Format = DXGI_FORMAT_R16G16B16A16_FLOAT;
+		desc.SampleDesc.Count = 1;
+		desc.SampleDesc.Quality = 0;
+		desc.Usage = D3D11_USAGE_DEFAULT;
+		desc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET;
+		desc.CPUAccessFlags = 0;
+		desc.MiscFlags = D3D11_RESOURCE_MISC_TEXTURECUBE;
 
-		D3D11_SHADER_RESOURCE_VIEW_DESC resourceDesc{};
-		resourceDesc.Format = textureDesc.Format;
-		resourceDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURECUBE;
-		resourceDesc.TextureCube.MostDetailedMip = 0;
-		resourceDesc.TextureCube.MipLevels = textureDesc.MipLevels;
-
-		D3D11_RENDER_TARGET_VIEW_DESC targetDesc{};
-		targetDesc.Format = textureDesc.Format;
-		targetDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2DARRAY;
-		targetDesc.Texture2DArray.MipSlice = 0;
-		targetDesc.Texture2DArray.FirstArraySlice = 0;
-		targetDesc.Texture2DArray.ArraySize = textureDesc.ArraySize;
-
-		myResult = DX11_DEVICE->CreateTexture2D(&textureDesc, NULL, &cubemapTexture);
+		myResult = DX11_DEVICE->CreateTexture2D(&desc, NULL, &cubemapTexture);
 		if (FAILED(myResult))
 			return;
 
-		myResult = DX11_DEVICE->CreateShaderResourceView(cubemapTexture.Get(), &resourceDesc, &myEnvironmentMap);
+		myResult = DX11_DEVICE->CreateShaderResourceView(cubemapTexture.Get(), NULL, &myEnvironmentMap);
 		if (FAILED(myResult))
 			return;
 
-		myResult = DX11_DEVICE->CreateRenderTargetView(cubemapTexture.Get(), &targetDesc, &cubemapTarget);
+		myResult = DX11_DEVICE->CreateRenderTargetView(cubemapTexture.Get(), NULL, &cubemapTarget);
 		if (FAILED(myResult))
 			return;
 	}
@@ -136,6 +113,7 @@ Cubemap::Cubemap(const fs::path& anHdrEquirectMap)
 	}
 	
 	CreateIrradianceMap();
+	CreatePrefilteredMap();
 }
 
 std::vector<ShaderResourcePtr> Cubemap::GetMaps() const
@@ -152,44 +130,31 @@ void Cubemap::CreateIrradianceMap()
 {
 	static constexpr UINT size{ 32 };
 
-	D3D11_TEXTURE2D_DESC textureDesc{};
-	textureDesc.Width = size;
-	textureDesc.Height = size;
-	textureDesc.MipLevels = 1;
-	textureDesc.ArraySize = 6;
-	textureDesc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
-	textureDesc.SampleDesc.Count = 1;
-	textureDesc.SampleDesc.Quality = 0;
-	textureDesc.Usage = D3D11_USAGE_DEFAULT;
-	textureDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET;
-	textureDesc.CPUAccessFlags = 0;
-	textureDesc.MiscFlags = D3D11_RESOURCE_MISC_TEXTURECUBE;
-
-	D3D11_SHADER_RESOURCE_VIEW_DESC resourceDesc{};
-	resourceDesc.Format = textureDesc.Format;
-	resourceDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURECUBE;
-	resourceDesc.TextureCube.MostDetailedMip = 0;
-	resourceDesc.TextureCube.MipLevels = textureDesc.MipLevels;
-
-	D3D11_RENDER_TARGET_VIEW_DESC targetDesc{};
-	targetDesc.Format = textureDesc.Format;
-	targetDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2DARRAY;
-	targetDesc.Texture2DArray.MipSlice = 0;
-	targetDesc.Texture2DArray.FirstArraySlice = 0;
-	targetDesc.Texture2DArray.ArraySize = textureDesc.ArraySize;
+	D3D11_TEXTURE2D_DESC desc{};
+	desc.Width = size;
+	desc.Height = size;
+	desc.MipLevels = 1;
+	desc.ArraySize = 6;
+	desc.Format = DXGI_FORMAT_R16G16B16A16_FLOAT;
+	desc.SampleDesc.Count = 1;
+	desc.SampleDesc.Quality = 0;
+	desc.Usage = D3D11_USAGE_DEFAULT;
+	desc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET;
+	desc.CPUAccessFlags = 0;
+	desc.MiscFlags = D3D11_RESOURCE_MISC_TEXTURECUBE;
 
 	TexturePtr irradianceTexture{};
 	RenderTargetPtr irradianceTarget{};
 
-	myResult = DX11_DEVICE->CreateTexture2D(&textureDesc, NULL, &irradianceTexture);
+	myResult = DX11_DEVICE->CreateTexture2D(&desc, NULL, &irradianceTexture);
 	if (FAILED(myResult))
 		return;
 
-	myResult = DX11_DEVICE->CreateShaderResourceView(irradianceTexture.Get(), &resourceDesc, &myIrradianceMap);
+	myResult = DX11_DEVICE->CreateShaderResourceView(irradianceTexture.Get(), NULL, &myIrradianceMap);
 	if (FAILED(myResult))
 		return;
 
-	myResult = DX11_DEVICE->CreateRenderTargetView(irradianceTexture.Get(), &targetDesc, &irradianceTarget);
+	myResult = DX11_DEVICE->CreateRenderTargetView(irradianceTexture.Get(), NULL, &irradianceTarget);
 	if (FAILED(myResult))
 		return;
 
