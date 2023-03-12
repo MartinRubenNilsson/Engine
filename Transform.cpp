@@ -103,17 +103,21 @@ Transform::~Transform()
 * namespace ImGui
 */
 
-bool ImGui::InspectTransform(Transform::Ptr aTransform)
+void ImGui::InspectTransform(Transform::Ptr aTransform)
 {
+	std::string name{ aTransform->GetName() };
+	if (InputText("Name", &name))
+		aTransform->SetName(name);
+
 	float translation[3]{};
 	float rotation[3]{};
 	float scale[3]{};
+
 	ImGuizmo::DecomposeMatrixToComponents(aTransform->Data(), translation, rotation, scale);
-	const bool translated = ImGui::DragFloat3("Translation", translation, 0.025f);
-	const bool rotated = ImGui::DragFloat3("Rotation", rotation, 0.25f);
-	const bool scaled = ImGui::DragFloat3("Scale", scale, 0.025f);
+	DragFloat3("Translation", translation, 0.025f);
+	DragFloat3("Rotation", rotation, 0.25f);
+	DragFloat3("Scale", scale, 0.025f);
 	ImGuizmo::RecomposeMatrixFromComponents(translation, rotation, scale, aTransform->Data());
-	return translated || rotated || scaled;
 }
 
 bool ImGui::Hierarchy(Transform::Ptr aTransform, Transform::Ptr& aSelection)

@@ -72,6 +72,7 @@ using ComputeShaderPtr = ComPtr<ID3D11ComputeShader>;
 #include <imgui/imgui_impl_win32.h>
 #include <imgui/imgui_impl_dx11.h>
 #include <imgui/imgui.h>
+#include <imgui/imgui_stdlib.h>
 #include <imgui/ImGuizmo.h>
 #include <imgui/IconsFontAwesome6.h>
 
