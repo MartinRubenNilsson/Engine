@@ -2,6 +2,6 @@
 
 namespace ImGui
 {
-	void Inspector(entt::handle);
+	void Inspector(entt::registry&);
 }
 

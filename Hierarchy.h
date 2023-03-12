@@ -2,6 +2,6 @@
 
 namespace ImGui
 {
-	void Hierarchy(entt::registry&, entt::entity& aSelection);
+	void Hierarchy(entt::registry&);
 }
 

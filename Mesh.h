@@ -16,6 +16,7 @@ public:
 	std::string_view GetName() const { return myName; }
 	unsigned GetVertexCount() const { return myVertexCount; }
 	unsigned GetIndexCount() const { return myIndexCount; }
+	unsigned GetTriangleCount() const { return myTriangleCount; }
 	const BoundingBox& GetBoundingBox() const { return myBoundingBox; }
 
 	explicit operator bool() const;
@@ -24,7 +25,7 @@ private:
 	std::string myName{};
 	HRESULT myResult{ E_FAIL };
 	BufferPtr myVertexBuffer{}, myIndexBuffer{};
-	unsigned myVertexCount{}, myIndexCount{};
+	unsigned myVertexCount{}, myIndexCount{}, myTriangleCount{};
 	BoundingBox myBoundingBox{};
 };
 

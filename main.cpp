@@ -13,6 +13,7 @@
 #include "Hierarchy.h"
 #include "Inspector.h"
 #include "GameScene.h"
+#include "Tags.h"
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
@@ -38,10 +39,9 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
 
     window.SetTitle(L"Model Viewer");
 
+    Keyboard keyboard{};
     Mouse mouse{};
     mouse.SetWindow(window);
-
-    Keyboard keyboard{};
 
     DX11 dx11{};
     if (!dx11)
@@ -71,8 +71,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
     Camera camera{};
     Matrix cameraTransform{};
 
-    GameScene gameScene{};
-    entt::entity selection{ entt::null };
+    entt::registry registry{};
+    GameScene gameScene{ registry };
 
     bool run = true;
     MSG msg{};
@@ -100,8 +100,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
         // Drag and drop
         if (theDrop)
         {
-            gameScene.GetRegistry().clear();
-            sceneFactory.GetAsset(theDrop.GetPaths().front())->CopyTo(gameScene.GetRegistry());
+            registry.clear();
+            sceneFactory.GetAsset(theDrop.GetPaths().front())->CopyTo(registry);
             theDrop = {};
         }
 
@@ -145,6 +145,20 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
                 if (moveDir != Vector3::Zero)
                     cameraTransform = Matrix::CreateTranslation(moveDir * moveSpeed * deltaTime) * cameraTransform;
             }
+
+            if (ImGui::IsMouseClicked(ImGuiMouseButton_Left) && !ImGui::GetIO().WantCaptureMouse)
+            {
+                auto selected = registry.view<Tag::Selected>();
+                registry.erase<Tag::Selected>(selected.begin(), selected.end());
+
+                auto x = static_cast<unsigned>(ImGui::GetMousePos().x);
+                auto y = static_cast<unsigned>(ImGui::GetMousePos().y);
+
+                entt::entity selection = renderer.PickEntity(x, y);
+
+                if (registry.valid(selection))
+                    registry.emplace_or_replace<Tag::Selected>(selection);
+            }
         }
 
         mouse.EndOfInputFrame();
@@ -153,21 +167,17 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
         {
             imGui.NewFrame();
 
-            if (ImGui::IsMouseClicked(ImGuiMouseButton_Left) && !ImGui::GetIO().WantCaptureMouse)
-            {
-                ImVec2 pos = ImGui::GetMousePos();
-                selection = renderer.PickEntity(static_cast<unsigned>(pos.x), static_cast<unsigned>(pos.y));
-            }
-
             ImGui::Begin(ICON_FA_LIST" Hierarchy");
-            ImGui::Hierarchy(gameScene.GetRegistry(), selection);
+            ImGui::Hierarchy(registry);
             ImGui::End();
 
             ImGui::Begin(ICON_FA_CIRCLE_INFO" Inspector");
-            ImGui::Inspector({ gameScene.GetRegistry(), selection });
+            ImGui::Inspector(registry);
             ImGui::End();
 
-            if (auto transform = gameScene.GetRegistry().try_get<Transform::Ptr>(selection))
+            entt::entity selection{ registry.view<Tag::Selected>().front() };
+
+            if (auto transform = registry.try_get<Transform::Ptr>(selection))
             {
                 static ImGuizmo::OPERATION op = ImGuizmo::TRANSLATE;
                 static ImGuizmo::MODE mode = ImGuizmo::LOCAL;
@@ -200,8 +210,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
             ScopedRenderTargets scopedTarget{ backBuffer.GetTarget() };
 
             backBuffer.Clear();
-            renderer.RenderScene(gameScene.GetRegistry());
-            //renderer.RenderDebug(t_IrradianceMap);
+            renderer.RenderScene(registry);
+            //renderer.RenderDebug(t_AmbientAccessMap);
             imGui.Render();
 
             backBuffer.Present();
@@ -220,10 +230,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
     if (ImGui::GetCurrentContext())
     {
-        if (!ImGui::GetIO().WantCaptureMouse)
-            Mouse::ProcessMessage(message, wParam, lParam);
         if (!ImGui::GetIO().WantCaptureKeyboard)
             Keyboard::ProcessMessage(message, wParam, lParam);
+        if (!ImGui::GetIO().WantCaptureMouse)
+            Mouse::ProcessMessage(message, wParam, lParam);
     }
 
     switch (message)

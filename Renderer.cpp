@@ -117,7 +117,7 @@ void Renderer::SetCamera(const Camera& aCamera, const Matrix& aTransform)
 	}
 }
 
-void Renderer::RenderScene(entt::registry& aRegistry)
+void Renderer::RenderScene(const entt::registry& aRegistry)
 {
 	if (!operator bool())
 		return;
@@ -216,7 +216,7 @@ void Renderer::Clear()
 	myStatistics = {};
 }
 
-void Renderer::RenderGeometry(entt::registry& aRegistry)
+void Renderer::RenderGeometry(const entt::registry& aRegistry)
 {
 #if USE_REVERSE_Z
 	CD3D11_DEPTH_STENCIL_DESC depthDesc{ CD3D11_DEFAULT{} };
@@ -299,7 +299,7 @@ void Renderer::RenderSSAO()
 	}
 }
 
-void Renderer::RenderLightning(entt::registry& aRegistry)
+void Renderer::RenderLightning(const entt::registry& aRegistry)
 {
 	std::vector<DirectionalLight> dLights{};
 	std::vector<PointLight> pLights{};

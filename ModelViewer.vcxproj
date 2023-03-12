@@ -220,6 +220,7 @@
     <ClInclude Include="Shader.h" />
     <ClInclude Include="Singleton.h" />
     <ClInclude Include="BackBuffer.h" />
+    <ClInclude Include="Tags.h" />
     <ClInclude Include="Texture.h" />
     <ClInclude Include="Transform.h" />
     <ClInclude Include="Vertices.h" />

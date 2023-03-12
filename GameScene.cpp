@@ -1,7 +1,8 @@
 #include "pch.h"
 #include "GameScene.h"
 
-GameScene::GameScene()
+GameScene::GameScene(entt::registry& aRegistry)
+	: myRegistry{ aRegistry }
 {
 	myRegistry.on_construct<Transform::Ptr>().connect<&GameScene::OnConstructTransform>(this);
 	myRegistry.on_destroy<Transform::Ptr>().connect<&GameScene::OnDestroyTransform>(this);

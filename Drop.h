@@ -13,7 +13,7 @@ public:
 
 private:
 	using Element = std::remove_pointer_t<HDROP>;
-	using Deleter = decltype(DragFinish);
+	using Deleter = void(HDROP);
 
 	std::unique_ptr<Element, Deleter*> myDrop;
 };

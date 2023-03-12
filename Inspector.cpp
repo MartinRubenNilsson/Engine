@@ -1,44 +1,46 @@
 #include "pch.h"
 #include "Inspector.h"
+#include "Tags.h"
 #include "Transform.h"
 #include "Mesh.h"
 #include "Material.h"
 #include "Camera.h"
 #include "Light.h"
 
-void ImGui::Inspector(entt::handle aHandle)
+void ImGui::Inspector(entt::registry& aRegistry)
 {
-	if (!aHandle)
+	entt::handle selection{ aRegistry, aRegistry.view<Tag::Selected>().front() };
+	if (!selection)
 		return;
 
-	if (auto transform = aHandle.try_get<Transform::Ptr>())
+	if (auto transform = selection.try_get<Transform::Ptr>())
 		if (CollapsingHeader(ICON_FA_UP_DOWN_LEFT_RIGHT" Transform", ImGuiTreeNodeFlags_DefaultOpen))
 			InspectTransform(*transform);
 
-	if (auto mesh = aHandle.try_get<Mesh::Ptr>())
+	if (auto mesh = selection.try_get<Mesh::Ptr>())
 		if (CollapsingHeader(ICON_FA_CIRCLE_NODES" Mesh", ImGuiTreeNodeFlags_DefaultOpen))
 			InspectMesh(**mesh);
 
-	if (auto material = aHandle.try_get<Material>())
+	if (auto material = selection.try_get<Material>())
 		if (CollapsingHeader(ICON_FA_PALETTE" Material", ImGuiTreeNodeFlags_DefaultOpen))
 			InspectMaterial(*material);
 
-	if (auto camera = aHandle.try_get<Camera>())
+	if (auto camera = selection.try_get<Camera>())
 	{
 		bool visible = true;
 		if (CollapsingHeader(ICON_FA_VIDEO" Camera", &visible, ImGuiTreeNodeFlags_DefaultOpen))
 			InspectCamera(*camera);
 		if (!visible)
-			aHandle.remove<Camera>();
+			selection.remove<Camera>();
 	}
 
-	if (auto light = aHandle.try_get<Light>())
+	if (auto light = selection.try_get<Light>())
 	{
 		bool visible = true;
 		if (CollapsingHeader(ICON_FA_SUN" Light", &visible, ImGuiTreeNodeFlags_DefaultOpen))
 			InspectLight(*light);
 		if (!visible)
-			aHandle.remove<Light>();
+			selection.remove<Light>();
 	}
 
 	Separator();
@@ -62,7 +64,7 @@ void ImGui::Inspector(entt::handle aHandle)
 	{
 		for (size_t i = 0; i < names.size(); ++i)
 			if (Selectable(names.at(i)))
-				emplacers.at(i)(aHandle);
+				emplacers.at(i)(selection);
 
 		EndPopup();
 	}

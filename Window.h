@@ -17,7 +17,7 @@ public:
 
 private:
 	using Element = std::remove_pointer_t<HWND>;
-	using Deleter = decltype(DestroyWindow);
+	using Deleter = BOOL(HWND);
 
 	std::unique_ptr<Element, Deleter*> myWindow;
 };

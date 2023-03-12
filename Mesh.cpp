@@ -18,12 +18,13 @@ Mesh::Mesh(const aiMesh& aMesh)
 
 	const unsigned vertexCount{ aMesh.mNumVertices };
 	const unsigned indexCount{ aMesh.mNumFaces * 3 };
+	const unsigned triangleCount{ aMesh.mNumFaces };
 
 	// Create vertex buffer
 	{
 		std::vector<VsInBasic> vertices(vertexCount);
 
-		for (unsigned i = 0; i < aMesh.mNumVertices; ++i)
+		for (unsigned i = 0; i < vertexCount; ++i)
 		{
 			std::memcpy(&vertices[i].position, &aMesh.mVertices[i], sizeof(Vector3));
 			std::memcpy(&vertices[i].normal, &aMesh.mNormals[i], sizeof(Vector3));
@@ -49,7 +50,7 @@ Mesh::Mesh(const aiMesh& aMesh)
 	{
 		std::vector<unsigned> indices(indexCount);
 
-		for (unsigned i = 0; i < aMesh.mNumFaces; ++i)
+		for (unsigned i = 0; i < triangleCount; ++i)
 			std::memcpy(&indices[3 * i], aMesh.mFaces[i].mIndices, 3 * sizeof(unsigned));
 
 		D3D11_BUFFER_DESC desc{};
@@ -67,6 +68,7 @@ Mesh::Mesh(const aiMesh& aMesh)
 
 	myVertexCount = vertexCount;
 	myIndexCount = indexCount;
+	myTriangleCount = triangleCount;
 
 	BoundingBox::CreateFromPoints(
 		myBoundingBox,
@@ -104,6 +106,7 @@ void ImGui::InspectMesh(const Mesh& aMesh)
 	Text("Name: %s", aMesh.GetName().data());
 	Value("Vertices", aMesh.GetVertexCount());
 	Value("Indices", aMesh.GetIndexCount());
+	Value("Triangles", aMesh.GetTriangleCount());
 	Text("Center: (%.2g, %.2g, %.2g)", box.Center.x, box.Center.y, box.Center.z);
 	Text("Extents: (%.2g, %.2g, %.2g)", box.Extents.x, box.Extents.y, box.Extents.z);
 }

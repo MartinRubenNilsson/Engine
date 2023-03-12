@@ -23,7 +23,7 @@ public:
 
 	bool ResizeTextures(unsigned aWidth, unsigned aHeight);
 	void SetCamera(const Camera& aCamera, const Matrix& aTransform);
-	void RenderScene(entt::registry&);
+	void RenderScene(const entt::registry&);
 	void RenderDebug(TextureSlot);
 
 	entt::entity PickEntity(unsigned x, unsigned y);
@@ -35,9 +35,9 @@ public:
 private:
 	void Clear();
 
-	void RenderGeometry(entt::registry&);
+	void RenderGeometry(const entt::registry&);
 	void RenderSSAO();
-	void RenderLightning(entt::registry&);
+	void RenderLightning(const entt::registry&);
 	void RenderSkybox();
 
 	void RenderImageBasedLight();

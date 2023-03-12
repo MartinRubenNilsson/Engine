@@ -1,12 +1,14 @@
 #include "pch.h"
+#include "Tags.h"
 #include "Hierarchy.h"
 #include "Transform.h"
 
-void ImGui::Hierarchy(entt::registry& aRegistry, entt::entity& aSelection)
+void ImGui::Hierarchy(entt::registry& aRegistry)
 {
-	Transform::Ptr selectionTransform;
+	entt::entity selection{ aRegistry.view<Tag::Selected>().front() };
+	Transform::Ptr selectionTransform{};
 
-	if (auto transform = aRegistry.try_get<Transform::Ptr>(aSelection))
+	if (auto transform = aRegistry.try_get<Transform::Ptr>(selection))
 		selectionTransform = *transform;
 
 	// For each root transform, edit its full tree
@@ -19,13 +21,13 @@ void ImGui::Hierarchy(entt::registry& aRegistry, entt::entity& aSelection)
 
 	for (auto [entity, transform] : aRegistry.view<Transform::Ptr>().each())
 	{
-		if (transform == selectionTransform)
-			aSelection = entity;
+		if (entity != selection && transform == selectionTransform)
+		{
+			aRegistry.remove<Tag::Selected>(selection);
+			aRegistry.emplace<Tag::Selected>(entity);
+		}
 	}
 
-	if (IsKeyPressed(ImGuiKey_Delete) && aRegistry.valid(aSelection))
-	{
-		aRegistry.destroy(aSelection);
-		aSelection = entt::null;
-	}
+	if (IsKeyPressed(ImGuiKey_Delete) && aRegistry.valid(selection))
+		aRegistry.destroy(selection);
 }
