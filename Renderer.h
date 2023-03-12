@@ -36,10 +36,9 @@ private:
 
 	void RenderGeometry(const entt::registry&);
 	void RenderSSAO();
-	void RenderAnalyticLights(const entt::registry&);
+	void RenderLights(const entt::registry&);
 	void RenderSkybox();
 
-	void RenderImageBasedLight();
 	void RenderDirectionalLights(std::span<const LightBuffer>);
 	void RenderPointLights(std::span<const LightBuffer>);
 	void RenderSpotLights(std::span<const LightBuffer>);
@@ -54,8 +53,6 @@ private:
 	std::array<ConstantBuffer, CBufferCount> myCBuffers{};
 	std::array<RenderTexture, t_LightingTexture + 1> myRenderTextures{};
 	DepthBuffer myDepthBuffer{};
-
-	Cubemap myCubemap{};
 
 	BoundingFrustum myFrustum{};
 	RenderStatistics myStatistics{};

@@ -61,8 +61,10 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
 
     StateFactory stateFactory{};
     ShaderFactory shaderFactory{};
+
     TextureFactory textureFactory{};
     SceneFactory sceneFactory{};
+    CubemapFactory cubemapFactory{};
 
     Renderer renderer{ backBuffer.GetWidth(), backBuffer.GetHeight() };
     if (!renderer)

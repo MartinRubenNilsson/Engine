@@ -49,6 +49,12 @@ Renderer::Renderer(unsigned aWidth, unsigned aHeight)
 	, myGaussianMap{ CreateGaussianMap() }, myIntegrationMap{ CreateIntegrationMap() }
 	, myCBuffers{ sizeof(ImmutableBuffer), sizeof(CameraBuffer), sizeof(MeshBuffer), sizeof(LightBuffer) }
 {
+	if (!myGaussianMap)
+		return;
+
+	if (!myIntegrationMap)
+		return;
+
 	if (!std::ranges::all_of(myCBuffers, &ConstantBuffer::operator bool))
 		return;
 
@@ -64,14 +70,7 @@ Renderer::Renderer(unsigned aWidth, unsigned aHeight)
 		myCBuffers[i].PSSetBuffer(i);
 	}
 
-	if (!myGaussianMap)
-		return;
-
 	if (!ResizeTextures(aWidth, aHeight))
-		return;
-
-	myCubemap = { "cubemap/hdr/Newport_Loft_Ref.hdr" };
-	if (!myCubemap)
 		return;
 
 	mySucceeded = true;
@@ -123,12 +122,9 @@ void Renderer::RenderScene(const entt::registry& aRegistry)
 	{
 		ScopedShaderResources scopedGBuffer{ ShaderType::Pixel, GBUFFER_BEGIN, GetGBufferResources() };
 		RenderSSAO();
-
-		ScopedShaderResources scopedIntegMap{ ShaderType::Pixel, t_IntegrationMap, myIntegrationMap };
-		ScopedShaderResources scopedCubemap{ ShaderType::Pixel, t_EnvironmentMap, myCubemap.GetMaps() };
-		RenderAnalyticLights(aRegistry);
-		RenderSkybox();
+		RenderLights(aRegistry);
 	}
+
 	{
 		ScopedShaderResources scopedLightning{ ShaderType::Pixel, t_LightingTexture, myRenderTextures.at(t_LightingTexture) };
 		FullscreenPass{ "PsTonemapAndGamma.cso" }.Render();
@@ -295,40 +291,8 @@ void Renderer::RenderSSAO()
 	}
 }
 
-void Renderer::RenderAnalyticLights(const entt::registry& aRegistry)
+void Renderer::RenderLights(const entt::registry& aRegistry)
 {
-	std::vector<LightBuffer> dLights{};
-	std::vector<LightBuffer> pLights{};
-	std::vector<LightBuffer> sLights{};
-
-	auto view = aRegistry.view<const Light, const Transform::Ptr>();
-	for (auto [entity, light, transform] : view.each())
-	{
-		if (!light.enabled)
-			continue;
-
-		const Matrix worldMatrix{ transform->GetWorldMatrix() }; // todo: remove scale
-
-		// todo: culling
-
-		LightBuffer buffer{ light.GetBuffer() };
-		Vector4::Transform(buffer.position, worldMatrix, buffer.position);
-		Vector4::Transform(buffer.direction, worldMatrix, buffer.direction);
-
-		switch (light.GetType())
-		{
-		case LightType::Directional:
-			dLights.push_back(buffer);
-			break;
-		case LightType::Point:
-			pLights.push_back(buffer);
-			break;
-		case LightType::Spot:
-			sLights.push_back(buffer);
-			break;
-		}
-	}
-
 	CD3D11_BLEND_DESC blendDesc{ CD3D11_DEFAULT{} };
 	blendDesc.RenderTarget[0].BlendEnable = TRUE;
 	blendDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_ONE;
@@ -338,10 +302,56 @@ void Renderer::RenderAnalyticLights(const entt::registry& aRegistry)
 	ScopedRenderTargets scopedTargets{ myRenderTextures.at(t_LightingTexture) };
 	ScopedBlendState scopedBlend{ blendDesc };
 
-	RenderImageBasedLight(); // this should NOT be in this function!
-	RenderDirectionalLights(dLights);
-	RenderPointLights(pLights);
-	RenderSpotLights(sLights);
+	{
+		std::vector<LightBuffer> dLights{};
+		std::vector<LightBuffer> pLights{};
+		std::vector<LightBuffer> sLights{};
+
+		auto view = aRegistry.view<const Light, const Transform::Ptr>();
+		for (auto [entity, light, transform] : view.each())
+		{
+			if (!light.enabled)
+				continue;
+
+			const Matrix worldMatrix{ transform->GetWorldMatrix() }; // todo: remove scale
+
+			// todo: culling
+
+			LightBuffer buffer{ light.GetBuffer() };
+			Vector4::Transform(buffer.position, worldMatrix, buffer.position);
+			Vector4::Transform(buffer.direction, worldMatrix, buffer.direction);
+
+			switch (light.GetType())
+			{
+			case LightType::Directional:
+				dLights.push_back(buffer);
+				break;
+			case LightType::Point:
+				pLights.push_back(buffer);
+				break;
+			case LightType::Spot:
+				sLights.push_back(buffer);
+				break;
+			}
+		}
+
+		RenderDirectionalLights(dLights);
+		RenderPointLights(pLights);
+		RenderSpotLights(sLights);
+	}
+
+	if (auto cubemap = CubemapFactory::Get().GetAsset("cubemap/hdr/Newport_Loft_Ref.hdr"))
+	{
+		ScopedShaderResources scopedIntegMap{ ShaderType::Pixel, t_IntegrationMap, myIntegrationMap };
+		ScopedShaderResources scopedCubemap{ ShaderType::Pixel, t_EnvironmentMap, cubemap->GetMaps() };
+
+		{
+			ScopedShaderResources scopedResource{ ShaderType::Pixel, t_AmbientAccessMap, myRenderTextures.at(t_AmbientAccessMap) };
+			FullscreenPass{ "PsImageBasedLight.cso" }.Render();
+		}
+
+		RenderSkybox();
+	}
 }
 
 void Renderer::RenderSkybox()
@@ -361,13 +371,7 @@ void Renderer::RenderSkybox()
 	ScopedRenderTargets scopedTargets{ myRenderTextures.at(t_LightingTexture), myDepthBuffer };
 	ScopedDepthStencilState scopedDepthStencil{ depthStencil };
 
-	DX11_CONTEXT->Draw(14, 0);
-}
-
-void Renderer::RenderImageBasedLight()
-{
-	ScopedShaderResources scopedResource{ ShaderType::Pixel, t_AmbientAccessMap, myRenderTextures.at(t_AmbientAccessMap) };
-	FullscreenPass{ "PsImageBasedLight.cso" }.Render();
+	DX11_CONTEXT->Draw(CUBEMAP_VERTEX_COUNT, 0);
 }
 
 void Renderer::RenderDirectionalLights(std::span<const LightBuffer> someLights)

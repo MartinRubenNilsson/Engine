@@ -3,6 +3,8 @@
 class Cubemap
 {
 public:
+	using Ptr = std::shared_ptr<const Cubemap>;
+
 	Cubemap() = default;
 	Cubemap(const fs::path&); // Path to equirectangular HDR environment map
 
@@ -28,4 +30,6 @@ private:
 	fs::path myPath{};
 	std::array<ShaderResourcePtr, Count> myMaps{};
 };
+
+using CubemapFactory = AssetFactory<Cubemap>;
 

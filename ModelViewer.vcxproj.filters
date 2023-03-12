@@ -76,9 +76,6 @@
     <ClInclude Include="DepthBuffer.h">
       <Filter>graphics\buffers</Filter>
     </ClInclude>
-    <ClInclude Include="Cubemap.h">
-      <Filter>graphics\buffers</Filter>
-    </ClInclude>
     <ClInclude Include="RenderTexture.h">
       <Filter>graphics\buffers</Filter>
     </ClInclude>
@@ -90,6 +87,9 @@
       <Filter>graphics</Filter>
     </ClInclude>
     <ClInclude Include="Tags.h">
+      <Filter>components</Filter>
+    </ClInclude>
+    <ClInclude Include="Cubemap.h">
       <Filter>components</Filter>
     </ClInclude>
   </ItemGroup>
@@ -155,9 +155,6 @@
     <ClCompile Include="BackBuffer.cpp">
       <Filter>graphics\buffers</Filter>
     </ClCompile>
-    <ClCompile Include="Cubemap.cpp">
-      <Filter>graphics\buffers</Filter>
-    </ClCompile>
     <ClCompile Include="DepthBuffer.cpp">
       <Filter>graphics\buffers</Filter>
     </ClCompile>
@@ -173,6 +170,9 @@
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="Image.cpp">
       <Filter>graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Cubemap.cpp">
+      <Filter>components</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
