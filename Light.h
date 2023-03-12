@@ -9,20 +9,17 @@ enum class LightType
 
 struct DirectionalLight
 {
-	Color color{}; // (r, g, b, intensity)
 	Vector3 direction{ 0.f, 0.f, 1.f };
 };
 
 struct PointLight
 {
-	Color color{}; // (r, g, b, intensity)
 	Vector3 position{};
 	Vector4 parameters{ 5.0, 0.f, 1.f, 0.f }; // (range, constant attn, linear attn, quadratic attn)
 };
 
 struct SpotLight
 {
-	Color color{}; // (r, g, b, intensity)
 	Vector3 position{};
 	Vector3 direction{ 0.f, 0.f, 1.f };
 	Vector4 parameters{ 5.0, 0.f, 1.f, 0.f }; // (range, constant attn, linear attn, quadratic attn)
@@ -30,33 +27,32 @@ struct SpotLight
 	float outerAngle{ XM_PI / 4.f }; // half-angle in radians
 };
 
-class Light;
+using LightVariant = std::variant<DirectionalLight, PointLight, SpotLight>;
+
+struct LightBuffer;
+
+class Light
+{
+public:
+	bool enabled{ true };
+
+	Light() = default;
+	Light(const aiLight&);
+
+	LightType GetType() const;
+	LightBuffer GetBuffer() const;
+
+	void SetColor(const Color&);
+	Color GetColor() const;
+	void SetVariant(const LightVariant&);
+	const LightVariant& GetVariant() const;
+
+private:
+	Color myColor{}; // (r, g, b, intensity)
+	LightVariant myVariant{};
+};
 
 namespace ImGui
 {
 	void InspectLight(Light&);
 }
-
-class Light
-{
-public:
-	Light() = default;
-	Light(const aiLight&);
-
-	LightType GetType() const;
-
-	void SetDirectional(DirectionalLight);
-	void SetPoint(PointLight);
-	void SetSpot(SpotLight);
-
-	template <class T>
-	T Get() const { return std::get<T>(myLight); }
-
-	bool enabled{ true };
-
-private:
-	friend void ImGui::InspectLight(Light&);
-
-	std::variant<DirectionalLight, PointLight, SpotLight> myLight{};
-};
-

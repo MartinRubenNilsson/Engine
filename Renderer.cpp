@@ -130,7 +130,7 @@ void Renderer::RenderScene(const entt::registry& aRegistry)
 
 		ScopedShaderResources scopedIntegMap{ ShaderType::Pixel, t_IntegrationMap, myIntegrationMap };
 		ScopedShaderResources scopedCubemap{ ShaderType::Pixel, t_EnvironmentMap, myCubemap.GetMaps() };
-		RenderLightning(aRegistry);
+		RenderAnalyticLights(aRegistry);
 		RenderSkybox();
 	}
 	{
@@ -299,11 +299,11 @@ void Renderer::RenderSSAO()
 	}
 }
 
-void Renderer::RenderLightning(const entt::registry& aRegistry)
+void Renderer::RenderAnalyticLights(const entt::registry& aRegistry)
 {
-	std::vector<DirectionalLight> dLights{};
-	std::vector<PointLight> pLights{};
-	std::vector<SpotLight> sLights{};
+	std::vector<LightBuffer> dLights{};
+	std::vector<LightBuffer> pLights{};
+	std::vector<LightBuffer> sLights{};
 
 	auto view = aRegistry.view<const Light, const Transform::Ptr>();
 	for (auto [entity, light, transform] : view.each())
@@ -315,30 +315,21 @@ void Renderer::RenderLightning(const entt::registry& aRegistry)
 
 		// todo: culling
 
+		LightBuffer buffer{ light.GetBuffer() };
+		Vector4::Transform(buffer.position, worldMatrix, buffer.position);
+		Vector4::Transform(buffer.direction, worldMatrix, buffer.direction);
+
 		switch (light.GetType())
 		{
 		case LightType::Directional:
-		{
-			auto& dLight{ dLights.emplace_back(light.Get<DirectionalLight>()) };
-			dLight.color.Premultiply();
-			Vector3::TransformNormal(dLight.direction, worldMatrix).Normalize(dLight.direction);
+			dLights.push_back(buffer);
 			break;
-		}
 		case LightType::Point:
-		{
-			auto& pLight{ pLights.emplace_back(light.Get<PointLight>()) };
-			pLight.color.Premultiply();
-			Vector3::Transform(pLight.position, worldMatrix, pLight.position);
+			pLights.push_back(buffer);
 			break;
-		}
 		case LightType::Spot:
-		{
-			auto& sLight{ sLights.emplace_back(light.Get<SpotLight>()) };
-			sLight.color.Premultiply();
-			Vector3::Transform(sLight.position, worldMatrix, sLight.position);
-			Vector3::TransformNormal(sLight.direction, worldMatrix).Normalize(sLight.direction);
+			sLights.push_back(buffer);
 			break;
-		}
 		}
 	}
 
@@ -351,7 +342,7 @@ void Renderer::RenderLightning(const entt::registry& aRegistry)
 	ScopedRenderTargets scopedTargets{ myRenderTextures.at(t_LightingTexture) };
 	ScopedBlendState scopedBlend{ blendDesc };
 
-	RenderImageBasedLight();
+	RenderImageBasedLight(); // this should NOT be in this function!
 	RenderDirectionalLights(dLights);
 	RenderPointLights(pLights);
 	RenderSpotLights(sLights);
@@ -383,56 +374,37 @@ void Renderer::RenderImageBasedLight()
 	FullscreenPass{ "PsImageBasedLight.cso" }.Render();
 }
 
-void Renderer::RenderDirectionalLights(std::span<const DirectionalLight> someLights)
+void Renderer::RenderDirectionalLights(std::span<const LightBuffer> someLights)
 {
 	FullscreenPass pass{ "PsDirectionalLight.cso" };
 
-	for (const DirectionalLight& light : someLights)
+	for (auto& light : someLights)
 	{
-		LightBuffer buffer{};
-		buffer.color = light.color;
-		buffer.direction = { light.direction.x, light.direction.y, light.direction.z, 0.f };
-
-		myCBuffers.at(b_Light).Update(&buffer);
-
+		myCBuffers.at(b_Light).Update(&light);
 		pass.Render();
 		myStatistics.dirLightDrawCalls++;
 	}
 }
 
-void Renderer::RenderPointLights(std::span<const PointLight> someLights)
+void Renderer::RenderPointLights(std::span<const LightBuffer> someLights)
 {
 	FullscreenPass pass{ "PsPointLight.cso" };
 
-	for (const PointLight& light : someLights)
+	for (auto& light : someLights)
 	{
-		LightBuffer buffer{};
-		buffer.color = light.color;
-		buffer.position = { light.position.x, light.position.y, light.position.z, 1.f };
-		buffer.parameters = light.parameters;
-
-		myCBuffers.at(b_Light).Update(&buffer);
-
+		myCBuffers.at(b_Light).Update(&light);
 		pass.Render();
 		myStatistics.pointLightDrawCalls++;
 	}
 }
 
-void Renderer::RenderSpotLights(std::span<const SpotLight> someLights)
+void Renderer::RenderSpotLights(std::span<const LightBuffer> someLights)
 {
 	FullscreenPass pass{ "PsSpotLight.cso" };
 
-	for (const SpotLight& light : someLights)
+	for (auto& light : someLights)
 	{
-		LightBuffer buffer{};
-		buffer.color = light.color;
-		buffer.position = { light.position.x, light.position.y, light.position.z, 1.f };
-		buffer.direction = { light.direction.x, light.direction.y, light.direction.z, 0.f };
-		buffer.parameters = light.parameters;
-		buffer.coneAngles = { light.innerAngle, light.outerAngle, 0.f, 0.f };
-
-		myCBuffers.at(b_Light).Update(&buffer);
-
+		myCBuffers.at(b_Light).Update(&light);
 		pass.Render();
 		myStatistics.spotLightDrawCalls++;
 	}

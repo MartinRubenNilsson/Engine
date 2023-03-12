@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "Light.h"
+#include "ShaderCommon.h"
 
 namespace
 {
@@ -21,35 +22,38 @@ namespace
 
 Light::Light(const aiLight& aLight)
 {
+	{
+		Color color{};
+		std::memcpy(&color, &aLight.mColorDiffuse, sizeof(aiColor3D));
+		SetColor(color);
+	}
+
 	switch (aLight.mType)
 	{
 	case aiLightSource_DIRECTIONAL:
 	{
 		DirectionalLight light{};
-		std::memcpy(&light.color, &aLight.mColorDiffuse, sizeof(aiColor3D));
 		std::memcpy(&light.direction, &aLight.mDirection, sizeof(aiVector3D));
-		SetDirectional(light);
+		SetVariant(light);
 		break;
 	}
 	case aiLightSource_POINT:
 	{
 		PointLight light{};
-		std::memcpy(&light.color, &aLight.mColorDiffuse, sizeof(aiColor3D));
 		std::memcpy(&light.position, &aLight.mPosition, sizeof(aiVector3D));
 		light.parameters = { 5.0f, aLight.mAttenuationConstant, aLight.mAttenuationLinear, aLight.mAttenuationQuadratic };
-		SetPoint(light);
+		SetVariant(light);
 		break;
 	}
 	case aiLightSource_SPOT:
 	{
 		SpotLight light{};
-		std::memcpy(&light.color, &aLight.mColorDiffuse, sizeof(aiColor3D));
 		std::memcpy(&light.position, &aLight.mPosition, sizeof(aiVector3D));
 		std::memcpy(&light.direction, &aLight.mDirection, sizeof(aiVector3D));
 		light.parameters = { 5.0f, aLight.mAttenuationConstant, aLight.mAttenuationLinear, aLight.mAttenuationQuadratic };
 		light.innerAngle = aLight.mAngleInnerCone;
 		light.outerAngle = aLight.mAngleOuterCone;
-		SetSpot(light);
+		SetVariant(light);
 		break;
 	}
 	default:
@@ -60,76 +64,130 @@ Light::Light(const aiLight& aLight)
 
 LightType Light::GetType() const
 {
-	return static_cast<LightType>(myLight.index());
+	return static_cast<LightType>(myVariant.index());
 }
 
-void Light::SetDirectional(DirectionalLight aLight)
+LightBuffer Light::GetBuffer() const
 {
-	aLight.color = Vector4::Max(aLight.color, Vector4::Zero);
-	Unpremultiply(aLight.color);
-	aLight.direction.Normalize();
-	myLight = aLight;
+	struct Bufferer
+	{
+		LightBuffer buffer{};
+
+		void operator()(const DirectionalLight& aLight)
+		{
+			buffer.direction = { aLight.direction.x, aLight.direction.y, aLight.direction.z, 0.f };
+		}
+
+		void operator()(const PointLight& aLight)
+		{
+			buffer.position = { aLight.position.x, aLight.position.y, aLight.position.z, 1.f };
+			buffer.parameters = aLight.parameters;
+		}
+
+		void operator()(const SpotLight& aLight)
+		{
+			buffer.position = { aLight.position.x, aLight.position.y, aLight.position.z, 1.f };
+			buffer.direction = { aLight.direction.x, aLight.direction.y, aLight.direction.z, 0.f };
+			buffer.parameters = aLight.parameters;
+			buffer.coneAngles = { aLight.innerAngle, aLight.outerAngle, 0.f, 0.f };
+		}
+	};
+
+	Bufferer bufferer{};
+	std::visit(bufferer, myVariant);
+
+	Color color{ myColor };
+	color.Premultiply();
+	bufferer.buffer.color = color;
+	
+	return bufferer.buffer;
 }
 
-void Light::SetPoint(PointLight aLight)
+void Light::SetColor(const Color& aColor)
 {
-	aLight.color = Vector4::Max(aLight.color, Vector4::Zero);
-	Unpremultiply(aLight.color);
-	aLight.parameters = Vector4::Max(aLight.parameters, Vector4::Zero);
-	myLight = aLight;
+	myColor = Vector4::Max(aColor, Vector4::Zero);
+	Unpremultiply(myColor);
 }
 
-void Light::SetSpot(SpotLight aLight)
+Color Light::GetColor() const
 {
-	aLight.color = Vector4::Max(aLight.color, Vector4::Zero);
-	Unpremultiply(aLight.color);
-	aLight.direction.Normalize();
-	aLight.parameters = Vector4::Max(aLight.parameters, Vector4::Zero);
-	aLight.outerAngle = std::clamp(aLight.outerAngle, 0.f, XM_PIDIV2);
-	aLight.innerAngle = std::clamp(aLight.innerAngle, 0.f, aLight.outerAngle);
-	myLight = aLight;
+	return myColor;
+}
+
+void Light::SetVariant(const LightVariant& aVariant)
+{
+	struct Validator
+	{
+		void operator()(DirectionalLight& aLight)
+		{
+			aLight.direction.Normalize();
+		}
+
+		void operator()(PointLight& aLight)
+		{
+			aLight.parameters = Vector4::Max(aLight.parameters, Vector4::Zero);
+		}
+
+		void operator()(SpotLight& aLight)
+		{
+			aLight.direction.Normalize();
+			aLight.parameters = Vector4::Max(aLight.parameters, Vector4::Zero);
+			aLight.outerAngle = std::clamp(aLight.outerAngle, 0.f, XM_PIDIV2);
+			aLight.innerAngle = std::clamp(aLight.innerAngle, 0.f, aLight.outerAngle);
+		}
+	};
+
+	myVariant = aVariant;
+	std::visit(Validator{}, myVariant);
+}
+
+const LightVariant& Light::GetVariant() const
+{
+	return myVariant;
 }
 
 /*
 * namespace ImGui
 */
 
-namespace ImGui
+void ImGui::InspectLight(Light& aLight)
 {
-	struct LightInspector
+	struct Inspector
 	{
-		void operator()(DirectionalLight& aLight)
-		{
-			ColorEdit3("Color", &aLight.color.x);
-			DragFloat("Intensity", &aLight.color.w, 0.1f, 0.f, FLT_MAX);
-		}
+		void operator()(DirectionalLight&) {}
 
 		void operator()(PointLight& aLight)
 		{
-			ColorEdit3("Color", &aLight.color.x);
-			DragFloat("Intensity", &aLight.color.w, 0.1f, 0.f, FLT_MAX);
 			DragFloat("Range", &aLight.parameters.x, 0.1f, 0.f, FLT_MAX);
 			DragFloat3("Attenuation", &aLight.parameters.y, 0.1f, 0.f, FLT_MAX);
 		}
 
 		void operator()(SpotLight& aLight)
 		{
-			ColorEdit3("Color", &aLight.color.x);
-			DragFloat("Intensity", &aLight.color.w, 0.1f, 0.f, FLT_MAX);
 			DragFloat("Range", &aLight.parameters.x, 0.1f, 0.f, FLT_MAX);
 			DragFloat3("Attenuation", &aLight.parameters.y, 0.1f, 0.f, FLT_MAX);
 			DragFloat("Outer Angle", &aLight.outerAngle, 0.01f, 0.f, XM_PIDIV2);
 			DragFloat("Inner Angle", &aLight.innerAngle, 0.01f, 0.f, aLight.outerAngle);
 		}
 	};
-}
 
-void ImGui::InspectLight(Light& aLight)
-{
 	Checkbox("Enabled", &aLight.enabled);
 
-	auto type{ static_cast<int>(aLight.GetType()) };
-	Combo("Type", &type, "Directional\0Point\0Spot\0\0");
+	{
+		int type{ static_cast<int>(aLight.GetVariant().index()) };
+		Combo("Type", &type, "Directional\0Point\0Spot\0\0");
+	}
 
-	std::visit(LightInspector{}, aLight.myLight);
+	{
+		Color color{ aLight.GetColor() };
+		ColorEdit3("Color", &color.x);
+		DragFloat("Intensity", &color.w, 0.1f, 0.f, FLT_MAX);
+		aLight.SetColor(color);
+	}
+
+	{
+		LightVariant variant{ aLight.GetVariant() };
+		std::visit(Inspector{}, variant);
+		aLight.SetVariant(variant);
+	}
 }

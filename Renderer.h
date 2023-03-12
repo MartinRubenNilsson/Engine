@@ -4,7 +4,6 @@
 #include "RenderTexture.h"
 #include "DepthBuffer.h"
 #include "Camera.h"
-#include "Light.h"
 #include "Cubemap.h"
 
 struct RenderStatistics
@@ -37,13 +36,13 @@ private:
 
 	void RenderGeometry(const entt::registry&);
 	void RenderSSAO();
-	void RenderLightning(const entt::registry&);
+	void RenderAnalyticLights(const entt::registry&);
 	void RenderSkybox();
 
 	void RenderImageBasedLight();
-	void RenderDirectionalLights(std::span<const DirectionalLight>);
-	void RenderPointLights(std::span<const PointLight>);
-	void RenderSpotLights(std::span<const SpotLight>);
+	void RenderDirectionalLights(std::span<const LightBuffer>);
+	void RenderPointLights(std::span<const LightBuffer>);
+	void RenderSpotLights(std::span<const LightBuffer>);
 
 	std::vector<RenderTargetPtr> GetGBufferTargets() const;
 	std::vector<ShaderResourcePtr> GetGBufferResources() const;
