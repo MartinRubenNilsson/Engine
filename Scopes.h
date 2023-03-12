@@ -17,7 +17,7 @@ public:
 	~ScopedPrimitiveTopology();
 
 private:
-	D3D11_PRIMITIVE_TOPOLOGY myTopology{ D3D_PRIMITIVE_TOPOLOGY_UNDEFINED };
+	D3D11_PRIMITIVE_TOPOLOGY myTopology{};
 };
 
 class ScopedInputLayout : Scope
@@ -37,7 +37,7 @@ public:
 	~ScopedShader();
 
 private:
-	Shader myShader{};
+	ShaderVariant myShader{};
 };
 
 class ScopedRasterizerState : Scope

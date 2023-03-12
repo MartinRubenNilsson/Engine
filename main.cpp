@@ -201,7 +201,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
 
             backBuffer.Clear();
             renderer.RenderScene(gameScene.GetRegistry());
-            renderer.RenderDebug(t_IntegrationMap);
+            //renderer.RenderDebug(t_IntegrationMap);
             imGui.Render();
 
             backBuffer.Present();

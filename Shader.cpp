@@ -1,20 +1,33 @@
 #include "pch.h"
 #include "Shader.h"
 
-namespace
+void EmplaceShader(ShaderType aType, ShaderVariant& aVariant)
 {
-	struct Creator
+	switch (aType)
 	{
-		std::string_view bytecode{};
+	case ShaderType::Pixel:
+		aVariant.emplace<PixelShaderPtr>();
+		break;
+	case ShaderType::Vertex:
+		aVariant.emplace<VertexShaderPtr>();
+		break;
+	case ShaderType::Geometry:
+		aVariant.emplace<GeometryShaderPtr>();
+		break;
+	case ShaderType::Hull:
+		aVariant.emplace<HullShaderPtr>();
+		break;
+	case ShaderType::Domain:
+		aVariant.emplace<DomainShaderPtr>();
+		break;
+	case ShaderType::Compute:
+		aVariant.emplace<ComputeShaderPtr>();
+		break;
+	}
+}
 
-		HRESULT operator()(PixelShaderPtr& ptr) const { return DX11_DEVICE->CreatePixelShader(bytecode.data(), bytecode.size(), NULL, &ptr); }
-		HRESULT operator()(VertexShaderPtr& ptr) const { return DX11_DEVICE->CreateVertexShader(bytecode.data(), bytecode.size(), NULL, &ptr); }
-		HRESULT operator()(GeometryShaderPtr& ptr) const { return DX11_DEVICE->CreateGeometryShader(bytecode.data(), bytecode.size(), NULL, &ptr); }
-		HRESULT operator()(HullShaderPtr& ptr)	const { return DX11_DEVICE->CreateHullShader(bytecode.data(), bytecode.size(), NULL, &ptr); }
-		HRESULT operator()(DomainShaderPtr& ptr) const { return DX11_DEVICE->CreateDomainShader(bytecode.data(), bytecode.size(), NULL, &ptr); }
-		HRESULT operator()(ComputeShaderPtr& ptr) const { return DX11_DEVICE->CreateComputeShader(bytecode.data(), bytecode.size(), NULL, &ptr); }
-	};
-
+void SetShader(const ShaderVariant& aVariant)
+{
 	struct Setter
 	{
 		void operator()(const PixelShaderPtr& ptr) const { DX11_CONTEXT->PSSetShader(ptr.Get(), NULL, 0); }
@@ -25,6 +38,11 @@ namespace
 		void operator()(const ComputeShaderPtr& ptr) const { DX11_CONTEXT->CSSetShader(ptr.Get(), NULL, 0); }
 	};
 
+	std::visit(Setter{}, aVariant);
+}
+
+void GetShader(ShaderVariant& aVariant)
+{
 	struct Getter
 	{
 		void operator()(PixelShaderPtr& ptr) const { DX11_CONTEXT->PSGetShader(&ptr, NULL, 0); }
@@ -34,6 +52,8 @@ namespace
 		void operator()(DomainShaderPtr& ptr) const { DX11_CONTEXT->DSGetShader(&ptr, NULL, 0); }
 		void operator()(ComputeShaderPtr& ptr) const { DX11_CONTEXT->CSGetShader(&ptr, NULL, 0); }
 	};
+
+	std::visit(Getter{}, aVariant);
 }
 
 /*
@@ -60,27 +80,20 @@ Shader::Shader(const fs::path& aPath)
 	if (FAILED(myResult))
 		return;
 
-	switch (D3D11_SHVER_GET_TYPE(desc.Version))
+	ShaderType type{ D3D11_SHVER_GET_TYPE(desc.Version) };
+	EmplaceShader(type, myShader);
+
+	struct Creator
 	{
-	case D3D11_SHVER_PIXEL_SHADER:
-		myShader.emplace<D3D11_SHVER_PIXEL_SHADER>();
-		break;
-	case D3D11_SHVER_VERTEX_SHADER:
-		myShader.emplace<D3D11_SHVER_VERTEX_SHADER>();
-		break;
-	case D3D11_SHVER_GEOMETRY_SHADER:
-		myShader.emplace<D3D11_SHVER_GEOMETRY_SHADER>();
-		break;
-	case D3D11_SHVER_HULL_SHADER:
-		myShader.emplace<D3D11_SHVER_HULL_SHADER>();
-		break;
-	case D3D11_SHVER_DOMAIN_SHADER:
-		myShader.emplace<D3D11_SHVER_DOMAIN_SHADER>();
-		break;
-	case D3D11_SHVER_COMPUTE_SHADER:
-		myShader.emplace<D3D11_SHVER_COMPUTE_SHADER>();
-		break;
-	}
+		std::string_view bytecode{};
+
+		HRESULT operator()(PixelShaderPtr& ptr) const { return DX11_DEVICE->CreatePixelShader(bytecode.data(), bytecode.size(), NULL, &ptr); }
+		HRESULT operator()(VertexShaderPtr& ptr) const { return DX11_DEVICE->CreateVertexShader(bytecode.data(), bytecode.size(), NULL, &ptr); }
+		HRESULT operator()(GeometryShaderPtr& ptr) const { return DX11_DEVICE->CreateGeometryShader(bytecode.data(), bytecode.size(), NULL, &ptr); }
+		HRESULT operator()(HullShaderPtr& ptr)	const { return DX11_DEVICE->CreateHullShader(bytecode.data(), bytecode.size(), NULL, &ptr); }
+		HRESULT operator()(DomainShaderPtr& ptr) const { return DX11_DEVICE->CreateDomainShader(bytecode.data(), bytecode.size(), NULL, &ptr); }
+		HRESULT operator()(ComputeShaderPtr& ptr) const { return DX11_DEVICE->CreateComputeShader(bytecode.data(), bytecode.size(), NULL, &ptr); }
+	};
 
 	myResult = std::visit(Creator{ bytecode }, myShader);
 	if (FAILED(myResult))
@@ -93,13 +106,7 @@ Shader::Shader(const fs::path& aPath)
 void Shader::SetShader() const
 {
 	if (operator bool())
-		std::visit(Setter{}, myShader);
-}
-
-void Shader::GetShader()
-{
-	if (operator bool())
-		std::visit(Getter{}, myShader);
+		::SetShader(myShader);
 }
 
 ShaderType Shader::GetType() const

@@ -54,16 +54,15 @@ ScopedShader::ScopedShader(const fs::path& aPath)
 {
 	if (auto shader{ ShaderFactory::Get().GetAsset(aPath) })
 	{
-		myShader = *shader;
-		myShader.GetShader();
+		EmplaceShader(shader->GetType(), myShader);
+		GetShader(myShader);
 		shader->SetShader();
 	}
 }
 
 ScopedShader::~ScopedShader()
 {
-	if (myShader)
-		myShader.SetShader();
+	SetShader(myShader);
 }
 
 /*
