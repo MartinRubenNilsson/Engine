@@ -128,6 +128,7 @@ void Renderer::RenderScene(entt::registry& aRegistry)
 		ScopedShaderResources scopedGBuffer{ ShaderType::Pixel, GBUFFER_BEGIN, GetGBufferResources() };
 		RenderSSAO();
 
+		ScopedShaderResources scopedIntegMap{ ShaderType::Pixel, t_IntegrationMap, myIntegrationMap };
 		ScopedShaderResources scopedCubemap{ ShaderType::Pixel, t_EnvironmentMap, myCubemap.GetMaps() };
 		RenderLightning(aRegistry);
 		RenderSkybox();

@@ -9,6 +9,11 @@ float3 FresnelSchlick(float LdH, float3 F0)
     return F0 + (1.0 - F0) * pow(1.0 - LdH, 5);
 }
 
+float3 FresnelSchlickRoughness(float LdH, float3 F0, float roughness)
+{
+    return F0 + (max(1.0 - roughness, F0) - F0) * pow(1.0 - LdH, 5);
+}
+
 // In below functions, a is the GGX roughness parameter
 // and should be remapped as a = roughness * rougness;
 
