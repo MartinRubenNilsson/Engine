@@ -4,20 +4,28 @@ class Cubemap
 {
 public:
 	Cubemap() = default;
-	Cubemap(std::span<const fs::path, 6> someLdrCubeFaces);
-	Cubemap(const fs::path& anHdrEquirectMap);
+	Cubemap(const fs::path&); // Path to equirectangular HDR environment map
 
-	std::vector<ShaderResourcePtr> GetMaps() const; // { Environment, Irradiance, Prefiltered }
+	const auto& GetMaps() const { return myMaps; }
+	const fs::path GetPath() const { return myPath; }
 
 	explicit operator bool() const;
 
 private:
+	enum MapType
+	{
+		Environment, // Used for skybox
+		Irradiance,	 // Used for diffuse IBL
+		Prefiltered, // Used for specular IBL
+		Count
+	};
+
+	void CreateEnvironmentMap(ShaderResourcePtr anEquirectMap);
 	void CreateIrradianceMap();
-	void CreatePrefilteredMap(); // todo : implement
+	void CreatePrefilteredMap();
 
 	HRESULT myResult{ E_FAIL };
-	ShaderResourcePtr myEnvironmentMap{}; // Used for skybox, reflections
-	ShaderResourcePtr myIrradianceMap{};  // Used for diffuse IBL
-	ShaderResourcePtr myPrefilteredMap{}; // Used for specular IBL
+	fs::path myPath{};
+	std::array<ShaderResourcePtr, Count> myMaps{};
 };
 
