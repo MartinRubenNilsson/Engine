@@ -38,7 +38,7 @@ float2 main(VsOutFullscreen input) : SV_TARGET
         
         const float G = GeometrySmithGGX(NdL, NdV, roughness);
         const float G_Vis = G * VdH / (NdH * NdV);
-        const float Fc = pow(1.0 - VdH, 5.0);
+        const float Fc = pow(1.0 - VdH, 5);
         
         scale += (1.0 - Fc) * G_Vis;
         bias += Fc * G_Vis;

@@ -286,6 +286,9 @@
     <FxCompile Include="PsIntegrateBRDF.hlsl">
       <Filter>shaders\fullscreen</Filter>
     </FxCompile>
+    <FxCompile Include="PsGenPrefilteredMap.hlsl">
+      <Filter>shaders\cubemap</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="ShaderCommon.hlsli">
