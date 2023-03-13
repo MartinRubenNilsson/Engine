@@ -280,6 +280,12 @@
     <ClInclude Include="External\directxtk\SimpleMath.h">
       <Filter>directxtk</Filter>
     </ClInclude>
+    <ClInclude Include="External\nlohmann\json.hpp">
+      <Filter>nlohmann</Filter>
+    </ClInclude>
+    <ClInclude Include="External\nlohmann\json_fwd.hpp">
+      <Filter>nlohmann</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="External\imgui\imgui.cpp">
@@ -337,6 +343,9 @@
     </Filter>
     <Filter Include="entt">
       <UniqueIdentifier>{462f6854-af5a-4710-9c68-5619e9b76e84}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="nlohmann">
+      <UniqueIdentifier>{553776f7-d6f8-456b-9365-23d5a7401c23}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

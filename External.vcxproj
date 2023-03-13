@@ -111,6 +111,8 @@
     <ClInclude Include="External\imgui\imstb_rectpack.h" />
     <ClInclude Include="External\imgui\imstb_textedit.h" />
     <ClInclude Include="External\imgui\imstb_truetype.h" />
+    <ClInclude Include="External\nlohmann\json.hpp" />
+    <ClInclude Include="External\nlohmann\json_fwd.hpp" />
     <ClInclude Include="External\stb\stb_image.h" />
   </ItemGroup>
   <ItemGroup>

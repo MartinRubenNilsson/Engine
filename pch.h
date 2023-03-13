@@ -85,6 +85,10 @@ using ComputeShaderPtr = ComPtr<ID3D11ComputeShader>;
 // entt
 #include <entt/entt.hpp>
 
+// nlohmann
+#include <nlohmann/json_fwd.hpp>
+#include <nlohmann/json.hpp>
+
 // other
 #include "Singleton.h"
 #include "AssetFactory.h"
