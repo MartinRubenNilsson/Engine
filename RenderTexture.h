@@ -11,7 +11,6 @@ public:
 
 	Viewport GetViewport() const;
 
-	operator TexturePtr() const { return myTexture; }
 	operator ShaderResourcePtr() const { return myShaderResource; }
 	operator RenderTargetPtr() const { return myRenderTarget; }
 

@@ -14,6 +14,7 @@
 #include "Inspector.h"
 #include "GameScene.h"
 #include "Tags.h"
+#include "Cubemap.h"
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
@@ -199,8 +200,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
                 (*transform)->SetWorldMatrix(m);
             }
 
-            ImGui::Begin(ICON_FA_CHART_SIMPLE" Render Statistics");
-            ImGui::InspectRenderStatistics(renderer.GetStatistics());
+            ImGui::Begin(ICON_FA_EYE" Renderer");
+            ImGui::InspectRenderer(renderer);
             ImGui::End();
 
             renderer.SetCamera(camera, cameraTransform);
@@ -212,8 +213,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
             ScopedRenderTargets scopedTarget{ backBuffer.GetTarget() };
 
             backBuffer.Clear();
-            renderer.RenderScene(registry);
-            //renderer.RenderDebug(t_AmbientAccessMap);
+            renderer.Render(registry);
             imGui.Render();
 
             backBuffer.Present();

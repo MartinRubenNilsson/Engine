@@ -4,30 +4,48 @@
 #include "RenderTexture.h"
 #include "DepthBuffer.h"
 #include "Camera.h"
-#include "Cubemap.h"
+
+enum class RenderOutput
+{
+	Final,
+	Depth,
+	Normal,
+	Position,
+	Entity,
+	Access,
+	Count
+};
+
+const char* RenderOutputToString(RenderOutput);
+
+struct RenderSettings
+{
+	bool ssao{ true };
+};
 
 struct RenderStatistics
 {
-	unsigned meshDrawCalls{};
-	unsigned dirLightDrawCalls{};
-	unsigned pointLightDrawCalls{};
-	unsigned spotLightDrawCalls{};
+	unsigned meshes{};
+	unsigned dLights{}; // Directional
+	unsigned pLights{}; // Point
+	unsigned sLights{}; // Spot
 };
 
 class Renderer
 {
 public:
+	RenderOutput output{};
+	RenderSettings settings{};
+	RenderStatistics statistics{};
+
 	Renderer() = default;
 	Renderer(unsigned aWidth, unsigned aHeight);
 
 	bool ResizeTextures(unsigned aWidth, unsigned aHeight);
 	void SetCamera(const Camera& aCamera, const Matrix& aTransform);
-	void RenderScene(const entt::registry&);
-	void RenderDebug(TextureSlot);
+	void Render(const entt::registry&);
 
 	entt::entity PickEntity(unsigned x, unsigned y);
-
-	RenderStatistics GetStatistics() const { return myStatistics; }
 
 	explicit operator bool() const { return mySucceeded; }
 
@@ -53,13 +71,11 @@ private:
 	std::array<ConstantBuffer, CBufferCount> myCBuffers{};
 	std::array<RenderTexture, t_LightingTexture + 1> myRenderTextures{};
 	DepthBuffer myDepthBuffer{};
-
 	BoundingFrustum myFrustum{};
-	RenderStatistics myStatistics{};
 };
 
 namespace ImGui
 {
-	void InspectRenderStatistics(const RenderStatistics&);
+	void InspectRenderer(Renderer&);
 }
 

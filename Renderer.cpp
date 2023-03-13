@@ -6,9 +6,29 @@
 #include "Transform.h"
 #include "Light.h"
 #include "FullscreenPass.h"
+#include "Cubemap.h"
+
+const char* RenderOutputToString(RenderOutput anOutput)
+{
+	static constexpr std::array strings
+	{
+		"Final",
+		"Depth",
+		"Normal",
+		"Position",
+		"Entity",
+		"Access",
+	};
+
+	return strings.at(std::to_underlying(anOutput));
+}
 
 namespace
 {
+	/*
+	* TODO: Move somewhere else
+	*/
+
 	auto AssembleMaterialResources(std::span<const Texture::Ptr> someTextures)
 	{
 		std::vector<ShaderResourcePtr> resources(MATERIAL_COUNT);
@@ -112,72 +132,58 @@ void Renderer::SetCamera(const Camera& aCamera, const Matrix& aTransform)
 	}
 }
 
-void Renderer::RenderScene(const entt::registry& aRegistry)
+void Renderer::Render(const entt::registry& aRegistry)
 {
 	if (!operator bool())
 		return;
 
 	Clear();
-	RenderGeometry(aRegistry);
-	{
-		ScopedShaderResources scopedGBuffer{ ShaderType::Pixel, GBUFFER_BEGIN, GetGBufferResources() };
-		RenderSSAO();
-		RenderLights(aRegistry);
-	}
 
+	RenderGeometry(aRegistry);
+
+	ScopedShaderResources scopedGBuffer{ ShaderType::Pixel, GBUFFER_BEGIN, GetGBufferResources() };
+
+	if (settings.ssao)
+		RenderSSAO();
+
+	RenderLights(aRegistry);
+
+	switch (output)
+	{
+	case RenderOutput::Final:
 	{
 		ScopedShaderResources scopedLightning{ ShaderType::Pixel, t_LightingTexture, myRenderTextures.at(t_LightingTexture) };
 		FullscreenPass{ "PsTonemapAndGamma.cso" }.Render();
-	}
-}
-
-void Renderer::RenderDebug(TextureSlot aSlot)
-{
-	switch (aSlot)
-	{
-	case t_Normal:
-	{
-		ScopedShaderResources scopedResource{ ShaderType::Pixel, t_GBufferNormalDepth, myRenderTextures.at(t_GBufferNormalDepth) };
-		FullscreenPass{ "PsGetNormal.cso" }.Render();
 		break;
 	}
-	case t_Depth:
+	case RenderOutput::Depth:
 	{
 		ScopedShaderResources scopedResource{ ShaderType::Pixel, t_GBufferNormalDepth, myRenderTextures.at(t_GBufferNormalDepth) };
 		FullscreenPass{ "PsGetDepth.cso" }.Render();
 		break;
 	}
-	case t_Position:
+	case RenderOutput::Normal:
+	{
+		ScopedShaderResources scopedResource{ ShaderType::Pixel, t_GBufferNormalDepth, myRenderTextures.at(t_GBufferNormalDepth) };
+		FullscreenPass{ "PsGetNormal.cso" }.Render();
+		break;
+	}
+	case RenderOutput::Position:
 	{
 		ScopedShaderResources scopedResource{ ShaderType::Pixel, t_GBufferNormalDepth, myRenderTextures.at(t_GBufferNormalDepth) };
 		FullscreenPass{ "PsGetPosition.cso" }.Render();
 		break;
 	}
-	case t_GBufferEntity:
+	case RenderOutput::Entity:
 	{
-		ScopedShaderResources scopedResource{ ShaderType::Pixel, aSlot, myRenderTextures.at(aSlot) };
+		ScopedShaderResources scopedResource{ ShaderType::Pixel, t_GBufferEntity, myRenderTextures.at(t_GBufferEntity) };
 		FullscreenPass{ "PsGetEntity.cso" }.Render();
 		break;
 	}
-	case t_GaussianMap:
+	case RenderOutput::Access:
 	{
-		ScopedShaderResources scopedResource{ ShaderType::Pixel, t_GaussianMap, myGaussianMap };
-		FullscreenPass{ "PsGetGaussian.cso" }.Render();
-		break;
-	}
-	case t_IntegrationMap:
-	{
-		ScopedShaderResources scopedResource{ ShaderType::Pixel, 0, myIntegrationMap };
+		ScopedShaderResources scopedResource{ ShaderType::Pixel, 0, myRenderTextures.at(t_AmbientAccessMap) };
 		FullscreenPass{ "PsPointSample.cso" }.Render();
-		break;
-	}
-	default:
-	{
-		if (aSlot < myRenderTextures.size())
-		{
-			ScopedShaderResources scopedResource{ ShaderType::Pixel, 0, myRenderTextures.at(aSlot) };
-			FullscreenPass{ "PsPointSample.cso" }.Render();
-		}
 		break;
 	}
 	}
@@ -193,19 +199,18 @@ entt::entity Renderer::PickEntity(unsigned x, unsigned y)
 
 void Renderer::Clear()
 {
-	myDepthBuffer.Clear(FAR_Z);
+	statistics = {};
 
 	for (RenderTexture& texture : myRenderTextures)
 		texture.Clear();
 
 	myRenderTextures.at(t_GBufferNormalDepth).Clear({ 0.f, 0.f, 0.f, FAR_Z });
+	myRenderTextures.at(t_AmbientAccessMap).Clear({ 1.f, 1.f, 1.f, 1.f });
 
-	{
-		ScopedRenderTargets scopedTargets{ myRenderTextures.at(t_GBufferEntity) };
-		FullscreenPass{ "PsClearEntity.cso" }.Render();
-	}
+	myDepthBuffer.Clear(FAR_Z);
 
-	myStatistics = {};
+	ScopedRenderTargets scopedTargets{ myRenderTextures.at(t_GBufferEntity) };
+	FullscreenPass{ "PsClearEntity.cso" }.Render();
 }
 
 void Renderer::RenderGeometry(const entt::registry& aRegistry)
@@ -253,7 +258,7 @@ void Renderer::RenderGeometry(const entt::registry& aRegistry)
 		};
 
 		mesh->Draw();
-		myStatistics.meshDrawCalls++;
+		statistics.meshes++;
 	}
 }
 
@@ -382,7 +387,7 @@ void Renderer::RenderDirectionalLights(std::span<const LightBuffer> someLights)
 	{
 		myCBuffers.at(b_Light).Update(&light);
 		pass.Render();
-		myStatistics.dirLightDrawCalls++;
+		statistics.dLights++;
 	}
 }
 
@@ -394,7 +399,7 @@ void Renderer::RenderPointLights(std::span<const LightBuffer> someLights)
 	{
 		myCBuffers.at(b_Light).Update(&light);
 		pass.Render();
-		myStatistics.pointLightDrawCalls++;
+		statistics.pLights++;
 	}
 }
 
@@ -406,7 +411,7 @@ void Renderer::RenderSpotLights(std::span<const LightBuffer> someLights)
 	{
 		myCBuffers.at(b_Light).Update(&light);
 		pass.Render();
-		myStatistics.spotLightDrawCalls++;
+		statistics.sLights++;
 	}
 }
 
@@ -426,19 +431,27 @@ std::vector<ShaderResourcePtr> Renderer::GetGBufferResources() const
 	return resources;
 }
 
-
 /*
 * namespace ImGui
 */
 
-void ImGui::InspectRenderStatistics(const RenderStatistics& someStats)
+void ImGui::InspectRenderer(Renderer& aRenderer)
 {
-	if (TreeNodeEx("Draw Calls", ImGuiTreeNodeFlags_DefaultOpen))
+	if (BeginCombo("Output", RenderOutputToString(aRenderer.output)))
 	{
-		Value("Meshes", someStats.meshDrawCalls);
-		Value("Dir. Lights", someStats.dirLightDrawCalls);
-		Value("Point Lights", someStats.pointLightDrawCalls);
-		Value("Spot Lights", someStats.spotLightDrawCalls);
-		TreePop();
+		for (int i = 0; i < std::to_underlying(RenderOutput::Count); ++i)
+		{
+			RenderOutput output{ i };
+			if (Selectable(RenderOutputToString(output), aRenderer.output == output))
+				aRenderer.output = output;
+		}
+		EndCombo();
 	}
+
+	Checkbox("SSAO", &aRenderer.settings.ssao);
+
+	Value("Meshes", aRenderer.statistics.meshes);
+	Value("Dir. Lights", aRenderer.statistics.dLights);
+	Value("Point Lights", aRenderer.statistics.pLights);
+	Value("Spot Lights", aRenderer.statistics.sLights);
 }
