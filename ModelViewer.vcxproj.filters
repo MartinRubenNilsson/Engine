@@ -92,6 +92,7 @@
     <ClInclude Include="Cubemap.h">
       <Filter>components</Filter>
     </ClInclude>
+    <ClInclude Include="JsonArchive.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
@@ -174,6 +175,7 @@
     <ClCompile Include="Cubemap.cpp">
       <Filter>components</Filter>
     </ClCompile>
+    <ClCompile Include="JsonArchive.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="graphics">

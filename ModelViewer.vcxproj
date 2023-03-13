@@ -204,6 +204,7 @@
     <ClInclude Include="FullscreenPass.h" />
     <ClInclude Include="GameScene.h" />
     <ClInclude Include="Inspector.h" />
+    <ClInclude Include="JsonArchive.h" />
     <ClInclude Include="Light.h" />
     <ClInclude Include="Renderer.h" />
     <ClInclude Include="RenderTexture.h" />
@@ -238,6 +239,7 @@
     <ClCompile Include="FullscreenPass.cpp" />
     <ClCompile Include="GameScene.cpp" />
     <ClCompile Include="Inspector.cpp" />
+    <ClCompile Include="JsonArchive.cpp" />
     <ClCompile Include="Light.cpp" />
     <ClCompile Include="Renderer.cpp" />
     <ClCompile Include="RenderTexture.cpp" />

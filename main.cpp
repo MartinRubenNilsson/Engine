@@ -15,6 +15,7 @@
 #include "GameScene.h"
 #include "Tags.h"
 #include "Cubemap.h"
+#include "JsonArchive.h"
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
@@ -103,9 +104,18 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
         // Drag and drop
         if (theDrop)
         {
-            registry.clear();
-            sceneFactory.GetAsset(theDrop.GetPaths().front())->CopyTo(registry);
+            fs::path path{ theDrop.GetPaths().front() };
             theDrop = {};
+
+            registry.clear();
+            sceneFactory.GetAsset(path)->CopyTo(registry);
+
+            JsonArchive archive{};
+            archive.Save(registry);
+
+            std::ofstream file{ path.parent_path() / "registry.json" };
+            if (file)
+                file << std::setw(4) << archive.GetJson();
         }
 
         // Editor camera

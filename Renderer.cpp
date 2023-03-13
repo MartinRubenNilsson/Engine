@@ -123,10 +123,13 @@ void Renderer::SetCamera(const Camera& aCamera, const Matrix& aTransform)
 {
 	// Update constant buffer
 	{
-		CameraBuffer buffer{ aCamera.GetBuffer(USE_REVERSE_Z) };
-		buffer.viewProj = aTransform.Invert() * buffer.viewProj;
-		buffer.invViewProj = buffer.invViewProj * aTransform;
-		Vector4::Transform(buffer.position, aTransform, buffer.position);
+		CameraBuffer buffer{};
+		buffer.viewProj = aTransform.Invert() * aCamera.GetViewMatrix() * aCamera.GetProjectionMatrix(USE_REVERSE_Z);
+		buffer.invViewProj = buffer.viewProj.Invert();
+		buffer.clipPlanes.x = aCamera.GetNearZ();
+		buffer.clipPlanes.y = aCamera.GetFarZ();
+		buffer.position = (XMVECTOR)aTransform.Translation();
+		buffer.position.w = 1.f;
 
 		myCBuffers.at(b_Camera).Update(&buffer);
 	}

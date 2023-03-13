@@ -51,7 +51,7 @@ Material::Material(const aiMaterial& aMaterial)
 * namespace ImGui
 */
 
-void ImGui::InspectMaterial(const Material& aMaterial)
+void ImGui::Inspect(const Material& aMaterial)
 {
     Text(aMaterial.GetName().data());
 

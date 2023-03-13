@@ -14,13 +14,11 @@ struct PerspectiveCamera
 
 struct OrthographicCamera
 {
-	float width = 10.f;
-	float height = 10.f;
+	float width = 5.f;
+	float height = 5.f;
 };
 
 using CameraVariant = std::variant<PerspectiveCamera, OrthographicCamera>;
-
-struct CameraBuffer;
 
 class Camera
 {
@@ -29,23 +27,26 @@ public:
 	Camera(const aiCamera&);
 
 	CameraType GetType() const;
-	CameraBuffer GetBuffer(bool aReverseZ = false) const;
 
 	Matrix GetViewMatrix() const;
 	Matrix GetProjectionMatrix(bool aReverseZ = false) const;
 
+	float GetNearZ() const { return myNearZ; }
+	float GetFarZ() const { return myFarZ; }
+
 	void SetVariant(const CameraVariant&);
 	const CameraVariant& GetVariant() const;
 
-protected:
-	Vector3 myPosition{ Vector3::Zero }, myDirection{ Vector3::UnitZ }, myUp{ Vector3::UnitY };
+private:
+	friend void to_json(json&, const Camera&);
+
 	float myNearZ{ 0.3f }, myFarZ{ 1000.f };
 	CameraVariant myVariant{};
 };
 
 namespace ImGui
 {
-	void InspectCamera(Camera& aCamera);
+	void Inspect(Camera& aCamera);
 
 	void DrawCubes(const Camera& aCamera, const Matrix& aCameraTransform, std::span<const Matrix> someCubeTransforms);
 	void DrawGrid(const Camera& aCamera, const Matrix& aCameraTransform, const Matrix& aGridTransform, float aGridSize);

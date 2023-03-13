@@ -10,13 +10,6 @@ Camera::Camera(const aiCamera& aCamera)
 	: myNearZ{ aCamera.mClipPlaneNear }
 	, myFarZ{ aCamera.mClipPlaneFar }
 {
-	std::memcpy(&myPosition, &aCamera.mPosition, sizeof(Vector3));
-	std::memcpy(&myDirection, &aCamera.mLookAt, sizeof(Vector3));
-	std::memcpy(&myUp, &aCamera.mUp, sizeof(Vector3));
-
-	myDirection.Normalize();
-	myUp.Normalize();
-
 	if (aCamera.mOrthographicWidth == 0.f)
 	{
 		PerspectiveCamera camera{};
@@ -40,20 +33,9 @@ CameraType Camera::GetType() const
 	return static_cast<CameraType>(myVariant.index());
 }
 
-CameraBuffer Camera::GetBuffer(bool aReverseZ) const
-{
-	CameraBuffer buffer{};
-	buffer.viewProj = GetViewMatrix() * GetProjectionMatrix(aReverseZ);
-	buffer.invViewProj = buffer.viewProj.Invert();
-	buffer.position = { myPosition.x, myPosition.y, myPosition.z, 1.f };
-	buffer.clipPlanes = { myNearZ, myFarZ, 0.f, 0.f };
-
-	return buffer;
-}
-
 Matrix Camera::GetViewMatrix() const
 {
-	return XMMatrixLookToLH(myPosition, myDirection, myUp);
+	return XMMatrixLookToLH(Vector3::Zero, Vector3::UnitZ, Vector3::UnitY);
 }
 
 Matrix Camera::GetProjectionMatrix(bool aReverseZ) const
@@ -90,11 +72,17 @@ const CameraVariant& Camera::GetVariant() const
 	return myVariant;
 }
 
+void to_json(json& j, const Camera& aCamera)
+{
+	j["nearZ"] = aCamera.myNearZ;
+	j["farZ"] = aCamera.myFarZ;
+}
+
 /*
 * namespace ImGui
 */
 
-void ImGui::InspectCamera(Camera& aCamera)
+void ImGui::Inspect(Camera& aCamera)
 {
 	struct Inspector
 	{

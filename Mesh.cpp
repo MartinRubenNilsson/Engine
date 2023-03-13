@@ -99,7 +99,7 @@ Mesh::operator bool() const
 * namespace ImGui
 */
 
-void ImGui::InspectMesh(const Mesh& aMesh)
+void ImGui::Inspect(const Mesh& aMesh)
 {
 	auto& box = aMesh.GetBoundingBox();
 

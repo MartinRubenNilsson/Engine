@@ -15,21 +15,21 @@ void ImGui::Inspector(entt::registry& aRegistry)
 
 	if (auto transform = selection.try_get<Transform::Ptr>())
 		if (CollapsingHeader(ICON_FA_UP_DOWN_LEFT_RIGHT" Transform", ImGuiTreeNodeFlags_DefaultOpen))
-			InspectTransform(*transform);
+			Inspect(*transform);
 
 	if (auto mesh = selection.try_get<Mesh::Ptr>())
 		if (CollapsingHeader(ICON_FA_CIRCLE_NODES" Mesh", ImGuiTreeNodeFlags_DefaultOpen))
-			InspectMesh(**mesh);
+			Inspect(**mesh);
 
 	if (auto material = selection.try_get<Material>())
 		if (CollapsingHeader(ICON_FA_PALETTE" Material", ImGuiTreeNodeFlags_DefaultOpen))
-			InspectMaterial(*material);
+			Inspect(*material);
 
 	if (auto camera = selection.try_get<Camera>())
 	{
 		bool visible = true;
 		if (CollapsingHeader(ICON_FA_VIDEO" Camera", &visible, ImGuiTreeNodeFlags_DefaultOpen))
-			InspectCamera(*camera);
+			Inspect(*camera);
 		if (!visible)
 			selection.remove<Camera>();
 	}
@@ -38,7 +38,7 @@ void ImGui::Inspector(entt::registry& aRegistry)
 	{
 		bool visible = true;
 		if (CollapsingHeader(ICON_FA_SUN" Light", &visible, ImGuiTreeNodeFlags_DefaultOpen))
-			InspectLight(*light);
+			Inspect(*light);
 		if (!visible)
 			selection.remove<Light>();
 	}

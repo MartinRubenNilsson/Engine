@@ -88,6 +88,7 @@ using ComputeShaderPtr = ComPtr<ID3D11ComputeShader>;
 // nlohmann
 #include <nlohmann/json_fwd.hpp>
 #include <nlohmann/json.hpp>
+using nlohmann::json;
 
 // other
 #include "Singleton.h"

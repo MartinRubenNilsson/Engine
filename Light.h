@@ -54,5 +54,5 @@ private:
 
 namespace ImGui
 {
-	void InspectLight(Light&);
+	void Inspect(Light&);
 }

@@ -27,17 +27,17 @@ struct alignas(16) ImmutableBuffer
 
 struct alignas(16) CameraBuffer
 {
-	Matrix viewProj;
-	Matrix invViewProj;
-	Vector4 position;
-	Vector4 clipPlanes; // (nearZ, farZ, [unused], [unused])
+	Matrix viewProj{};
+	Matrix invViewProj{};
+	Vector4 position{};
+	Vector4 clipPlanes{}; // (nearZ, farZ, [unused], [unused])
 };
 
 struct alignas(16) MeshBuffer
 {
-	Matrix matrix;
-	Matrix matrixInvTrans;
-	uint32_t entity[4];
+	Matrix matrix{};
+	Matrix matrixInvTrans{};
+	uint32_t entity[4]{};
 };
 
 struct alignas(16) LightBuffer

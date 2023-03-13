@@ -150,7 +150,7 @@ const LightVariant& Light::GetVariant() const
 * namespace ImGui
 */
 
-void ImGui::InspectLight(Light& aLight)
+void ImGui::Inspect(Light& aLight)
 {
 	struct Inspector
 	{

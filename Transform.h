@@ -49,7 +49,7 @@ private:
 
 namespace ImGui
 {
-	void InspectTransform(Transform::Ptr aTransform);
+	void Inspect(Transform::Ptr aTransform);
 	bool Hierarchy(Transform::Ptr aTransform, Transform::Ptr& aSelection);
 }
 

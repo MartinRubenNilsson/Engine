@@ -31,6 +31,6 @@ private:
 
 namespace ImGui
 {
-	void InspectMesh(const Mesh& aMesh);
+	void Inspect(const Mesh& aMesh);
 }
 

@@ -103,7 +103,7 @@ Transform::~Transform()
 * namespace ImGui
 */
 
-void ImGui::InspectTransform(Transform::Ptr aTransform)
+void ImGui::Inspect(Transform::Ptr aTransform)
 {
 	std::string name{ aTransform->GetName() };
 	if (InputText("Name", &name))

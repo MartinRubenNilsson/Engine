@@ -17,6 +17,6 @@ private:
 
 namespace ImGui
 {
-	void InspectMaterial(const Material&);
+	void Inspect(const Material&);
 }
 
