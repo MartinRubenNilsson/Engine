@@ -102,15 +102,21 @@ bool Renderer::ResizeTextures(unsigned aWidth, unsigned aHeight)
 	if (!myDepthBuffer)
 		return false;
 
-	myRenderTextures.at(t_GBufferNormalDepth)	= { aWidth, aHeight, DXGI_FORMAT_R16G16B16A16_UNORM };
-	myRenderTextures.at(t_GBufferAlbedo)		= { aWidth, aHeight, DXGI_FORMAT_R8G8B8A8_UNORM };
-	myRenderTextures.at(t_GBufferMetalRoughAo)	= { aWidth, aHeight, DXGI_FORMAT_R8G8B8A8_UNORM };
-	myRenderTextures.at(t_GBufferEntity)		= { aWidth, aHeight, DXGI_FORMAT_R32_UINT };
-	myRenderTextures.at(t_AmbientAccessMap)		= { aWidth / 2, aHeight / 2, DXGI_FORMAT_R16_UNORM };
-	myRenderTextures.at(t_BlurInputTexture)		= { aWidth / 2, aHeight / 2, DXGI_FORMAT_R16_UNORM };
-	myRenderTextures.at(t_LightingTexture)		= { aWidth, aHeight, DXGI_FORMAT_R32G32B32A32_FLOAT };
+	myRenderTextures[t_GBufferNormalDepth]	= { aWidth, aHeight, DXGI_FORMAT_R16G16B16A16_UNORM };
+	myRenderTextures[t_GBufferAlbedo]		= { aWidth, aHeight, DXGI_FORMAT_R8G8B8A8_UNORM};
+	myRenderTextures[t_GBufferMetalRoughAo]	= { aWidth, aHeight, DXGI_FORMAT_R8G8B8A8_UNORM };
+	myRenderTextures[t_GBufferEntity]		= { aWidth, aHeight, DXGI_FORMAT_R32_UINT };
+	myRenderTextures[t_AmbientAccessMap]	= { aWidth / 2, aHeight / 2, DXGI_FORMAT_R16_UNORM };
+	myRenderTextures[t_BlurInputTexture]	= { aWidth / 2, aHeight / 2, DXGI_FORMAT_R16_UNORM };
+	myRenderTextures[t_LightingTexture]		= { aWidth, aHeight, DXGI_FORMAT_R32G32B32A32_FLOAT };
 
-	return std::ranges::all_of(myRenderTextures, &RenderTexture::operator bool);
+	for (auto& [slot, texture] : myRenderTextures)
+	{
+		if (!texture)
+			return false;
+	}
+
+	return true;
 }
 
 void Renderer::SetCamera(const Camera& aCamera, const Matrix& aTransform)
@@ -148,7 +154,7 @@ void Renderer::Render(const entt::registry& aRegistry)
 
 	RenderLights(aRegistry);
 
-	switch (output)
+	switch (settings.output)
 	{
 	case RenderOutput::Final:
 	{
@@ -159,31 +165,31 @@ void Renderer::Render(const entt::registry& aRegistry)
 	case RenderOutput::Depth:
 	{
 		ScopedShaderResources scopedResource{ ShaderType::Pixel, t_GBufferNormalDepth, myRenderTextures.at(t_GBufferNormalDepth) };
-		FullscreenPass{ "PsGetDepth.cso" }.Render();
+		FullscreenPass{ "PsDepth.cso" }.Render();
 		break;
 	}
 	case RenderOutput::Normal:
 	{
 		ScopedShaderResources scopedResource{ ShaderType::Pixel, t_GBufferNormalDepth, myRenderTextures.at(t_GBufferNormalDepth) };
-		FullscreenPass{ "PsGetNormal.cso" }.Render();
+		FullscreenPass{ "PsNormal.cso" }.Render();
 		break;
 	}
 	case RenderOutput::Position:
 	{
 		ScopedShaderResources scopedResource{ ShaderType::Pixel, t_GBufferNormalDepth, myRenderTextures.at(t_GBufferNormalDepth) };
-		FullscreenPass{ "PsGetPosition.cso" }.Render();
+		FullscreenPass{ "PsPosition.cso" }.Render();
 		break;
 	}
 	case RenderOutput::Entity:
 	{
 		ScopedShaderResources scopedResource{ ShaderType::Pixel, t_GBufferEntity, myRenderTextures.at(t_GBufferEntity) };
-		FullscreenPass{ "PsGetEntity.cso" }.Render();
+		FullscreenPass{ "PsEntity.cso" }.Render();
 		break;
 	}
 	case RenderOutput::Access:
 	{
-		ScopedShaderResources scopedResource{ ShaderType::Pixel, 0, myRenderTextures.at(t_AmbientAccessMap) };
-		FullscreenPass{ "PsPointSample.cso" }.Render();
+		ScopedShaderResources scopedResource{ ShaderType::Pixel, t_AmbientAccessMap, myRenderTextures.at(t_AmbientAccessMap) };
+		FullscreenPass{ "PsAccess.cso" }.Render();
 		break;
 	}
 	}
@@ -201,16 +207,35 @@ void Renderer::Clear()
 {
 	statistics = {};
 
-	for (RenderTexture& texture : myRenderTextures)
-		texture.Clear();
-
-	myRenderTextures.at(t_GBufferNormalDepth).Clear({ 0.f, 0.f, 0.f, FAR_Z });
-	myRenderTextures.at(t_AmbientAccessMap).Clear({ 1.f, 1.f, 1.f, 1.f });
-
 	myDepthBuffer.Clear(FAR_Z);
 
-	ScopedRenderTargets scopedTargets{ myRenderTextures.at(t_GBufferEntity) };
-	FullscreenPass{ "PsClearEntity.cso" }.Render();
+	for (auto& [slot, texture] : myRenderTextures)
+	{
+		switch (slot)
+		{
+		case t_GBufferNormalDepth:
+		{
+			texture.Clear({ 0.f, 0.f, 0.f, FAR_Z });
+			break;
+		}
+		case t_AmbientAccessMap:
+		{
+			texture.Clear({ 1.f, 1.f, 1.f, 1.f });
+			break;
+		}
+		case t_GBufferEntity:
+		{
+			ScopedRenderTargets scopedTargets{ texture };
+			FullscreenPass{ "PsClearEntity.cso" }.Render();
+			break;
+		}
+		default:
+		{
+			texture.Clear();
+			break;
+		}
+		}
+	}
 }
 
 void Renderer::RenderGeometry(const entt::registry& aRegistry)
@@ -418,16 +443,16 @@ void Renderer::RenderSpotLights(std::span<const LightBuffer> someLights)
 std::vector<RenderTargetPtr> Renderer::GetGBufferTargets() const
 {
 	std::vector<RenderTargetPtr> targets{};
-	for (size_t i = GBUFFER_BEGIN; i < GBUFFER_END; ++i)
-		targets.emplace_back(myRenderTextures.at(i));
+	for (unsigned i = GBUFFER_BEGIN; i < GBUFFER_END; ++i)
+		targets.emplace_back(myRenderTextures.at(static_cast<TextureSlot>(i)));
 	return targets;
 }
 
 std::vector<ShaderResourcePtr> Renderer::GetGBufferResources() const
 {
 	std::vector<ShaderResourcePtr> resources{};
-	for (size_t i = GBUFFER_BEGIN; i < GBUFFER_END; ++i)
-		resources.emplace_back(myRenderTextures.at(i));
+	for (unsigned i = GBUFFER_BEGIN; i < GBUFFER_END; ++i)
+		resources.emplace_back(myRenderTextures.at(static_cast<TextureSlot>(i)));
 	return resources;
 }
 
@@ -437,21 +462,35 @@ std::vector<ShaderResourcePtr> Renderer::GetGBufferResources() const
 
 void ImGui::InspectRenderer(Renderer& aRenderer)
 {
-	if (BeginCombo("Output", RenderOutputToString(aRenderer.output)))
+	if (TreeNode(ICON_FA_GEARS" Settings"))
 	{
-		for (int i = 0; i < std::to_underlying(RenderOutput::Count); ++i)
+		RenderSettings& settings{ aRenderer.settings };
+
+		if (BeginCombo("Output", RenderOutputToString(settings.output)))
 		{
-			RenderOutput output{ i };
-			if (Selectable(RenderOutputToString(output), aRenderer.output == output))
-				aRenderer.output = output;
+			for (int i = 0; i < std::to_underlying(RenderOutput::Count); ++i)
+			{
+				RenderOutput output{ i };
+				if (Selectable(RenderOutputToString(output), settings.output == output))
+					settings.output = output;
+			}
+			EndCombo();
 		}
-		EndCombo();
+
+		Checkbox("SSAO", &aRenderer.settings.ssao);
+
+		TreePop();
 	}
 
-	Checkbox("SSAO", &aRenderer.settings.ssao);
+	if (TreeNode(ICON_FA_CHART_SIMPLE" Statistics"))
+	{
+		const RenderStatistics& stats{ aRenderer.statistics };
 
-	Value("Meshes", aRenderer.statistics.meshes);
-	Value("Dir. Lights", aRenderer.statistics.dLights);
-	Value("Point Lights", aRenderer.statistics.pLights);
-	Value("Spot Lights", aRenderer.statistics.sLights);
+		Value("Meshes", stats.meshes);
+		Value("Dir. Lights", stats.dLights);
+		Value("Point Lights", stats.pLights);
+		Value("Spot Lights", stats.sLights);
+
+		TreePop();
+	}
 }

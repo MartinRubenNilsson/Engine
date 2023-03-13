@@ -14,8 +14,6 @@ float OcclusionFunc(float deltaWorldDepth)
     return f * g;
 }
 
-// todo: replace trilinear sampler with NormalDepthSampler to avoid false occlusions... or do we need to?
-
 float main(VsOutFullscreen input) : SV_TARGET
 {
     /*
@@ -38,7 +36,7 @@ float main(VsOutFullscreen input) : SV_TARGET
     
     const float3 unitVec = GetRandomUnitVec(input.pos.xy);
     
-    float totalOcclusion = 0.0;
+    float occlusion = 0.0;
     
     [unroll]
     for (uint i = 0; i < OFFSET_VECTOR_COUNT; ++i)
@@ -53,14 +51,15 @@ float main(VsOutFullscreen input) : SV_TARGET
         const float3 R = UVDepthToWorld(uv, depthR);
         
         const float deltaWorldDepth = HyperbolicDepthToLinear(depthP) - HyperbolicDepthToLinear(depthR);
-        const float occlusion = OcclusionFunc(deltaWorldDepth);
-        const float weight = saturate(dot(N, normalize(R - P))); // only points in front of P can occlude P
+        const float weight = saturate(dot(N, normalize(R - P))); // Only points in front of P can occlude it
         
-        totalOcclusion += occlusion * weight;
+        occlusion += weight * OcclusionFunc(deltaWorldDepth);
     }
     
-    totalOcclusion /= OFFSET_VECTOR_COUNT;
-    const float access = 1.0 - totalOcclusion;
+    occlusion /= OFFSET_VECTOR_COUNT;
     
-    return saturate(pow(access, 4.0)); // Sharpen contrast
+    float access = 1.0 - occlusion;
+    access = pow(access, 4.0); // Sharpen contrast
+    
+    return access;
 }

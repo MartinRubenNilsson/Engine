@@ -206,11 +206,14 @@
     <Filter Include="graphics\buffers">
       <UniqueIdentifier>{88f0b685-467e-4cc6-8d22-6fa987d83cb9}</UniqueIdentifier>
     </Filter>
-    <Filter Include="shaders\blur">
-      <UniqueIdentifier>{6b807dd4-58af-480e-9e38-1989104ad1d7}</UniqueIdentifier>
-    </Filter>
     <Filter Include="components">
       <UniqueIdentifier>{545fdeb4-0f2f-46c3-ac4c-1a93a1a6f995}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="shaders\fullscreen\occlusion">
+      <UniqueIdentifier>{8ad395ef-fc08-4ad0-bc46-07286f28b91d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="shaders\fullscreen\output">
+      <UniqueIdentifier>{99fb8719-0e28-4466-8b47-619b3efd59ce}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -256,41 +259,38 @@
     <FxCompile Include="PsImageBasedLight.hlsl">
       <Filter>shaders\lights</Filter>
     </FxCompile>
-    <FxCompile Include="PsPointSample.hlsl">
-      <Filter>shaders\fullscreen</Filter>
-    </FxCompile>
-    <FxCompile Include="PsSSAO.hlsl">
-      <Filter>shaders\fullscreen</Filter>
-    </FxCompile>
-    <FxCompile Include="PsGetGaussian.hlsl">
-      <Filter>shaders\fullscreen</Filter>
-    </FxCompile>
-    <FxCompile Include="PsGetPosition.hlsl">
-      <Filter>shaders\fullscreen</Filter>
-    </FxCompile>
-    <FxCompile Include="PsGetDepth.hlsl">
-      <Filter>shaders\fullscreen</Filter>
-    </FxCompile>
-    <FxCompile Include="PsGetEntity.hlsl">
-      <Filter>shaders\fullscreen</Filter>
-    </FxCompile>
-    <FxCompile Include="PsGetNormal.hlsl">
-      <Filter>shaders\fullscreen</Filter>
-    </FxCompile>
     <FxCompile Include="PsGBuffer.hlsl">
       <Filter>shaders</Filter>
-    </FxCompile>
-    <FxCompile Include="PsBlurHorizontal.hlsl">
-      <Filter>shaders\blur</Filter>
-    </FxCompile>
-    <FxCompile Include="PsBlurVertical.hlsl">
-      <Filter>shaders\blur</Filter>
     </FxCompile>
     <FxCompile Include="PsIntegrateBRDF.hlsl">
       <Filter>shaders\fullscreen</Filter>
     </FxCompile>
     <FxCompile Include="PsGenPrefilteredMap.hlsl">
       <Filter>shaders\cubemap</Filter>
+    </FxCompile>
+    <FxCompile Include="PsSSAO.hlsl">
+      <Filter>shaders\fullscreen\occlusion</Filter>
+    </FxCompile>
+    <FxCompile Include="PsBlurVertical.hlsl">
+      <Filter>shaders\fullscreen\occlusion</Filter>
+    </FxCompile>
+    <FxCompile Include="PsBlurHorizontal.hlsl">
+      <Filter>shaders\fullscreen\occlusion</Filter>
+    </FxCompile>
+    <FxCompile Include="PsPosition.hlsl">
+      <Filter>shaders\fullscreen\output</Filter>
+    </FxCompile>
+    <FxCompile Include="PsDepth.hlsl">
+      <Filter>shaders\fullscreen\output</Filter>
+    </FxCompile>
+    <FxCompile Include="PsEntity.hlsl">
+      <Filter>shaders\fullscreen\output</Filter>
+    </FxCompile>
+    <FxCompile Include="PsNormal.hlsl">
+      <Filter>shaders\fullscreen\output</Filter>
+    </FxCompile>
+    <FxCompile Include="PsAccess.hlsl">
+      <Filter>shaders\fullscreen\output</Filter>
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
@@ -307,7 +307,7 @@
       <Filter>shaders</Filter>
     </None>
     <None Include="BlurCommon.hlsli">
-      <Filter>shaders\blur</Filter>
+      <Filter>shaders\fullscreen\occlusion</Filter>
     </None>
   </ItemGroup>
 </Project>

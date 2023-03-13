@@ -20,6 +20,7 @@ const char* RenderOutputToString(RenderOutput);
 
 struct RenderSettings
 {
+	RenderOutput output{};
 	bool ssao{ true };
 };
 
@@ -34,7 +35,6 @@ struct RenderStatistics
 class Renderer
 {
 public:
-	RenderOutput output{};
 	RenderSettings settings{};
 	RenderStatistics statistics{};
 
@@ -61,15 +61,15 @@ private:
 	void RenderPointLights(std::span<const LightBuffer>);
 	void RenderSpotLights(std::span<const LightBuffer>);
 
-	std::vector<RenderTargetPtr> GetGBufferTargets() const;
-	std::vector<ShaderResourcePtr> GetGBufferResources() const;
+	std::vector<RenderTargetPtr> GetGBufferTargets() const; // todo: remove
+	std::vector<ShaderResourcePtr> GetGBufferResources() const; // todo: remove
 
 	bool mySucceeded{ false };
 	ScopedPrimitiveTopology myTopology;
 	ScopedSamplerStates mySamplers;
 	ShaderResourcePtr myGaussianMap{}, myIntegrationMap{}; // Precomputed maps
 	std::array<ConstantBuffer, CBufferCount> myCBuffers{};
-	std::array<RenderTexture, t_LightingTexture + 1> myRenderTextures{};
+	std::unordered_map<TextureSlot, RenderTexture> myRenderTextures{};
 	DepthBuffer myDepthBuffer{};
 	BoundingFrustum myFrustum{};
 };
