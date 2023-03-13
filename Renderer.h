@@ -53,7 +53,7 @@ private:
 	void Clear();
 
 	void RenderGeometry(const entt::registry&);
-	void RenderSSAO();
+	void RenderOcclusion();
 	void RenderLights(const entt::registry&);
 	void RenderSkybox();
 

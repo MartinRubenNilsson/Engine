@@ -150,7 +150,7 @@ void Renderer::Render(const entt::registry& aRegistry)
 	ScopedShaderResources scopedGBuffer{ ShaderType::Pixel, GBUFFER_BEGIN, GetGBufferResources() };
 
 	if (settings.ssao)
-		RenderSSAO();
+		RenderOcclusion();
 
 	RenderLights(aRegistry);
 
@@ -287,32 +287,30 @@ void Renderer::RenderGeometry(const entt::registry& aRegistry)
 	}
 }
 
-void Renderer::RenderSSAO()
+void Renderer::RenderOcclusion()
 {
 	auto& ambientMap{ myRenderTextures.at(t_AmbientAccessMap) };
 	auto& blurTexture{ myRenderTextures.at(t_BlurInputTexture) };
 
 	ScopedViewports scopedViewports{ ambientMap.GetViewport() };
 
-	// Compute (noisy) ambient map
+	// Compute ambient access map
 	{
 		ScopedShaderResources scopedResource{ ShaderType::Pixel, t_GaussianMap, myGaussianMap };
 		ScopedRenderTargets scopedTarget{ ambientMap };
 		FullscreenPass{ "PsSSAO.cso" }.Render();
 	}
-
-	static constexpr size_t blurPassCount{ 4 };
 	
-	for (size_t i = 0; i < blurPassCount; ++i)
+	for (size_t i = 0; i < 4; ++i)
 	{
-		// Blur ambient map horizontally
+		// Blur horizontally
 		{
 			ScopedShaderResources scopedResource{ ShaderType::Pixel, t_BlurInputTexture, ambientMap };
 			ScopedRenderTargets scopedTarget{ blurTexture };
 			FullscreenPass{ "PsBlurHorizontal.cso" }.Render();
 		}
 
-		// Blur ambient map vertically
+		// Blur vertically
 		{
 			ScopedShaderResources scopedResource{ ShaderType::Pixel, t_BlurInputTexture, blurTexture };
 			ScopedRenderTargets scopedTarget{ ambientMap };

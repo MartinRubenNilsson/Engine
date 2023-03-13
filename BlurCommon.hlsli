@@ -16,8 +16,8 @@ float4 EdgePreservingBlur(float2 uvPerPixel, float2 centerUV)
 {
     const float4 centerNormalDepth = GBufferNormalDepth.Sample(NormalDepthSampler, centerUV);
     
-    float4 color = BlurWeights[5] * BlurInputTexture.Sample(PointSampler, centerUV);
-    float weight = BlurWeights[5];
+    float4 totalColor = BlurWeights[5] * BlurInputTexture.Sample(PointSampler, centerUV);
+    float totalWeight = BlurWeights[5];
     
     [unroll]
     for (int i = -BlurRadius; i <= BlurRadius; ++i)
@@ -31,9 +31,9 @@ float4 EdgePreservingBlur(float2 uvPerPixel, float2 centerUV)
         if (!IsContinuous(centerNormalDepth, neighNormalDepth))
             continue;
 
-        color += BlurWeights[i + BlurRadius] * BlurInputTexture.Sample(PointSampler, neighUV);
-        weight += BlurWeights[i + BlurRadius];
+        totalColor += BlurWeights[i + BlurRadius] * BlurInputTexture.Sample(PointSampler, neighUV);
+        totalWeight += BlurWeights[i + BlurRadius];
     }
 	
-    return color / weight;
+    return totalColor / totalWeight;
 }
