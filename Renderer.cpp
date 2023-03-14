@@ -81,19 +81,15 @@ bool Renderer::ResizeTextures(unsigned aWidth, unsigned aHeight)
 	return true;
 }
 
-void Renderer::SetCamera(const Camera& aCamera, const Matrix& aTransform, bool useScreenAspect)
+void Renderer::SetCamera(const Camera& aCamera, const Matrix& aTransform)
 {
-	Camera camera{ aCamera };
-	if (useScreenAspect)
-		camera.SetAspect(static_cast<float>(myWidth) / static_cast<float>(myHeight));
-
 	// Update constant buffer
 	{
 		CameraBuffer buffer{};
-		buffer.viewProj = aTransform.Invert() * camera.GetViewMatrix() * camera.GetProjectionMatrix(USE_REVERSE_Z);
+		buffer.viewProj = aTransform.Invert() * aCamera.GetViewMatrix() * aCamera.GetProjectionMatrix(USE_REVERSE_Z);
 		buffer.invViewProj = buffer.viewProj.Invert();
-		buffer.clipPlanes.x = camera.GetNearZ();
-		buffer.clipPlanes.y = camera.GetFarZ();
+		buffer.clipPlanes.x = aCamera.GetNearZ();
+		buffer.clipPlanes.y = aCamera.GetFarZ();
 		buffer.position = (XMVECTOR)aTransform.Translation();
 		buffer.position.w = 1.f;
 
@@ -102,7 +98,7 @@ void Renderer::SetCamera(const Camera& aCamera, const Matrix& aTransform, bool u
 
 	// Update bounding frustum
 	{
-		BoundingFrustum::CreateFromMatrix(myFrustum, camera.GetProjectionMatrix() );
+		BoundingFrustum::CreateFromMatrix(myFrustum, aCamera.GetProjectionMatrix() );
 		myFrustum.Transform(myFrustum, aTransform);
 	}
 }
@@ -171,12 +167,9 @@ void Renderer::Render(const entt::registry& aRegistry)
 	}
 }
 
-entt::entity Renderer::PickEntity(unsigned x, unsigned y)
+RenderTexture& Renderer::GetTexture(TextureSlot aSlot)
 {
-	entt::entity entity{ entt::null };
-	std::span span{ &entity, 1 };
-	myTextures.at(t_GBufferEntity).GetTexel(std::as_writable_bytes(span), x, y);
-	return entity;
+	return myTextures.at(aSlot);
 }
 
 Renderer::operator bool() const

@@ -206,6 +206,7 @@
     <ClInclude Include="Inspector.h" />
     <ClInclude Include="JsonArchive.h" />
     <ClInclude Include="Light.h" />
+    <ClInclude Include="Picker.h" />
     <ClInclude Include="Renderer.h" />
     <ClInclude Include="RenderTexture.h" />
     <ClInclude Include="Image.h" />
@@ -242,6 +243,7 @@
     <ClCompile Include="Inspector.cpp" />
     <ClCompile Include="JsonArchive.cpp" />
     <ClCompile Include="Light.cpp" />
+    <ClCompile Include="Picker.cpp" />
     <ClCompile Include="Renderer.cpp" />
     <ClCompile Include="RenderTexture.cpp" />
     <ClCompile Include="Image.cpp" />

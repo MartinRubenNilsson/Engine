@@ -17,6 +17,7 @@
 #include "Cubemap.h"
 #include "JsonArchive.h"
 #include "SceneViewManipulate.h"
+#include "Picker.h"
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
@@ -103,9 +104,10 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
         // Resize
         if (theResize)
         {
+            theResize = false;
             backBuffer.Resize();
             renderer.ResizeTextures(backBuffer.GetWidth(), backBuffer.GetHeight());
-            theResize = false;
+            camera.SetAspect((float)backBuffer.GetWidth() / (float)backBuffer.GetHeight());
         }
 
         // Drag and drop
@@ -131,18 +133,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
 
             ImGui::SceneViewManipulate(cameraTransform);
 
-            if (mouse.GetState().leftButton)
-            {
-                auto selected = registry.view<Tag::Selected>();
-                registry.erase<Tag::Selected>(selected.begin(), selected.end());
-
-                ImVec2 pos{ ImGui::GetMousePos() };
-
-                entt::entity selection = renderer.PickEntity((unsigned)pos.x, (unsigned)pos.y);
-
-                if (registry.valid(selection))
-                    registry.emplace_or_replace<Tag::Selected>(selection);
-            }
+            ImGui::Picker(registry);
 
             ImGui::Begin(ICON_FA_LIST" Hierarchy");
             ImGui::Hierarchy(registry);

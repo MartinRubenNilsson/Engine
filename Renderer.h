@@ -32,7 +32,7 @@ struct RenderStatistics
 	unsigned sLights{}; // Spot
 };
 
-class Renderer
+class Renderer : public Singleton<Renderer>
 {
 public:
 	RenderSettings settings{};
@@ -42,10 +42,10 @@ public:
 	Renderer(unsigned aWidth, unsigned aHeight);
 
 	bool ResizeTextures(unsigned aWidth, unsigned aHeight);
-	void SetCamera(const Camera& aCamera, const Matrix& aTransform, bool useScreenAspect = true);
+	void SetCamera(const Camera& aCamera, const Matrix& aTransform);
 	void Render(const entt::registry&);
 
-	entt::entity PickEntity(unsigned x, unsigned y);
+	RenderTexture& GetTexture(TextureSlot);
 
 	explicit operator bool() const;
 
