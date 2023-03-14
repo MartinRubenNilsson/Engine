@@ -16,6 +16,7 @@
 #include "Tags.h"
 #include "Cubemap.h"
 #include "JsonArchive.h"
+#include "SceneViewManipulate.h"
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
@@ -71,8 +72,19 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
     SceneFactory sceneFactory{};
     CubemapFactory cubemapFactory{};
 
+
+
+    PerspectiveCamera perspective{};
+    perspective.fovY = 1.04719755119f; // 60 degrees
+    perspective.aspect = backBuffer.GetViewport().AspectRatio();
+
     Camera camera{};
+    camera.SetVariant(perspective);
+
     Matrix cameraTransform{};
+
+
+
 
     entt::registry registry{};
     GameScene gameScene{ registry };
@@ -117,46 +129,11 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
                 file << std::setw(4) << archive.GetJson();
         }
 
-        // Editor camera
+        // ImGui & Editor
         {
-            PerspectiveCamera perspective{};
-            perspective.fovY = 1.04719755119f; // 60 degrees
-            perspective.aspect = backBuffer.GetViewport().AspectRatio();
-            camera.SetVariant(perspective);
+            imGui.NewFrame();
 
-            Mouse::State state{ mouse.GetState() };
-            mouse.SetMode(state.rightButton ? Mouse::MODE_RELATIVE : Mouse::MODE_ABSOLUTE);
-
-            if (state.positionMode == Mouse::MODE_RELATIVE)
-            {
-                const float rotSpeed = 0.25f;
-                const float moveSpeed = ImGui::IsKeyDown(ImGuiKey_LeftShift) ? 15.f : 5.f;
-                const float deltaTime = ImGui::GetIO().DeltaTime;
-
-                if (state.x != 0 || state.y != 0)
-                {
-                    Vector3 scale{}, translation{};
-                    Quaternion rotation{};
-                    cameraTransform.Decompose(scale, rotation, translation);
-
-                    rotation = Quaternion::CreateFromAxisAngle(Vector3::UnitX, state.y * rotSpeed * deltaTime) * rotation;
-                    rotation = rotation * Quaternion::CreateFromAxisAngle(Vector3::UnitY, state.x * rotSpeed * deltaTime);
-                
-                    cameraTransform = Matrix::CreateFromQuaternion(rotation) * Matrix::CreateTranslation(translation);
-                }
-
-                Vector3 moveDir{};
-
-                if (ImGui::IsKeyDown(ImGuiKey_D)) moveDir += Vector3::UnitX;
-                if (ImGui::IsKeyDown(ImGuiKey_A)) moveDir -= Vector3::UnitX;
-                if (ImGui::IsKeyDown(ImGuiKey_E)) moveDir += Vector3::UnitY;
-                if (ImGui::IsKeyDown(ImGuiKey_Q)) moveDir -= Vector3::UnitY;
-                if (ImGui::IsKeyDown(ImGuiKey_W)) moveDir += Vector3::UnitZ;
-                if (ImGui::IsKeyDown(ImGuiKey_S)) moveDir -= Vector3::UnitZ;
-            
-                if (moveDir != Vector3::Zero)
-                    cameraTransform = Matrix::CreateTranslation(moveDir * moveSpeed * deltaTime) * cameraTransform;
-            }
+            ImGui::SceneViewManipulate(cameraTransform);
 
             if (ImGui::IsMouseClicked(ImGuiMouseButton_Left) && !ImGui::GetIO().WantCaptureMouse)
             {
@@ -171,13 +148,6 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
                 if (registry.valid(selection))
                     registry.emplace_or_replace<Tag::Selected>(selection);
             }
-        }
-
-        mouse.EndOfInputFrame();
-
-        // ImGui
-        {
-            imGui.NewFrame();
 
             ImGui::Begin(ICON_FA_LIST" Hierarchy");
             ImGui::Hierarchy(registry);
@@ -215,6 +185,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
 
             renderer.SetCamera(camera, cameraTransform);
         }
+
+        mouse.EndOfInputFrame();
 
         // Rendering
         {

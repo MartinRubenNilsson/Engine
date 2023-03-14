@@ -214,6 +214,7 @@
     <ClInclude Include="Material.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="pch.h" />
+    <ClInclude Include="SceneViewManipulate.h" />
     <ClInclude Include="ShaderCommon.h" />
     <ClInclude Include="StateFactory.h" />
     <ClInclude Include="Scene.h" />
@@ -255,6 +256,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="SceneViewManipulate.cpp" />
     <ClCompile Include="ShaderCommon.cpp" />
     <ClCompile Include="StateFactory.cpp" />
     <ClCompile Include="Scene.cpp" />

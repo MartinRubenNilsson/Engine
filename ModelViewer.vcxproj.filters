@@ -93,6 +93,9 @@
       <Filter>components</Filter>
     </ClInclude>
     <ClInclude Include="JsonArchive.h" />
+    <ClInclude Include="SceneViewManipulate.h">
+      <Filter>editor</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
@@ -176,6 +179,9 @@
       <Filter>components</Filter>
     </ClCompile>
     <ClCompile Include="JsonArchive.cpp" />
+    <ClCompile Include="SceneViewManipulate.cpp">
+      <Filter>editor</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="graphics">
