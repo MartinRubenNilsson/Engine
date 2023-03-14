@@ -72,8 +72,6 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
     SceneFactory sceneFactory{};
     CubemapFactory cubemapFactory{};
 
-
-
     PerspectiveCamera perspective{};
     perspective.fovY = 1.04719755119f; // 60 degrees
     perspective.aspect = backBuffer.GetViewport().AspectRatio();
@@ -83,11 +81,11 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
 
     Matrix cameraTransform{};
 
-
-
-
     entt::registry registry{};
     GameScene gameScene{ registry };
+
+    ScopedPrimitiveTopology scopedTopology{ D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST };
+    ScopedSamplerStates scopedSamplers{ 0, GetSamplerDescs() };
 
     bool run = true;
     MSG msg{};
@@ -103,6 +101,9 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
             TranslateMessage(&msg);
             DispatchMessage(&msg);
         }
+
+        //Mouse::State mouseState{ mouse.GetState() };
+        //buttons.Update(mouseState);
 
         // Resize
         if (theResize)
@@ -135,15 +136,14 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
 
             ImGui::SceneViewManipulate(cameraTransform);
 
-            if (ImGui::IsMouseClicked(ImGuiMouseButton_Left) && !ImGui::GetIO().WantCaptureMouse)
+            if (mouse.GetState().leftButton)
             {
                 auto selected = registry.view<Tag::Selected>();
                 registry.erase<Tag::Selected>(selected.begin(), selected.end());
 
-                auto x = static_cast<unsigned>(ImGui::GetMousePos().x);
-                auto y = static_cast<unsigned>(ImGui::GetMousePos().y);
+                ImVec2 pos{ ImGui::GetMousePos() };
 
-                entt::entity selection = renderer.PickEntity(x, y);
+                entt::entity selection = renderer.PickEntity((unsigned)pos.x, (unsigned)pos.y);
 
                 if (registry.valid(selection))
                     registry.emplace_or_replace<Tag::Selected>(selection);

@@ -64,9 +64,7 @@ namespace
 */
 
 Renderer::Renderer(unsigned aWidth, unsigned aHeight)
-	: myTopology{ D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST }
-	, mySamplers{ 0, GetSamplerDescs() }
-	, myGaussianMap{ CreateGaussianMap() }, myIntegrationMap{ CreateIntegrationMap() }
+	: myGaussianMap{ CreateGaussianMap() }, myIntegrationMap{ CreateIntegrationMap() }
 	, myCBuffers{ sizeof(ImmutableBuffer), sizeof(CameraBuffer), sizeof(MeshBuffer), sizeof(LightBuffer) }
 {
 	if (!myGaussianMap)

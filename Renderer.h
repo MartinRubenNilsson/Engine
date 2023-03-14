@@ -64,14 +64,12 @@ private:
 	std::vector<RenderTargetPtr> GetGBufferTargets() const; // todo: remove
 	std::vector<ShaderResourcePtr> GetGBufferResources() const; // todo: remove
 
-	bool mySucceeded{ false };
-	ScopedPrimitiveTopology myTopology;
-	ScopedSamplerStates mySamplers;
 	ShaderResourcePtr myGaussianMap{}, myIntegrationMap{}; // Precomputed maps
 	std::array<ConstantBuffer, CBufferCount> myCBuffers{};
 	std::unordered_map<TextureSlot, RenderTexture> myRenderTextures{};
 	DepthBuffer myDepthBuffer{};
 	BoundingFrustum myFrustum{};
+	bool mySucceeded{ false };
 };
 
 namespace ImGui
