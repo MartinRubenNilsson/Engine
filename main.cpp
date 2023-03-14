@@ -3,7 +3,7 @@
 #include "Drop.h"
 #include "DearImGui.h"
 #include "StateFactory.h"
-#include "InputLayoutManager.h"
+#include "InputLayoutFactory.h"
 #include "BackBuffer.h"
 #include "Renderer.h"
 #include "Texture.h"
@@ -27,12 +27,11 @@ namespace
 
 int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
 {
-    // Set current path
+    // Set current path to module path
     {
-        WCHAR moduleFileName[MAX_PATH];
-        GetModuleFileName(GetModuleHandle(NULL), moduleFileName, MAX_PATH);
-        fs::path modulePath{ moduleFileName };
-        fs::current_path(modulePath.remove_filename());
+        WCHAR path[MAX_PATH];
+        GetModuleFileName(GetModuleHandle(NULL), path, MAX_PATH);
+        fs::current_path(fs::path{ path }.remove_filename());
     }
 
     Window window{ Window::Register(WndProc) };
@@ -43,34 +42,34 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
 
     Keyboard keyboard{};
     Mouse mouse{};
+
     mouse.SetWindow(window);
 
     DX11 dx11{};
     if (!dx11)
         return EXIT_FAILURE;
 
-    DearImGui imGui{ window, dx11.GetDevice(), dx11.GetContext() };
-    if (!imGui)
+    StateFactory stateFactory{};
+    ShaderFactory shaderFactory{};
+    InputLayoutFactory layoutFactory{};
+    if (!layoutFactory)
         return EXIT_FAILURE;
 
     BackBuffer backBuffer{ window };
     if (!backBuffer)
         return EXIT_FAILURE;
 
-    InputLayoutManager inputLayoutMgr{};
-    if (!inputLayoutMgr)
+    Renderer renderer{ backBuffer.GetWidth(), backBuffer.GetHeight() };
+    if (!renderer)
         return EXIT_FAILURE;
 
-    StateFactory stateFactory{};
-    ShaderFactory shaderFactory{};
+    DearImGui imGui{ window, dx11.GetDevice(), dx11.GetContext() };
+    if (!imGui)
+        return EXIT_FAILURE;
 
     TextureFactory textureFactory{};
     SceneFactory sceneFactory{};
     CubemapFactory cubemapFactory{};
-
-    Renderer renderer{ backBuffer.GetWidth(), backBuffer.GetHeight() };
-    if (!renderer)
-        return EXIT_FAILURE;
 
     Camera camera{};
     Matrix cameraTransform{};

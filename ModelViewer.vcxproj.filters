@@ -51,7 +51,7 @@
     <ClInclude Include="Shader.h">
       <Filter>graphics</Filter>
     </ClInclude>
-    <ClInclude Include="InputLayoutManager.h">
+    <ClInclude Include="InputLayoutFactory.h">
       <Filter>graphics</Filter>
     </ClInclude>
     <ClInclude Include="Inspector.h">
@@ -140,7 +140,7 @@
     <ClCompile Include="StateFactory.cpp">
       <Filter>graphics</Filter>
     </ClCompile>
-    <ClCompile Include="InputLayoutManager.cpp">
+    <ClCompile Include="InputLayoutFactory.cpp">
       <Filter>graphics</Filter>
     </ClCompile>
     <ClCompile Include="Inspector.cpp">

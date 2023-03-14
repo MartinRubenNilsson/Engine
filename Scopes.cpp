@@ -1,6 +1,6 @@
 #include "pch.h"
 #include "Scopes.h"
-#include "InputLayoutManager.h"
+#include "InputLayoutFactory.h"
 #include "StateFactory.h"
 
 namespace
@@ -38,7 +38,7 @@ ScopedPrimitiveTopology::~ScopedPrimitiveTopology()
 ScopedInputLayout::ScopedInputLayout(std::type_index aVertexType)
 {
 	DX11_CONTEXT->IAGetInputLayout(&myLayout);
-	InputLayoutManager::Get().SetInputLayout(aVertexType);
+	DX11_CONTEXT->IASetInputLayout(InputLayoutFactory::Get().GetInputLayout(aVertexType).Get());
 }
 
 ScopedInputLayout::~ScopedInputLayout()

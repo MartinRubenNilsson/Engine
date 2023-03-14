@@ -2,12 +2,12 @@
 
 struct EmptyVertex
 {
-	static constexpr D3D11_INPUT_ELEMENT_DESC Elements[] =
+	static constexpr D3D11_INPUT_ELEMENT_DESC Elements[]
 	{
-		{ "SV_VertexID", 0, DXGI_FORMAT_R32_UINT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		D3D11_INPUT_ELEMENT_DESC{ "SV_VertexID", 0, DXGI_FORMAT_R32_UINT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 	};
 
-	static constexpr std::string_view Shader = "shaders/VsFullscreen.cso";
+	static constexpr std::string_view Shader{ "VsFullscreen.cso" };
 };
 
 struct VsInBasic
@@ -18,7 +18,7 @@ struct VsInBasic
 	Vector3 bitangent;
 	Vector2 uv;
 
-	static constexpr D3D11_INPUT_ELEMENT_DESC Elements[] =
+	static constexpr D3D11_INPUT_ELEMENT_DESC Elements[]
 	{
 		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 		{ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
@@ -27,6 +27,15 @@ struct VsInBasic
 		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 	};
 
-	static constexpr std::string_view Shader = "shaders/VsBasic.cso";
+	static constexpr std::string_view Shader{ "VsBasic.cso" };
 };
+
+template <class... Ts>
+struct TypeList {};
+
+using VertexTypes = TypeList
+<
+	EmptyVertex,
+	VsInBasic
+>;
 

@@ -210,7 +210,7 @@
     <ClInclude Include="RenderTexture.h" />
     <ClInclude Include="Image.h" />
     <ClInclude Include="Hierarchy.h" />
-    <ClInclude Include="InputLayoutManager.h" />
+    <ClInclude Include="InputLayoutFactory.h" />
     <ClInclude Include="Material.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="pch.h" />
@@ -245,7 +245,7 @@
     <ClCompile Include="RenderTexture.cpp" />
     <ClCompile Include="Image.cpp" />
     <ClCompile Include="Hierarchy.cpp" />
-    <ClCompile Include="InputLayoutManager.cpp" />
+    <ClCompile Include="InputLayoutFactory.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Material.cpp" />
     <ClCompile Include="Mesh.cpp" />
