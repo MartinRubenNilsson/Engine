@@ -1,36 +1,25 @@
 #include "pch.h"
 #include "Camera.h"
-#include "ShaderCommon.h"
 
 /*
 * class Camera
 */
 
 Camera::Camera(const aiCamera& aCamera)
-	: myNearZ{ aCamera.mClipPlaneNear }
+	: myAspect{ aCamera.mAspect }
+	, myNearZ{ aCamera.mClipPlaneNear }
 	, myFarZ{ aCamera.mClipPlaneFar }
 {
 	if (aCamera.mOrthographicWidth == 0.f)
 	{
-		PerspectiveCamera camera{};
-		camera.fovY = 2.f * atan(tan(aCamera.mHorizontalFOV) / aCamera.mAspect);
-		camera.aspect = aCamera.mAspect;
-
-		SetVariant(camera);
+		myType = CameraType::Perspective;
+		myFovOrHeight = 2.f * atan(tan(aCamera.mHorizontalFOV) / aCamera.mAspect);
 	}
 	else
 	{
-		OrthographicCamera camera{};
-		camera.width = 2.f * aCamera.mOrthographicWidth;
-		camera.height = camera.width / aCamera.mAspect;
-
-		SetVariant(camera);
+		myType = CameraType::Orthographic;
+		myFovOrHeight = 2.f * aCamera.mOrthographicWidth / aCamera.mAspect;
 	}
-}
-
-CameraType Camera::GetType() const
-{
-	return static_cast<CameraType>(myVariant.index());
 }
 
 Matrix Camera::GetViewMatrix() const
@@ -40,42 +29,33 @@ Matrix Camera::GetViewMatrix() const
 
 Matrix Camera::GetProjectionMatrix(bool aReverseZ) const
 {
-	struct Projector
-	{
-		float nearZ{}, farZ{};
+	float nearZ = myNearZ;
+	float farZ = myFarZ;
 
-		Matrix operator()(const PerspectiveCamera& aCamera)
-		{
-			return XMMatrixPerspectiveFovLH(aCamera.fovY, aCamera.aspect, nearZ, farZ);
-		}
-
-		Matrix operator()(const OrthographicCamera& aCamera)
-		{
-			return XMMatrixOrthographicLH(aCamera.width, aCamera.height, nearZ, farZ);
-		}
-	};
-
-	Projector projector{ myNearZ, myFarZ };
 	if (aReverseZ)
-		std::swap(projector.nearZ, projector.farZ);
-	return std::visit(projector, myVariant);
+		std::swap(nearZ, farZ);
+
+	return myType == CameraType::Perspective ?
+		XMMatrixPerspectiveFovLH(myFovOrHeight, myAspect, nearZ, farZ) :
+		XMMatrixOrthographicLH(myFovOrHeight, myAspect * myFovOrHeight, nearZ, farZ);
 }
 
-void Camera::SetVariant(const CameraVariant& aVariant)
+void from_json(const json& j, Camera& c)
 {
-	// TODO: VAlidate valures!!!!!
-	myVariant = aVariant;
+	j.at("type").get_to(c.myType);
+	j.at("fovOrHeight").get_to(c.myFovOrHeight);
+	j.at("aspect").get_to(c.myAspect);
+	j.at("nearZ").get_to(c.myNearZ);
+	j.at("farZ").get_to(c.myFarZ);
 }
 
-const CameraVariant& Camera::GetVariant() const
+void to_json(json& j, const Camera& c)
 {
-	return myVariant;
-}
-
-void to_json(json& j, const Camera& aCamera)
-{
-	j["nearZ"] = aCamera.myNearZ;
-	j["farZ"] = aCamera.myFarZ;
+	j["type"] = c.myType;
+	j["fovOrHeight"] = c.myFovOrHeight;
+	j["aspect"] = c.myAspect;
+	j["nearZ"] = c.myNearZ;
+	j["farZ"] = c.myFarZ;
 }
 
 /*
@@ -84,31 +64,33 @@ void to_json(json& j, const Camera& aCamera)
 
 void ImGui::Inspect(Camera& aCamera)
 {
-	struct Inspector
-	{
-		void operator()(PerspectiveCamera& aCamera)
-		{
-			// TODO: VAlidate valures!!!!!
+	aCamera;
+	// todo
+	//struct Inspector
+	//{
+	//	void operator()(PerspectiveCamera& aCamera)
+	//	{
+	//		// TODO: VAlidate valures!!!!!
 
-			DragFloat("FoV", &aCamera.fovY, 0.01f);
-			DragFloat("Aspect", &aCamera.aspect, 0.01f);
-		}
+	//		DragFloat("FoV", &aCamera.fovY, 0.01f);
+	//		DragFloat("Aspect", &aCamera.aspect, 0.01f);
+	//	}
 
-		void operator()(OrthographicCamera& aCamera)
-		{
-			// TODO: VAlidate valures!!!!!
+	//	void operator()(OrthographicCamera& aCamera)
+	//	{
+	//		// TODO: VAlidate valures!!!!!
 
-			DragFloat("Width", &aCamera.width, 0.01f);
-			DragFloat("Height", &aCamera.height, 0.01f);
-		}
-	};
+	//		DragFloat("Width", &aCamera.width, 0.01f);
+	//		DragFloat("Height", &aCamera.height, 0.01f);
+	//	}
+	//};
 
-	int type{ static_cast<int>(aCamera.GetType()) };
-	Combo("Type", &type, "Perspective\0Orthographic\0\0");
+	//int type{ static_cast<int>(aCamera.GetType()) };
+	//Combo("Type", &type, "Perspective\0Orthographic\0\0");
 
-	CameraVariant variant{ aCamera.GetVariant() };
-	std::visit(Inspector{}, variant);
-	aCamera.SetVariant(variant);
+	//CameraVariant variant{ aCamera.GetVariant() };
+	//std::visit(Inspector{}, variant);
+	//aCamera.SetVariant(variant);
 }
 
 void ImGui::DrawCubes(const Camera& aCamera, const Matrix& aCameraTransform, std::span<const Matrix> someCubeTransforms)

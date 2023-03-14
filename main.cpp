@@ -56,6 +56,9 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
     if (!layoutFactory)
         return EXIT_FAILURE;
 
+    ScopedPrimitiveTopology scopedTopology{ D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST };
+    ScopedSamplerStates scopedSamplers{ 0, GetSamplerDescs() };
+
     BackBuffer backBuffer{ window };
     if (!backBuffer)
         return EXIT_FAILURE;
@@ -72,20 +75,11 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
     SceneFactory sceneFactory{};
     CubemapFactory cubemapFactory{};
 
-    PerspectiveCamera perspective{};
-    perspective.fovY = 1.04719755119f; // 60 degrees
-    perspective.aspect = backBuffer.GetViewport().AspectRatio();
-
     Camera camera{};
-    camera.SetVariant(perspective);
-
     Matrix cameraTransform{};
 
     entt::registry registry{};
     GameScene gameScene{ registry };
-
-    ScopedPrimitiveTopology scopedTopology{ D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST };
-    ScopedSamplerStates scopedSamplers{ 0, GetSamplerDescs() };
 
     bool run = true;
     MSG msg{};

@@ -42,7 +42,7 @@ public:
 	Renderer(unsigned aWidth, unsigned aHeight);
 
 	bool ResizeTextures(unsigned aWidth, unsigned aHeight);
-	void SetCamera(const Camera& aCamera, const Matrix& aTransform);
+	void SetCamera(const Camera& aCamera, const Matrix& aTransform, bool useScreenAspect = true);
 	void Render(const entt::registry&);
 
 	entt::entity PickEntity(unsigned x, unsigned y);
@@ -69,6 +69,7 @@ private:
 	std::unordered_map<TextureSlot, RenderTexture> myRenderTextures{};
 	DepthBuffer myDepthBuffer{};
 	BoundingFrustum myFrustum{};
+	unsigned myWidth{}, myHeight{};
 	bool mySucceeded{ false };
 };
 

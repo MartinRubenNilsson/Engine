@@ -8,19 +8,19 @@ void JsonArchive::Save(const entt::registry& aRegistry)
 
 	entt::snapshot snapshot{ aRegistry };
 
-	myKey = "entity";
+	myType = "entites";
 	snapshot.entities(*this);
 
-	myKey = "camera";
+	myType = "cameras";
 	snapshot.component<Camera>(*this);
 }
 
 void JsonArchive::operator()(std::underlying_type_t<entt::entity> aSize)
 {
-	myJson[myKey + "Count"] = aSize;
+	myJson["num_" + myType] = aSize;
 }
 
 void JsonArchive::operator()(entt::entity anEntity)
 {
-	myJson[myKey].push_back(anEntity);
+	myJson[myType].push_back(anEntity);
 }

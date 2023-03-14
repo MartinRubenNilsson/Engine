@@ -6,42 +6,29 @@ enum class CameraType
 	Orthographic
 };
 
-struct PerspectiveCamera
-{
-	float fovY = 1.04719755119f; // 60 degrees
-	float aspect = 1.f;
-};
-
-struct OrthographicCamera
-{
-	float width = 5.f;
-	float height = 5.f;
-};
-
-using CameraVariant = std::variant<PerspectiveCamera, OrthographicCamera>;
-
 class Camera
 {
 public:
 	Camera() = default;
 	Camera(const aiCamera&);
 
-	CameraType GetType() const;
+	CameraType GetType() const { return myType; }
 
 	Matrix GetViewMatrix() const;
 	Matrix GetProjectionMatrix(bool aReverseZ = false) const;
 
+	void SetAspect(float anAspect) { myAspect = anAspect; }
+
 	float GetNearZ() const { return myNearZ; }
 	float GetFarZ() const { return myFarZ; }
 
-	void SetVariant(const CameraVariant&);
-	const CameraVariant& GetVariant() const;
-
 private:
+	friend void from_json(const json&, Camera&);
 	friend void to_json(json&, const Camera&);
 
+	CameraType myType{};
+	float myFovOrHeight{ 1.f }, myAspect{ 1.f };
 	float myNearZ{ 0.3f }, myFarZ{ 1000.f };
-	CameraVariant myVariant{};
 };
 
 namespace ImGui
