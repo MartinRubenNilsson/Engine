@@ -56,8 +56,9 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
     if (!layoutFactory)
         return EXIT_FAILURE;
 
-    ScopedPrimitiveTopology scopedTopology{ D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST };
-    ScopedSamplerStates scopedSamplers{ 0, GetSamplerDescs() };
+    ScopedTopology scopedTopology{ D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST };
+    ScopedSamplers scopedSamplers{ 0, GetSamplerDescs() };
+    ScopedResources scopedResources{ ShaderType::Pixel, t_GaussianMap, { CreateGaussianMap(), CreateIntegrationMap() } };
 
     BackBuffer backBuffer{ window };
     if (!backBuffer)
@@ -186,7 +187,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
         // Rendering
         {
             ScopedViewports scopedViewport{ backBuffer.GetViewport() };
-            ScopedRenderTargets scopedTarget{ backBuffer.GetTarget() };
+            ScopedTargets scopedTarget{ backBuffer.GetTarget() };
 
             backBuffer.Clear();
             renderer.Render(registry);

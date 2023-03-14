@@ -12,8 +12,8 @@ Cubemap::Cubemap(const fs::path& aPath)
 	if (!equirectMap)
 		return;
 
-	ScopedPrimitiveTopology scopedTopology{ D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP };
-	ScopedInputLayout scopedLayout{ typeid(EmptyVertex) };
+	ScopedTopology scopedTopology{ D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP };
+	ScopedLayout scopedLayout{ typeid(EmptyVertex) };
 	ScopedShader scopedVs{ "VsCubemap.cso" };
 	ScopedShader scopedGs{ "GsGenCubemap.cso" };
 
@@ -21,7 +21,7 @@ Cubemap::Cubemap(const fs::path& aPath)
 	if (FAILED(myResult))
 		return;
 
-	ScopedShaderResources scopedResources{ ShaderType::Pixel, t_EnvironmentMap, myMaps.at(Environment) };
+	ScopedResources scopedResources{ ShaderType::Pixel, t_EnvironmentMap, { myMaps.at(Environment) } };
 	
 	CreateIrradianceMap();
 	CreatePrefilteredMap();
@@ -65,8 +65,8 @@ void Cubemap::CreateEnvironmentMap(ShaderResourcePtr anEquirectMap)
 		return;
 
 	ScopedShader scopedPs{ "PsEquirectToCubemap.cso" };
-	ScopedShaderResources scopedResource{ ShaderType::Pixel, 0, anEquirectMap };
-	ScopedRenderTargets scopedTarget{ target };
+	ScopedResources scopedResource{ ShaderType::Pixel, 0, { anEquirectMap } };
+	ScopedTargets scopedTarget{ target };
 	ScopedViewports scopedViewport{ CD3D11_VIEWPORT{ texture.Get(), target.Get() } };
 
 	DX11_CONTEXT->Draw(CUBEMAP_VERTEX_COUNT, 0);
@@ -105,7 +105,7 @@ void Cubemap::CreateIrradianceMap()
 		return;
 
 	ScopedShader scopedPs{ "PsGenIrradianceMap.cso" };
-	ScopedRenderTargets scopedTargets{ target };
+	ScopedTargets scopedTargets{ target };
 	ScopedViewports scopedViewport{ CD3D11_VIEWPORT{ texture.Get(), target.Get() } };
 
 	DX11_CONTEXT->Draw(CUBEMAP_VERTEX_COUNT, 0);
@@ -171,7 +171,7 @@ void Cubemap::CreatePrefilteredMap()
 		if (FAILED(myResult))
 			return;
 
-		ScopedRenderTargets scopedTargets{ target };
+		ScopedTargets scopedTargets{ target };
 		ScopedViewports scopedViewports{ CD3D11_VIEWPORT{ texture.Get(), target.Get() } };
 
 		DX11_CONTEXT->Draw(CUBEMAP_VERTEX_COUNT, 0);

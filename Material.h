@@ -7,6 +7,8 @@ public:
 	Material() = default;
 	Material(const aiMaterial&);
 
+	ShaderResourcePtr GetResource(TextureType) const;
+
 	std::string_view GetName() const { return myName; }
 	const auto& GetTextures() const { return myTextures; }
 

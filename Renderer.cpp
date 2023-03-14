@@ -23,69 +23,30 @@ const char* RenderOutputToString(RenderOutput anOutput)
 	return strings.at(std::to_underlying(anOutput));
 }
 
-namespace
-{
-	/*
-	* TODO: Move somewhere else
-	*/
-
-	auto AssembleMaterialResources(std::span<const Texture::Ptr> someTextures)
-	{
-		std::vector<ShaderResourcePtr> resources(MATERIAL_COUNT);
-
-		for (const auto& texture : someTextures)
-		{
-			if (!texture)
-				continue;
-
-			switch (texture->GetType())
-			{
-			case TextureType::Albedo:
-				resources.at(t_MaterialAlbedo - MATERIAL_BEGIN) = texture->GetResource();
-				break;
-			case TextureType::Normal:
-				resources.at(t_MaterialNormal - MATERIAL_BEGIN) = texture->GetResource();
-				break;
-			case TextureType::Metallic:
-				resources.at(t_MaterialMetallic - MATERIAL_BEGIN) = texture->GetResource();
-				break;
-			case TextureType::Roughness:
-				resources.at(t_MaterialRoughness - MATERIAL_BEGIN) = texture->GetResource();
-				break;
-			}
-		}
-
-		return resources;
-	}
-}
-
 /*
 * class Renderer
 */
 
 Renderer::Renderer(unsigned aWidth, unsigned aHeight)
-	: myGaussianMap{ CreateGaussianMap() }, myIntegrationMap{ CreateIntegrationMap() }
-	, myCBuffers{ sizeof(ImmutableBuffer), sizeof(CameraBuffer), sizeof(MeshBuffer), sizeof(LightBuffer) }
 {
-	if (!myGaussianMap)
-		return;
+	myCBuffers[b_Immutable] = { sizeof(ImmutableBuffer) };
+	myCBuffers[b_Camera]	= { sizeof(CameraBuffer) };
+	myCBuffers[b_Mesh]		= { sizeof(MeshBuffer) };
+	myCBuffers[b_Light]		= { sizeof(LightBuffer) };
 
-	if (!myIntegrationMap)
-		return;
+	for (auto& [slot, buffer] : myCBuffers)
+	{
+		if (!buffer)
+			return;
 
-	if (!std::ranges::all_of(myCBuffers, &ConstantBuffer::operator bool))
-		return;
+		buffer.VSSetBuffer(slot);
+		buffer.GSSetBuffer(slot);
+		buffer.PSSetBuffer(slot);
+	}
 
 	{
 		auto buffer{ ImmutableBuffer::Create() };
 		myCBuffers.at(b_Immutable).Update(&buffer);
-	}
-
-	for (unsigned i = 0; i < myCBuffers.size(); ++i)
-	{
-		myCBuffers[i].VSSetBuffer(i);
-		myCBuffers[i].GSSetBuffer(i);
-		myCBuffers[i].PSSetBuffer(i);
 	}
 
 	if (!ResizeTextures(aWidth, aHeight))
@@ -100,15 +61,15 @@ bool Renderer::ResizeTextures(unsigned aWidth, unsigned aHeight)
 	if (!myDepthBuffer)
 		return false;
 
-	myRenderTextures[t_GBufferNormalDepth]	= { aWidth, aHeight, DXGI_FORMAT_R16G16B16A16_UNORM };
-	myRenderTextures[t_GBufferAlbedo]		= { aWidth, aHeight, DXGI_FORMAT_R8G8B8A8_UNORM};
-	myRenderTextures[t_GBufferMetalRoughAo]	= { aWidth, aHeight, DXGI_FORMAT_R8G8B8A8_UNORM };
-	myRenderTextures[t_GBufferEntity]		= { aWidth, aHeight, DXGI_FORMAT_R32_UINT };
-	myRenderTextures[t_AmbientAccessMap]	= { aWidth / 2, aHeight / 2, DXGI_FORMAT_R16_UNORM };
-	myRenderTextures[t_BlurInputTexture]	= { aWidth / 2, aHeight / 2, DXGI_FORMAT_R16_UNORM };
-	myRenderTextures[t_LightingTexture]		= { aWidth, aHeight, DXGI_FORMAT_R32G32B32A32_FLOAT };
+	myTextures[t_GBufferNormalDepth]	= { aWidth, aHeight, DXGI_FORMAT_R16G16B16A16_UNORM };
+	myTextures[t_GBufferAlbedo]			= { aWidth, aHeight, DXGI_FORMAT_R8G8B8A8_UNORM};
+	myTextures[t_GBufferMetalRoughAo]	= { aWidth, aHeight, DXGI_FORMAT_R8G8B8A8_UNORM };
+	myTextures[t_GBufferEntity]			= { aWidth, aHeight, DXGI_FORMAT_R32_UINT };
+	myTextures[t_AmbientAccessMap]		= { aWidth / 2, aHeight / 2, DXGI_FORMAT_R16_UNORM };
+	myTextures[t_BlurInputTexture]		= { aWidth / 2, aHeight / 2, DXGI_FORMAT_R16_UNORM };
+	myTextures[t_LightingTexture]		= { aWidth, aHeight, DXGI_FORMAT_R32G32B32A32_FLOAT };
 
-	for (auto& [slot, texture] : myRenderTextures)
+	for (auto& [slot, texture] : myTextures)
 	{
 		if (!texture)
 			return false;
@@ -155,48 +116,55 @@ void Renderer::Render(const entt::registry& aRegistry)
 
 	RenderGeometry(aRegistry);
 
-	ScopedShaderResources scopedGBuffer{ ShaderType::Pixel, GBUFFER_BEGIN, GetGBufferResources() };
+	ScopedResources scopedGBuffer
+	{
+		ShaderType::Pixel, t_GBufferNormalDepth,
+		{
+			myTextures.at(t_GBufferNormalDepth),
+			myTextures.at(t_GBufferAlbedo),
+			myTextures.at(t_GBufferMetalRoughAo),
+			myTextures.at(t_GBufferEntity),
+		}
+	};
 
 	if (settings.ssao)
 		RenderOcclusion();
 
+	ScopedResources scopedAccess{ ShaderType::Pixel, t_AmbientAccessMap, { myTextures.at(t_AmbientAccessMap) } };
+
 	RenderLights(aRegistry);
+
+	ScopedResources scopedLight{ ShaderType::Pixel, t_LightingTexture, { myTextures.at(t_LightingTexture) } };
 
 	switch (settings.output)
 	{
 	case RenderOutput::Final:
 	{
-		ScopedShaderResources scopedLightning{ ShaderType::Pixel, t_LightingTexture, myRenderTextures.at(t_LightingTexture) };
 		FullscreenPass{ "PsTonemapAndGamma.cso" }.Render();
 		break;
 	}
 	case RenderOutput::Depth:
 	{
-		ScopedShaderResources scopedResource{ ShaderType::Pixel, t_GBufferNormalDepth, myRenderTextures.at(t_GBufferNormalDepth) };
 		FullscreenPass{ "PsDepth.cso" }.Render();
 		break;
 	}
 	case RenderOutput::Normal:
 	{
-		ScopedShaderResources scopedResource{ ShaderType::Pixel, t_GBufferNormalDepth, myRenderTextures.at(t_GBufferNormalDepth) };
 		FullscreenPass{ "PsNormal.cso" }.Render();
 		break;
 	}
 	case RenderOutput::Position:
 	{
-		ScopedShaderResources scopedResource{ ShaderType::Pixel, t_GBufferNormalDepth, myRenderTextures.at(t_GBufferNormalDepth) };
 		FullscreenPass{ "PsPosition.cso" }.Render();
 		break;
 	}
 	case RenderOutput::Entity:
 	{
-		ScopedShaderResources scopedResource{ ShaderType::Pixel, t_GBufferEntity, myRenderTextures.at(t_GBufferEntity) };
 		FullscreenPass{ "PsEntity.cso" }.Render();
 		break;
 	}
 	case RenderOutput::Access:
 	{
-		ScopedShaderResources scopedResource{ ShaderType::Pixel, t_AmbientAccessMap, myRenderTextures.at(t_AmbientAccessMap) };
 		FullscreenPass{ "PsAccess.cso" }.Render();
 		break;
 	}
@@ -207,8 +175,13 @@ entt::entity Renderer::PickEntity(unsigned x, unsigned y)
 {
 	entt::entity entity{ entt::null };
 	std::span span{ &entity, 1 };
-	myRenderTextures.at(t_GBufferEntity).GetTexel(std::as_writable_bytes(span), x, y);
+	myTextures.at(t_GBufferEntity).GetTexel(std::as_writable_bytes(span), x, y);
 	return entity;
+}
+
+Renderer::operator bool() const
+{
+	return mySucceeded;
 }
 
 void Renderer::Clear()
@@ -217,7 +190,7 @@ void Renderer::Clear()
 
 	myDepthBuffer.Clear(FAR_Z);
 
-	for (auto& [slot, texture] : myRenderTextures)
+	for (auto& [slot, texture] : myTextures)
 	{
 		switch (slot)
 		{
@@ -233,7 +206,7 @@ void Renderer::Clear()
 		}
 		case t_GBufferEntity:
 		{
-			ScopedRenderTargets scopedTargets{ texture };
+			ScopedTargets scopedTargets{ texture };
 			FullscreenPass{ "PsClearEntity.cso" }.Render();
 			break;
 		}
@@ -249,15 +222,24 @@ void Renderer::Clear()
 void Renderer::RenderGeometry(const entt::registry& aRegistry)
 {
 #if USE_REVERSE_Z
-	CD3D11_DEPTH_STENCIL_DESC depthDesc{ CD3D11_DEFAULT{} };
-	depthDesc.DepthFunc = D3D11_COMPARISON_GREATER;
-	ScopedDepthStencilState scopedDepth{ depthDesc };
+	CD3D11_DEPTH_STENCIL_DESC depth{ CD3D11_DEFAULT{} };
+	depth.DepthFunc = D3D11_COMPARISON_GREATER;
+	ScopedDepthStencil scopedDepth{ depth };
 #endif
 
-	ScopedInputLayout scopedLayout{ typeid(VsInBasic) };
+	ScopedLayout scopedLayout{ typeid(VsInBasic) };
 	ScopedShader scopedVs{ "VsBasic.cso" };
 	ScopedShader scopedPs{ "PsGBuffer.cso" };
-	ScopedRenderTargets scopedTargets{ GetGBufferTargets(), myDepthBuffer };
+	ScopedTargets scopedTargets
+	{
+		{
+			myTextures.at(t_GBufferNormalDepth),
+			myTextures.at(t_GBufferAlbedo),
+			myTextures.at(t_GBufferMetalRoughAo),
+			myTextures.at(t_GBufferEntity),
+		},
+		myDepthBuffer
+	};
 
 	auto view = aRegistry.view<const Transform::Ptr, const Mesh::Ptr, const Material>();
 	for (auto [entity, transform, mesh, material] : view.each())
@@ -284,10 +266,16 @@ void Renderer::RenderGeometry(const entt::registry& aRegistry)
 			myCBuffers.at(b_Mesh).Update(&buffer);
 		}
 
-		ScopedShaderResources scopedResources
+		ScopedResources scopedResources
 		{
-			ShaderType::Pixel, MATERIAL_BEGIN,
-			AssembleMaterialResources(material.GetTextures())
+			ShaderType::Pixel, t_MaterialAlbedo,
+			{
+				material.GetResource(TextureType::Albedo),
+				material.GetResource(TextureType::Normal),
+				material.GetResource(TextureType::Metallic),
+				material.GetResource(TextureType::Roughness),
+				material.GetResource(TextureType::Occlusion)
+			}
 		};
 
 		mesh->Draw();
@@ -297,15 +285,14 @@ void Renderer::RenderGeometry(const entt::registry& aRegistry)
 
 void Renderer::RenderOcclusion()
 {
-	auto& ambientMap{ myRenderTextures.at(t_AmbientAccessMap) };
-	auto& blurTexture{ myRenderTextures.at(t_BlurInputTexture) };
+	auto& ambientMap{ myTextures.at(t_AmbientAccessMap) };
+	auto& blurTexture{ myTextures.at(t_BlurInputTexture) };
 
 	ScopedViewports scopedViewports{ ambientMap.GetViewport() };
 
 	// Compute ambient access map
 	{
-		ScopedShaderResources scopedResource{ ShaderType::Pixel, t_GaussianMap, myGaussianMap };
-		ScopedRenderTargets scopedTarget{ ambientMap };
+		ScopedTargets scopedTarget{ ambientMap };
 		FullscreenPass{ "PsSSAO.cso" }.Render();
 	}
 	
@@ -313,15 +300,15 @@ void Renderer::RenderOcclusion()
 	{
 		// Blur horizontally
 		{
-			ScopedShaderResources scopedResource{ ShaderType::Pixel, t_BlurInputTexture, ambientMap };
-			ScopedRenderTargets scopedTarget{ blurTexture };
+			ScopedResources scopedResource{ ShaderType::Pixel, t_BlurInputTexture, { ambientMap } };
+			ScopedTargets scopedTarget{ blurTexture };
 			FullscreenPass{ "PsBlurHorizontal.cso" }.Render();
 		}
 
 		// Blur vertically
 		{
-			ScopedShaderResources scopedResource{ ShaderType::Pixel, t_BlurInputTexture, blurTexture };
-			ScopedRenderTargets scopedTarget{ ambientMap };
+			ScopedResources scopedResource{ ShaderType::Pixel, t_BlurInputTexture, { blurTexture } };
+			ScopedTargets scopedTarget{ ambientMap };
 			FullscreenPass{ "PsBlurVertical.cso" }.Render();
 		}
 	}
@@ -335,8 +322,8 @@ void Renderer::RenderLights(const entt::registry& aRegistry)
 	blendDesc.RenderTarget[0].DestBlend = D3D11_BLEND_ONE;
 	blendDesc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
 
-	ScopedRenderTargets scopedTargets{ myRenderTextures.at(t_LightingTexture) };
-	ScopedBlendState scopedBlend{ blendDesc };
+	ScopedTargets scopedTargets{ myTextures.at(t_LightingTexture) };
+	ScopedBlend scopedBlend{ blendDesc };
 
 	{
 		std::vector<LightBuffer> dLights{};
@@ -378,13 +365,8 @@ void Renderer::RenderLights(const entt::registry& aRegistry)
 
 	if (auto cubemap = CubemapFactory::Get().GetAsset("cubemap/hdr/Newport_Loft_Ref.hdr"))
 	{
-		ScopedShaderResources scopedIntegMap{ ShaderType::Pixel, t_IntegrationMap, myIntegrationMap };
-		ScopedShaderResources scopedCubemap{ ShaderType::Pixel, t_EnvironmentMap, cubemap->GetMaps() };
-
-		{
-			ScopedShaderResources scopedResource{ ShaderType::Pixel, t_AmbientAccessMap, myRenderTextures.at(t_AmbientAccessMap) };
-			FullscreenPass{ "PsImageBasedLight.cso" }.Render();
-		}
+		ScopedResources scopedCubemap{ ShaderType::Pixel, t_EnvironmentMap, cubemap->GetMaps() };
+		FullscreenPass{ "PsImageBasedLight.cso" }.Render();
 
 		RenderSkybox();
 	}
@@ -399,13 +381,13 @@ void Renderer::RenderSkybox()
 	depthStencil.DepthFunc = D3D11_COMPARISON_LESS_EQUAL;
 #endif
 
-	ScopedPrimitiveTopology scopedTopology{ D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP };
-	ScopedInputLayout scopedLayout{ typeid(EmptyVertex) };
+	ScopedTopology scopedTopology{ D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP };
+	ScopedLayout scopedLayout{ typeid(EmptyVertex) };
 	ScopedShader scopedVs{ "VsCubemap.cso" };
 	ScopedShader scopedGs{ "GsSkybox.cso" };
 	ScopedShader scopedPs{ "PsSkybox.cso" };
-	ScopedRenderTargets scopedTargets{ myRenderTextures.at(t_LightingTexture), myDepthBuffer };
-	ScopedDepthStencilState scopedDepthStencil{ depthStencil };
+	ScopedTargets scopedTargets{ { myTextures.at(t_LightingTexture) }, myDepthBuffer };
+	ScopedDepthStencil scopedDepthStencil{ depthStencil };
 
 	DX11_CONTEXT->Draw(CUBEMAP_VERTEX_COUNT, 0);
 }
@@ -444,22 +426,6 @@ void Renderer::RenderSpotLights(std::span<const LightBuffer> someLights)
 		pass.Render();
 		statistics.sLights++;
 	}
-}
-
-std::vector<RenderTargetPtr> Renderer::GetGBufferTargets() const
-{
-	std::vector<RenderTargetPtr> targets{};
-	for (unsigned i = GBUFFER_BEGIN; i < GBUFFER_END; ++i)
-		targets.emplace_back(myRenderTextures.at(static_cast<TextureSlot>(i)));
-	return targets;
-}
-
-std::vector<ShaderResourcePtr> Renderer::GetGBufferResources() const
-{
-	std::vector<ShaderResourcePtr> resources{};
-	for (unsigned i = GBUFFER_BEGIN; i < GBUFFER_END; ++i)
-		resources.emplace_back(myRenderTextures.at(static_cast<TextureSlot>(i)));
-	return resources;
 }
 
 /*

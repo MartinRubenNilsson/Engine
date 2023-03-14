@@ -47,6 +47,12 @@ Material::Material(const aiMaterial& aMaterial)
     }
 }
 
+ShaderResourcePtr Material::GetResource(TextureType aType) const
+{
+    auto itr = std::ranges::find(myTextures, aType, [](Texture::Ptr ptr) { return ptr->GetType(); });
+    return itr != myTextures.end() ? (*itr)->GetResource() : nullptr;
+}
+
 /*
 * namespace ImGui
 */

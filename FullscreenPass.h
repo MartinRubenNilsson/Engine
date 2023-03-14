@@ -9,7 +9,7 @@ public:
 	void Render() const;
 
 private:
-	ScopedInputLayout myLayout;
+	ScopedLayout myLayout;
 	ScopedShader myVertexShader, myPixelShader;
 };
 

@@ -17,31 +17,31 @@ namespace
 }
 
 /*
-* class ScopedPrimitiveTopology
+* class ScopedTopology
 */
 
-ScopedPrimitiveTopology::ScopedPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY aTopology)
+ScopedTopology::ScopedTopology(D3D11_PRIMITIVE_TOPOLOGY aTopology)
 {
 	DX11_CONTEXT->IAGetPrimitiveTopology(&myTopology);
 	DX11_CONTEXT->IASetPrimitiveTopology(aTopology);
 }
 
-ScopedPrimitiveTopology::~ScopedPrimitiveTopology()
+ScopedTopology::~ScopedTopology()
 {
 	DX11_CONTEXT->IASetPrimitiveTopology(myTopology);
 }
 
 /*
-* class ScopedInputLayout
+* class ScopedLayout
 */
 
-ScopedInputLayout::ScopedInputLayout(std::type_index aVertexType)
+ScopedLayout::ScopedLayout(std::type_index aVertexType)
 {
 	DX11_CONTEXT->IAGetInputLayout(&myLayout);
 	DX11_CONTEXT->IASetInputLayout(InputLayoutFactory::Get().GetInputLayout(aVertexType).Get());
 }
 
-ScopedInputLayout::~ScopedInputLayout()
+ScopedLayout::~ScopedLayout()
 {
 	DX11_CONTEXT->IASetInputLayout(myLayout.Get());
 }
@@ -66,31 +66,31 @@ ScopedShader::~ScopedShader()
 }
 
 /*
-* class ScopedRasterizerState
+* class ScopedRasterizer
 */
 
-ScopedRasterizerState::ScopedRasterizerState(const D3D11_RASTERIZER_DESC& aDesc)
+ScopedRasterizer::ScopedRasterizer(const D3D11_RASTERIZER_DESC& aDesc)
 {
 	DX11_CONTEXT->RSGetState(&myRasterizerState);
 	DX11_CONTEXT->RSSetState(StateFactory::Get().GetRasterizerState(aDesc).Get());
 }
 
-ScopedRasterizerState::~ScopedRasterizerState()
+ScopedRasterizer::~ScopedRasterizer()
 {
 	DX11_CONTEXT->RSSetState(myRasterizerState.Get());
 }
 
 /*
-* class ScopedSamplerStates
+* class ScopedSamplers
 */
 
-ScopedSamplerStates::ScopedSamplerStates(UINT aStartSlot, const D3D11_SAMPLER_DESC& aDesc)
-	: ScopedSamplerStates{ aStartSlot, std::span{ &aDesc, 1 } }
+ScopedSamplers::ScopedSamplers(UINT aStartSlot, std::initializer_list<D3D11_SAMPLER_DESC> someDescs)
+	: ScopedSamplers{ aStartSlot, std::span{ someDescs } }
 {
 }
 
-ScopedSamplerStates::ScopedSamplerStates(UINT aStartSlot, std::span<const D3D11_SAMPLER_DESC> someDescs)
-	: ScopedSamplerStates{
+ScopedSamplers::ScopedSamplers(UINT aStartSlot, std::span<const D3D11_SAMPLER_DESC> someDescs)
+	: ScopedSamplers{
 		aStartSlot,
 		someDescs
 			| std::views::transform([](auto& desc) { return StateFactory::Get().GetSamplerState(desc).Get(); })
@@ -99,7 +99,7 @@ ScopedSamplerStates::ScopedSamplerStates(UINT aStartSlot, std::span<const D3D11_
 {
 }
 
-ScopedSamplerStates::ScopedSamplerStates(UINT aStartSlot, const std::vector<ID3D11SamplerState*>& someStates)
+ScopedSamplers::ScopedSamplers(UINT aStartSlot, const std::vector<ID3D11SamplerState*>& someStates)
 	: myStartSlot{ aStartSlot }
 	, myStates{ someStates.size(), nullptr }
 {
@@ -110,60 +110,60 @@ ScopedSamplerStates::ScopedSamplerStates(UINT aStartSlot, const std::vector<ID3D
 	DX11_CONTEXT->PSSetSamplers(aStartSlot, (UINT)someStates.size(), someStates.data());
 }
 
-ScopedSamplerStates::~ScopedSamplerStates()
+ScopedSamplers::~ScopedSamplers()
 {
 	DX11_CONTEXT->PSSetSamplers(myStartSlot, (UINT)myStates.size(), myStates.data());
 	ReleaseAll(std::span{ myStates });
 }
 
 /*
-* class ScopedDepthStencilState
+* class ScopedDepthStencil
 */
 
-ScopedDepthStencilState::ScopedDepthStencilState(const D3D11_DEPTH_STENCIL_DESC& aDesc, UINT aStencilRef)
+ScopedDepthStencil::ScopedDepthStencil(const D3D11_DEPTH_STENCIL_DESC& aDesc, UINT aStencilRef)
 {
 	DX11_CONTEXT->OMGetDepthStencilState(&myState, &myStencilRef);
 	DX11_CONTEXT->OMSetDepthStencilState(StateFactory::Get().GetDepthStencilState(aDesc).Get(), aStencilRef);
 }
 
-ScopedDepthStencilState::~ScopedDepthStencilState()
+ScopedDepthStencil::~ScopedDepthStencil()
 {
 	DX11_CONTEXT->OMSetDepthStencilState(myState.Get(), myStencilRef);
 }
 
 /*
-* class ScopedBlendState
+* class ScopedBlend
 */
 
-ScopedBlendState::ScopedBlendState(const D3D11_BLEND_DESC& aDesc, const FLOAT aBlendFactor[4], UINT aSampleMask)
+ScopedBlend::ScopedBlend(const D3D11_BLEND_DESC& aDesc, const FLOAT aBlendFactor[4], UINT aSampleMask)
 {
 	DX11_CONTEXT->OMGetBlendState(&myState, myBlendFactor, &mySampleMask);
 	DX11_CONTEXT->OMSetBlendState(StateFactory::Get().GetBlendState(aDesc).Get(), aBlendFactor, aSampleMask);
 }
 
-ScopedBlendState::~ScopedBlendState()
+ScopedBlend::~ScopedBlend()
 {
 	DX11_CONTEXT->OMSetBlendState(myState.Get(), myBlendFactor, mySampleMask);
 }
 
 /*
-* class ScopedRenderTargets
+* class ScopedTargets
 */
 
-ScopedRenderTargets::ScopedRenderTargets(RenderTargetPtr aTarget, DepthStencilPtr aDepthStencil)
-	: ScopedRenderTargets({ std::addressof(aTarget), 1 }, aDepthStencil)
+ScopedTargets::ScopedTargets(std::initializer_list<RenderTargetPtr> someTargets, DepthStencilPtr aDepthStencil)
+	: ScopedTargets(std::span{ someTargets }, aDepthStencil)
 {
 }
 
-ScopedRenderTargets::ScopedRenderTargets(std::span<const RenderTargetPtr> someTargets, DepthStencilPtr aDepthStencil)
-	: ScopedRenderTargets{
+ScopedTargets::ScopedTargets(std::span<const RenderTargetPtr> someTargets, DepthStencilPtr aDepthStencil)
+	: ScopedTargets{
 		someTargets | std::views::transform(&RenderTargetPtr::Get) | std::ranges::to<std::vector>(),
 		aDepthStencil
 	}
 {
 }
 
-ScopedRenderTargets::ScopedRenderTargets(const std::vector<ID3D11RenderTargetView*>& someTargets, DepthStencilPtr aDepthStencil)
+ScopedTargets::ScopedTargets(const std::vector<ID3D11RenderTargetView*>& someTargets, DepthStencilPtr aDepthStencil)
 {
 	assert(someTargets.size() <= myTargets.size());
 
@@ -171,7 +171,7 @@ ScopedRenderTargets::ScopedRenderTargets(const std::vector<ID3D11RenderTargetVie
 	DX11_CONTEXT->OMSetRenderTargets((UINT)someTargets.size(), someTargets.data(), aDepthStencil.Get());
 }
 
-ScopedRenderTargets::~ScopedRenderTargets()
+ScopedTargets::~ScopedTargets()
 {
 	DX11_CONTEXT->OMSetRenderTargets((UINT)myTargets.size(), myTargets.data(), myDepthStencil.Get());
 	ReleaseAll(std::span{ myTargets });
@@ -181,8 +181,8 @@ ScopedRenderTargets::~ScopedRenderTargets()
 * class ScopedViewports
 */
 
-ScopedViewports::ScopedViewports(const D3D11_VIEWPORT& aViewport)
-	: ScopedViewports({ &aViewport, 1 })
+ScopedViewports::ScopedViewports(std::initializer_list<D3D11_VIEWPORT> someViewports)
+	: ScopedViewports(std::span{ someViewports })
 {
 }
 
@@ -201,7 +201,7 @@ ScopedViewports::~ScopedViewports()
 }
 
 /*
-* class ScopedShaderResources
+* class ScopedResources
 */
 
 namespace
@@ -227,13 +227,13 @@ namespace
 	};
 }
 
-ScopedShaderResources::ScopedShaderResources(ShaderType aType, UINT aStartSlot, ShaderResourcePtr aResource)
-	: ScopedShaderResources{ aType, aStartSlot, { std::addressof(aResource), 1 } }
+ScopedResources::ScopedResources(ShaderType aType, UINT aStartSlot, std::initializer_list<ShaderResourcePtr> someResources)
+	: ScopedResources(aType, aStartSlot, std::span{ someResources })
 {
 }
 
-ScopedShaderResources::ScopedShaderResources(ShaderType aType, UINT aStartSlot, std::span<const ShaderResourcePtr> someResources)
-	: ScopedShaderResources{
+ScopedResources::ScopedResources(ShaderType aType, UINT aStartSlot, std::span<const ShaderResourcePtr> someResources)
+	: ScopedResources{
 		aType,
 		aStartSlot,
 		someResources | std::views::transform(&ShaderResourcePtr::Get) | std::ranges::to<std::vector>()
@@ -241,7 +241,7 @@ ScopedShaderResources::ScopedShaderResources(ShaderType aType, UINT aStartSlot, 
 {
 }
 
-ScopedShaderResources::ScopedShaderResources(ShaderType aType, UINT aStartSlot, const std::vector<ID3D11ShaderResourceView*>& someResources)
+ScopedResources::ScopedResources(ShaderType aType, UINT aStartSlot, const std::vector<ID3D11ShaderResourceView*>& someResources)
 	: myType{ aType }
 	, myStartSlot{ aStartSlot }
 	, myResources{ someResources.size() }
@@ -253,7 +253,7 @@ ScopedShaderResources::ScopedShaderResources(ShaderType aType, UINT aStartSlot, 
 	std::invoke(theSetters.at(std::to_underlying(aType)), DX11_CONTEXT, aStartSlot, (UINT)someResources.size(), someResources.data());
 }
 
-ScopedShaderResources::~ScopedShaderResources()
+ScopedResources::~ScopedResources()
 {
 	std::invoke(theSetters.at(std::to_underlying(myType)), DX11_CONTEXT, myStartSlot, (UINT)myResources.size(), myResources.data());
 	ReleaseAll(std::span{ myResources });

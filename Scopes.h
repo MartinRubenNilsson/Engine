@@ -10,21 +10,21 @@ protected:
 	Scope& operator=(Scope&&) = delete;
 };
 
-class ScopedPrimitiveTopology : Scope
+class ScopedTopology : Scope
 {
 public:
-	ScopedPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY aTopology);
-	~ScopedPrimitiveTopology();
+	ScopedTopology(D3D11_PRIMITIVE_TOPOLOGY);
+	~ScopedTopology();
 
 private:
 	D3D11_PRIMITIVE_TOPOLOGY myTopology{};
 };
 
-class ScopedInputLayout : Scope
+class ScopedLayout : Scope
 {
 public:
-	ScopedInputLayout(std::type_index aVertexType);
-	~ScopedInputLayout();
+	ScopedLayout(std::type_index aVertexType);
+	~ScopedLayout();
 
 private:
 	InputLayoutPtr myLayout{};
@@ -40,46 +40,46 @@ private:
 	ShaderVariant myShader{};
 };
 
-class ScopedRasterizerState : Scope
+class ScopedRasterizer : Scope
 {
 public:
-	ScopedRasterizerState(const D3D11_RASTERIZER_DESC& aDesc);
-	~ScopedRasterizerState();
+	ScopedRasterizer(const D3D11_RASTERIZER_DESC&);
+	~ScopedRasterizer();
 
 private:
 	RasterizerStatePtr myRasterizerState{};
 };
 
-class ScopedSamplerStates : Scope
+class ScopedSamplers : Scope
 {
 public:
-	ScopedSamplerStates(UINT aStartSlot, const D3D11_SAMPLER_DESC& aDesc);
-	ScopedSamplerStates(UINT aStartSlot, std::span<const D3D11_SAMPLER_DESC> someDescs);
-	~ScopedSamplerStates();
+	ScopedSamplers(UINT aStartSlot, std::initializer_list<D3D11_SAMPLER_DESC>);
+	ScopedSamplers(UINT aStartSlot, std::span<const D3D11_SAMPLER_DESC>);
+	~ScopedSamplers();
 
 private:
-	ScopedSamplerStates(UINT aStartSlot, const std::vector<ID3D11SamplerState*>& someStates);
+	ScopedSamplers(UINT aStartSlot, const std::vector<ID3D11SamplerState*>&);
 
 	UINT myStartSlot{};
 	std::vector<ID3D11SamplerState*> myStates{};
 };
 
-class ScopedDepthStencilState : Scope
+class ScopedDepthStencil : Scope
 {
 public:
-	ScopedDepthStencilState(const D3D11_DEPTH_STENCIL_DESC& aDesc, UINT aStencilRef = 0u);
-	~ScopedDepthStencilState();
+	ScopedDepthStencil(const D3D11_DEPTH_STENCIL_DESC&, UINT aStencilRef = 0u);
+	~ScopedDepthStencil();
 
 private:
 	DepthStencilStatePtr myState{};
 	UINT myStencilRef{};
 };
 
-class ScopedBlendState : Scope
+class ScopedBlend : Scope
 {
 public:
-	ScopedBlendState(const D3D11_BLEND_DESC& aDesc, const FLOAT aBlendFactor[4] = NULL, UINT aSampleMask = 0xffffffff);
-	~ScopedBlendState();
+	ScopedBlend(const D3D11_BLEND_DESC& aDesc, const FLOAT aBlendFactor[4] = NULL, UINT aSampleMask = 0xffffffff);
+	~ScopedBlend();
 
 private:
 	BlendStatePtr myState{};
@@ -87,15 +87,15 @@ private:
 	UINT mySampleMask{};
 };
 
-class ScopedRenderTargets : Scope
+class ScopedTargets : Scope
 {
 public:
-	ScopedRenderTargets(RenderTargetPtr aTarget, DepthStencilPtr aDepthStencil = nullptr);
-	ScopedRenderTargets(std::span<const RenderTargetPtr> someTargets, DepthStencilPtr aDepthStencil = nullptr);
-	~ScopedRenderTargets();
+	ScopedTargets(std::initializer_list<RenderTargetPtr>, DepthStencilPtr aDepthStencil = nullptr);
+	ScopedTargets(std::span<const RenderTargetPtr>, DepthStencilPtr aDepthStencil = nullptr);
+	~ScopedTargets();
 
 private:
-	ScopedRenderTargets(const std::vector<ID3D11RenderTargetView*>& someTargets, DepthStencilPtr aDepthStencil);
+	ScopedTargets(const std::vector<ID3D11RenderTargetView*>&, DepthStencilPtr);
 
 	std::array<ID3D11RenderTargetView*, D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT> myTargets{};
 	DepthStencilPtr myDepthStencil{};
@@ -104,23 +104,23 @@ private:
 class ScopedViewports : Scope
 {
 public:
-	ScopedViewports(const D3D11_VIEWPORT& aViewport);
-	ScopedViewports(std::span<const D3D11_VIEWPORT> someViewports);
+	ScopedViewports(std::initializer_list<D3D11_VIEWPORT>);
+	ScopedViewports(std::span<const D3D11_VIEWPORT>);
 	~ScopedViewports();
 
 private:
 	std::array<D3D11_VIEWPORT, D3D11_VIEWPORT_AND_SCISSORRECT_OBJECT_COUNT_PER_PIPELINE> myViewports{};
 };
 
-class ScopedShaderResources : Scope
+class ScopedResources : Scope
 {
 public:
-	ScopedShaderResources(ShaderType aType, UINT aStartSlot, ShaderResourcePtr aResource);
-	ScopedShaderResources(ShaderType aType, UINT aStartSlot, std::span<const ShaderResourcePtr> someResources);
-	~ScopedShaderResources();
+	ScopedResources(ShaderType, UINT aStartSlot, std::initializer_list<ShaderResourcePtr>);
+	ScopedResources(ShaderType, UINT aStartSlot, std::span<const ShaderResourcePtr>);
+	~ScopedResources();
 
 private:
-	ScopedShaderResources(ShaderType aType, UINT aStartSlot, const std::vector<ID3D11ShaderResourceView*>& someResources);
+	ScopedResources(ShaderType, UINT aStartSlot, const std::vector<ID3D11ShaderResourceView*>&);
 
 	ShaderType myType{};
 	UINT myStartSlot{};

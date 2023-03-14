@@ -166,7 +166,7 @@ ShaderResourcePtr CreateIntegrationMap()
 		return nullptr;
 
 	{
-		ScopedRenderTargets scopedTarget{ target };
+		ScopedTargets scopedTarget{ target };
 		ScopedViewports scopedViewport{ CD3D11_VIEWPORT{ texture.Get(), target.Get() } };
 		FullscreenPass{ "PsIntegrateBRDF.cso" }.Render();
 	}

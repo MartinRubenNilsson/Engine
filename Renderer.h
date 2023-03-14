@@ -47,7 +47,7 @@ public:
 
 	entt::entity PickEntity(unsigned x, unsigned y);
 
-	explicit operator bool() const { return mySucceeded; }
+	explicit operator bool() const;
 
 private:
 	void Clear();
@@ -61,12 +61,8 @@ private:
 	void RenderPointLights(std::span<const LightBuffer>);
 	void RenderSpotLights(std::span<const LightBuffer>);
 
-	std::vector<RenderTargetPtr> GetGBufferTargets() const; // todo: remove
-	std::vector<ShaderResourcePtr> GetGBufferResources() const; // todo: remove
-
-	ShaderResourcePtr myGaussianMap{}, myIntegrationMap{}; // Precomputed maps
-	std::array<ConstantBuffer, CBufferCount> myCBuffers{};
-	std::unordered_map<TextureSlot, RenderTexture> myRenderTextures{};
+	std::unordered_map<CBufferSlot, ConstantBuffer> myCBuffers{};
+	std::unordered_map<TextureSlot, RenderTexture> myTextures{};
 	DepthBuffer myDepthBuffer{};
 	BoundingFrustum myFrustum{};
 	unsigned myWidth{}, myHeight{};
