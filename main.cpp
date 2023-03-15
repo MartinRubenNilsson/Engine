@@ -17,6 +17,7 @@
 #include "JsonArchive.h"
 #include "SceneViewManipulate.h"
 #include "Picker.h"
+#include "Transform.h"
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
@@ -140,27 +141,33 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
                 ImGui::Inspector(scene->GetRegistry());
             ImGui::End();
 
-            /*entt::entity selection{ registry.view<Tag::Selected>().front() };
-
-            if (auto transform = registry.try_get<Transform::Ptr>(selection))
+            if (scene)
             {
-                static ImGuizmo::OPERATION op = ImGuizmo::TRANSLATE;
-                static ImGuizmo::MODE mode = ImGuizmo::LOCAL;
+                // todo: move somewhere else
+                auto& reg = scene->GetRegistry();
 
-                if (ImGui::IsKeyPressed(ImGuiKey_W))
-                    op = ImGuizmo::TRANSLATE;
-                if (ImGui::IsKeyPressed(ImGuiKey_E))
-                    op = ImGuizmo::ROTATE;
-                if (ImGui::IsKeyPressed(ImGuiKey_R))
-                    op = ImGuizmo::SCALE;
+                entt::entity selection{ reg.view<Tag::Selected>().front() };
 
-                if (ImGui::IsKeyPressed(ImGuiKey_X))
-                    mode = static_cast<ImGuizmo::MODE>(1 - mode);
+                if (auto transform = reg.try_get<Transform>(selection))
+                {
+                    static ImGuizmo::OPERATION op = ImGuizmo::TRANSLATE;
+                    static ImGuizmo::MODE mode = ImGuizmo::LOCAL;
 
-                Matrix m = (*transform)->GetWorldMatrix();
-                ImGui::Manipulate(camera, cameraTransform, op, mode, m);
-                (*transform)->SetWorldMatrix(m);
-            }*/
+                    if (ImGui::IsKeyPressed(ImGuiKey_W))
+                        op = ImGuizmo::TRANSLATE;
+                    if (ImGui::IsKeyPressed(ImGuiKey_E))
+                        op = ImGuizmo::ROTATE;
+                    if (ImGui::IsKeyPressed(ImGuiKey_R))
+                        op = ImGuizmo::SCALE;
+
+                    if (ImGui::IsKeyPressed(ImGuiKey_X))
+                        mode = static_cast<ImGuizmo::MODE>(1 - mode);
+
+                    Matrix m = transform->GetWorldMatrix(reg);
+                    ImGui::Manipulate(camera, cameraTransform, op, mode, m);
+                    transform->SetWorldMatrix(reg, m);
+                }
+            }
 
             ImGui::Begin(ICON_FA_EYE" Renderer");
             ImGui::InspectRenderer(renderer);

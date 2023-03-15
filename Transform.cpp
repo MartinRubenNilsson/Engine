@@ -42,6 +42,33 @@ entt::entity Transform::Find(const entt::registry& aRegistry, std::string_view a
 	return entt::null;
 }
 
+void Transform::Destroy(entt::registry& aRegistry)
+{
+	entt::entity entity = myEntity;
+	entt::entity parent = myParent;
+	auto children{ myChildren };
+
+	if (aRegistry.valid(entity))
+		aRegistry.destroy(entity);
+
+	for (entt::entity child : children)
+		aRegistry.get<Transform>(child).Destroy(aRegistry);
+
+	if (auto t = aRegistry.try_get<Transform>(parent))
+	{
+		auto range = std::ranges::remove(t->myChildren, entity);
+		t->myChildren.erase(range.begin(), range.end());
+	}
+}
+
+size_t Transform::GetDepth(const entt::registry& aRegistry) const
+{
+	size_t depth = 0;
+	if (auto transform = aRegistry.try_get<Transform>(myParent))
+		depth = 1 + transform->GetDepth(aRegistry);
+	return depth;
+}
+
 void Transform::SetWorldMatrix(const entt::registry& aRegistry, const Matrix& aMatrix)
 {
 	myLocalMatrix = aMatrix;
@@ -127,60 +154,3 @@ void ImGui::Inspect(Transform& aTransform)
 	DragFloat3("Scale", scale, 0.025f);
 	ImGuizmo::RecomposeMatrixFromComponents(translation, rotation, scale, aTransform.Data());
 }
-
-//
-//bool ImGui::Hierarchy(Transform::Ptr aTransform, Transform::Ptr& aSelection)
-//{
-//	ImGuiTreeNodeFlags flags{ ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanAvailWidth };
-//	if (!aTransform->HasChildren())
-//		flags |= ImGuiTreeNodeFlags_Leaf;
-//	if (aSelection == aTransform)
-//		flags |= ImGuiTreeNodeFlags_Selected;
-//
-//	std::string name{ ICON_FA_CUBE };
-//	name += " ";
-//	name += aTransform->GetName();
-//
-//	const bool open = TreeNodeEx(name.c_str(), flags);
-//
-//	if (IsItemClicked() && !IsItemToggledOpen())
-//		aSelection = aTransform;
-//
-//	bool invalidated = false;
-//
-//	if (BeginDragDropSource())
-//	{
-//		SetDragDropPayload("transform", &aTransform, sizeof(Transform::Ptr));
-//		EndDragDropSource();
-//	}
-//
-//	if (BeginDragDropTarget())
-//	{
-//		if (auto payload = AcceptDragDropPayload("transform"))
-//		{
-//			auto child = *reinterpret_cast<Transform::Ptr*>(payload->Data);
-//			child->SetParent(aTransform);
-//			invalidated = true;
-//		}
-//		EndDragDropTarget();
-//	}
-//
-//	if (open)
-//	{
-//		if (!invalidated)
-//		{
-//			for (auto& child : aTransform->GetChildren())
-//			{
-//				if (Hierarchy(child, aSelection))
-//				{
-//					invalidated = true;
-//					break;
-//				}
-//			}
-//		}
-//
-//		TreePop();
-//	}
-//
-//	return invalidated;
-//}

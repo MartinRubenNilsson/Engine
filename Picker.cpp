@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "Picker.h"
-#include "Tags.h"
 #include "Renderer.h"
+#include "EnttCommon.h"
 
 void ImGui::Picker(entt::registry& aRegistry)
 {
@@ -10,12 +10,6 @@ void ImGui::Picker(entt::registry& aRegistry)
 
     if (!IsMouseClicked(ImGuiMouseButton_Left))
         return;
-
-    // todo: if not holding ctrl, then select multiple
-    {
-        auto selected{ aRegistry.view<Tag::Selected>() };
-        aRegistry.erase<Tag::Selected>(selected.begin(), selected.end());
-    }
 
     entt::entity selection{ entt::null };
 
@@ -26,5 +20,5 @@ void ImGui::Picker(entt::registry& aRegistry)
     );
 
     if (aRegistry.valid(selection))
-        aRegistry.emplace_or_replace<Tag::Selected>(selection);
+        Select({ aRegistry, selection }); // todo: if holding ctrl, then select multiple
 }
