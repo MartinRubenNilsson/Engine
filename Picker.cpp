@@ -11,7 +11,7 @@ void ImGui::Picker(entt::registry& aRegistry)
     if (!IsMouseClicked(ImGuiMouseButton_Left))
         return;
 
-    // todo: if not holding ctrl
+    // todo: if not holding ctrl, then select multiple
     {
         auto selected{ aRegistry.view<Tag::Selected>() };
         aRegistry.erase<Tag::Selected>(selected.begin(), selected.end());
