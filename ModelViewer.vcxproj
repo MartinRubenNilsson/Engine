@@ -202,7 +202,6 @@
     <ClInclude Include="Drop.h" />
     <ClInclude Include="DX11.h" />
     <ClInclude Include="FullscreenPass.h" />
-    <ClInclude Include="GameScene.h" />
     <ClInclude Include="Inspector.h" />
     <ClInclude Include="JsonArchive.h" />
     <ClInclude Include="Light.h" />
@@ -239,7 +238,6 @@
     <ClCompile Include="Drop.cpp" />
     <ClCompile Include="DX11.cpp" />
     <ClCompile Include="FullscreenPass.cpp" />
-    <ClCompile Include="GameScene.cpp" />
     <ClCompile Include="Inspector.cpp" />
     <ClCompile Include="JsonArchive.cpp" />
     <ClCompile Include="Light.cpp" />

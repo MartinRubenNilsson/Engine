@@ -234,15 +234,15 @@ void Renderer::RenderGeometry(const entt::registry& aRegistry)
 		myDepthBuffer
 	};
 
-	auto view = aRegistry.view<const Transform::Ptr, const Mesh::Ptr, const Material>();
+	auto view = aRegistry.view<const Transform, const Mesh, const Material>();
 	for (auto [entity, transform, mesh, material] : view.each())
 	{
-		const Matrix worldMatrix{ transform->GetWorldMatrix() };
+		const Matrix worldMatrix{ transform.GetWorldMatrix(aRegistry) };
 
 		// Frustum culling
 		{
 			BoundingOrientedBox box{};
-			BoundingOrientedBox::CreateFromBoundingBox(box, mesh->GetBoundingBox());
+			BoundingOrientedBox::CreateFromBoundingBox(box, mesh.GetBoundingBox());
 			box.Transform(box, worldMatrix);
 
 			if (!myFrustum.Intersects(box))
@@ -271,7 +271,7 @@ void Renderer::RenderGeometry(const entt::registry& aRegistry)
 			}
 		};
 
-		mesh->Draw();
+		mesh.Draw();
 		statistics.meshes++;
 	}
 }
@@ -323,13 +323,13 @@ void Renderer::RenderLights(const entt::registry& aRegistry)
 		std::vector<LightBuffer> pLights{};
 		std::vector<LightBuffer> sLights{};
 
-		auto view = aRegistry.view<const Light, const Transform::Ptr>();
+		auto view = aRegistry.view<const Light, const Transform>();
 		for (auto [entity, light, transform] : view.each())
 		{
 			if (!light.enabled)
 				continue;
 
-			const Matrix worldMatrix{ transform->GetWorldMatrix() }; // todo: remove scale
+			const Matrix worldMatrix{ transform.GetWorldMatrix(aRegistry) }; // todo: remove scale
 
 			// todo: culling
 

@@ -60,7 +60,6 @@
     <ClInclude Include="Hierarchy.h">
       <Filter>editor</Filter>
     </ClInclude>
-    <ClInclude Include="GameScene.h" />
     <ClInclude Include="AssetFactory.h">
       <Filter>utilities</Filter>
     </ClInclude>
@@ -155,7 +154,6 @@
     <ClCompile Include="Hierarchy.cpp">
       <Filter>editor</Filter>
     </ClCompile>
-    <ClCompile Include="GameScene.cpp" />
     <ClCompile Include="Texture.cpp">
       <Filter>graphics\buffers</Filter>
     </ClCompile>

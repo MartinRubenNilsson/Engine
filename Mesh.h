@@ -3,8 +3,6 @@
 class Mesh
 {
 public:
-	using Ptr = std::shared_ptr<const Mesh>;
-
 	Mesh(const aiMesh&);
 
 	/*

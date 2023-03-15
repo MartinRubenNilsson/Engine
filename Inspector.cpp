@@ -13,13 +13,13 @@ void ImGui::Inspector(entt::registry& aRegistry)
 	if (!selection)
 		return;
 
-	if (auto transform = selection.try_get<Transform::Ptr>())
+	/*if (auto transform = selection.try_get<Transform::Ptr>())
 		if (CollapsingHeader(ICON_FA_UP_DOWN_LEFT_RIGHT" Transform", ImGuiTreeNodeFlags_DefaultOpen))
-			Inspect(*transform);
+			Inspect(*transform);*/
 
-	if (auto mesh = selection.try_get<Mesh::Ptr>())
+	if (auto mesh = selection.try_get<Mesh>())
 		if (CollapsingHeader(ICON_FA_CIRCLE_NODES" Mesh", ImGuiTreeNodeFlags_DefaultOpen))
-			Inspect(**mesh);
+			Inspect(*mesh);
 
 	if (auto material = selection.try_get<Material>())
 		if (CollapsingHeader(ICON_FA_PALETTE" Material", ImGuiTreeNodeFlags_DefaultOpen))

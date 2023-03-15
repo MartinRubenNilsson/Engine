@@ -12,7 +12,6 @@
 #include "Camera.h"
 #include "Hierarchy.h"
 #include "Inspector.h"
-#include "GameScene.h"
 #include "Tags.h"
 #include "Cubemap.h"
 #include "JsonArchive.h"
@@ -74,14 +73,13 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
         return EXIT_FAILURE;
 
     TextureFactory textureFactory{};
-    SceneFactory sceneFactory{};
     CubemapFactory cubemapFactory{};
+    SceneFactory sceneFactory{};
+
+    Scene::Ptr scene{};
 
     Camera camera{};
     Matrix cameraTransform{};
-
-    entt::registry registry{};
-    GameScene gameScene{ registry };
 
     bool run = true;
     MSG msg{};
@@ -98,9 +96,6 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
             DispatchMessage(&msg);
         }
 
-        //Mouse::State mouseState{ mouse.GetState() };
-        //buttons.Update(mouseState);
-
         // Resize
         if (theResize)
         {
@@ -116,15 +111,14 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
             fs::path path{ theDrop.GetPaths().front() };
             theDrop = {};
 
-            registry.clear();
-            sceneFactory.GetAsset(path)->CopyTo(registry);
+            scene = sceneFactory.GetAsset(path);
 
-            JsonArchive archive{};
+            /*JsonArchive archive{};
             archive.Save(registry);
 
             std::ofstream file{ path.parent_path() / "registry.json" };
             if (file)
-                file << std::setw(4) << archive.GetJson();
+                file << std::setw(4) << archive.GetJson();*/
         }
 
         // ImGui & Editor
@@ -133,17 +127,19 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
 
             ImGui::SceneViewManipulate(cameraTransform);
 
-            ImGui::Picker(registry);
+            if (scene)
+                ImGui::Picker(scene->GetRegistry());
 
             ImGui::Begin(ICON_FA_LIST" Hierarchy");
-            ImGui::Hierarchy(registry);
+            if (scene)
+                ImGui::Hierarchy(scene->GetRegistry());
             ImGui::End();
 
             ImGui::Begin(ICON_FA_CIRCLE_INFO" Inspector");
-            ImGui::Inspector(registry);
+            //ImGui::Inspector(registry);
             ImGui::End();
 
-            entt::entity selection{ registry.view<Tag::Selected>().front() };
+            /*entt::entity selection{ registry.view<Tag::Selected>().front() };
 
             if (auto transform = registry.try_get<Transform::Ptr>(selection))
             {
@@ -163,7 +159,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
                 Matrix m = (*transform)->GetWorldMatrix();
                 ImGui::Manipulate(camera, cameraTransform, op, mode, m);
                 (*transform)->SetWorldMatrix(m);
-            }
+            }*/
 
             ImGui::Begin(ICON_FA_EYE" Renderer");
             ImGui::InspectRenderer(renderer);
@@ -181,7 +177,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
             ScopedTargets scopedTarget{ backBuffer.GetTarget() };
 
             backBuffer.Clear();
-            renderer.Render(registry);
+            if (scene)
+                renderer.Render(scene->GetRegistry());
             imGui.Render();
 
             backBuffer.Present();

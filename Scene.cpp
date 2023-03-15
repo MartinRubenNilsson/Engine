@@ -1,5 +1,11 @@
 #include "pch.h"
 #include "Scene.h"
+#include "Transform.h"
+#include "Material.h"
+#include "Mesh.h"
+#include "Camera.h"
+#include "Light.h"
+
 #pragma comment(lib, "assimp-vc142-mt")
 
 #define IMPORT_FLAGS \
@@ -8,114 +14,70 @@
     static_cast<unsigned>(aiProcess_GenBoundingBoxes) 
 
 Scene::Scene(const fs::path& aPath)
+    : myPath{ aPath }
 {
     Assimp::Importer importer{};
     const aiScene* scene{ importer.ReadFile(aPath.string().c_str(), IMPORT_FLAGS) };
     if (!scene)
         return;
 
-    const fs::path prevPath{ fs::current_path() };
-    fs::current_path(aPath.parent_path()); // Since textures are relative to scene's directory
+    // 1. Load hierarchy
 
-    LoadMaterials({ scene->mMaterials, scene->mNumMaterials });
-    LoadMeshes({ scene->mMeshes, scene->mNumMeshes });
-    LoadTransforms(myRootTransform, scene->mRootNode);
-    LoadCameras({ scene->mCameras, scene->mNumCameras });
-    LoadLights({ scene->mLights, scene->mNumLights });
+    Transform& root = Transform::CreateHierarchy(myRegistry, scene->mRootNode);
 
-    fs::current_path(prevPath);
+    // 2. Load cameras
 
-    myPath = aPath;
-    mySucceeded = true;
-}
+    for (aiCamera* camera : std::span{ scene->mCameras, scene->mNumCameras })
+    {
+        entt::entity entity = root.Find(myRegistry, camera->mName.C_Str());
+        myRegistry.emplace<Camera>(entity, *camera);
+    }
 
-entt::entity Scene::CopyTo(entt::registry& aRegistry) const
-{
-    return DeepCopy(aRegistry, myRootTransform).entity();
+    // 3. Load lights
+
+    for (aiLight* light : std::span{ scene->mLights, scene->mNumLights })
+    {
+        entt::entity entity = root.Find(myRegistry, light->mName.C_Str());
+        myRegistry.emplace<Light>(entity, *light);
+    }
+
+    // 4. Load materials
+
+    std::vector<Material> materials{};
+
+    {
+        fs::path currPath{ fs::current_path() };
+        fs::current_path(aPath.parent_path()); // Material textures are stored relative to scene
+
+        for (aiMaterial* material : std::span{ scene->mMaterials, scene->mNumMaterials })
+            materials.emplace_back(*material);
+
+        fs::current_path(currPath);
+    }
+
+    // 5. Load meshes
+
+    std::vector<std::pair<Mesh, Material>> meshes{};
+
+    for (aiMesh* mesh : std::span{ scene->mMeshes, scene->mNumMeshes })
+        meshes.emplace_back(*mesh, materials.at(mesh->mMaterialIndex));
+
+    // 6. Store everything in registry
+
+    for (auto [entity, node] : myRegistry.view<aiNode*>().each())
+    {
+        for (unsigned meshIndex : std::span{ node->mMeshes, node->mNumMeshes })
+        {
+            auto& [mesh, material] = meshes.at(meshIndex);
+            myRegistry.emplace<Mesh>(entity, mesh);
+            myRegistry.emplace<Material>(entity, material);
+        }
+
+        myRegistry.erase<aiNode*>(entity);
+    }
 }
 
 Scene::operator bool() const
 {
-    return mySucceeded;
-}
-
-void Scene::LoadMaterials(std::span<aiMaterial*> someMaterials)
-{
-    for (aiMaterial* material : someMaterials)
-        myMaterials.emplace_back(*material);
-}
-
-void Scene::LoadMeshes(std::span<aiMesh*> someMeshes)
-{
-    for (aiMesh* mesh : someMeshes)
-        myMeshes.emplace_back(std::make_shared<Mesh>(*mesh), mesh->mMaterialIndex);
-}
-
-void Scene::LoadTransforms(Transform::Ptr aTransform, aiNode* aNode)
-{
-    aTransform->SetName(aNode->mName.C_Str());
-
-    std::memcpy(aTransform->Data(), &aNode->mTransformation.Transpose(), sizeof(Matrix));
-
-    for (unsigned meshIndex : std::span{ aNode->mMeshes, aNode->mNumMeshes })
-        myTransforms.emplace_back(aTransform, meshIndex);
-
-    for (aiNode* child : std::span{ aNode->mChildren, aNode->mNumChildren })
-        LoadTransforms(aTransform->CreateChild(), child);
-}
-
-void Scene::LoadCameras(std::span<aiCamera*> someCameras)
-{
-    for (aiCamera* camera : someCameras)
-        myCameras.emplace_back(*camera, myRootTransform->Find(camera->mName.C_Str()));
-}
-
-void Scene::LoadLights(std::span<aiLight*> someLights)
-{
-    for (aiLight* light : someLights)
-        myLights.emplace_back(*light, myRootTransform->Find(light->mName.C_Str()));
-}
-
-entt::handle Scene::DeepCopy(entt::registry& aRegistry, Transform::Ptr aTransform) const
-{
-    entt::handle handle{ aRegistry, aRegistry.create() };
-    
-    for (auto& [transform, meshIndex] : myTransforms)
-    {
-        if (transform == aTransform)
-        {
-            auto& [mesh, materialIndex] = myMeshes.at(meshIndex);
-            auto& material = myMaterials.at(materialIndex);
-            handle.emplace<Mesh::Ptr>(mesh);
-            handle.emplace<Material>(material);
-            break;
-        }
-    }
-
-    for (auto& [camera, transform] : myCameras)
-    {
-        if (transform == aTransform)
-        {
-            handle.emplace<Camera>(camera);
-            break;
-        }
-    }
-
-    for (auto& [light, transform] : myLights)
-    {
-        if (transform == aTransform)
-        {
-            handle.emplace<Light>(light);
-            break;
-        }
-    }
-
-    auto& transform{ handle.emplace<Transform::Ptr>(Transform::Create()) };
-    transform->SetName(aTransform->GetName());
-    transform->SetLocalMatrix(aTransform->GetLocalMatrix());
-
-    for (auto& child : aTransform->GetChildren())
-        DeepCopy(aRegistry, child).get<Transform::Ptr>()->SetParent(transform, false);
-
-    return handle;
+    return !myRegistry.empty();
 }
