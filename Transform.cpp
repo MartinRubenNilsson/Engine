@@ -111,22 +111,23 @@ bool Transform::IsChildOf(entt::registry& aRegistry, entt::entity anEntity) cons
 * namespace ImGui
 */
 
-//void ImGui::Inspect(Transform::Ptr aTransform)
-//{
-//	std::string name{ aTransform->GetName() };
-//	if (InputText("Name", &name))
-//		aTransform->SetName(name);
-//
-//	float translation[3]{};
-//	float rotation[3]{};
-//	float scale[3]{};
-//
-//	ImGuizmo::DecomposeMatrixToComponents(aTransform->Data(), translation, rotation, scale);
-//	DragFloat3("Translation", translation, 0.025f);
-//	DragFloat3("Rotation", rotation, 0.25f);
-//	DragFloat3("Scale", scale, 0.025f);
-//	ImGuizmo::RecomposeMatrixFromComponents(translation, rotation, scale, aTransform->Data());
-//}
+void ImGui::Inspect(Transform& aTransform)
+{
+	std::string name{ aTransform.GetName() };
+	if (InputText("Name", &name))
+		aTransform.SetName(name);
+
+	float translation[3]{};
+	float rotation[3]{};
+	float scale[3]{};
+
+	ImGuizmo::DecomposeMatrixToComponents(aTransform.Data(), translation, rotation, scale);
+	DragFloat3("Translation", translation, 0.025f);
+	DragFloat3("Rotation", rotation, 0.25f);
+	DragFloat3("Scale", scale, 0.025f);
+	ImGuizmo::RecomposeMatrixFromComponents(translation, rotation, scale, aTransform.Data());
+}
+
 //
 //bool ImGui::Hierarchy(Transform::Ptr aTransform, Transform::Ptr& aSelection)
 //{

@@ -27,8 +27,8 @@ public:
 	//bool HasParent() const { return myParent; }
 	//bool HasChildren() const { return !myChildren.empty(); }
 
-	//float* Data() { return &myLocalMatrix._11; }
-	//const float* Data() const { return &myLocalMatrix._11; }
+	float* Data() { return &myLocalMatrix._11; }
+	const float* Data() const { return &myLocalMatrix._11; }
 
 private:
 	entt::entity myEntity{ entt::null }, myParent{ entt::null };
@@ -39,7 +39,7 @@ private:
 
 namespace ImGui
 {
-	//void Inspect(Transform::Ptr aTransform);
+	void Inspect(Transform&);
 	//bool Hierarchy(Transform::Ptr aTransform, Transform::Ptr& aSelection);
 }
 

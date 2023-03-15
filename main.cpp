@@ -136,7 +136,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
             ImGui::End();
 
             ImGui::Begin(ICON_FA_CIRCLE_INFO" Inspector");
-            //ImGui::Inspector(registry);
+            if (scene)
+                ImGui::Inspector(scene->GetRegistry());
             ImGui::End();
 
             /*entt::entity selection{ registry.view<Tag::Selected>().front() };

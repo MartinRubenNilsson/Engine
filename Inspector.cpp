@@ -13,9 +13,9 @@ void ImGui::Inspector(entt::registry& aRegistry)
 	if (!selection)
 		return;
 
-	/*if (auto transform = selection.try_get<Transform::Ptr>())
+	if (auto transform = selection.try_get<Transform>())
 		if (CollapsingHeader(ICON_FA_UP_DOWN_LEFT_RIGHT" Transform", ImGuiTreeNodeFlags_DefaultOpen))
-			Inspect(*transform);*/
+			Inspect(*transform);
 
 	if (auto mesh = selection.try_get<Mesh>())
 		if (CollapsingHeader(ICON_FA_CIRCLE_NODES" Mesh", ImGuiTreeNodeFlags_DefaultOpen))
