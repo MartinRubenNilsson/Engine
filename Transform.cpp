@@ -139,7 +139,11 @@ void from_json(const json& j, Transform& t)
 	j.at("parent").get_to(t.myParent);
 	j.at("children").get_to(t.myChildren);
 	j.at("name").get_to(t.myName);
-	// todo: matrix
+
+	std::array<float, 16> matrix{};
+	j.at("matrix").get_to(matrix);
+
+	std::memcpy(t.Data(), matrix.data(), sizeof(Matrix));
 }
 
 void to_json(json& j, const Transform& t)
@@ -148,7 +152,11 @@ void to_json(json& j, const Transform& t)
 	j["parent"] = t.myParent;
 	j["children"] = t.myChildren;
 	j["name"] = t.myName;
-	// todo: matrix
+
+	std::array<float, 16> matrix{};
+	std::memcpy(matrix.data(), t.Data(), sizeof(Matrix));
+
+	j["matrix"] = matrix;
 }
 
 /*

@@ -7,7 +7,7 @@ public:
 
 	entt::entity Find(const entt::registry&, std::string_view aName) const;
 
-	void Destroy(entt::registry&); // Destroys all children as well
+	void Destroy(entt::registry&); // Recursive, destroys children as well
 
 	size_t GetDepth(const entt::registry&) const;
 
