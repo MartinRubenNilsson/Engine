@@ -40,6 +40,23 @@ Matrix Camera::GetProjectionMatrix(bool aReverseZ) const
 		XMMatrixOrthographicLH(myFovOrHeight, myAspect * myFovOrHeight, nearZ, farZ);
 }
 
+void Camera::SetAspect(float anAspect)
+{
+	myAspect = std::max(0.001f, anAspect);
+}
+
+void Camera::SetNearZ(float z)
+{
+	myNearZ = std::clamp(z, MIN_CLIP_Z, MAX_CLIP_Z);
+	myFarZ = std::max(myFarZ, myNearZ + 0.1f);
+}
+
+void Camera::SetFarZ(float z)
+{
+	myFarZ = std::clamp(z, MIN_CLIP_Z, MAX_CLIP_Z);
+	myNearZ = std::min(myNearZ, myFarZ - 0.1f);
+}
+
 void from_json(const json& j, Camera& c)
 {
 	j.at("type").get_to(c.myType);
@@ -64,33 +81,29 @@ void to_json(json& j, const Camera& c)
 
 void ImGui::Inspect(Camera& aCamera)
 {
-	aCamera;
-	// todo
-	//struct Inspector
-	//{
-	//	void operator()(PerspectiveCamera& aCamera)
-	//	{
-	//		// TODO: VAlidate valures!!!!!
+	CameraType type = aCamera.GetType();
+	if (Combo("Type", reinterpret_cast<int*>(&type), "Perspective\0Orthographic\0\0"))
+		aCamera.SetType(type);
 
-	//		DragFloat("FoV", &aCamera.fovY, 0.01f);
-	//		DragFloat("Aspect", &aCamera.aspect, 0.01f);
-	//	}
+	// todo: fov or height
 
-	//	void operator()(OrthographicCamera& aCamera)
-	//	{
-	//		// TODO: VAlidate valures!!!!!
+	{
+		float aspect = aCamera.GetAspect();
+		DragFloat("Aspect", &aspect, 0.1f, 0.001f, FLT_MAX);
+		aCamera.SetAspect(aspect);
+	}
 
-	//		DragFloat("Width", &aCamera.width, 0.01f);
-	//		DragFloat("Height", &aCamera.height, 0.01f);
-	//	}
-	//};
+	{
+		float z = aCamera.GetNearZ();
+		DragFloat("Near Z", &z, 1.f, MIN_CLIP_Z, MAX_CLIP_Z);
+		aCamera.SetNearZ(z);
+	}
 
-	//int type{ static_cast<int>(aCamera.GetType()) };
-	//Combo("Type", &type, "Perspective\0Orthographic\0\0");
-
-	//CameraVariant variant{ aCamera.GetVariant() };
-	//std::visit(Inspector{}, variant);
-	//aCamera.SetVariant(variant);
+	{
+		float z = aCamera.GetFarZ();
+		DragFloat("Far Z", &z, 1.f, MIN_CLIP_Z, MAX_CLIP_Z);
+		aCamera.SetFarZ(z);
+	}
 }
 
 void ImGui::DrawCubes(const Camera& aCamera, const Matrix& aCameraTransform, std::span<const Matrix> someCubeTransforms)

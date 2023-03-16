@@ -133,14 +133,24 @@ void Transform::RemoveChild(entt::entity anEntity)
 	myChildren.erase(range.begin(), range.end());
 }
 
+float* Transform::Data()
+{
+	return &myLocalMatrix._11;
+}
+
+const float* Transform::Data() const
+{
+	return &myLocalMatrix._11;
+}
+
 void from_json(const json& j, Transform& t)
 {
+	std::array<float, 16> matrix{};
+
 	j.at("entity").get_to(t.myEntity);
 	j.at("parent").get_to(t.myParent);
 	j.at("children").get_to(t.myChildren);
 	j.at("name").get_to(t.myName);
-
-	std::array<float, 16> matrix{};
 	j.at("matrix").get_to(matrix);
 
 	std::memcpy(t.Data(), matrix.data(), sizeof(Matrix));
@@ -148,14 +158,13 @@ void from_json(const json& j, Transform& t)
 
 void to_json(json& j, const Transform& t)
 {
+	std::array<float, 16> matrix{};
+	std::memcpy(matrix.data(), t.Data(), sizeof(Matrix));
+
 	j["entity"] = t.myEntity;
 	j["parent"] = t.myParent;
 	j["children"] = t.myChildren;
 	j["name"] = t.myName;
-
-	std::array<float, 16> matrix{};
-	std::memcpy(matrix.data(), t.Data(), sizeof(Matrix));
-
 	j["matrix"] = matrix;
 }
 

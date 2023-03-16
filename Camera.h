@@ -1,5 +1,8 @@
 #pragma once
 
+#define MIN_CLIP_Z 0.3f
+#define MAX_CLIP_Z 1000.f
+
 enum class CameraType
 {
 	Perspective,
@@ -12,14 +15,17 @@ public:
 	Camera() = default;
 	Camera(const aiCamera&);
 
+	void SetType(CameraType aType) { myType = aType; }
 	CameraType GetType() const { return myType; }
 
 	Matrix GetViewMatrix() const;
 	Matrix GetProjectionMatrix(bool aReverseZ = false) const;
 
-	void SetAspect(float anAspect) { myAspect = anAspect; }
-
+	void SetAspect(float);
+	float GetAspect() const { return myAspect; }
+	void SetNearZ(float);
 	float GetNearZ() const { return myNearZ; }
+	void SetFarZ(float);
 	float GetFarZ() const { return myFarZ; }
 
 private:
@@ -28,7 +34,7 @@ private:
 
 	CameraType myType{};
 	float myFovOrHeight{ 1.f }, myAspect{ 1.f };
-	float myNearZ{ 0.3f }, myFarZ{ 1000.f };
+	float myNearZ{ MIN_CLIP_Z }, myFarZ{ MAX_CLIP_Z };
 };
 
 namespace ImGui

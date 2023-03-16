@@ -28,8 +28,8 @@ public:
 	bool IsChildOf(entt::registry&, entt::entity) const; // Also true if equal
 	bool HasChildren() const { return !myChildren.empty(); }
 
-	float* Data() { return &myLocalMatrix._11; }
-	const float* Data() const { return &myLocalMatrix._11; }
+	float* Data();
+	const float* Data() const;
 
 private:
 	void AddChild(entt::entity);
