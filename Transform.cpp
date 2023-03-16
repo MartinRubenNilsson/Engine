@@ -30,6 +30,7 @@ entt::entity Transform::Find(const entt::registry& aRegistry, std::string_view a
 {
 	if (aName == myName)
 		return myEntity;
+
 	for (entt::entity child : myChildren)
 	{
 		if (auto transform = aRegistry.try_get<Transform>(child))
@@ -39,6 +40,7 @@ entt::entity Transform::Find(const entt::registry& aRegistry, std::string_view a
 				return entity;
 		}
 	}
+
 	return entt::null;
 }
 
@@ -55,10 +57,7 @@ void Transform::Destroy(entt::registry& aRegistry)
 		aRegistry.get<Transform>(child).Destroy(aRegistry);
 
 	if (auto t = aRegistry.try_get<Transform>(parent))
-	{
-		auto range = std::ranges::remove(t->myChildren, entity);
-		t->myChildren.erase(range.begin(), range.end());
-	}
+		t->RemoveChild(entity);
 }
 
 size_t Transform::GetDepth(const entt::registry& aRegistry) const
@@ -84,31 +83,32 @@ Matrix Transform::GetWorldMatrix(const entt::registry& aRegistry) const
 	return result;
 }
 
-//void Transform::SetParent(Ptr aParent, bool aWorldPositionStays)
-//{
-//	auto me = shared_from_this();
-//	if (aParent)
-//	{
-//		if (aParent->IsChildOf(me))
-//			return;
-//		aParent->myChildren.push_back(me);
-//	}
-//	if (myParent)
-//	{
-//		auto& siblings = myParent->myChildren;
-//		siblings.erase(std::remove(siblings.begin(), siblings.end(), me));
-//	}
-//	if (aWorldPositionStays)
-//	{
-//		Matrix worldMatrix = GetWorldMatrix();
-//		myParent = aParent.get();
-//		SetWorldMatrix(worldMatrix);
-//	}
-//	else
-//	{
-//		myParent = aParent.get();
-//	}
-//}
+void Transform::SetParent(entt::registry& aRegistry, entt::entity anEntity, bool aWorldTransformStays)
+{
+	if (myParent == anEntity)
+		return;
+
+	if (auto transform = aRegistry.try_get<Transform>(anEntity))
+	{
+		if (transform->IsChildOf(aRegistry, myEntity))
+			return;
+		transform->AddChild(myEntity);
+	}
+
+	if (auto parent = aRegistry.try_get<Transform>(myParent))
+		parent->RemoveChild(myEntity);
+
+	if (aWorldTransformStays)
+	{
+		Matrix worldMatrix = GetWorldMatrix(aRegistry);
+		myParent = anEntity;
+		SetWorldMatrix(aRegistry, worldMatrix);
+	}
+	else
+	{
+		myParent = anEntity;
+	}
+}
 
 bool Transform::IsChildOf(entt::registry& aRegistry, entt::entity anEntity) const
 {
@@ -119,6 +119,18 @@ bool Transform::IsChildOf(entt::registry& aRegistry, entt::entity anEntity) cons
 	}
 
 	return false;
+}
+
+void Transform::AddChild(entt::entity anEntity)
+{
+	if (!std::ranges::contains(myChildren, anEntity))
+		myChildren.push_back(anEntity);
+}
+
+void Transform::RemoveChild(entt::entity anEntity)
+{
+	auto range = std::ranges::remove(myChildren, anEntity);
+	myChildren.erase(range.begin(), range.end());
 }
 
 void from_json(const json& j, Transform& t)
@@ -145,6 +157,8 @@ void to_json(json& j, const Transform& t)
 
 void ImGui::Inspect(Transform& aTransform)
 {
+	Value("Entity", std::to_underlying(aTransform.GetEntity()));
+
 	std::string name{ aTransform.GetName() };
 	if (InputText("Name", &name))
 		aTransform.SetName(name);

@@ -11,6 +11,8 @@ public:
 
 	size_t GetDepth(const entt::registry&) const;
 
+	entt::entity GetEntity() const { return myEntity; }
+
 	void SetName(std::string_view aName)		{ myName = aName; }
 	std::string_view GetName() const			{ return myName; }
 	void SetLocalMatrix(const Matrix& aMatrix)	{ myLocalMatrix = aMatrix; }
@@ -18,17 +20,21 @@ public:
 	void SetWorldMatrix(const entt::registry&, const Matrix&);
 	Matrix GetWorldMatrix(const entt::registry&) const;
 
-	//void SetParent(Ptr aParent, bool aWorldPositionStays = true);
+	void SetParent(entt::registry&, entt::entity, bool aWorldTransformStays = true); // Pass entt::null to unparent
 	entt::entity GetParent() const { return myParent; }
+
 	const auto& GetChildren() const { return myChildren; }
 
-	bool IsChildOf(entt::registry&, entt::entity) const; // True iff a descendant of or equal to entity
+	bool IsChildOf(entt::registry&, entt::entity) const; // Also true if equal
 	bool HasChildren() const { return !myChildren.empty(); }
 
 	float* Data() { return &myLocalMatrix._11; }
 	const float* Data() const { return &myLocalMatrix._11; }
 
 private:
+	void AddChild(entt::entity);
+	void RemoveChild(entt::entity);
+
 	friend void from_json(const json&, Transform&);
 	friend void to_json(json&, const Transform&);
 

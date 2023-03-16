@@ -41,22 +41,27 @@ void ImGui::Hierarchy(entt::registry& aRegistry)
 		if (IsItemClicked() && !IsItemToggledOpen())
 			Select({ aRegistry, entity });
 
-		/*if (BeginDragDropSource())
+		if (BeginDragDropSource())
 		{
-			SetDragDropPayload("transform", &aTransform, sizeof(Transform::Ptr));
+			SetDragDropPayload("entity", &entity, sizeof(entt::entity));
 			EndDragDropSource();
 		}
 
 		if (BeginDragDropTarget())
 		{
-			if (auto payload = AcceptDragDropPayload("transform"))
+			if (auto payload = AcceptDragDropPayload("entity"))
 			{
-				auto child = *reinterpret_cast<Transform::Ptr*>(payload->Data);
-				child->SetParent(aTransform);
-				invalidated = true;
+				auto otherEntity = *reinterpret_cast<entt::entity*>(payload->Data);
+				if (auto otherTrans = aRegistry.try_get<Transform>(otherEntity))
+				{
+					otherTrans->SetParent(aRegistry, entity); // Invalidates stack
+					if (open)
+						TreePop();
+					break; 
+				}
 			}
 			EndDragDropTarget();
-		}*/
+		}
 
 		if (open)
 		{

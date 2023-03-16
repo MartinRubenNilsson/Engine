@@ -12,11 +12,11 @@ public:
 	template <class Component>
 	void operator()(entt::entity e, const Component& c)
 	{
-		myJson[myType].emplace_back(c)["entity"] = e;
+		myJson[myComponentName].emplace_back(c)["entity"] = e;
 	}
 
 private:
 	json myJson{};
-	std::string myType{};
+	std::string myComponentName{};
 };
 

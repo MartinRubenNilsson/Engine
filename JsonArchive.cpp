@@ -9,14 +9,14 @@ void JsonArchive::Save(const entt::registry& aRegistry)
 
 	entt::snapshot snapshot{ aRegistry };
 
-	myType = "transforms";
+	myComponentName = "transforms";
 	snapshot.component<Transform>(*this);
 
-	myType = "cameras";
+	myComponentName = "cameras";
 	snapshot.component<Camera>(*this);
 }
 
 void JsonArchive::operator()(std::underlying_type_t<entt::entity> aSize)
 {
-	myJson["num_" + myType] = aSize;
+	myJson["num_" + myComponentName] = aSize;
 }
