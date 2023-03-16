@@ -77,11 +77,11 @@ void JsonArchive::Deserialize(entt::registry& aRegistry) const
 
 	archive.type = "transforms";
 	archive.index = 0;
-	snapshot.component<Transform>(*this);
+	snapshot.component<Transform>(archive);
 
 	archive.type = "cameras";
 	archive.index = 0;
-	snapshot.component<Camera>(*this);
+	snapshot.component<Camera>(archive);
 }
 
 JsonArchive::operator bool() const
