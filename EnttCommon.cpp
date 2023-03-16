@@ -17,7 +17,8 @@ void Select(entt::handle aHandle, bool aMultiSelect)
 {
 	if (!aMultiSelect)
 		ClearSelection(*aHandle.registry());
-	aHandle.emplace_or_replace<Tag::Selected>();
+	if (aHandle)
+		aHandle.emplace_or_replace<Tag::Selected>();
 }
 
 bool IsSelected(entt::handle aHandle)
