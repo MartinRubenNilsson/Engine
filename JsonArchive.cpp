@@ -38,7 +38,7 @@ namespace
 		template <class T>
 		void operator()(entt::entity& anEntity, T& aComponent)
 		{
-			json& component = j.at(type).at(index++);
+			const json& component = j.at(type).at(index++);
 			component.at("entity").get_to(anEntity);
 			component.get_to(aComponent);
 		}
