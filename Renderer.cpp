@@ -425,7 +425,7 @@ void Renderer::RenderSpotLights(std::span<const LightBuffer> someLights)
 * namespace ImGui
 */
 
-void ImGui::InspectRenderer(Renderer& aRenderer)
+void ImGui::Inspect(Renderer& aRenderer)
 {
 	if (TreeNode(ICON_FA_GEARS" Settings"))
 	{

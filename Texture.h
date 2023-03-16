@@ -33,6 +33,9 @@ public:
 	explicit operator bool() const;
 
 private:
+	friend void to_json(json&, const Texture::Ptr&);
+	friend void from_json(const json&, Texture::Ptr&);
+
 	HRESULT myResult{ E_FAIL };
 	TexturePtr myTexture{};
 	ShaderResourcePtr myShaderResource{};

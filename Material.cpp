@@ -53,6 +53,18 @@ ShaderResourcePtr Material::GetResource(TextureType aType) const
     return itr != myTextures.end() ? (*itr)->GetResource() : nullptr;
 }
 
+void to_json(json& j, const Material& m)
+{
+    j["name"] = m.myName;
+    j["textures"] = m.myTextures;
+}
+
+void from_json(const json& j, Material& m)
+{
+    j.at("name").get_to(m.myName);
+    j.at("textures").get_to(m.myTextures);
+}
+
 /*
 * namespace ImGui
 */

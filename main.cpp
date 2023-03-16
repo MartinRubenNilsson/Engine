@@ -100,10 +100,12 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
         // Resize
         if (theResize)
         {
-            theResize = false;
             backBuffer.Resize();
-            renderer.ResizeTextures(backBuffer.GetWidth(), backBuffer.GetHeight());
-            camera.SetAspect((float)backBuffer.GetWidth() / (float)backBuffer.GetHeight());
+            unsigned w = backBuffer.GetWidth();
+            unsigned h = backBuffer.GetHeight();
+            renderer.ResizeTextures(w, h);
+            camera.SetAspect(static_cast<float>(w) / h);
+            theResize = false;
         }
 
         // Drag and drop
@@ -129,7 +131,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
             ImGui::Picker(registry);
 
             ImGui::Begin(ICON_FA_EYE" Renderer");
-            ImGui::InspectRenderer(renderer);
+            ImGui::Inspect(renderer);
             ImGui::End();
 
             ImGui::Begin(ICON_FA_LIST" Hierarchy");

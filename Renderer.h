@@ -71,6 +71,6 @@ private:
 
 namespace ImGui
 {
-	void InspectRenderer(Renderer&);
+	void Inspect(Renderer&);
 }
 

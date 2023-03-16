@@ -98,3 +98,17 @@ Texture::operator bool() const
 {
 	return SUCCEEDED(myResult);
 }
+
+void to_json(json& j, const Texture::Ptr& t)
+{
+    j["path"] = t->myPath;
+    j["type"] = t->myType;
+}
+
+void from_json(const json& j, Texture::Ptr& t)
+{
+    t = TextureFactory::Get().GetAsset(
+        j.at("path"),
+        j.at("type").get<TextureType>()
+    );
+}

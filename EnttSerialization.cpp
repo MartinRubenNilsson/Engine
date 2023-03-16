@@ -2,6 +2,7 @@
 #include "EnttSerialization.h"
 #include "Transform.h"
 #include "Camera.h"
+#include "Material.h"
 
 namespace
 {
@@ -45,10 +46,12 @@ void entt::to_json(json& j, const registry& reg)
 
 	OutputArchive transforms{ j["transforms"] };
 	OutputArchive cameras{ j["cameras"] };
+	OutputArchive materials{ j["materials"] };
 
 	entt::snapshot{ reg }
 		.component<Transform>(transforms)
-		.component<Camera>(cameras);
+		.component<Camera>(cameras)
+		.component<Material>(materials);
 }
 
 void entt::from_json(const json& j, registry& reg)
@@ -57,8 +60,10 @@ void entt::from_json(const json& j, registry& reg)
 
 	InputArchive transforms{ j.at("transforms") };
 	InputArchive cameras{ j.at("cameras") };
+	InputArchive materials{ j.at("materials") };
 
 	entt::snapshot_loader{ reg }
 		.component<Transform>(transforms)
-		.component<Camera>(cameras);
+		.component<Camera>(cameras)
+		.component<Material>(materials);
 }

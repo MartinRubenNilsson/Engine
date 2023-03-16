@@ -13,6 +13,9 @@ public:
 	const auto& GetTextures() const { return myTextures; }
 
 private:
+	friend void to_json(json&, const Material&);
+	friend void from_json(const json&, Material&);
+
 	std::string myName{};
 	std::vector<Texture::Ptr> myTextures{};
 };
