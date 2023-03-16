@@ -2,7 +2,6 @@
 #include "Hierarchy.h"
 #include "Transform.h"
 #include "EnttCommon.h"
-#include "Tags.h"
 
 void ImGui::Hierarchy(entt::registry& aRegistry)
 {

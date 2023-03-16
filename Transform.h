@@ -29,6 +29,9 @@ public:
 	const float* Data() const { return &myLocalMatrix._11; }
 
 private:
+	friend void from_json(const json&, Transform&);
+	friend void to_json(json&, const Transform&);
+
 	entt::entity myEntity{ entt::null }, myParent{ entt::null };
 	std::vector<entt::entity> myChildren{};
 	std::string myName{};

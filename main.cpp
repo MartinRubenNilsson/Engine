@@ -114,12 +114,15 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
 
             scene = sceneFactory.GetAsset(path);
 
-            /*JsonArchive archive{};
-            archive.Save(registry);
+            if (scene)
+            {
+                JsonArchive archive{};
+                archive.Save(scene->GetRegistry());
 
-            std::ofstream file{ path.parent_path() / "registry.json" };
-            if (file)
-                file << std::setw(4) << archive.GetJson();*/
+                std::ofstream file{ path.parent_path() / "registry.json" };
+                if (file)
+                    file << std::setw(4) << archive.GetJson();
+            }
         }
 
         // ImGui & Editor

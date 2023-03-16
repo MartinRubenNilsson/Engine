@@ -110,28 +110,33 @@ Matrix Transform::GetWorldMatrix(const entt::registry& aRegistry) const
 //	}
 //}
 
-//size_t Transform::GetTreeSize() const
-//{
-//	size_t size = 1;
-//	for (const auto& child : myChildren)
-//		size += child->GetTreeSize();
-//	return size;
-//}
-
 bool Transform::IsChildOf(entt::registry& aRegistry, entt::entity anEntity) const
 {
-	const Transform* t = this;
-
-	do
+	for (auto t = this; t; t = aRegistry.try_get<Transform>(t->myParent))
 	{
 		if (t->myEntity == anEntity)
 			return true;
-
-		t = aRegistry.try_get<Transform>(t->myParent);
 	}
-	while (t);
 
 	return false;
+}
+
+void from_json(const json& j, Transform& t)
+{
+	j.at("entity").get_to(t.myEntity);
+	j.at("parent").get_to(t.myParent);
+	j.at("children").get_to(t.myChildren);
+	j.at("name").get_to(t.myName);
+	// todo: matrix
+}
+
+void to_json(json& j, const Transform& t)
+{
+	j["entity"] = t.myEntity;
+	j["parent"] = t.myParent;
+	j["children"] = t.myChildren;
+	j["name"] = t.myName;
+	// todo: matrix
 }
 
 /*

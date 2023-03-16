@@ -1,10 +1,10 @@
 #include "pch.h"
 #include "Scene.h"
 #include "Transform.h"
-#include "Material.h"
-#include "Mesh.h"
 #include "Camera.h"
 #include "Light.h"
+#include "Material.h"
+#include "Mesh.h"
 
 #pragma comment(lib, "assimp-vc142-mt")
 
@@ -47,7 +47,7 @@ Scene::Scene(const fs::path& aPath)
 
     {
         fs::path currPath{ fs::current_path() };
-        fs::current_path(aPath.parent_path()); // Material textures are stored relative to scene
+        fs::current_path(aPath.parent_path()); // Textures are stored relative to scene path
 
         for (aiMaterial* material : std::span{ scene->mMaterials, scene->mNumMaterials })
             materials.emplace_back(*material);
@@ -55,14 +55,14 @@ Scene::Scene(const fs::path& aPath)
         fs::current_path(currPath);
     }
 
-    // 5. Load meshes
+    // 5. Load meshes and pair up with materials
 
     std::vector<std::pair<Mesh, Material>> meshes{};
 
     for (aiMesh* mesh : std::span{ scene->mMeshes, scene->mNumMeshes })
         meshes.emplace_back(*mesh, materials.at(mesh->mMaterialIndex));
 
-    // 6. Store everything in registry
+    // 6. Add meshes and materials to registry
 
     for (auto [entity, node] : myRegistry.view<aiNode*>().each())
     {
