@@ -5,6 +5,7 @@
 #include "Light.h"
 #include "Material.h"
 #include "Mesh.h"
+#include "JsonArchive.h"
 
 #pragma comment(lib, "assimp-vc142-mt")
 
@@ -15,6 +16,21 @@
 
 Scene::Scene(const fs::path& aPath)
     : myPath{ aPath }
+{
+    std::string extension{ aPath.extension().string() };
+
+    if (extension == ".fbx")
+        ImportAsset(aPath);
+    else if (extension == ".json")
+        ImportArchive(aPath);
+}
+
+Scene::operator bool() const
+{
+    return !myRegistry.empty();
+}
+
+void Scene::ImportAsset(const fs::path& aPath)
 {
     Assimp::Importer importer{};
     const aiScene* scene{ importer.ReadFile(aPath.string().c_str(), IMPORT_FLAGS) };
@@ -47,7 +63,7 @@ Scene::Scene(const fs::path& aPath)
 
     {
         fs::path currPath{ fs::current_path() };
-        fs::current_path(aPath.parent_path()); // Textures are stored relative to scene path
+        fs::current_path(aPath.parent_path()); // Textures are stored relative to scene
 
         for (aiMaterial* material : std::span{ scene->mMaterials, scene->mNumMaterials })
             materials.emplace_back(*material);
@@ -77,7 +93,9 @@ Scene::Scene(const fs::path& aPath)
     }
 }
 
-Scene::operator bool() const
+void Scene::ImportArchive(const fs::path& aPath)
 {
-    return !myRegistry.empty();
+    JsonArchive archive{ aPath };
+    if (archive)
+        archive.Deserialize(myRegistry);
 }

@@ -117,7 +117,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
             if (scene)
             {
                 JsonArchive archive{};
-                archive.Save(scene->GetRegistry());
+                archive.Serialize(scene->GetRegistry());
 
                 std::ofstream file{ path.parent_path() / "registry.json" };
                 if (file)

@@ -3,20 +3,17 @@
 class JsonArchive
 {
 public:
-	void Save(const entt::registry&);
+	JsonArchive() = default;
+	JsonArchive(const fs::path&);
+
+	void Serialize(const entt::registry&);
+	void Deserialize(entt::registry&) const;
 
 	const json& GetJson() const { return myJson; }
 
-	void operator()(std::underlying_type_t<entt::entity>);
-
-	template <class Component>
-	void operator()(entt::entity e, const Component& c)
-	{
-		myJson[myComponentName].emplace_back(c)["entity"] = e;
-	}
+	explicit operator bool() const;
 
 private:
 	json myJson{};
-	std::string myComponentName{};
 };
 
