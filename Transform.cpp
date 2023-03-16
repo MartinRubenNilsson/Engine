@@ -5,6 +5,15 @@
 * class Transform
 */
 
+Transform& Transform::Create(entt::registry& aRegistry)
+{
+	entt::entity entity = aRegistry.create();
+	Transform& transform = aRegistry.emplace<Transform>(entity);
+	transform.myEntity = entity;
+
+	return transform;
+}
+
 Transform& Transform::CreateHierarchy(entt::registry& aRegistry, aiNode* aNode)
 {
 	entt::entity entity = aRegistry.create();
@@ -26,22 +35,13 @@ Transform& Transform::CreateHierarchy(entt::registry& aRegistry, aiNode* aNode)
 	return transform;
 }
 
-entt::entity Transform::Find(const entt::registry& aRegistry, std::string_view aName) const
+Transform& Transform::CreateChild(entt::registry& aRegistry)
 {
-	if (aName == myName)
-		return myEntity;
+	Transform& child = Create(aRegistry);
+	myChildren.push_back(child.myEntity);
+	child.myParent = myEntity;
 
-	for (entt::entity child : myChildren)
-	{
-		if (auto transform = aRegistry.try_get<Transform>(child))
-		{
-			entt::entity entity = transform->Find(aRegistry, aName);
-			if (aRegistry.valid(entity))
-				return entity;
-		}
-	}
-
-	return entt::null;
+	return child;
 }
 
 void Transform::Destroy(entt::registry& aRegistry)
@@ -58,6 +58,24 @@ void Transform::Destroy(entt::registry& aRegistry)
 
 	if (auto t = aRegistry.try_get<Transform>(parent))
 		t->RemoveChild(entity);
+}
+
+entt::entity Transform::Find(const entt::registry& aRegistry, std::string_view aName) const
+{
+	if (aName == myName)
+		return myEntity;
+
+	for (entt::entity child : myChildren)
+	{
+		if (auto transform = aRegistry.try_get<Transform>(child))
+		{
+			entt::entity entity = transform->Find(aRegistry, aName);
+			if (aRegistry.valid(entity))
+				return entity;
+		}
+	}
+
+	return entt::null;
 }
 
 size_t Transform::GetDepth(const entt::registry& aRegistry) const

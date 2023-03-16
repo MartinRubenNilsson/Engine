@@ -5,6 +5,13 @@
 
 void ImGui::Hierarchy(entt::registry& aRegistry)
 {
+	if (BeginPopupContextWindow())
+	{
+		if (Selectable("Create Root"))
+			Transform::Create(aRegistry);
+		EndPopup();
+	}
+
 	// Hierarchy is traversed depth-first using a stack.
 	// The stack is initialized to contain all root entities.
 
@@ -16,7 +23,9 @@ void ImGui::Hierarchy(entt::registry& aRegistry)
 			stack.push_back(entity);
 	}
 
-	while (!stack.empty())
+	bool changed = false;
+
+	while (!changed && !stack.empty())
 	{
 		entt::entity entity = stack.back();
 		stack.pop_back();
@@ -41,6 +50,21 @@ void ImGui::Hierarchy(entt::registry& aRegistry)
 		if (IsItemClicked() && !IsItemToggledOpen())
 			Select({ aRegistry, entity });
 
+		if (BeginPopupContextItem(std::to_string(std::to_underlying(entity)).c_str()))
+		{
+			if (Selectable("Delete"))
+			{
+				transform.Destroy(aRegistry);
+				changed = true;
+			}
+			if (Selectable("Create Child"))
+			{
+				transform.CreateChild(aRegistry);
+				changed = true;
+			}
+			EndPopup();
+		}
+
 		if (BeginDragDropSource())
 		{
 			SetDragDropPayload("entity", &entity, sizeof(entt::entity));
@@ -55,9 +79,7 @@ void ImGui::Hierarchy(entt::registry& aRegistry)
 				if (auto otherTrans = aRegistry.try_get<Transform>(otherEntity))
 				{
 					otherTrans->SetParent(aRegistry, entity); // Invalidates stack
-					if (open)
-						TreePop();
-					break; 
+					changed = true;
 				}
 			}
 			EndDragDropTarget();
@@ -74,9 +96,4 @@ void ImGui::Hierarchy(entt::registry& aRegistry)
 		if (depth)
 			Unindent(GetStyle().IndentSpacing * depth);
 	}
-
-	entt::entity selection = GetSelectedFront(aRegistry);
-
-	if (IsKeyPressed(ImGuiKey_Delete) && aRegistry.all_of<Transform>(selection))
-		aRegistry.get<Transform>(selection).Destroy(aRegistry);
 }

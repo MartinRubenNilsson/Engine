@@ -3,11 +3,14 @@
 class Transform
 {
 public:
+	static Transform& Create(entt::registry&);
 	static Transform& CreateHierarchy(entt::registry&, aiNode*); // Recursive
 
-	entt::entity Find(const entt::registry&, std::string_view aName) const;
+	Transform& CreateChild(entt::registry&);
 
 	void Destroy(entt::registry&); // Recursive, destroys children as well
+
+	entt::entity Find(const entt::registry&, std::string_view aName) const;
 
 	size_t GetDepth(const entt::registry&) const;
 
@@ -40,7 +43,7 @@ private:
 
 	entt::entity myEntity{ entt::null }, myParent{ entt::null };
 	std::vector<entt::entity> myChildren{};
-	std::string myName{};
+	std::string myName{ "Entity" };
 	Matrix myLocalMatrix{};
 };
 
