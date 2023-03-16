@@ -204,7 +204,7 @@
     <ClInclude Include="EnttCommon.h" />
     <ClInclude Include="FullscreenPass.h" />
     <ClInclude Include="Inspector.h" />
-    <ClInclude Include="JsonArchive.h" />
+    <ClInclude Include="EnttSerialization.h" />
     <ClInclude Include="Light.h" />
     <ClInclude Include="Picker.h" />
     <ClInclude Include="Renderer.h" />
@@ -241,7 +241,7 @@
     <ClCompile Include="EnttCommon.cpp" />
     <ClCompile Include="FullscreenPass.cpp" />
     <ClCompile Include="Inspector.cpp" />
-    <ClCompile Include="JsonArchive.cpp" />
+    <ClCompile Include="EnttSerialization.cpp" />
     <ClCompile Include="Light.cpp" />
     <ClCompile Include="Picker.cpp" />
     <ClCompile Include="Renderer.cpp" />

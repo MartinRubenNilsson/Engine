@@ -91,14 +91,18 @@
     <ClInclude Include="Cubemap.h">
       <Filter>components</Filter>
     </ClInclude>
-    <ClInclude Include="JsonArchive.h" />
     <ClInclude Include="SceneViewManipulate.h">
       <Filter>editor</Filter>
     </ClInclude>
     <ClInclude Include="Picker.h">
       <Filter>editor</Filter>
     </ClInclude>
-    <ClInclude Include="EnttCommon.h" />
+    <ClInclude Include="EnttSerialization.h">
+      <Filter>entt</Filter>
+    </ClInclude>
+    <ClInclude Include="EnttCommon.h">
+      <Filter>entt</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
@@ -180,14 +184,18 @@
     <ClCompile Include="Cubemap.cpp">
       <Filter>components</Filter>
     </ClCompile>
-    <ClCompile Include="JsonArchive.cpp" />
     <ClCompile Include="SceneViewManipulate.cpp">
       <Filter>editor</Filter>
     </ClCompile>
     <ClCompile Include="Picker.cpp">
       <Filter>editor</Filter>
     </ClCompile>
-    <ClCompile Include="EnttCommon.cpp" />
+    <ClCompile Include="EnttCommon.cpp">
+      <Filter>entt</Filter>
+    </ClCompile>
+    <ClCompile Include="EnttSerialization.cpp">
+      <Filter>entt</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="graphics">
@@ -228,6 +236,9 @@
     </Filter>
     <Filter Include="shaders\fullscreen\output">
       <UniqueIdentifier>{99fb8719-0e28-4466-8b47-619b3efd59ce}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="entt">
+      <UniqueIdentifier>{1ff725ee-0f58-476a-a8f5-08b5b9be5276}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

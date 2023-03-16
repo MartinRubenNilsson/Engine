@@ -3,13 +3,11 @@
 class Scene
 {
 public:
-	using Ptr = std::shared_ptr<const Scene>;
-
 	Scene() = default;
 	Scene(const fs::path&);
 
 	const fs::path& GetPath() const { return myPath; }
-	entt::registry& GetRegistry() const { return myRegistry; }
+	const entt::registry& GetRegistry() const { return myRegistry; }
 
 	explicit operator bool() const;
 
@@ -18,7 +16,7 @@ private:
 	void ImportArchive(const fs::path&);
 
 	fs::path myPath{};
-	mutable entt::registry myRegistry{};
+	entt::registry myRegistry{};
 };
 
 using SceneFactory = AssetFactory<Scene>;

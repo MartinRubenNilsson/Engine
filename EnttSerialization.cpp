@@ -1,5 +1,5 @@
 #include "pch.h"
-#include "JsonArchive.h"
+#include "EnttSerialization.h"
 #include "Transform.h"
 #include "Camera.h"
 
@@ -39,38 +39,26 @@ namespace
 	};
 }
 
-JsonArchive::JsonArchive(const fs::path& aPath)
+void entt::to_json(json& j, const registry& reg)
 {
-	std::ifstream file{ aPath };
-	if (!file)
-		return;
+	j.clear();
 
-	myJson = json::parse(file);
-}
+	OutputArchive transforms{ j["transforms"] };
+	OutputArchive cameras{ j["cameras"] };
 
-void JsonArchive::Serialize(const entt::registry& aRegistry)
-{
-	myJson.clear();
-
-	OutputArchive transforms{ myJson["transforms"] };
-	OutputArchive cameras{ myJson["cameras"] };
-
-	entt::snapshot{ aRegistry }
+	entt::snapshot{ reg }
 		.component<Transform>(transforms)
 		.component<Camera>(cameras);
 }
 
-void JsonArchive::Deserialize(entt::registry& aRegistry) const
+void entt::from_json(const json& j, registry& reg)
 {
-	InputArchive transforms{ myJson.at("transforms") };
-	InputArchive cameras{ myJson.at("cameras") };
+	reg.clear();
 
-	entt::snapshot_loader{ aRegistry }
+	InputArchive transforms{ j.at("transforms") };
+	InputArchive cameras{ j.at("cameras") };
+
+	entt::snapshot_loader{ reg }
 		.component<Transform>(transforms)
 		.component<Camera>(cameras);
-}
-
-JsonArchive::operator bool() const
-{
-	return !myJson.empty();
 }

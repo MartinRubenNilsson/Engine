@@ -5,7 +5,7 @@
 #include "Light.h"
 #include "Material.h"
 #include "Mesh.h"
-#include "JsonArchive.h"
+#include "EnttSerialization.h"
 
 #pragma comment(lib, "assimp-vc142-mt")
 
@@ -95,7 +95,13 @@ void Scene::ImportAsset(const fs::path& aPath)
 
 void Scene::ImportArchive(const fs::path& aPath)
 {
-    JsonArchive archive{ aPath };
-    if (archive)
-        archive.Deserialize(myRegistry);
+    std::ifstream file{ aPath };
+    if (!file)
+        return;
+
+    json j{ json::parse(file, nullptr, false) };
+    if (j.is_discarded())
+        return;
+
+    j.get_to(myRegistry);
 }

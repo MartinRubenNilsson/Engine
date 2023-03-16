@@ -14,7 +14,7 @@
 #include "Inspector.h"
 #include "Tags.h"
 #include "Cubemap.h"
-#include "JsonArchive.h"
+#include "EnttSerialization.h"
 #include "SceneViewManipulate.h"
 #include "Picker.h"
 #include "Transform.h"
@@ -77,10 +77,10 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
     CubemapFactory cubemapFactory{};
     SceneFactory sceneFactory{};
 
-    Scene::Ptr scene{};
-
     Camera camera{};
     Matrix cameraTransform{};
+
+    entt::registry registry{};
 
     bool run = true;
     MSG msg{};
@@ -109,20 +109,15 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
         // Drag and drop
         if (theDrop)
         {
-            fs::path path{ theDrop.GetPaths().front() };
-            theDrop = {};
-
-            scene = sceneFactory.GetAsset(path);
-
-            if (scene)
+            for (fs::path& path : theDrop.GetPaths())
             {
-                JsonArchive archive{};
-                archive.Serialize(scene->GetRegistry());
-
-                std::ofstream file{ path.parent_path() / "registry.json" };
-                if (file)
-                    file << std::setw(4) << archive.GetJson();
+                if (auto scene = sceneFactory.GetAsset(path))
+                {
+                    json j = scene->GetRegistry();
+                    registry = j;
+                }
             }
+            theDrop = {};
         }
 
         // ImGui & Editor
@@ -131,52 +126,43 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
 
             ImGui::SceneViewManipulate(cameraTransform);
 
-            if (scene)
-                ImGui::Picker(scene->GetRegistry());
-
-            ImGui::Begin(ICON_FA_LIST" Hierarchy");
-            if (scene)
-                ImGui::Hierarchy(scene->GetRegistry());
-            ImGui::End();
-
-            ImGui::Begin(ICON_FA_CIRCLE_INFO" Inspector");
-            if (scene)
-                ImGui::Inspector(scene->GetRegistry());
-            ImGui::End();
-
-            if (scene)
-            {
-                // todo: move somewhere else
-                auto& reg = scene->GetRegistry();
-
-                entt::entity selection{ reg.view<Tag::Selected>().front() };
-
-                if (auto transform = reg.try_get<Transform>(selection))
-                {
-                    static ImGuizmo::OPERATION op = ImGuizmo::TRANSLATE;
-                    static ImGuizmo::MODE mode = ImGuizmo::LOCAL;
-
-                    if (ImGui::IsKeyPressed(ImGuiKey_W))
-                        op = ImGuizmo::TRANSLATE;
-                    if (ImGui::IsKeyPressed(ImGuiKey_E))
-                        op = ImGuizmo::ROTATE;
-                    if (ImGui::IsKeyPressed(ImGuiKey_R))
-                        op = ImGuizmo::SCALE;
-
-                    if (ImGui::IsKeyPressed(ImGuiKey_X))
-                        mode = static_cast<ImGuizmo::MODE>(1 - mode);
-
-                    Matrix m = transform->GetWorldMatrix(reg);
-                    ImGui::Manipulate(camera, cameraTransform, op, mode, m);
-                    transform->SetWorldMatrix(reg, m);
-                }
-            }
+            ImGui::Picker(registry);
 
             ImGui::Begin(ICON_FA_EYE" Renderer");
             ImGui::InspectRenderer(renderer);
             ImGui::End();
 
-            renderer.SetCamera(camera, cameraTransform);
+            ImGui::Begin(ICON_FA_LIST" Hierarchy");
+            ImGui::Hierarchy(registry);
+            ImGui::End();
+
+            ImGui::Begin(ICON_FA_CIRCLE_INFO" Inspector");
+            ImGui::Inspector(registry);
+            ImGui::End();
+
+            // todo: move somewhere else
+
+            entt::entity selection{ registry.view<Tag::Selected>().front() };
+
+            if (auto transform = registry.try_get<Transform>(selection))
+            {
+                static ImGuizmo::OPERATION op = ImGuizmo::TRANSLATE;
+                static ImGuizmo::MODE mode = ImGuizmo::LOCAL;
+
+                if (ImGui::IsKeyPressed(ImGuiKey_W))
+                    op = ImGuizmo::TRANSLATE;
+                if (ImGui::IsKeyPressed(ImGuiKey_E))
+                    op = ImGuizmo::ROTATE;
+                if (ImGui::IsKeyPressed(ImGuiKey_R))
+                    op = ImGuizmo::SCALE;
+
+                if (ImGui::IsKeyPressed(ImGuiKey_X))
+                    mode = static_cast<ImGuizmo::MODE>(1 - mode);
+
+                Matrix m = transform->GetWorldMatrix(registry);
+                ImGui::Manipulate(camera, cameraTransform, op, mode, m);
+                transform->SetWorldMatrix(registry, m);
+            }
         }
 
         mouse.EndOfInputFrame();
@@ -184,12 +170,12 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
 
         // Rendering
         {
-            ScopedViewports scopedViewport{ backBuffer.GetViewport() };
             ScopedTargets scopedTarget{ backBuffer.GetTarget() };
+            ScopedViewports scopedViewport{ backBuffer.GetViewport() };
 
             backBuffer.Clear();
-            if (scene)
-                renderer.Render(scene->GetRegistry());
+            renderer.SetCamera(camera, cameraTransform);
+            renderer.Render(registry);
             imGui.Render();
 
             backBuffer.Present();
