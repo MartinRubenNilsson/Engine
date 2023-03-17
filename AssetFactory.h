@@ -25,6 +25,8 @@ public:
 		return asset;
 	}
 
+	const auto& GetAssets() const { return myAssets; }
+
 private:
 	std::unordered_map<Path, Ptr> myAssets{};
 };

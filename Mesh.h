@@ -7,7 +7,7 @@ public:
 
 	/*
 	* The first arg is copied to a member but otherwise unused during object creation.
-	* Nevertheless, users must always pass the path of the .fbx containing the mesh.
+	* Nevertheless, users must always pass the path of the asset containing the mesh.
 	*/
 	Mesh(const fs::path&, const aiMesh&);
 
@@ -39,6 +39,6 @@ private:
 
 namespace ImGui
 {
-	void Inspect(const Mesh& aMesh);
+	void Inspect(Mesh& aMesh);
 }
 

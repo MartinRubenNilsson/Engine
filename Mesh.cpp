@@ -10,13 +10,18 @@ Mesh::Mesh(const fs::path& aPath, const aiMesh& aMesh)
 	: myPath{ aPath }
 	, myName{ aMesh.mName.C_Str() }
 {
-	assert(aMesh.HasPositions());
-	assert(aMesh.HasNormals());
-	assert(aMesh.HasTangentsAndBitangents());
-	assert(aMesh.GetNumUVChannels() == 1);
-	assert(aMesh.mNumUVComponents[0] == 2);
-	assert(aMesh.HasFaces());
-	assert(aMesh.mPrimitiveTypes == aiPrimitiveType_TRIANGLE);
+	if (!aMesh.HasPositions())
+		return;
+	if (!aMesh.HasFaces())
+		return;
+	if (aMesh.mPrimitiveTypes != aiPrimitiveType_TRIANGLE)
+		return;
+	if (!aMesh.HasTangentsAndBitangents())
+		return;
+	if (aMesh.GetNumUVChannels() != 1)
+		return;
+	if (aMesh.mNumUVComponents[0] != 2)
+		return;
 
 	const unsigned vertexCount{ aMesh.mNumVertices };
 	const unsigned indexCount{ aMesh.mNumFaces * 3 };
@@ -124,14 +129,46 @@ void from_json(const json& j, Mesh& m)
 * namespace ImGui
 */
 
-void ImGui::Inspect(const Mesh& aMesh)
+void ImGui::Inspect(Mesh& aMesh)
 {
-	auto& box = aMesh.GetBoundingBox();
+	auto& factory = SceneFactory::Get();
 
-	Text("Asset: %s", aMesh.GetPath().filename().string().c_str());
-	Text("Name: %s", aMesh.GetName().data());
+	if (BeginCombo("Filename", aMesh.GetPath().filename().string().c_str()))
+	{
+		for (auto& [path, scene] : factory.GetAssets())
+		{
+			bool selected = (path == aMesh.GetPath());
+			if (Selectable(path.filename().string().c_str(), selected))
+			{
+				aMesh = { path, aiMesh{} };
+				break;
+			}
+		}
+
+		EndCombo();
+	}
+
+	if (BeginCombo("Mesh Name", aMesh.GetName().data()))
+	{
+		if (auto scene = factory.GetAsset(aMesh.GetPath()))
+		{
+			for (auto [entity, mesh] : scene->GetRegistry().view<Mesh>().each())
+			{
+				bool selected = (mesh.GetName() == aMesh.GetName());
+				if (Selectable(mesh.GetName().data(), selected))
+				{
+					aMesh = mesh;
+					break;
+				}
+			}
+		}
+		EndCombo();
+	}
+
 	Value("Vertices", aMesh.GetVertexCount());
 	Value("Triangles", aMesh.GetIndexCount() / 3);
+
+	auto& box = aMesh.GetBoundingBox();
 	Text("Center: (%.2g, %.2g, %.2g)", box.Center.x, box.Center.y, box.Center.z);
 	Text("Extents: (%.2g, %.2g, %.2g)", box.Extents.x, box.Extents.y, box.Extents.z);
 }

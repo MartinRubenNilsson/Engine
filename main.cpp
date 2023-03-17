@@ -21,6 +21,13 @@
 #include "Inspector.h"
 #include "Picker.h"
 
+enum class PlayMode // todo: use for somethings
+{
+    Play  = 1 << 0,
+    Pause = 1 << 1,
+    // Step  = 1 << 2,
+};
+
 LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 namespace
