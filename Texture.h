@@ -36,13 +36,17 @@ private:
 	friend void to_json(json&, const Texture::Ptr&);
 	friend void from_json(const json&, Texture::Ptr&);
 
-	HRESULT myResult{ E_FAIL };
+	fs::path myPath{};
 	TexturePtr myTexture{};
 	ShaderResourcePtr myShaderResource{};
-	fs::path myPath{};
 	TextureType myType{};
 	unsigned myWidth{}, myHeight{};
+	HRESULT myResult{ E_FAIL };
 };
 
 using TextureFactory = AssetFactory<Texture>;
 
+namespace ImGui
+{
+	//void Inspect(Texture::Ptr&); // todo
+}

@@ -1,7 +1,6 @@
 #pragma once
 #include "Singleton.h"
 #include <filesystem>
-#include <memory>
 #include <unordered_map>
 
 template <class T>
@@ -17,7 +16,7 @@ public:
 		auto itr = myAssets.find(aPath);
 		if (itr != myAssets.end())
 			return itr->second;
-
+		
 		Ptr asset = std::make_shared<T>(aPath, std::forward<Args>(someArgs)...);
 		if (!asset->operator bool())
 			return nullptr; // todo: add warning printout?

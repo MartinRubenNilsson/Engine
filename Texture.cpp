@@ -55,6 +55,7 @@ unsigned TextureTypeToChannels(TextureType aType)
 */
 
 Texture::Texture(const fs::path& aPath, TextureType aType)
+    : myPath{ aPath }
 {
     if (aType == TextureType::Unknown)
         return;
@@ -88,7 +89,6 @@ Texture::Texture(const fs::path& aPath, TextureType aType)
 
     DX11_CONTEXT->GenerateMips(myShaderResource.Get());
 
-    myPath = aPath;
     myType = aType;
     myWidth = image.GetWidth();
     myHeight = image.GetHeight();

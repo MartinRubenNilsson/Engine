@@ -71,12 +71,16 @@ void Scene::ImportAsset(const fs::path& aPath)
         fs::current_path(currPath);
     }
 
-    // 5. Load meshes and pair up with materials
+    // 5. Load meshes and their material indices
 
-    std::vector<std::pair<Mesh, Material>> meshes{};
+    std::vector<Mesh> meshes{};
+    std::vector<unsigned> meshIndexToMaterialIndex{};
 
     for (aiMesh* mesh : std::span{ scene->mMeshes, scene->mNumMeshes })
-        meshes.emplace_back(*mesh, materials.at(mesh->mMaterialIndex));
+    {
+        meshes.emplace_back(aPath, *mesh);
+        meshIndexToMaterialIndex.push_back(mesh->mMaterialIndex);
+    }
 
     // 6. Add meshes and materials to registry
 
@@ -84,9 +88,9 @@ void Scene::ImportAsset(const fs::path& aPath)
     {
         for (unsigned meshIndex : std::span{ node->mMeshes, node->mNumMeshes })
         {
-            auto& [mesh, material] = meshes.at(meshIndex);
-            myRegistry.emplace<Mesh>(entity, mesh);
-            myRegistry.emplace<Material>(entity, material);
+            unsigned materialIndex = meshIndexToMaterialIndex.at(meshIndex);
+            myRegistry.emplace<Mesh>(entity, meshes.at(meshIndex));
+            myRegistry.emplace<Material>(entity, materials.at(materialIndex));
         }
 
         myRegistry.erase<aiNode*>(entity);

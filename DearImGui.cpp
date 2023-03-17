@@ -48,7 +48,7 @@ void DearImGui::AddFonts()
 
     ImFontConfig config{};
     config.PixelSnapH = true;
-    config.GlyphOffset.y = 2.f;
+    config.GlyphOffset.y = 1.f;
     config.GlyphRanges = glyphRanges;
     config.MergeMode = true;
 

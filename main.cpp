@@ -6,18 +6,20 @@
 #include "InputLayoutFactory.h"
 #include "BackBuffer.h"
 #include "Renderer.h"
-#include "Texture.h"
-#include "Scene.h"
 #include "Scopes.h"
-#include "Camera.h"
-#include "Hierarchy.h"
-#include "Inspector.h"
-#include "Tags.h"
+
+#include "Texture.h"
 #include "Cubemap.h"
+#include "Scene.h"
+#include "Camera.h"
+#include "Transform.h"
+#include "Tags.h"
+
 #include "EnttSerialization.h"
 #include "SceneViewManipulate.h"
+#include "Hierarchy.h"
+#include "Inspector.h"
 #include "Picker.h"
-#include "Transform.h"
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 

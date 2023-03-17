@@ -3,28 +3,38 @@
 class Mesh
 {
 public:
-	Mesh(const aiMesh&);
+	Mesh() = default;
+
+	/*
+	* The first arg is copied to a member but otherwise unused during object creation.
+	* Nevertheless, users must always pass the path of the .fbx containing the mesh.
+	*/
+	Mesh(const fs::path&, const aiMesh&);
 
 	/*
 	* Sets vertex and index buffers, then dispatches a draw call.
-	* Make sure to update constant buffers and set shaders before calling.
+	* Caller needs to update constant buffers and set shaders themselves before calling.
 	*/
 	void Draw() const;
 
+	const fs::path& GetPath() const { return myPath; }
 	std::string_view GetName() const { return myName; }
 	unsigned GetVertexCount() const { return myVertexCount; }
 	unsigned GetIndexCount() const { return myIndexCount; }
-	unsigned GetTriangleCount() const { return myTriangleCount; }
 	const BoundingBox& GetBoundingBox() const { return myBoundingBox; }
 
 	explicit operator bool() const;
 
 private:
+	friend void to_json(json&, const Mesh&);
+	friend void from_json(const json&, Mesh&);
+
+	fs::path myPath{};
 	std::string myName{};
-	HRESULT myResult{ E_FAIL };
 	BufferPtr myVertexBuffer{}, myIndexBuffer{};
-	unsigned myVertexCount{}, myIndexCount{}, myTriangleCount{};
+	unsigned myVertexCount{}, myIndexCount{};
 	BoundingBox myBoundingBox{};
+	HRESULT myResult{ E_FAIL };
 };
 
 namespace ImGui

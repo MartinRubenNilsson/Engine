@@ -1,12 +1,14 @@
 #include "pch.h"
 #include "Mesh.h"
+#include "Scene.h"
 
 /*
 * class Mesh
 */
 
-Mesh::Mesh(const aiMesh& aMesh)
-	: myName{ aMesh.mName.C_Str() }
+Mesh::Mesh(const fs::path& aPath, const aiMesh& aMesh)
+	: myPath{ aPath }
+	, myName{ aMesh.mName.C_Str() }
 {
 	assert(aMesh.HasPositions());
 	assert(aMesh.HasNormals());
@@ -68,7 +70,6 @@ Mesh::Mesh(const aiMesh& aMesh)
 
 	myVertexCount = vertexCount;
 	myIndexCount = indexCount;
-	myTriangleCount = triangleCount;
 
 	BoundingBox::CreateFromPoints(
 		myBoundingBox,
@@ -95,6 +96,30 @@ Mesh::operator bool() const
 	return SUCCEEDED(myResult);
 }
 
+void to_json(json& j, const Mesh& m)
+{
+	j["path"] = m.myPath;
+	j["name"] = m.myName;
+}
+
+void from_json(const json& j, Mesh& m)
+{
+	const fs::path path = j.at("path");
+	const std::string name = j.at("name");
+
+	if (auto scene = SceneFactory::Get().GetAsset(path))
+	{
+		for (auto [entity, mesh] : scene->GetRegistry().view<Mesh>().each())
+		{
+			if (path == mesh.GetPath() && name == mesh.GetName())
+			{
+				m = mesh;
+				break;
+			}
+		}
+	}
+}
+
 /*
 * namespace ImGui
 */
@@ -103,10 +128,10 @@ void ImGui::Inspect(const Mesh& aMesh)
 {
 	auto& box = aMesh.GetBoundingBox();
 
+	Text("Asset: %s", aMesh.GetPath().filename().string().c_str());
 	Text("Name: %s", aMesh.GetName().data());
 	Value("Vertices", aMesh.GetVertexCount());
-	Value("Indices", aMesh.GetIndexCount());
-	Value("Triangles", aMesh.GetTriangleCount());
+	Value("Triangles", aMesh.GetIndexCount() / 3);
 	Text("Center: (%.2g, %.2g, %.2g)", box.Center.x, box.Center.y, box.Center.z);
 	Text("Extents: (%.2g, %.2g, %.2g)", box.Extents.x, box.Extents.y, box.Extents.z);
 }
