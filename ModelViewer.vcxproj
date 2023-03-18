@@ -202,6 +202,7 @@
     <ClInclude Include="Drop.h" />
     <ClInclude Include="DX11.h" />
     <ClInclude Include="EnttCommon.h" />
+    <ClInclude Include="FileMenu.h" />
     <ClInclude Include="FullscreenPass.h" />
     <ClInclude Include="Inspector.h" />
     <ClInclude Include="EnttSerialization.h" />
@@ -241,6 +242,7 @@
     <ClCompile Include="Drop.cpp" />
     <ClCompile Include="DX11.cpp" />
     <ClCompile Include="EnttCommon.cpp" />
+    <ClCompile Include="FileMenu.cpp" />
     <ClCompile Include="FullscreenPass.cpp" />
     <ClCompile Include="Inspector.cpp" />
     <ClCompile Include="EnttSerialization.cpp" />

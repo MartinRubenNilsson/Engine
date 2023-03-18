@@ -1,7 +1,13 @@
 #include "pch.h"
 #include "Window.h"
 
-ATOM Window::Register(WNDPROC aWndProc)
+Window::Window()
+	: myWindow{ nullptr, DestroyWindow }
+{
+}
+
+Window::Window(WNDPROC aWndProc)
+	: Window{}
 {
 	WNDCLASS wndClass{};
 	wndClass.style = 0;
@@ -15,20 +21,12 @@ ATOM Window::Register(WNDPROC aWndProc)
 	wndClass.lpszMenuName = NULL;
 	wndClass.lpszClassName = L"Window";
 
-	return RegisterClass(&wndClass);
-}
+	if (RegisterClass(&wndClass) == 0)
+		return;
 
-Window::Window()
-	: myWindow{ nullptr, DestroyWindow }
-{
-}
-
-Window::Window(ATOM anAtom)
-	: Window{}
-{
 	myWindow.reset(CreateWindowEx(
 		WS_EX_ACCEPTFILES,
-		MAKEINTATOM(anAtom),
+		wndClass.lpszClassName,
 		NULL,
 		WS_OVERLAPPEDWINDOW | WS_VISIBLE,
 		CW_USEDEFAULT, CW_USEDEFAULT,
@@ -58,6 +56,11 @@ RECT Window::GetClientRect() const
 	RECT rect{};
 	::GetClientRect(myWindow.get(), &rect);
 	return rect;
+}
+
+Window::operator HWND() const
+{
+	return myWindow.get();
 }
 
 Window::operator bool() const

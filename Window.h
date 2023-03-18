@@ -1,18 +1,16 @@
 #pragma once
 
-class Window
+class Window : public Singleton<Window>
 {
 public:
-	static ATOM Register(WNDPROC);
-
 	Window();
-	Window(ATOM);
+	Window(WNDPROC);
 
 	void SetTitle(std::wstring_view);
 	std::wstring GetTitle() const;
 	RECT GetClientRect() const;
 
-	operator HWND() const { return myWindow.get(); }
+	operator HWND() const;
 	explicit operator bool() const;
 
 private:

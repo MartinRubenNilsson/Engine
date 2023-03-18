@@ -27,6 +27,7 @@
 #include "Inspector.h"
 #include "Picker.h"
 #include "PlayControls.h"
+#include "FileMenu.h"
 
 namespace
 {
@@ -47,7 +48,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
 {
     fs::current_path(GetModulePath().remove_filename());
 
-    Window window{ Window::Register(WndProc) };
+    Window window{ WndProc };
     if (!window)
         return EXIT_FAILURE;
 
@@ -169,63 +170,24 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
             using namespace ImGui;
             using ImGui::EndMenu;
 
-            bool saveAs = false;
+            FileCommand fileCmd = FileCommand::None;
+            fs::path path{};
 
             if (BeginMainMenuBar())
             {
                 if (BeginMenu("File"))
                 {
-                    if (MenuItem("New Scene"))
-                    {
-                        Debug::Println("Todo");
-                    }
-                    if (BeginMenu("Open Scene"))
-                    {
-                        for (const auto& entry : fs::directory_iterator{ "assets/scenes" })
-                        {
-                            if (entry.is_regular_file() && entry.path().extension() == ".json")
-                            {
-                                if (MenuItem(entry.path().stem().string().c_str()))
-                                {
-                                    Debug::Println("Todo");
-                                }
-                            }
-                        }
-                        EndMenu();
-                    }
-                    Separator();
-                    if (MenuItem("Save"))
-                    {
-                        Debug::Println("Todo");
-                    }
-                    if (MenuItem("Save As..."))
-                        saveAs = true;
-                    Separator();
-                    if (MenuItem("Exit"))
-                        return EXIT_SUCCESS;
+                    fileCmd = FileMenu(path);
                     EndMenu();
                 }
                 EndMainMenuBar();
             }
 
-            if (saveAs)
-                OpenPopup("Save As...");
-            
-            SetNextWindowPos(GetMainViewport()->GetCenter(), ImGuiCond_Appearing, { 0.5f, 0.5f });
-            
-            if (BeginPopupModal("Save As...", NULL, ImGuiWindowFlags_AlwaysAutoResize))
+            switch (fileCmd)
             {
-                static std::string name{};
-                InputText("Name", &name);
-                if (Button("Save"))
-                {
-                    Debug::Println(name);
-                    CloseCurrentPopup();
-                }
-                SameLine();
-                if (Button("Cancel"))
-                    CloseCurrentPopup();
-                EndPopup();
+            case FileCommand::Exit:
+                return EXIT_SUCCESS;
+                break;
             }
 
             Begin(ICON_FA_EYE" Renderer");
