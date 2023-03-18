@@ -11,15 +11,18 @@ void ImGui::Manipulator(entt::registry& aRegistry, Camera& aCamera, Matrix& aCam
     static OPERATION operation = TRANSLATE;
     static MODE mode = LOCAL;
 
-    if (IsKeyPressed(ImGuiKey_W))
-        operation = TRANSLATE;
-    if (IsKeyPressed(ImGuiKey_E))
-        operation = ROTATE;
-    if (IsKeyPressed(ImGuiKey_R))
-        operation = SCALE;
+    if (Mouse::Get().GetState().positionMode == Mouse::MODE_ABSOLUTE)
+    {
+        if (IsKeyPressed(ImGuiKey_W))
+            operation = TRANSLATE;
+        if (IsKeyPressed(ImGuiKey_E))
+            operation = ROTATE;
+        if (IsKeyPressed(ImGuiKey_R))
+            operation = SCALE;
 
-    if (IsKeyPressed(ImGuiKey_X))
-        mode = static_cast<MODE>(1 - mode);
+        if (IsKeyPressed(ImGuiKey_X))
+            mode = static_cast<MODE>(1 - mode);
+    }
 
     SetOrthographic(aCamera.GetType() == CameraType::Orthographic);
 

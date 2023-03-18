@@ -366,7 +366,7 @@ void Renderer::RenderLights(const entt::registry& aRegistry)
 		RenderSpotLights(sLights);
 	}
 
-	if (auto cubemap = CubemapFactory::Get().GetAsset("cubemap/hdr/Newport_Loft_Ref.hdr"))
+	if (auto cubemap = CubemapFactory::Get().GetAsset("assets/cubemaps/Newport_Loft_Ref.hdr"))
 	{
 		ScopedResources scopedCubemap{ ShaderType::Pixel, t_EnvironmentMap, cubemap->GetMaps() };
 		FullscreenPass{ "PsImageBasedLight.cso" }.Render();
