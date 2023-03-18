@@ -86,10 +86,19 @@ void Renderer::SetCamera(Camera aCamera, const Matrix& aTransform)
 	if (aCamera.useScreenAspect)
 		aCamera.SetAspect(static_cast<float>(myWidth) / myHeight);
 
+	// Update bounding frustum
+	{
+		BoundingFrustum::CreateFromMatrix(myFrustum, aCamera.GetProjMatrix());
+		myFrustum.Transform(myFrustum, aTransform);
+	}
+
+	if (USE_REVERSE_Z)
+		aCamera.SwapNearAndFarZ();
+
 	// Update constant buffer
 	{
 		CameraBuffer buffer{};
-		buffer.viewProj = aTransform.Invert() * GetDefaultViewMatrix() * aCamera.GetProjMatrix(USE_REVERSE_Z);
+		buffer.viewProj = aTransform.Invert() * GetDefaultViewMatrix() * aCamera.GetProjMatrix();
 		buffer.invViewProj = buffer.viewProj.Invert();
 		buffer.clipPlanes.x = aCamera.GetNearZ();
 		buffer.clipPlanes.y = aCamera.GetFarZ();
@@ -97,12 +106,6 @@ void Renderer::SetCamera(Camera aCamera, const Matrix& aTransform)
 		buffer.position.w = 1.f;
 
 		myCBuffers.at(b_Camera).Update(&buffer);
-	}
-
-	// Update bounding frustum
-	{
-		BoundingFrustum::CreateFromMatrix(myFrustum, aCamera.GetProjMatrix() );
-		myFrustum.Transform(myFrustum, aTransform);
 	}
 }
 
@@ -332,13 +335,17 @@ void Renderer::RenderLights(const entt::registry& aRegistry)
 			if (!light.enabled)
 				continue;
 
-			const Matrix worldMatrix{ transform.GetWorldMatrix(aRegistry) }; // todo: remove scale
+			const Matrix worldMatrix{ transform.GetWorldMatrix(aRegistry) };
 
 			// todo: culling
 
+			Vector3 pos = worldMatrix.Translation();
+			Vector3 dir = worldMatrix.Forward();
+			dir.Normalize();
+
 			LightBuffer buffer{ light.GetBuffer() };
-			Vector4::Transform(buffer.position, worldMatrix, buffer.position);
-			Vector4::Transform(buffer.direction, worldMatrix, buffer.direction);
+			buffer.position = { pos.x, pos.y, pos.z, 1.f };
+			buffer.direction = { dir.x, dir.y, dir.z, 0.f };
 
 			switch (light.GetType())
 			{

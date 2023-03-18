@@ -22,7 +22,7 @@ public:
 	void SetType(CameraType aType) { myType = aType; }
 	CameraType GetType() const { return myType; }
 
-	Matrix GetProjMatrix(bool aReverseZ = false) const;
+	Matrix GetProjMatrix() const;
 
 	void SetAspect(float);
 	float GetAspect() const { return myAspect; }
@@ -30,6 +30,8 @@ public:
 	float GetNearZ() const { return myNearZ; }
 	void SetFarZ(float);
 	float GetFarZ() const { return myFarZ; }
+
+	void SwapNearAndFarZ();
 
 private:
 	friend void from_json(const json&, Camera&);

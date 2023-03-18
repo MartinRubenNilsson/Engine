@@ -138,13 +138,12 @@ void ImGui::Inspect(Mesh& aMesh)
 		for (auto& [path, scene] : factory.GetAssets())
 		{
 			bool selected = (path == aMesh.GetPath());
-			if (Selectable(path.filename().string().c_str(), selected))
+			if (Selectable(path.filename().string().c_str(), selected) && !selected)
 			{
 				aMesh = { path, aiMesh{} };
 				break;
 			}
 		}
-
 		EndCombo();
 	}
 
@@ -155,7 +154,7 @@ void ImGui::Inspect(Mesh& aMesh)
 			for (auto [entity, mesh] : scene->GetRegistry().view<Mesh>().each())
 			{
 				bool selected = (mesh.GetName() == aMesh.GetName());
-				if (Selectable(mesh.GetName().data(), selected))
+				if (Selectable(mesh.GetName().data(), selected) && !selected)
 				{
 					aMesh = mesh;
 					break;

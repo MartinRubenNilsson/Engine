@@ -104,6 +104,9 @@
       <Filter>entt</Filter>
     </ClInclude>
     <ClInclude Include="Manipulator.h" />
+    <ClInclude Include="PlaybackControls.h">
+      <Filter>components</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
@@ -198,6 +201,9 @@
       <Filter>entt</Filter>
     </ClCompile>
     <ClCompile Include="Manipulator.cpp" />
+    <ClCompile Include="PlaybackControls.cpp">
+      <Filter>components</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="graphics">

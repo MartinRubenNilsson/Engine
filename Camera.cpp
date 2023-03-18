@@ -27,17 +27,11 @@ Camera::Camera(const aiCamera& aCamera)
 	}
 }
 
-Matrix Camera::GetProjMatrix(bool aReverseZ) const
+Matrix Camera::GetProjMatrix() const
 {
-	float nearZ = myNearZ;
-	float farZ = myFarZ;
-
-	if (aReverseZ)
-		std::swap(nearZ, farZ);
-
 	return myType == CameraType::Perspective ?
-		XMMatrixPerspectiveFovLH(myFovOrHeight, myAspect, nearZ, farZ) :
-		XMMatrixOrthographicLH(myFovOrHeight, myAspect * myFovOrHeight, nearZ, farZ);
+		XMMatrixPerspectiveFovLH(myFovOrHeight, myAspect, myNearZ, myFarZ) :
+		XMMatrixOrthographicLH(myFovOrHeight, myAspect * myFovOrHeight, myNearZ, myFarZ);
 }
 
 void Camera::SetAspect(float anAspect)
@@ -55,6 +49,11 @@ void Camera::SetFarZ(float z)
 {
 	myFarZ = std::clamp(z, MIN_CLIP_Z, MAX_CLIP_Z);
 	myNearZ = std::min(myNearZ, myFarZ - 0.1f);
+}
+
+void Camera::SwapNearAndFarZ()
+{
+	std::swap(myNearZ, myFarZ);
 }
 
 void from_json(const json& j, Camera& c)

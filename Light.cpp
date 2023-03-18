@@ -33,14 +33,12 @@ Light::Light(const aiLight& aLight)
 	case aiLightSource_DIRECTIONAL:
 	{
 		DirectionalLight light{};
-		std::memcpy(&light.direction, &aLight.mDirection, sizeof(aiVector3D));
 		SetVariant(light);
 		break;
 	}
 	case aiLightSource_POINT:
 	{
 		PointLight light{};
-		std::memcpy(&light.position, &aLight.mPosition, sizeof(aiVector3D));
 		light.parameters = { 5.0f, aLight.mAttenuationConstant, aLight.mAttenuationLinear, aLight.mAttenuationQuadratic };
 		SetVariant(light);
 		break;
@@ -48,8 +46,6 @@ Light::Light(const aiLight& aLight)
 	case aiLightSource_SPOT:
 	{
 		SpotLight light{};
-		std::memcpy(&light.position, &aLight.mPosition, sizeof(aiVector3D));
-		std::memcpy(&light.direction, &aLight.mDirection, sizeof(aiVector3D));
 		light.parameters = { 5.0f, aLight.mAttenuationConstant, aLight.mAttenuationLinear, aLight.mAttenuationQuadratic };
 		light.innerAngle = aLight.mAngleInnerCone;
 		light.outerAngle = aLight.mAngleOuterCone;
@@ -73,21 +69,15 @@ LightBuffer Light::GetBuffer() const
 	{
 		LightBuffer buffer{};
 
-		void operator()(const DirectionalLight& aLight)
-		{
-			buffer.direction = { aLight.direction.x, aLight.direction.y, aLight.direction.z, 0.f };
-		}
+		void operator()(const DirectionalLight&) {}
 
 		void operator()(const PointLight& aLight)
 		{
-			buffer.position = { aLight.position.x, aLight.position.y, aLight.position.z, 1.f };
 			buffer.parameters = aLight.parameters;
 		}
 
 		void operator()(const SpotLight& aLight)
 		{
-			buffer.position = { aLight.position.x, aLight.position.y, aLight.position.z, 1.f };
-			buffer.direction = { aLight.direction.x, aLight.direction.y, aLight.direction.z, 0.f };
 			buffer.parameters = aLight.parameters;
 			buffer.coneAngles = { aLight.innerAngle, aLight.outerAngle, 0.f, 0.f };
 		}
@@ -118,10 +108,7 @@ void Light::SetVariant(const LightVariant& aVariant)
 {
 	struct Validator
 	{
-		void operator()(DirectionalLight& aLight)
-		{
-			aLight.direction.Normalize();
-		}
+		void operator()(DirectionalLight&) {}
 
 		void operator()(PointLight& aLight)
 		{
@@ -130,7 +117,6 @@ void Light::SetVariant(const LightVariant& aVariant)
 
 		void operator()(SpotLight& aLight)
 		{
-			aLight.direction.Normalize();
 			aLight.parameters = Vector4::Max(aLight.parameters, Vector4::Zero);
 			aLight.outerAngle = std::clamp(aLight.outerAngle, 0.f, XM_PIDIV2);
 			aLight.innerAngle = std::clamp(aLight.innerAngle, 0.f, aLight.outerAngle);

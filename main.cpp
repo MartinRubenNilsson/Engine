@@ -26,13 +26,7 @@
 #include "Hierarchy.h"
 #include "Inspector.h"
 #include "Picker.h"
-
-enum class PlayMode // todo: use for something
-{
-    Play  = 1 << 0,
-    Pause = 1 << 1,
-    // Step  = 1 << 2,
-};
+#include "PlaybackControls.h"
 
 namespace
 {
@@ -98,6 +92,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
 
     Camera camera{};
     Matrix cameraTransform{};
+
+    PlayMode mode{};
 
     bool run = true;
     MSG msg{};
@@ -186,6 +182,16 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
             ImGui::Begin(ICON_FA_CIRCLE_INFO" Inspector");
             ImGui::Inspector(registry);
             ImGui::End();
+
+            ImGui::SetNextWindowSize({});
+            ImGui::Begin("Playback", NULL, ImGuiWindowFlags_NoDecoration);
+            ImGui::PlaybackControls(mode);
+            ImGui::End();
+        }
+
+        // Game logic!!!
+        {
+            // todo
         }
 
         mouse.EndOfInputFrame();
