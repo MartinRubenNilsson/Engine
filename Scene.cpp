@@ -1,11 +1,10 @@
 #include "pch.h"
 #include "Scene.h"
+#include "Material.h"
+#include "Mesh.h"
 #include "Transform.h"
 #include "Camera.h"
 #include "Light.h"
-#include "Material.h"
-#include "Mesh.h"
-#include "EnttSerialization.h"
 
 #pragma comment(lib, "assimp-vc142-mt")
 
@@ -15,33 +14,63 @@
     static_cast<unsigned>(aiProcess_GenBoundingBoxes) 
 
 Scene::Scene(const fs::path& aPath)
-    : myPath{ aPath }
-{
-    std::string extension{ aPath.extension().string() };
-
-    if (extension == ".fbx")
-        ImportAsset(aPath);
-    else if (extension == ".json")
-        ImportArchive(aPath);
-}
-
-Scene::operator bool() const
-{
-    return !myRegistry.empty();
-}
-
-void Scene::ImportAsset(const fs::path& aPath)
 {
     Assimp::Importer importer{};
     const aiScene* scene{ importer.ReadFile(aPath.string().c_str(), IMPORT_FLAGS) };
     if (!scene)
         return;
 
-    // 1. Load hierarchy
+    ScopedCurrentPath scopedPath{ aPath.parent_path() };
 
-    Transform& root = Transform::CreateHierarchy(myRegistry, scene->mRootNode);
+    // 1. Load materials
 
-    // 2. Load cameras
+    std::vector<Material> materials{};
+
+    for (aiMaterial* material : std::span{ scene->mMaterials, scene->mNumMaterials })
+        materials.emplace_back(*material);
+
+    // 2. Load meshes and their material indices
+
+    std::vector<Mesh> meshes{};
+    std::vector<unsigned> meshToMaterialIndex{};
+
+    for (aiMesh* mesh : std::span{ scene->mMeshes, scene->mNumMeshes })
+    {
+        meshes.emplace_back(aPath, *mesh);
+        meshToMaterialIndex.push_back(mesh->mMaterialIndex);
+    }
+
+    // 3. Load hierarchy and emplace materials and meshes
+
+    Transform& root = Transform::Create(myRegistry);
+
+    {
+        std::vector<std::pair<Transform*, aiNode*>> stack{ { &root, scene->mRootNode } };
+
+        while (!stack.empty())
+        {
+            auto [transform, node] = stack.back();
+            stack.pop_back();
+
+            transform->SetName(node->mName.C_Str());
+            std::memcpy(transform->Data(), &node->mTransformation.Transpose(), sizeof(Matrix));
+
+            for (unsigned meshIndex : std::span{ node->mMeshes, node->mNumMeshes })
+            {
+                unsigned materialIndex = meshToMaterialIndex.at(meshIndex);
+                myRegistry.emplace<Material>(transform->GetEntity(), materials.at(materialIndex));
+                myRegistry.emplace<Mesh>(transform->GetEntity(), meshes.at(meshIndex));
+            }
+
+            for (aiNode* childNode : std::span{ node->mChildren, node->mNumChildren })
+            {
+                Transform& childTransform = transform->CreateChild(myRegistry);
+                stack.emplace_back(&childTransform, childNode);
+            }
+        }
+    }
+
+    // 2. Load and emplace cameras
 
     for (aiCamera* camera : std::span{ scene->mCameras, scene->mNumCameras })
     {
@@ -49,63 +78,16 @@ void Scene::ImportAsset(const fs::path& aPath)
         myRegistry.emplace<Camera>(entity, *camera);
     }
 
-    // 3. Load lights
+    // 3. Load and emplace lights
 
     for (aiLight* light : std::span{ scene->mLights, scene->mNumLights })
     {
         entt::entity entity = root.Find(myRegistry, light->mName.C_Str());
         myRegistry.emplace<Light>(entity, *light);
     }
-
-    // 4. Load materials
-
-    std::vector<Material> materials{};
-
-    {
-        fs::path currPath{ fs::current_path() };
-        fs::current_path(aPath.parent_path()); // Textures are stored relative to scene
-
-        for (aiMaterial* material : std::span{ scene->mMaterials, scene->mNumMaterials })
-            materials.emplace_back(*material);
-
-        fs::current_path(currPath);
-    }
-
-    // 5. Load meshes and their material indices
-
-    std::vector<Mesh> meshes{};
-    std::vector<unsigned> meshIndexToMaterialIndex{};
-
-    for (aiMesh* mesh : std::span{ scene->mMeshes, scene->mNumMeshes })
-    {
-        meshes.emplace_back(aPath, *mesh);
-        meshIndexToMaterialIndex.push_back(mesh->mMaterialIndex);
-    }
-
-    // 6. Add meshes and materials to registry
-
-    for (auto [entity, node] : myRegistry.view<aiNode*>().each())
-    {
-        for (unsigned meshIndex : std::span{ node->mMeshes, node->mNumMeshes })
-        {
-            unsigned materialIndex = meshIndexToMaterialIndex.at(meshIndex);
-            myRegistry.emplace<Mesh>(entity, meshes.at(meshIndex));
-            myRegistry.emplace<Material>(entity, materials.at(materialIndex));
-        }
-
-        myRegistry.erase<aiNode*>(entity);
-    }
 }
 
-void Scene::ImportArchive(const fs::path& aPath)
+Scene::operator bool() const
 {
-    std::ifstream file{ aPath };
-    if (!file)
-        return;
-
-    json j{ json::parse(file, nullptr, false) };
-    if (j.is_discarded())
-        return;
-
-    j.get_to(myRegistry);
+    return !myRegistry.empty();
 }

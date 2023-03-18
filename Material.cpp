@@ -38,7 +38,10 @@ Material::Material(const aiMaterial& aMaterial)
             type = TextureType::Roughness;
             break;
         default:
-            Debug::Println(std::format("Warning: Unrecognized texture type {}", TextureTypeToString(aiType)));
+            Debug::Println(std::format(
+                "Warning: Unsupported texture type {}: {}",
+                TextureTypeToString(aiType), path.C_Str()
+            ));
             continue;
         }
 

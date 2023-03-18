@@ -4,10 +4,22 @@ class Scope
 {
 protected:
 	Scope() = default;
+	~Scope() = default;
+
 	Scope(const Scope&) = delete;
 	Scope& operator=(const Scope&) = delete;
 	Scope(Scope&&) = delete;
 	Scope& operator=(Scope&&) = delete;
+};
+
+class ScopedCurrentPath : Scope
+{
+public:
+	ScopedCurrentPath(const fs::path&);
+	~ScopedCurrentPath();
+
+private:
+	fs::path myPath{};
 };
 
 class ScopedTopology : Scope

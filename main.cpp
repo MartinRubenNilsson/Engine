@@ -28,22 +28,24 @@ enum class PlayMode // todo: use for somethings
     // Step  = 1 << 2,
 };
 
-LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
-
 namespace
 {
     bool theResize{ false };
     Drop theDrop{};
-}
 
-int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
-{
-    // Set current path to module path
+    fs::path GetModulePath()
     {
         WCHAR path[MAX_PATH];
         GetModuleFileName(GetModuleHandle(NULL), path, MAX_PATH);
-        fs::current_path(fs::path{ path }.remove_filename());
+        return { path };
     }
+}
+
+LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
+
+int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
+{
+    fs::current_path(GetModulePath().remove_filename());
 
     Window window{ Window::Register(WndProc) };
     if (!window)
@@ -112,8 +114,10 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
             backBuffer.Resize();
             unsigned w = backBuffer.GetWidth();
             unsigned h = backBuffer.GetHeight();
-            renderer.ResizeTextures(w, h);
+            if (!renderer.ResizeTextures(w, h))
+                return EXIT_FAILURE;
             camera.SetAspect(static_cast<float>(w) / h);
+
             theResize = false;
         }
 
@@ -122,12 +126,37 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
         {
             for (fs::path& path : theDrop.GetPaths())
             {
-                if (auto scene = sceneFactory.GetAsset(path))
+                const fs::path extension{ path.extension() };
+
+                if (extension == ".fbx")
                 {
-                    json j = scene->GetRegistry();
-                    registry = j;
+                    if (auto scene = sceneFactory.GetAsset(path))
+                    {
+                        json j = scene->GetRegistry();
+                        registry = j;
+                    }
+                }
+                else if (extension == ".json")
+                {
+                    std::ifstream file{ path };
+                    if (!file)
+                        continue;
+
+                    json j{ json::parse(file, nullptr, false) };
+                    if (j.is_discarded())
+                        continue;
+
+                    j.get_to(registry);
+                }
+                else
+                {
+                    Debug::Println(std::format(
+                        "Warning: Unsupported dropped file extension {}: {}",
+                        extension.string(), path.string()
+                    ));
                 }
             }
+
             theDrop = {};
         }
 
@@ -196,7 +225,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
 	return static_cast<int>(msg.wParam);
 }
 
-IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
+IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND, UINT, WPARAM, LPARAM);
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {

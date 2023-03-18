@@ -46,15 +46,15 @@ void entt::to_json(json& j, const registry& aRegistry)
 	j.clear();
 
 	OutputArchive transforms{ j["transforms"] };
-	OutputArchive cameras{ j["cameras"] };
-	OutputArchive meshes{ j["meshes"] };
 	OutputArchive materials{ j["materials"] };
+	OutputArchive meshes{ j["meshes"] };
+	OutputArchive cameras{ j["cameras"] };
 
 	entt::snapshot{ aRegistry }
 		.component<Transform>(transforms)
-		.component<Camera>(cameras)
+		.component<Material>(materials)
 		.component<Mesh>(meshes)
-		.component<Material>(materials);
+		.component<Camera>(cameras);
 }
 
 void entt::from_json(const json& j, registry& aRegistry)
@@ -62,13 +62,13 @@ void entt::from_json(const json& j, registry& aRegistry)
 	aRegistry.clear();
 
 	InputArchive transforms{ j.at("transforms") };
-	InputArchive cameras{ j.at("cameras") };
-	InputArchive meshes{ j.at("meshes") };
 	InputArchive materials{ j.at("materials") };
+	InputArchive meshes{ j.at("meshes") };
+	InputArchive cameras{ j.at("cameras") };
 
 	entt::snapshot_loader{ aRegistry }
 		.component<Transform>(transforms)
-		.component<Camera>(cameras)
+		.component<Material>(materials)
 		.component<Mesh>(meshes)
-		.component<Material>(materials);
+		.component<Camera>(cameras);
 }

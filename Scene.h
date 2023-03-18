@@ -13,9 +13,6 @@ public:
 	explicit operator bool() const;
 
 private:
-	void ImportAsset(const fs::path&);
-	void ImportArchive(const fs::path&);
-
 	fs::path myPath{};
 	entt::registry myRegistry{};
 };

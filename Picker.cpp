@@ -7,7 +7,6 @@ void ImGui::Picker(entt::registry& aRegistry)
 {
     if (GetIO().WantCaptureMouse)
         return;
-
     if (!IsMouseClicked(ImGuiMouseButton_Left))
         return;
 

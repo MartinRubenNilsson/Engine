@@ -14,27 +14,6 @@ Transform& Transform::Create(entt::registry& aRegistry)
 	return transform;
 }
 
-Transform& Transform::CreateHierarchy(entt::registry& aRegistry, aiNode* aNode)
-{
-	entt::entity entity = aRegistry.create();
-
-	Transform& transform = aRegistry.emplace<Transform>(entity);
-	transform.myEntity = entity;
-	transform.myName = aNode->mName.C_Str();
-	std::memcpy(&transform.myLocalMatrix, &aNode->mTransformation.Transpose(), sizeof(Matrix));
-
-	aRegistry.emplace<aiNode*>(entity, aNode);
-
-	for (aiNode* childNode : std::span{ aNode->mChildren, aNode->mNumChildren })
-	{
-		Transform& childTransform = CreateHierarchy(aRegistry, childNode);
-		transform.myChildren.push_back(childTransform.myEntity);
-		childTransform.myParent = entity;
-	}
-
-	return transform;
-}
-
 Transform& Transform::CreateChild(entt::registry& aRegistry)
 {
 	Transform& child = Create(aRegistry);
@@ -46,18 +25,21 @@ Transform& Transform::CreateChild(entt::registry& aRegistry)
 
 void Transform::Destroy(entt::registry& aRegistry)
 {
-	entt::entity entity = myEntity;
+	entt::entity me = myEntity;
 	entt::entity parent = myParent;
 	auto children{ myChildren };
 
-	if (aRegistry.valid(entity))
-		aRegistry.destroy(entity);
+	if (aRegistry.valid(me))
+		aRegistry.destroy(me);
 
 	for (entt::entity child : children)
-		aRegistry.get<Transform>(child).Destroy(aRegistry);
+	{
+		if (auto transform = aRegistry.try_get<Transform>(child))
+			transform->Destroy(aRegistry);
+	}
 
-	if (auto t = aRegistry.try_get<Transform>(parent))
-		t->RemoveChild(entity);
+	if (auto transform = aRegistry.try_get<Transform>(parent))
+		transform->RemoveChild(me);
 }
 
 entt::entity Transform::Find(const entt::registry& aRegistry, std::string_view aName) const

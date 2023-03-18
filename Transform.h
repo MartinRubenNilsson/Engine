@@ -4,7 +4,6 @@ class Transform
 {
 public:
 	static Transform& Create(entt::registry&);
-	static Transform& CreateHierarchy(entt::registry&, aiNode*); // Recursive
 
 	Transform& CreateChild(entt::registry&);
 

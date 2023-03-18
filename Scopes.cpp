@@ -17,6 +17,21 @@ namespace
 }
 
 /*
+* class ScopedCurrentPath
+*/
+
+ScopedCurrentPath::ScopedCurrentPath(const fs::path& aPath)
+	: myPath{ fs::current_path() }
+{
+	fs::current_path(aPath);
+}
+
+ScopedCurrentPath::~ScopedCurrentPath()
+{
+	fs::current_path(myPath);
+}
+
+/*
 * class ScopedTopology
 */
 
@@ -258,4 +273,3 @@ ScopedResources::~ScopedResources()
 	std::invoke(theSetters.at(std::to_underlying(myType)), DX11_CONTEXT, myStartSlot, (UINT)myResources.size(), myResources.data());
 	ReleaseAll(std::span{ myResources });
 }
-
