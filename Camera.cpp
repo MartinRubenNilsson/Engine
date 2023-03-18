@@ -59,19 +59,29 @@ void Camera::SwapNearAndFarZ()
 void from_json(const json& j, Camera& c)
 {
 	j.at("type").get_to(c.myType);
-	j.at("fovOrHeight").get_to(c.myFovOrHeight);
+	j.at("customAspect").get_to(c.customAspect);
 	j.at("aspect").get_to(c.myAspect);
+	j.at("fovOrHeight").get_to(c.myFovOrHeight);
 	j.at("nearZ").get_to(c.myNearZ);
 	j.at("farZ").get_to(c.myFarZ);
+	j.at("depth").get_to(c.depth);
 }
 
 void to_json(json& j, const Camera& c)
 {
 	j["type"] = c.myType;
-	j["fovOrHeight"] = c.myFovOrHeight;
+	j["customAspect"] = c.customAspect;
 	j["aspect"] = c.myAspect;
+	j["fovOrHeight"] = c.myFovOrHeight;
 	j["nearZ"] = c.myNearZ;
 	j["farZ"] = c.myFarZ;
+	j["depth"] = c.depth;
+}
+
+entt::entity SortCamerasByDepth(entt::registry& aRegistry)
+{
+	aRegistry.sort<Camera>([](const Camera& lhs, const Camera& rhs) { return lhs.depth < rhs.depth; });
+	return aRegistry.view<Camera>().front();
 }
 
 /*
@@ -83,11 +93,12 @@ void ImGui::Inspect(Camera& aCamera)
 	CameraType type = aCamera.GetType();
 	if (Combo("Type", reinterpret_cast<int*>(&type), "Perspective\0Orthographic\0\0"))
 		aCamera.SetType(type);
+	
+	Checkbox("Custom Aspect", &aCamera.customAspect);
 
 	// todo: fov or height
-	Checkbox("Use Screen Aspect", &aCamera.useScreenAspect);
 
-	if (!aCamera.useScreenAspect)
+	if (aCamera.customAspect)
 	{
 		float aspect = aCamera.GetAspect();
 		DragFloat("Aspect", &aspect, 0.1f, 0.001f, FLT_MAX);
@@ -105,6 +116,8 @@ void ImGui::Inspect(Camera& aCamera)
 		DragFloat("Far Z", &z, 1.f, MIN_CLIP_Z, MAX_CLIP_Z);
 		aCamera.SetFarZ(z);
 	}
+
+	DragFloat("Depth", &aCamera.depth, 0.1f);
 }
 
 void ImGui::DrawCubes(const Camera& aCamera, const Matrix& aCameraTransform, std::span<const Matrix> someCubeTransforms)

@@ -14,8 +14,6 @@ Matrix GetDefaultViewMatrix();
 class Camera
 {
 public:
-	bool useScreenAspect{ true };
-
 	Camera() = default;
 	Camera(const aiCamera&);
 
@@ -40,7 +38,13 @@ private:
 	CameraType myType{};
 	float myFovOrHeight{ 1.f }, myAspect{ 1.f };
 	float myNearZ{ MIN_CLIP_Z }, myFarZ{ MAX_CLIP_Z };
+
+public:
+	float depth{ 0.f }; // Cameras with lower depth are rendered before cameras with higher depth.
+	bool customAspect{ false }; // If true, use camera aspect instead of screen's aspect when rendering.
 };
+
+entt::entity SortCamerasByDepth(entt::registry&); // Returns camera with least depth.
 
 namespace ImGui
 {

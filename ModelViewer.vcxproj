@@ -226,7 +226,7 @@
     <ClInclude Include="BackBuffer.h" />
     <ClInclude Include="Tags.h" />
     <ClInclude Include="Texture.h" />
-    <ClInclude Include="PlaybackControls.h" />
+    <ClInclude Include="PlayControls.h" />
     <ClInclude Include="Transform.h" />
     <ClInclude Include="Vertices.h" />
     <ClInclude Include="Window.h" />
@@ -269,7 +269,7 @@
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="BackBuffer.cpp" />
     <ClCompile Include="Texture.cpp" />
-    <ClCompile Include="PlaybackControls.cpp" />
+    <ClCompile Include="PlayControls.cpp" />
     <ClCompile Include="Transform.cpp" />
     <ClCompile Include="Window.cpp" />
   </ItemGroup>

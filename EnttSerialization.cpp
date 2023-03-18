@@ -5,6 +5,8 @@
 #include "Mesh.h"
 #include "Material.h"
 
+// todo: archives for tags
+
 namespace
 {
 	struct OutputArchive

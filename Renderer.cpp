@@ -83,7 +83,7 @@ bool Renderer::ResizeTextures(unsigned aWidth, unsigned aHeight)
 
 void Renderer::SetCamera(Camera aCamera, const Matrix& aTransform)
 {
-	if (aCamera.useScreenAspect)
+	if (!aCamera.customAspect)
 		aCamera.SetAspect(static_cast<float>(myWidth) / myHeight);
 
 	// Update bounding frustum

@@ -26,7 +26,7 @@
 #include "Hierarchy.h"
 #include "Inspector.h"
 #include "Picker.h"
-#include "PlaybackControls.h"
+#include "PlayControls.h"
 
 namespace
 {
@@ -89,11 +89,12 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
     SceneFactory sceneFactory{};
 
     entt::registry registry{};
+    json archive{};
 
-    Camera camera{};
-    Matrix cameraTransform{};
+    Camera editorCamera{};
+    Matrix editorTransform{};
 
-    PlayMode mode{};
+    PlayState state{};
 
     bool run = true;
     MSG msg{};
@@ -110,7 +111,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
             DispatchMessage(&msg);
         }
 
-        // Resize
+        // Handle resized window
         if (theResize)
         {
             backBuffer.Resize();
@@ -118,12 +119,12 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
             unsigned h = backBuffer.GetHeight();
             if (!renderer.ResizeTextures(w, h))
                 return EXIT_FAILURE;
-            camera.SetAspect(static_cast<float>(w) / h);
+            editorCamera.SetAspect(static_cast<float>(w) / h);
 
             theResize = false;
         }
 
-        // Drag and drop
+        // Handle dropped files
         if (theDrop)
         {
             for (fs::path& path : theDrop.GetPaths())
@@ -134,8 +135,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
                 {
                     if (auto scene = sceneFactory.GetAsset(path))
                     {
-                        json j = scene->GetRegistry();
-                        registry = j;
+                        archive = scene->GetRegistry();
+                        registry = archive;
                     }
                 }
                 else if (extension == ".json")
@@ -144,11 +145,11 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
                     if (!file)
                         continue;
 
-                    json j{ json::parse(file, nullptr, false) };
-                    if (j.is_discarded())
+                    archive = json::parse(file, nullptr, false);
+                    if (archive.is_discarded())
                         continue;
 
-                    j.get_to(registry);
+                    archive.get_to(registry);
                 }
                 else
                 {
@@ -162,36 +163,59 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
             theDrop = {};
         }
 
-        // ImGui & Editor
+        imGui.NewFrame();
+
+        ImGui::Begin(ICON_FA_EYE" Renderer");
+        ImGui::Inspect(renderer);
+        ImGui::End();
+
+        ImGui::Begin(ICON_FA_LIST" Hierarchy");
+        ImGui::Hierarchy(registry);
+        ImGui::End();
+
+        ImGui::Begin(ICON_FA_CIRCLE_INFO" Inspector");
+        ImGui::Inspector(registry);
+        ImGui::End();
+
+        ImGui::SetNextWindowSize({});
+        ImGui::Begin("Play Controls", NULL, ImGuiWindowFlags_NoDecoration);
+        ImGui::PlayControls(state);
+        ImGui::End();
+
+        switch (state)
         {
-            imGui.NewFrame();
-
-            ImGui::SceneViewManipulate(cameraTransform);
-
+        case PlayState::Stopped:
+        {
             ImGui::Picker(registry);
-            ImGui::Manipulator(registry, camera, cameraTransform);
-
-            ImGui::Begin(ICON_FA_EYE" Renderer");
-            ImGui::Inspect(renderer);
-            ImGui::End();
-
-            ImGui::Begin(ICON_FA_LIST" Hierarchy");
-            ImGui::Hierarchy(registry);
-            ImGui::End();
-
-            ImGui::Begin(ICON_FA_CIRCLE_INFO" Inspector");
-            ImGui::Inspector(registry);
-            ImGui::End();
-
-            ImGui::SetNextWindowSize({});
-            ImGui::Begin("Playback", NULL, ImGuiWindowFlags_NoDecoration);
-            ImGui::PlaybackControls(mode);
-            ImGui::End();
+            ImGui::SceneViewManipulate(editorTransform);
+            ImGui::Manipulator(registry, editorCamera, editorTransform);
+            renderer.SetCamera(editorCamera, editorTransform);
+            break;
         }
-
-        // Game logic!!!
+        case PlayState::Starting:
         {
-            // todo
+            archive = registry;
+            state = PlayState::Started;
+            break;
+        }
+        case PlayState::Started:
+        {
+            entt::entity entity = SortCamerasByDepth(registry);
+            if (registry.all_of<Camera, Transform>(entity))
+            {
+                renderer.SetCamera(
+                    registry.get<Camera>(entity),
+                    registry.get<Transform>(entity).GetWorldMatrix(registry)
+                );
+            }
+            break;
+        }
+        case PlayState::Stopping:
+        {
+            registry = archive;
+            state = PlayState::Stopped;
+            break;
+        }
         }
 
         mouse.EndOfInputFrame();
@@ -203,7 +227,6 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
             ScopedViewports scopedViewport{ backBuffer.GetViewport() };
 
             backBuffer.Clear();
-            renderer.SetCamera(camera, cameraTransform);
             renderer.Render(registry);
             imGui.Render();
 
