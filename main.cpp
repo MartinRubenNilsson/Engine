@@ -89,11 +89,12 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
     CubemapFactory cubemapFactory{};
     SceneFactory sceneFactory{};
 
-    entt::registry registry{};
-    json archive{};
+    fs::path scenePath{};
+    json sceneArchive{};
+    entt::registry sceneRegistry{};
 
-    Camera editorCamera{};
-    Matrix editorTransform{};
+    Camera sceneCamera{};
+    Matrix sceneCameraTransform{};
 
     PlayState state{};
 
@@ -102,6 +103,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
 
     while (run)
     {
+        window.SetTitle(scenePath.stem().wstring());
+
         // Message loop
         while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
         {
@@ -120,7 +123,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
             unsigned h = backBuffer.GetHeight();
             if (!renderer.ResizeTextures(w, h))
                 return EXIT_FAILURE;
-            editorCamera.SetAspect(static_cast<float>(w) / h);
+            sceneCamera.SetAspect(static_cast<float>(w) / h);
 
             theResize = false;
         }
@@ -136,21 +139,9 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
                 {
                     if (auto scene = sceneFactory.GetAsset(path))
                     {
-                        archive = scene->GetRegistry();
-                        registry = archive;
+                        sceneArchive = scene->GetRegistry();
+                        sceneRegistry = sceneArchive;
                     }
-                }
-                else if (extension == ".json")
-                {
-                    std::ifstream file{ path };
-                    if (!file)
-                        continue;
-
-                    archive = json::parse(file, nullptr, false);
-                    if (archive.is_discarded())
-                        continue;
-
-                    archive.get_to(registry);
                 }
                 else
                 {
@@ -171,13 +162,12 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
             using ImGui::EndMenu;
 
             FileCommand fileCmd = FileCommand::None;
-            fs::path path{};
 
             if (BeginMainMenuBar())
             {
                 if (BeginMenu("File"))
                 {
-                    fileCmd = FileMenu(path);
+                    fileCmd = FileMenu(scenePath);
                     EndMenu();
                 }
                 EndMainMenuBar();
@@ -185,6 +175,34 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
 
             switch (fileCmd)
             {
+            case FileCommand::NewScene:
+            {
+                // todo: is this appropriate semantics?
+                sceneRegistry.clear();
+                sceneArchive.clear();
+                scenePath.clear();
+                break;
+            }
+            case FileCommand::OpenScene:
+            {
+                std::ifstream file{ scenePath };
+                json scene{ json::parse(file, nullptr, false) };
+                if (!scene.is_discarded())
+                {
+                    sceneRegistry = scene;
+                    sceneArchive = scene;
+                }
+                break;
+            }
+            case FileCommand::Save:
+                [[fallthrough]];
+            case FileCommand::SaveAs:
+            {
+                sceneArchive = sceneRegistry;
+                std::ofstream file{ scenePath };
+                file << sceneArchive;
+                break;
+            }
             case FileCommand::Exit:
                 return EXIT_SUCCESS;
                 break;
@@ -195,11 +213,11 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
             End();
 
             Begin(ICON_FA_LIST" Hierarchy");
-            Hierarchy(registry);
+            Hierarchy(sceneRegistry);
             End();
 
             Begin(ICON_FA_CIRCLE_INFO" Inspector");
-            Inspector(registry);
+            Inspector(sceneRegistry);
             End();
 
             SetNextWindowSize({});
@@ -212,33 +230,33 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
         {
         case PlayState::Stopped:
         {
-            ImGui::Picker(registry);
-            ImGui::SceneViewManipulate(editorTransform);
-            ImGui::Manipulator(registry, editorCamera, editorTransform);
-            renderer.SetCamera(editorCamera, editorTransform);
+            ImGui::Picker(sceneRegistry);
+            ImGui::SceneViewManipulate(sceneCameraTransform);
+            ImGui::Manipulator(sceneRegistry, sceneCamera, sceneCameraTransform);
+            renderer.SetCamera(sceneCamera, sceneCameraTransform);
             break;
         }
         case PlayState::Starting:
         {
-            archive = registry;
+            sceneArchive = sceneRegistry;
             state = PlayState::Started;
             break;
         }
         case PlayState::Started:
         {
-            entt::entity entity = SortCamerasByDepth(registry);
-            if (registry.all_of<Camera, Transform>(entity))
+            entt::entity entity = SortCamerasByDepth(sceneRegistry);
+            if (sceneRegistry.all_of<Camera, Transform>(entity))
             {
                 renderer.SetCamera(
-                    registry.get<Camera>(entity),
-                    registry.get<Transform>(entity).GetWorldMatrix(registry)
+                    sceneRegistry.get<Camera>(entity),
+                    sceneRegistry.get<Transform>(entity).GetWorldMatrix(sceneRegistry)
                 );
             }
             break;
         }
         case PlayState::Stopping:
         {
-            registry = archive;
+            sceneRegistry = sceneArchive;
             state = PlayState::Stopped;
             break;
         }
@@ -254,7 +272,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
 
             backBuffer.Clear();
 
-            renderer.Render(registry);
+            renderer.Render(sceneRegistry);
             imGui.Render();
 
             backBuffer.Present();

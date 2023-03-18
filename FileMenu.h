@@ -12,6 +12,7 @@ enum class FileCommand
 
 namespace ImGui
 {
+	FileCommand FileMenuShortcut();
 	FileCommand FileMenu(fs::path&);
 }
 

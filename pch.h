@@ -30,6 +30,7 @@ namespace fs = std::filesystem;
 #define WIN32_LEAN_AND_MEAN
 #define NOMINMAX
 #include <Windows.h>
+#include <commdlg.h>
 #include <shellapi.h>
 #include <wrl/client.h>
 using Microsoft::WRL::ComPtr;
