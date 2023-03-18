@@ -206,6 +206,7 @@
     <ClInclude Include="Inspector.h" />
     <ClInclude Include="EnttSerialization.h" />
     <ClInclude Include="Light.h" />
+    <ClInclude Include="Manipulator.h" />
     <ClInclude Include="Picker.h" />
     <ClInclude Include="Renderer.h" />
     <ClInclude Include="RenderTexture.h" />
@@ -243,6 +244,7 @@
     <ClCompile Include="Inspector.cpp" />
     <ClCompile Include="EnttSerialization.cpp" />
     <ClCompile Include="Light.cpp" />
+    <ClCompile Include="Manipulator.cpp" />
     <ClCompile Include="Picker.cpp" />
     <ClCompile Include="Renderer.cpp" />
     <ClCompile Include="RenderTexture.cpp" />

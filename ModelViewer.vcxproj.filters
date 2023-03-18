@@ -103,6 +103,7 @@
     <ClInclude Include="EnttCommon.h">
       <Filter>entt</Filter>
     </ClInclude>
+    <ClInclude Include="Manipulator.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
@@ -196,6 +197,7 @@
     <ClCompile Include="EnttSerialization.cpp">
       <Filter>entt</Filter>
     </ClCompile>
+    <ClCompile Include="Manipulator.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="graphics">

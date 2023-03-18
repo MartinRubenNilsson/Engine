@@ -11,7 +11,7 @@ enum class TextureType
 	HDR,
 };
 
-const char* TextureTypeToString(TextureType); // Returns null-terminated name of texture
+const char* TextureTypeToString(TextureType);
 DXGI_FORMAT	TextureTypeToFormat(TextureType);
 unsigned	TextureTypeToChannels(TextureType);
 
@@ -21,7 +21,7 @@ public:
 	using Ptr = std::shared_ptr<const Texture>;
 
 	Texture() = default;
-	Texture(const fs::path& aPath, TextureType aType);
+	Texture(const fs::path&, TextureType);
 
 	ShaderResourcePtr GetResource() const { return myShaderResource; }
 

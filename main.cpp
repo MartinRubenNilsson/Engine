@@ -1,27 +1,33 @@
 #include "pch.h"
+
+// Windows
 #include "Window.h"
 #include "Drop.h"
-#include "DearImGui.h"
+
+// Rendering
 #include "StateFactory.h"
 #include "InputLayoutFactory.h"
 #include "BackBuffer.h"
-#include "Renderer.h"
 #include "Scopes.h"
+#include "Renderer.h"
 
+// Components
+#include "EnttSerialization.h"
 #include "Texture.h"
 #include "Cubemap.h"
 #include "Scene.h"
 #include "Camera.h"
 #include "Transform.h"
-#include "Tags.h"
 
-#include "EnttSerialization.h"
+// Editor
+#include "DearImGui.h"
 #include "SceneViewManipulate.h"
+#include "Manipulator.h"
 #include "Hierarchy.h"
 #include "Inspector.h"
 #include "Picker.h"
 
-enum class PlayMode // todo: use for somethings
+enum class PlayMode // todo: use for something
 {
     Play  = 1 << 0,
     Pause = 1 << 1,
@@ -88,10 +94,10 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
     CubemapFactory cubemapFactory{};
     SceneFactory sceneFactory{};
 
+    entt::registry registry{};
+
     Camera camera{};
     Matrix cameraTransform{};
-
-    entt::registry registry{};
 
     bool run = true;
     MSG msg{};
@@ -151,7 +157,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
                 else
                 {
                     Debug::Println(std::format(
-                        "Warning: Unsupported dropped file extension {}: {}",
+                        "Warning: Unsupported drop file extension {}: {}",
                         extension.string(), path.string()
                     ));
                 }
@@ -167,6 +173,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
             ImGui::SceneViewManipulate(cameraTransform);
 
             ImGui::Picker(registry);
+            ImGui::Manipulator(registry, camera, cameraTransform);
 
             ImGui::Begin(ICON_FA_EYE" Renderer");
             ImGui::Inspect(renderer);
@@ -179,30 +186,6 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
             ImGui::Begin(ICON_FA_CIRCLE_INFO" Inspector");
             ImGui::Inspector(registry);
             ImGui::End();
-
-            // todo: move somewhere else
-
-            entt::entity selection{ registry.view<Tag::Selected>().front() };
-
-            if (auto transform = registry.try_get<Transform>(selection))
-            {
-                static ImGuizmo::OPERATION op = ImGuizmo::TRANSLATE;
-                static ImGuizmo::MODE mode = ImGuizmo::LOCAL;
-
-                if (ImGui::IsKeyPressed(ImGuiKey_W))
-                    op = ImGuizmo::TRANSLATE;
-                if (ImGui::IsKeyPressed(ImGuiKey_E))
-                    op = ImGuizmo::ROTATE;
-                if (ImGui::IsKeyPressed(ImGuiKey_R))
-                    op = ImGuizmo::SCALE;
-
-                if (ImGui::IsKeyPressed(ImGuiKey_X))
-                    mode = static_cast<ImGuizmo::MODE>(1 - mode);
-
-                Matrix m = transform->GetWorldMatrix(registry);
-                ImGui::Manipulate(camera, cameraTransform, op, mode, m);
-                transform->SetWorldMatrix(registry, m);
-            }
         }
 
         mouse.EndOfInputFrame();

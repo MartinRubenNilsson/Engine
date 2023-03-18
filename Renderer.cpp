@@ -81,12 +81,15 @@ bool Renderer::ResizeTextures(unsigned aWidth, unsigned aHeight)
 	return true;
 }
 
-void Renderer::SetCamera(const Camera& aCamera, const Matrix& aTransform)
+void Renderer::SetCamera(Camera aCamera, const Matrix& aTransform)
 {
+	if (aCamera.useScreenAspect)
+		aCamera.SetAspect(static_cast<float>(myWidth) / myHeight);
+
 	// Update constant buffer
 	{
 		CameraBuffer buffer{};
-		buffer.viewProj = aTransform.Invert() * aCamera.GetViewMatrix() * aCamera.GetProjectionMatrix(USE_REVERSE_Z);
+		buffer.viewProj = aTransform.Invert() * GetDefaultViewMatrix() * aCamera.GetProjMatrix(USE_REVERSE_Z);
 		buffer.invViewProj = buffer.viewProj.Invert();
 		buffer.clipPlanes.x = aCamera.GetNearZ();
 		buffer.clipPlanes.y = aCamera.GetFarZ();
@@ -98,7 +101,7 @@ void Renderer::SetCamera(const Camera& aCamera, const Matrix& aTransform)
 
 	// Update bounding frustum
 	{
-		BoundingFrustum::CreateFromMatrix(myFrustum, aCamera.GetProjectionMatrix() );
+		BoundingFrustum::CreateFromMatrix(myFrustum, aCamera.GetProjMatrix() );
 		myFrustum.Transform(myFrustum, aTransform);
 	}
 }

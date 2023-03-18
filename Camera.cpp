@@ -1,6 +1,11 @@
 #include "pch.h"
 #include "Camera.h"
 
+Matrix GetDefaultViewMatrix()
+{
+	return XMMatrixLookToLH(Vector3::Zero, Vector3::UnitZ, Vector3::UnitY);
+}
+
 /*
 * class Camera
 */
@@ -22,12 +27,7 @@ Camera::Camera(const aiCamera& aCamera)
 	}
 }
 
-Matrix Camera::GetViewMatrix() const
-{
-	return XMMatrixLookToLH(Vector3::Zero, Vector3::UnitZ, Vector3::UnitY);
-}
-
-Matrix Camera::GetProjectionMatrix(bool aReverseZ) const
+Matrix Camera::GetProjMatrix(bool aReverseZ) const
 {
 	float nearZ = myNearZ;
 	float farZ = myFarZ;
@@ -86,7 +86,9 @@ void ImGui::Inspect(Camera& aCamera)
 		aCamera.SetType(type);
 
 	// todo: fov or height
+	Checkbox("Use Screen Aspect", &aCamera.useScreenAspect);
 
+	if (!aCamera.useScreenAspect)
 	{
 		float aspect = aCamera.GetAspect();
 		DragFloat("Aspect", &aspect, 0.1f, 0.001f, FLT_MAX);
@@ -111,34 +113,26 @@ void ImGui::DrawCubes(const Camera& aCamera, const Matrix& aCameraTransform, std
 	if (someCubeTransforms.empty())
 		return;
 
-	Matrix view = aCameraTransform.Invert() * aCamera.GetViewMatrix();
-	Matrix proj = aCamera.GetProjectionMatrix();
+	Matrix view = aCameraTransform.Invert() * GetDefaultViewMatrix();
+	Matrix proj = aCamera.GetProjMatrix();
 	ImGuizmo::SetOrthographic(aCamera.GetType() == CameraType::Orthographic);
 	ImGuizmo::DrawCubes(&view._11, &proj._11, &someCubeTransforms.front()._11, static_cast<int>(someCubeTransforms.size()));
 }
 
 void ImGui::DrawGrid(const Camera& aCamera, const Matrix& aCameraTransform, const Matrix& aGridTransform, float aGridSize)
 {
-	Matrix view = aCameraTransform.Invert() * aCamera.GetViewMatrix();
-	Matrix proj = aCamera.GetProjectionMatrix();
+	Matrix view = aCameraTransform.Invert() * GetDefaultViewMatrix();
+	Matrix proj = aCamera.GetProjMatrix();
 	ImGuizmo::SetOrthographic(aCamera.GetType() == CameraType::Orthographic);
 	ImGuizmo::DrawGrid(&view._11, &proj._11, &aGridTransform._11, aGridSize);
-}
-
-bool ImGui::Manipulate(const Camera& aCamera, const Matrix& aCameraTransform, ImGuizmo::OPERATION anOperation, ImGuizmo::MODE aMode, Matrix& aTransform)
-{
-	Matrix view = aCameraTransform.Invert() * aCamera.GetViewMatrix();
-	Matrix proj = aCamera.GetProjectionMatrix();
-	ImGuizmo::SetOrthographic(aCamera.GetType() == CameraType::Orthographic);
-	return ImGuizmo::Manipulate(&view._11, &proj._11, anOperation, aMode, &aTransform._11);
 }
 
 void ImGui::ViewManipulate(const Camera& aCamera, Matrix& aCameraTransform, float aLength, ImVec2 aPosition, ImVec2 aSize, ImU32 aBackgroundColor)
 {
 	// https://github.com/CedricGuillemet/ImGuizmo/issues/107
 	constexpr static Matrix inversionMatrix{ 1.f, 0, 0, 0, 0, 1.f, 0, 0, 0, 0, -1.f, 0, 0, 0, 0, 1.f };
-	Matrix view = inversionMatrix * aCameraTransform.Invert() * aCamera.GetViewMatrix() * inversionMatrix;
+	Matrix view = inversionMatrix * aCameraTransform.Invert() * GetDefaultViewMatrix() * inversionMatrix;
 	ImGuizmo::SetOrthographic(aCamera.GetType() == CameraType::Orthographic);
 	ImGuizmo::ViewManipulate(&view._11, aLength, aPosition, aSize, aBackgroundColor);
-	aCameraTransform = inversionMatrix * aCamera.GetViewMatrix() * view.Invert() * inversionMatrix;
+	aCameraTransform = inversionMatrix * GetDefaultViewMatrix() * view.Invert() * inversionMatrix;
 }
