@@ -89,6 +89,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
     CubemapFactory cubemapFactory{};
     SceneFactory sceneFactory{};
 
+    sceneFactory.GetAsset("assets/engine/shapes.fbx");
+
     entt::registry sceneReg{};
     json sceneJson{};
     fs::path scenePath{};
