@@ -2,6 +2,6 @@
 
 namespace ImGui
 {
-	void SceneViewManipulate(Matrix& aTransform);
+	void SceneViewManipulate(Matrix&, const Keyboard::State&, const Mouse::State&);
 }
 

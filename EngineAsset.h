@@ -14,4 +14,5 @@ enum class EngineAsset
 };
 
 fs::path GetPath(EngineAsset);
+bool ImportEngineAssets();
 

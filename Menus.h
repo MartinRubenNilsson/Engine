@@ -12,13 +12,12 @@ enum class MenuCommand
 	Exit,
 };
 
+void GetPath(MenuCommand&, fs::path&);
+
 namespace ImGui
 {
 	void Shortcut(MenuCommand&);
-
 	void FileMenu(MenuCommand&);
 	void MainMenu(MenuCommand&);
-
-	void GetPath(MenuCommand&, fs::path&);
 }
 

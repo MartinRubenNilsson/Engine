@@ -51,15 +51,14 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
 {
     fs::current_path(GetModulePath().remove_filename());
 
+    Keyboard keyboard{};
+    Mouse mouse{};
+
     Window window{ WndProc };
     if (!window)
         return EXIT_FAILURE;
 
     window.SetIcon("icon.ico");
-
-    Keyboard keyboard{};
-    Mouse mouse{};
-
     mouse.SetWindow(window);
 
     DX11 dx11{};
@@ -92,21 +91,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
     CubemapFactory cubemapFactory{};
     SceneFactory sceneFactory{};
 
-    /*
-    * Preload engine assets
-    */
-
-    if (!textureFactory.GetAsset(GetPath(EngineAsset::DefaultAlbedo), TextureType::Albedo))
-        return EXIT_FAILURE;
-    if (!textureFactory.GetAsset(GetPath(EngineAsset::DefaultNormal), TextureType::Normal))
-        return EXIT_FAILURE;
-    if (!textureFactory.GetAsset(GetPath(EngineAsset::DefaultMetallic), TextureType::Metallic))
-        return EXIT_FAILURE;
-    if (!textureFactory.GetAsset(GetPath(EngineAsset::DefaultRoughness), TextureType::Roughness))
-        return EXIT_FAILURE;
-    if (!textureFactory.GetAsset(GetPath(EngineAsset::DefaultOcclusion), TextureType::Occlusion))
-        return EXIT_FAILURE;
-    if (!sceneFactory.GetAsset(GetPath(EngineAsset::ShapesScene)))
+    if (!ImportEngineAssets())
         return EXIT_FAILURE;
 
     entt::registry sceneReg{};
@@ -176,17 +161,28 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
 
         imGui.NewFrame();
 
-        {
-            using namespace ImGui;
+        const Keyboard::State keyboardState{ keyboard.GetState() };
+        const Mouse::State mouseState{ mouse.GetState() };
 
+        mouse.SetMode(mouseState.rightButton ? Mouse::MODE_RELATIVE : Mouse::MODE_ABSOLUTE);
+
+        /*
+        * When we release right mouse button and exit relative mode,
+        * there is one frame where mouse might be over a ImGui window.
+        * Then, a context menu might open. Therefore we clear mouse state.
+        */
+        if (mouseState.positionMode == Mouse::MODE_RELATIVE)
+            std::ranges::fill(ImGui::GetIO().MouseReleased, false);
+
+        {
             MenuCommand cmd = MenuCommand::None;
 
-            Shortcut(cmd);
+            ImGui::Shortcut(cmd);
 
-            if (BeginMainMenuBar())
+            if (ImGui::BeginMainMenuBar())
             {
-                MainMenu(cmd);
-                EndMainMenuBar();
+                ImGui::MainMenu(cmd);
+                ImGui::EndMainMenuBar();
             }
 
             fs::path newScenePath = scenePath;
@@ -231,23 +227,25 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
             case MenuCommand::Exit:
                 return EXIT_SUCCESS;
             }
+        }
 
-            Begin(ICON_FA_EYE" Renderer");
-            Inspect(renderer);
-            End();
+        {
+            ImGui::Begin(ICON_FA_EYE" Renderer");
+            ImGui::Inspect(renderer);
+            ImGui::End();
 
-            Begin(ICON_FA_LIST" Hierarchy");
-            Hierarchy(sceneReg);
-            End();
+            ImGui::Begin(ICON_FA_LIST" Hierarchy");
+            ImGui::Hierarchy(sceneReg);
+            ImGui::End();
 
-            Begin(ICON_FA_CIRCLE_INFO" Inspector");
-            Inspector(sceneReg);
-            End();
+            ImGui::Begin(ICON_FA_CIRCLE_INFO" Inspector");
+            ImGui::Inspector(sceneReg);
+            ImGui::End();
 
-            SetNextWindowSize({});
-            Begin("Play Controls", NULL, ImGuiWindowFlags_NoDecoration);
-            PlayControls(state);
-            End();
+            ImGui::SetNextWindowSize({});
+            ImGui::Begin("Play Controls", NULL, ImGuiWindowFlags_NoDecoration);
+            ImGui::PlayControls(state);
+            ImGui::End();
         }
 
         switch (state)
@@ -255,7 +253,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
         case PlayState::Stopped:
         {
             ImGui::Picker(sceneReg);
-            ImGui::SceneViewManipulate(sceneCamTrans);
+            ImGui::SceneViewManipulate(sceneCamTrans, keyboardState, mouseState);
             ImGui::Manipulator(sceneReg, sceneCam, sceneCamTrans);
             renderer.SetCamera(sceneCam, sceneCamTrans);
             break;

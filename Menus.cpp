@@ -59,6 +59,30 @@ namespace
     }
 }
 
+void GetPath(MenuCommand& cmd, fs::path& aPath)
+{
+    bool ok = true;
+
+    switch (cmd)
+    {
+    case MenuCommand::OpenScene:
+        ok = GetOpenPath(aPath);
+        break;
+    case MenuCommand::Save:
+        if (fs::exists(aPath))
+            break;
+        [[fallthrough]];
+    case MenuCommand::NewScene:
+        [[fallthrough]];
+    case MenuCommand::SaveAs:
+        ok = GetSavePath(aPath);
+        break;
+    }
+
+    if (!ok)
+        cmd = MenuCommand::None;
+}
+
 /*
 * namespace ImGui
 */
@@ -119,28 +143,4 @@ void ImGui::MainMenu(MenuCommand& cmd)
         FileMenu(cmd);
         EndMenu();
     }
-}
-
-void ImGui::GetPath(MenuCommand& cmd, fs::path& aPath)
-{
-    bool ok = true;
-
-    switch (cmd)
-    {
-    case MenuCommand::OpenScene:
-        ok = GetOpenPath(aPath);
-        break;
-    case MenuCommand::Save:
-        if (fs::exists(aPath))
-            break;
-        [[fallthrough]];
-    case MenuCommand::NewScene:
-        [[fallthrough]];
-    case MenuCommand::SaveAs:
-        ok = GetSavePath(aPath);
-        break;
-    }
-
-    if (!ok)
-        cmd = MenuCommand::None;
 }
