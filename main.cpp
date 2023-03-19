@@ -52,7 +52,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
     if (!window)
         return EXIT_FAILURE;
 
-    window.SetTitle(L"Model Viewer");
+    window.SetIcon("icon.ico");
 
     Keyboard keyboard{};
     Mouse mouse{};
@@ -89,7 +89,12 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
     CubemapFactory cubemapFactory{};
     SceneFactory sceneFactory{};
 
-    sceneFactory.GetAsset("assets/engine/shapes.fbx");
+    /*
+    * Preload engine assets
+    */
+
+    if (!sceneFactory.GetAsset("assets/engine/shapes.fbx"))
+        return EXIT_FAILURE;
 
     entt::registry sceneReg{};
     json sceneJson{};
@@ -104,7 +109,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
 
     while (run)
     {
-        window.SetTitle(scenePath.filename().wstring());
+        window.SetTitle(scenePath.stem().wstring());
 
         // Message loop
         while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))

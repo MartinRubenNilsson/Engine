@@ -2,7 +2,7 @@
 #include "Window.h"
 
 Window::Window()
-	: myWindow{ nullptr, DestroyWindow }
+	: myHandle{ nullptr, DestroyWindow }
 {
 }
 
@@ -24,7 +24,7 @@ Window::Window(WNDPROC aWndProc)
 	if (RegisterClass(&wndClass) == 0)
 		return;
 
-	myWindow.reset(CreateWindowEx(
+	myHandle.reset(CreateWindowEx(
 		WS_EX_ACCEPTFILES,
 		wndClass.lpszClassName,
 		NULL,
@@ -38,32 +38,41 @@ Window::Window(WNDPROC aWndProc)
 	));
 }
 
+void Window::SetIcon(const fs::path& aPath)
+{
+	if (HICON hIcon = (HICON)LoadImage(NULL, aPath.wstring().c_str(), IMAGE_ICON, 0, 0, LR_LOADFROMFILE))
+	{
+		SendMessage(myHandle.get(), WM_SETICON, ICON_BIG, (LPARAM)hIcon);
+		SendMessage(myHandle.get(), WM_SETICON, ICON_SMALL, (LPARAM)hIcon);
+	}
+}
+
 void Window::SetTitle(std::wstring_view aString)
 {
-	SetWindowText(myWindow.get(), aString.data());
+	SetWindowText(myHandle.get(), aString.data());
 }
 
 std::wstring Window::GetTitle() const
 {
 	std::wstring title{};
-	title.resize(GetWindowTextLength(myWindow.get()) + 1);
-	title.resize(GetWindowText(myWindow.get(), title.data(), static_cast<int>(title.size())));
+	title.resize(GetWindowTextLength(myHandle.get()) + 1);
+	title.resize(GetWindowText(myHandle.get(), title.data(), static_cast<int>(title.size())));
 	return title;
 }
 
 RECT Window::GetClientRect() const
 {
 	RECT rect{};
-	::GetClientRect(myWindow.get(), &rect);
+	::GetClientRect(myHandle.get(), &rect);
 	return rect;
 }
 
 Window::operator HWND() const
 {
-	return myWindow.get();
+	return myHandle.get();
 }
 
 Window::operator bool() const
 {
-	return myWindow.operator bool();
+	return myHandle.operator bool();
 }
