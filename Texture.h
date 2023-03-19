@@ -8,7 +8,7 @@ enum class TextureType
 	Metallic,
 	Roughness,
 	Occlusion,
-	HDR,
+	Cubemap,
 };
 
 const char* TextureTypeToString(TextureType);

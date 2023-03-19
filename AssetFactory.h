@@ -1,14 +1,15 @@
 #pragma once
 #include "Singleton.h"
+#include "Debug.h"
 #include <filesystem>
 #include <unordered_map>
 
-template <class T>
-class AssetFactory : public Singleton<AssetFactory<T>>
+template <class Asset>
+class AssetFactory : public Singleton<AssetFactory<Asset>>
 {
 public:
 	using Path = std::filesystem::path;
-	using Ptr = std::shared_ptr<const T>;
+	using Ptr = std::shared_ptr<const Asset>;
 
 	template <class... Args>
 	Ptr GetAsset(const Path& aPath, Args&&... someArgs)
@@ -17,9 +18,12 @@ public:
 		if (itr != myAssets.end())
 			return itr->second;
 		
-		Ptr asset = std::make_shared<T>(aPath, std::forward<Args>(someArgs)...);
+		Ptr asset = std::make_shared<Asset>(aPath, std::forward<Args>(someArgs)...);
 		if (!asset->operator bool())
-			return nullptr; // todo: add warning printout?
+		{
+			Debug::Println(std::format("Error: Failed to load asset: {}", aPath.string()));
+			return nullptr;
+		}
 
 		myAssets.emplace(aPath, asset);
 		return asset;

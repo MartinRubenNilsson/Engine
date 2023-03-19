@@ -8,7 +8,7 @@
 Cubemap::Cubemap(const fs::path& aPath)
 	: myPath{ aPath }
 {
-	auto equirectMap{ TextureFactory::Get().GetAsset(aPath, TextureType::HDR) };
+	auto equirectMap = TextureFactory::Get().GetAsset(aPath, TextureType::Cubemap);
 	if (!equirectMap)
 		return;
 

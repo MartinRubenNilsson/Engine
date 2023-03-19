@@ -93,6 +93,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
     * Preload engine assets
     */
 
+    if (!textureFactory.GetAsset("assets/engine/default_albedo.png", TextureType::Albedo))
+        return EXIT_FAILURE;
     if (!sceneFactory.GetAsset("assets/engine/shapes.fbx"))
         return EXIT_FAILURE;
 
