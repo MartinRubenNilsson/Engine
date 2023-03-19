@@ -23,17 +23,17 @@ void ImGui::Hierarchy(entt::registry& aRegistry)
 			stack.push_back(entity);
 	}
 
-	bool changed = false;
+	bool dirty = false;
 
-	while (!changed && !stack.empty())
+	while (!dirty && !stack.empty())
 	{
 		entt::entity entity = stack.back();
 		stack.pop_back();
 
 		Transform& transform = aRegistry.get<Transform>(entity);
-		const size_t depth = transform.GetDepth(aRegistry);
+		const float indent = GetStyle().IndentSpacing * transform.GetDepth(aRegistry);
 
-		ImGuiTreeNodeFlags flags{ ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanAvailWidth };
+		ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanAvailWidth;
 		if (!transform.HasChildren())
 			flags |= ImGuiTreeNodeFlags_Leaf;
 		if (IsSelected({ aRegistry, entity }))
@@ -42,8 +42,8 @@ void ImGui::Hierarchy(entt::registry& aRegistry)
 		std::string name{ ICON_FA_CUBE" " };
 		name += transform.GetName();
 
-		if (depth)
-			Indent(GetStyle().IndentSpacing * depth);
+		if (indent > 0.f)
+			Indent(indent);
 
 		const bool open = TreeNodeEx(name.c_str(), flags);
 
@@ -55,12 +55,12 @@ void ImGui::Hierarchy(entt::registry& aRegistry)
 			if (Selectable("Delete"))
 			{
 				transform.Destroy(aRegistry);
-				changed = true;
+				dirty = true;
 			}
 			if (Selectable("Create Child"))
 			{
 				transform.CreateChild(aRegistry);
-				changed = true;
+				dirty = true;
 			}
 			EndPopup();
 		}
@@ -75,11 +75,11 @@ void ImGui::Hierarchy(entt::registry& aRegistry)
 		{
 			if (auto payload = AcceptDragDropPayload("entity"))
 			{
-				auto otherEntity = *reinterpret_cast<entt::entity*>(payload->Data);
-				if (auto otherTrans = aRegistry.try_get<Transform>(otherEntity))
+				auto dropEntity = *reinterpret_cast<entt::entity*>(payload->Data);
+				if (auto dropTrans = aRegistry.try_get<Transform>(dropEntity))
 				{
-					otherTrans->SetParent(aRegistry, entity); // Invalidates stack
-					changed = true;
+					dropTrans->SetParent(aRegistry, entity);
+					dirty = true;
 				}
 			}
 			EndDragDropTarget();
@@ -89,11 +89,10 @@ void ImGui::Hierarchy(entt::registry& aRegistry)
 		{
 			for (entt::entity child : transform.GetChildren())
 				stack.push_back(child);
-
 			TreePop();
 		}
 
-		if (depth)
-			Unindent(GetStyle().IndentSpacing * depth);
+		if (indent > 0.f)
+			Unindent(indent);
 	}
 }

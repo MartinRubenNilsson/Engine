@@ -107,7 +107,7 @@
     <ClInclude Include="PlayControls.h">
       <Filter>editor</Filter>
     </ClInclude>
-    <ClInclude Include="FileMenu.h">
+    <ClInclude Include="Menus.h">
       <Filter>editor</Filter>
     </ClInclude>
   </ItemGroup>
@@ -207,7 +207,7 @@
     <ClCompile Include="PlayControls.cpp">
       <Filter>editor</Filter>
     </ClCompile>
-    <ClCompile Include="FileMenu.cpp">
+    <ClCompile Include="Menus.cpp">
       <Filter>editor</Filter>
     </ClCompile>
   </ItemGroup>
