@@ -29,6 +29,9 @@
 #include "PlayControls.h"
 #include "Menus.h"
 
+// Other
+#include "EngineAsset.h"
+
 namespace
 {
     bool theResize{ false };
@@ -93,9 +96,17 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
     * Preload engine assets
     */
 
-    if (!textureFactory.GetAsset("assets/engine/default_albedo.png", TextureType::Albedo))
+    if (!textureFactory.GetAsset(GetPath(EngineAsset::DefaultAlbedo), TextureType::Albedo))
         return EXIT_FAILURE;
-    if (!sceneFactory.GetAsset("assets/engine/shapes.fbx"))
+    if (!textureFactory.GetAsset(GetPath(EngineAsset::DefaultNormal), TextureType::Normal))
+        return EXIT_FAILURE;
+    if (!textureFactory.GetAsset(GetPath(EngineAsset::DefaultMetallic), TextureType::Metallic))
+        return EXIT_FAILURE;
+    if (!textureFactory.GetAsset(GetPath(EngineAsset::DefaultRoughness), TextureType::Roughness))
+        return EXIT_FAILURE;
+    if (!textureFactory.GetAsset(GetPath(EngineAsset::DefaultOcclusion), TextureType::Occlusion))
+        return EXIT_FAILURE;
+    if (!sceneFactory.GetAsset(GetPath(EngineAsset::ShapesScene)))
         return EXIT_FAILURE;
 
     entt::registry sceneReg{};

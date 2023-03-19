@@ -1,18 +1,30 @@
 #include "pch.h"
 #include "Material.h"
+#include "EngineAsset.h"
 
 /*
 * class Material
 */
 
-Material::Material(const aiMaterial& aMaterial)
-    : myName{ aMaterial.GetName().C_Str() }
+Material::Material()
+    : myTextures{
+        TextureFactory::Get().GetAsset(GetPath(EngineAsset::DefaultAlbedo)),
+        TextureFactory::Get().GetAsset(GetPath(EngineAsset::DefaultNormal)),
+        TextureFactory::Get().GetAsset(GetPath(EngineAsset::DefaultMetallic)),
+        TextureFactory::Get().GetAsset(GetPath(EngineAsset::DefaultRoughness)),
+        TextureFactory::Get().GetAsset(GetPath(EngineAsset::DefaultOcclusion)),
+    }
 {
-    auto& factory{ TextureFactory::Get() };
+}
+
+Material::Material(const aiMaterial& aMaterial)
+    : Material()
+{
+    myName = aMaterial.GetName().C_Str();
 
     for (int i = aiTextureType_DIFFUSE; i < aiTextureType_UNKNOWN; ++i)
     {
-        aiTextureType aiType{ static_cast<aiTextureType>(i) };
+        aiTextureType aiType = static_cast<aiTextureType>(i);
 
         if (aMaterial.GetTextureCount(aiType) == 0)
             continue;
@@ -45,9 +57,20 @@ Material::Material(const aiMaterial& aMaterial)
             continue;
         }
 
-        if (Texture::Ptr texture{ factory.GetAsset(path.C_Str(), type) })
-            myTextures.push_back(texture);
+        if (auto texture = TextureFactory::Get().GetAsset(path.C_Str(), type))
+            AddOrReplaceTexture(texture);
     }
+}
+
+void Material::AddOrReplaceTexture(Texture::Ptr aTexture)
+{
+    if (!aTexture)
+        return;
+    auto itr = std::ranges::find(myTextures, aTexture);
+    if (itr != myTextures.end())
+        *itr = aTexture;
+    else
+        myTextures.push_back(aTexture);
 }
 
 ShaderResourcePtr Material::GetResource(TextureType aType) const
@@ -74,11 +97,11 @@ void from_json(const json& j, Material& m)
 
 void ImGui::Inspect(const Material& aMaterial)
 {
-    Text(aMaterial.GetName().data());
+    Text("Name: %s", aMaterial.GetName().data());
 
-    for (const Texture::Ptr& texture : aMaterial.GetTextures())
+    for (auto& texture : aMaterial.GetTextures())
     {
-        if (texture && TreeNode(TextureTypeToString(texture->GetType())))
+        if (TreeNode(TextureTypeToString(texture->GetType())))
         {
             TextWrapped(texture->GetPath().string().c_str());
             Image(texture->GetResource().Get(), { 200.f, 200.f });

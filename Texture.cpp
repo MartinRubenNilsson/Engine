@@ -24,7 +24,7 @@ DXGI_FORMAT TextureTypeToFormat(TextureType aType)
 	{
         DXGI_FORMAT_UNKNOWN,             // Unknown
 		DXGI_FORMAT_R8G8B8A8_UNORM_SRGB, // Albedo
-		DXGI_FORMAT_R8G8B8A8_UNORM,		 // Normal
+        DXGI_FORMAT_R8G8B8A8_UNORM,		 // Normal
 		DXGI_FORMAT_R8_UNORM,			 // Metallic
 		DXGI_FORMAT_R8_UNORM,			 // Roughness
 		DXGI_FORMAT_R8_UNORM,			 // Occlusion

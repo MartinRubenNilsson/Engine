@@ -201,6 +201,7 @@
     <ClInclude Include="DepthBuffer.h" />
     <ClInclude Include="Drop.h" />
     <ClInclude Include="DX11.h" />
+    <ClInclude Include="EngineAsset.h" />
     <ClInclude Include="EnttCommon.h" />
     <ClInclude Include="Menus.h" />
     <ClInclude Include="FullscreenPass.h" />
@@ -241,6 +242,7 @@
     <ClCompile Include="DepthBuffer.cpp" />
     <ClCompile Include="Drop.cpp" />
     <ClCompile Include="DX11.cpp" />
+    <ClCompile Include="EngineAsset.cpp" />
     <ClCompile Include="EnttCommon.cpp" />
     <ClCompile Include="Menus.cpp" />
     <ClCompile Include="FullscreenPass.cpp" />

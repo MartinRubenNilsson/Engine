@@ -21,7 +21,7 @@ public:
 	using Ptr = std::shared_ptr<const Texture>;
 
 	Texture() = default;
-	Texture(const fs::path&, TextureType);
+	Texture(const fs::path&, TextureType aType = TextureType::Unknown);
 
 	ShaderResourcePtr GetResource() const { return myShaderResource; }
 

@@ -12,14 +12,23 @@ namespace ImGui
 	template <class Component>
 	void InspectComponent(entt::handle aHandle, const char* aLabel)
 	{
+		constexpr bool isTransform = std::is_same_v<Component, Transform>;
+
 		if (aHandle.all_of<Component>())
 		{
 			bool open = CollapsingHeader(aLabel, ImGuiTreeNodeFlags_DefaultOpen);
 
 			if (BeginPopupContextItem())
 			{
-				if constexpr (!std::is_same_v<Component, Transform>)
+				if constexpr (isTransform)
 				{
+					if (MenuItem("Reset"))
+						aHandle.get<Transform>().SetLocalMatrix({});
+				}
+				else
+				{
+					if (MenuItem("Reset"))
+						aHandle.get<Component>() = {};
 					if (MenuItem("Remove"))
 					{
 						aHandle.erase<Component>();
@@ -39,7 +48,7 @@ namespace ImGui
 		{
 			if (BeginPopup("Add Component"))
 			{
-				if constexpr (!std::is_same_v<Component, Transform>)
+				if constexpr (!isTransform)
 				{
 					if (MenuItem(aLabel))
 						aHandle.emplace<Component>();

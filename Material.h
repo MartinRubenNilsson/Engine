@@ -4,8 +4,10 @@
 class Material
 {
 public:
-	Material() = default;
+	Material();
 	Material(const aiMaterial&);
+
+	void AddOrReplaceTexture(Texture::Ptr);
 
 	ShaderResourcePtr GetResource(TextureType) const;
 
@@ -16,7 +18,7 @@ private:
 	friend void to_json(json&, const Material&);
 	friend void from_json(const json&, Material&);
 
-	std::string myName{};
+	std::string myName{ "Default" };
 	std::vector<Texture::Ptr> myTextures{};
 };
 

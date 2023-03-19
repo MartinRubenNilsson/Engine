@@ -103,11 +103,14 @@
     <ClInclude Include="EnttCommon.h">
       <Filter>entt</Filter>
     </ClInclude>
-    <ClInclude Include="Manipulator.h" />
     <ClInclude Include="PlayControls.h">
       <Filter>editor</Filter>
     </ClInclude>
     <ClInclude Include="Menus.h">
+      <Filter>editor</Filter>
+    </ClInclude>
+    <ClInclude Include="EngineAsset.h" />
+    <ClInclude Include="Manipulator.h">
       <Filter>editor</Filter>
     </ClInclude>
   </ItemGroup>
@@ -203,11 +206,14 @@
     <ClCompile Include="EnttSerialization.cpp">
       <Filter>entt</Filter>
     </ClCompile>
-    <ClCompile Include="Manipulator.cpp" />
     <ClCompile Include="PlayControls.cpp">
       <Filter>editor</Filter>
     </ClCompile>
     <ClCompile Include="Menus.cpp">
+      <Filter>editor</Filter>
+    </ClCompile>
+    <ClCompile Include="EngineAsset.cpp" />
+    <ClCompile Include="Manipulator.cpp">
       <Filter>editor</Filter>
     </ClCompile>
   </ItemGroup>

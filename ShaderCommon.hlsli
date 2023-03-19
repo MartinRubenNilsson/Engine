@@ -109,11 +109,11 @@ Texture2D AmbientAccessMap : register(t4);
 Texture2D BlurInputTexture : register(t5);
 Texture2D LightningTexture : register(t6);
 
-Texture2D MaterialAlbedo    : register(t10);
-Texture2D MaterialNormal    : register(t11);
-Texture2D MaterialMetallic  : register(t12);
-Texture2D MaterialRoughness : register(t13);
-Texture2D MaterialOcclusion : register(t14);
+Texture2D<float4> MaterialAlbedo    : register(t10);
+Texture2D<float2> MaterialNormal    : register(t11);
+Texture2D<float>  MaterialMetallic  : register(t12);
+Texture2D<float>  MaterialRoughness : register(t13);
+Texture2D<float>  MaterialOcclusion : register(t14);
 
 TextureCube EnvironmentMap : register(t20); // Skybox
 TextureCube IrradianceMap  : register(t21);  // Diffuse IBL
