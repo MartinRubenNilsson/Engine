@@ -4,12 +4,7 @@ class Mesh
 {
 public:
 	Mesh() = default;
-
-	/*
-	* The first arg is copied to a member but otherwise unused during object creation.
-	* Nevertheless, users must always pass the path of the asset containing the mesh.
-	*/
-	Mesh(const fs::path&, const aiMesh&);
+	Mesh(const aiMesh&);
 
 	/*
 	* Sets vertex and index buffers, then dispatches a draw call.
@@ -26,11 +21,12 @@ public:
 	explicit operator bool() const;
 
 private:
+	friend class Scene;
 	friend void to_json(json&, const Mesh&);
 	friend void from_json(const json&, Mesh&);
 
-	fs::path myPath{};
-	std::string myName{};
+	fs::path myPath{}; // Path to the .fbx/.obj containing this mesh
+	std::string myName{}; // Name of the node/transform on which this mesh sits
 	BufferPtr myVertexBuffer{}, myIndexBuffer{};
 	unsigned myVertexCount{}, myIndexCount{};
 	BoundingBox myBoundingBox{};

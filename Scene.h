@@ -9,7 +9,8 @@ public:
 	// Returns root entity
 	entt::entity Instantiate(entt::registry&) const;
 
-	// todo: add "FindWithTransformName" and "FindWithMeshName"
+	entt::handle Find(std::string_view aName);
+	entt::const_handle Find(std::string_view aName) const;
 
 	const fs::path& GetPath() const { return myPath; }
 	const entt::registry& GetRegistry() const { return myRegistry; }

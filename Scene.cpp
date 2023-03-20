@@ -33,33 +33,37 @@ Scene::Scene(const fs::path& aPath)
     // 2. Load meshes and their material indices
 
     std::vector<Mesh> meshes{};
-    std::vector<unsigned> meshToMaterialIndex{};
+    std::vector<unsigned> meshToMatIndex{};
 
     for (aiMesh* mesh : std::span{ scene->mMeshes, scene->mNumMeshes })
     {
-        meshes.emplace_back(aPath, *mesh);
-        meshToMaterialIndex.push_back(mesh->mMaterialIndex);
+        meshes.emplace_back(*mesh).myPath = aPath;
+        meshToMatIndex.push_back(mesh->mMaterialIndex);
     }
 
     // 3. Load hierarchy and emplace materials and meshes
 
-    Transform& root = Transform::Create(myRegistry);
-    std::vector<std::pair<Transform*, aiNode*>> stack{ { &root, scene->mRootNode } };
+    using Pair = std::pair<Transform*, aiNode*>;
+    std::vector<Pair> stack{ { &Transform::Create(myRegistry), scene->mRootNode } };
 
     while (!stack.empty())
     {
         auto [transform, node] = stack.back();
         stack.pop_back();
 
-        transform->SetName(node->mName.C_Str());
+        entt::entity entity = transform->GetEntity();
+        std::string_view name{ node->mName.C_Str() };
+
+        transform->SetName(name);
         std::memcpy(transform->Data(), &node->mTransformation.Transpose(), sizeof(Matrix));
 
         for (unsigned meshIndex : std::span{ node->mMeshes, node->mNumMeshes })
         {
-            unsigned materialIndex = meshToMaterialIndex.at(meshIndex);
-            myRegistry.emplace<Material>(transform->GetEntity(), materials.at(materialIndex));
-            myRegistry.emplace<Mesh>(transform->GetEntity(), meshes.at(meshIndex));
             // todo: if nMumMeshes > 1, then this will result in a crash!
+
+            unsigned matIndex = meshToMatIndex.at(meshIndex);
+            myRegistry.emplace<Material>(entity, materials.at(matIndex));
+            myRegistry.emplace<Mesh>(entity, meshes.at(meshIndex)).myName = name;
         }
 
         for (aiNode* child : std::span{ node->mChildren, node->mNumChildren })
@@ -69,18 +73,12 @@ Scene::Scene(const fs::path& aPath)
     // 2. Load and emplace cameras
 
     for (aiCamera* camera : std::span{ scene->mCameras, scene->mNumCameras })
-    {
-        entt::entity entity = root.Find(myRegistry, camera->mName.C_Str());
-        myRegistry.emplace<Camera>(entity, *camera);
-    }
+        Find(camera->mName.C_Str()).emplace<Camera>(*camera);
 
     // 3. Load and emplace lights
 
     for (aiLight* light : std::span{ scene->mLights, scene->mNumLights })
-    {
-        entt::entity entity = root.Find(myRegistry, light->mName.C_Str());
-        myRegistry.emplace<Light>(entity, *light);
-    }
+        Find(light->mName.C_Str()).emplace<Light>(*light);
 }
 
 entt::entity Scene::Instantiate(entt::registry& aRegistry) const
@@ -118,6 +116,26 @@ entt::entity Scene::Instantiate(entt::registry& aRegistry) const
     }
 
     return rootCopy.GetEntity();
+}
+
+entt::handle Scene::Find(std::string_view aName)
+{
+    for (auto [entity, transform] : myRegistry.view<Transform>().each())
+    {
+        if (transform.GetName() == aName)
+            return { myRegistry, entity };
+    }
+    return { myRegistry, entt::null };
+}
+
+entt::const_handle Scene::Find(std::string_view aName) const
+{
+    for (auto [entity, transform] : myRegistry.view<Transform>().each())
+    {
+        if (transform.GetName() == aName)
+            return { myRegistry, entity };
+    }
+    return { myRegistry, entt::null };
 }
 
 Scene::operator bool() const
