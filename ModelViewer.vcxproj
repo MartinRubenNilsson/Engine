@@ -203,6 +203,7 @@
     <ClInclude Include="DX11.h" />
     <ClInclude Include="EngineAsset.h" />
     <ClInclude Include="EnttCommon.h" />
+    <ClInclude Include="ImGuiCommon.h" />
     <ClInclude Include="Menus.h" />
     <ClInclude Include="FullscreenPass.h" />
     <ClInclude Include="Inspector.h" />
@@ -244,6 +245,7 @@
     <ClCompile Include="DX11.cpp" />
     <ClCompile Include="EngineAsset.cpp" />
     <ClCompile Include="EnttCommon.cpp" />
+    <ClCompile Include="ImGuiCommon.cpp" />
     <ClCompile Include="Menus.cpp" />
     <ClCompile Include="FullscreenPass.cpp" />
     <ClCompile Include="Inspector.cpp" />

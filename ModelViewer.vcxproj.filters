@@ -113,6 +113,9 @@
     <ClInclude Include="Manipulator.h">
       <Filter>editor</Filter>
     </ClInclude>
+    <ClInclude Include="ImGuiCommon.h">
+      <Filter>imgui</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
@@ -215,6 +218,9 @@
     <ClCompile Include="EngineAsset.cpp" />
     <ClCompile Include="Manipulator.cpp">
       <Filter>editor</Filter>
+    </ClCompile>
+    <ClCompile Include="ImGuiCommon.cpp">
+      <Filter>imgui</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

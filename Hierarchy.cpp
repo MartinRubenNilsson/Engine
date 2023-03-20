@@ -2,6 +2,7 @@
 #include "Hierarchy.h"
 #include "Transform.h"
 #include "EnttCommon.h"
+#include "ImGuiCommon.h"
 
 void ImGui::Hierarchy(entt::registry& aRegistry)
 {
@@ -106,6 +107,17 @@ void ImGui::Hierarchy(entt::registry& aRegistry)
 
 		if (indent > 0.f)
 			Unindent(indent);
+	}
+
+	if (BeginDrapDropTargetWindow("entity"))
+	{
+		if (auto payload = AcceptDragDropPayload("entity"))
+		{
+			auto entity = *reinterpret_cast<entt::entity*>(payload->Data);
+			if (auto transform = aRegistry.try_get<Transform>(entity))
+				transform->SetParent(aRegistry, entt::null);
+		}
+		EndDragDropTarget();
 	}
 
 	if (IsKeyDown(ImGuiKey_Delete))
