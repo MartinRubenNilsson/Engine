@@ -248,15 +248,32 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
             ImGui::Begin("Play Controls", NULL, ImGuiWindowFlags_NoDecoration);
             ImGui::PlayControls(state);
             ImGui::End();
+
+            if (state == PlayState::Stopped)
+            {
+                ImGui::Picker(sceneReg);
+                ImGui::SceneViewManipulate(sceneCamTrans, keyboardState, mouseState);
+
+                static ImGuizmo::OPERATION op = ImGuizmo::TRANSLATE;
+                static ImGuizmo::MODE mode = ImGuizmo::LOCAL;
+
+                if (mouseState.positionMode != Mouse::MODE_RELATIVE)
+                {
+                    ImGui::Shortcut(op);
+                    ImGui::Shortcut(mode);
+                }
+
+                ImGui::SetNextWindowSize({});
+                ImGui::Begin("Manipulator", NULL, ImGuiWindowFlags_NoDecoration);
+                ImGui::Manipulator(sceneReg, sceneCam, sceneCamTrans, op, mode);
+                ImGui::End();
+            }
         }
 
         switch (state)
         {
         case PlayState::Stopped:
         {
-            ImGui::Picker(sceneReg);
-            ImGui::SceneViewManipulate(sceneCamTrans, keyboardState, mouseState);
-            ImGui::Manipulator(sceneReg, sceneCam, sceneCamTrans);
             renderer.SetCamera(sceneCam, sceneCamTrans);
             break;
         }
@@ -268,12 +285,12 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
         }
         case PlayState::Started:
         {
-            entt::entity entity = SortCamerasByDepth(sceneReg);
-            if (sceneReg.all_of<Camera, Transform>(entity))
+            entt::entity camEntity = SortCamerasByDepth(sceneReg);
+            if (sceneReg.all_of<Camera, Transform>(camEntity))
             {
                 renderer.SetCamera(
-                    sceneReg.get<Camera>(entity),
-                    sceneReg.get<Transform>(entity).GetWorldMatrix(sceneReg)
+                    sceneReg.get<Camera>(camEntity),
+                    sceneReg.get<Transform>(camEntity).GetWorldMatrix(sceneReg)
                 );
             }
             break;

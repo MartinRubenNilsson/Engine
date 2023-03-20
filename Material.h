@@ -9,6 +9,7 @@ public:
 
 	void SetTexture(Texture::Ptr);
 	Texture::Ptr GetTexture(TextureType) const;
+	bool HasTexture(TextureType) const;
 
 	std::vector<ShaderResourcePtr> GetResources() const;
 

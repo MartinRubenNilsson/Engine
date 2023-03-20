@@ -4,6 +4,11 @@
 
 namespace
 {
+    TextureType GetType(const Texture::Ptr& ptr)
+    {
+        return ptr->GetType();
+    }
+
     bool LocateFile(fs::path& aPath)
     {
         if (!aPath.has_filename())
@@ -72,6 +77,9 @@ Material::Material(const aiMaterial& aMaterial)
         case aiTextureType_SHININESS:
             type = TextureType::Roughness;
             break;
+        case aiTextureType_AMBIENT_OCCLUSION:
+            type = TextureType::Occlusion;
+            break;
         default:
             Debug::Println(std::format(
                 "Warning: Unsupported texture type {}: {}",
@@ -95,31 +103,46 @@ Material::Material(const aiMaterial& aMaterial)
         if (auto texture = TextureFactory::Get().GetAsset(path, type))
             SetTexture(texture);
     }
+
+    for (TextureType type : GetMaterialTextureTypes())
+    {
+        if (HasTexture(type))
+            continue;
+
+        fs::path path{ myName + "_" + TextureTypeToString(type) + ".jpg" };
+
+        if (!fs::exists(path))
+        {
+            path.replace_extension("png");
+            if (!fs::exists(path))
+                continue;
+        }
+
+        if (auto texture = TextureFactory::Get().GetAsset(path, type))
+            SetTexture(texture);
+    }
 }
 
 void Material::SetTexture(Texture::Ptr aTexture)
 {
     if (!aTexture || !*aTexture)
         return;
-    for (auto& texture : myTextures)
-    {
-        if (texture->GetType() == aTexture->GetType())
-        {
-            texture = aTexture;
-            return;
-        }
-    }
-    myTextures.push_back(aTexture);
+    auto itr = std::ranges::find(myTextures, aTexture->GetType(), GetType);
+    if (itr != myTextures.end())
+        *itr = aTexture;
+    else
+        myTextures.push_back(aTexture);
 }
 
 Texture::Ptr Material::GetTexture(TextureType aType) const
 {
-    for (auto& texture : myTextures)
-    {
-        if (texture->GetType() == aType)
-            return texture;
-    }
-    return nullptr;
+    auto itr = std::ranges::find(myTextures, aType, GetType);
+    return itr != myTextures.end() ? *itr : nullptr;
+}
+
+bool Material::HasTexture(TextureType aType) const
+{
+    return std::ranges::contains(myTextures, aType, GetType);
 }
 
 std::vector<ShaderResourcePtr> Material::GetResources() const

@@ -119,10 +119,20 @@ void ImGui::Hierarchy(entt::registry& aRegistry)
 		}
 		EndDragDropTarget();
 	}
+	
+	/*
+	* Shortcuts
+	*/
 
-	if (IsKeyDown(ImGuiKey_Delete))
+	if (IsKeyPressed(ImGuiKey_Delete))
 	{
 		if (auto transform = aRegistry.try_get<Transform>(GetSelected(aRegistry)))
 			transform->Destroy(aRegistry);
+	}
+
+	if (IsKeyDown(ImGuiMod_Ctrl) && IsKeyPressed(ImGuiKey_D))
+	{
+		if (auto transform = aRegistry.try_get<Transform>(GetSelected(aRegistry)))
+			transform->Duplicate(aRegistry);
 	}
 }

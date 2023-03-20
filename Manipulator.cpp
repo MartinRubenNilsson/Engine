@@ -4,35 +4,51 @@
 #include "Camera.h"
 #include "Transform.h"
 
-void ImGui::Manipulator(entt::registry& aRegistry, Camera& aCamera, Matrix& aCameraTransform)
+void ImGui::Shortcut(OPERATION& anOp)
 {
-    using namespace ImGuizmo;
+    if (IsKeyPressed(ImGuiKey_Q))
+        anOp = TRANSLATE;
+    if (IsKeyPressed(ImGuiKey_W))
+        anOp = ROTATE;
+    if (IsKeyPressed(ImGuiKey_E))
+        anOp = SCALE;
+    if (IsKeyPressed(ImGuiKey_R))
+        anOp = TRANSLATE | ROTATE | SCALE;
+}
 
-    static OPERATION operation = TRANSLATE;
-    static MODE mode = LOCAL;
+void ImGui::Shortcut(MODE& aMode)
+{
+    if (IsKeyPressed(ImGuiKey_X))
+        aMode = static_cast<MODE>(1 - aMode);
+}
 
-    if (Mouse::Get().GetState().positionMode == Mouse::MODE_ABSOLUTE)
-    {
-        if (IsKeyPressed(ImGuiKey_W))
-            operation = TRANSLATE;
-        if (IsKeyPressed(ImGuiKey_E))
-            operation = ROTATE;
-        if (IsKeyPressed(ImGuiKey_R))
-            operation = SCALE;
+void ImGui::Manipulator(entt::registry& aRegistry, const Camera& aCam, const Matrix& aCamTrans, OPERATION& op, MODE& mode)
+{
+    if (RadioButton(ICON_FA_ARROWS_UP_DOWN_LEFT_RIGHT, op == TRANSLATE))
+        op = TRANSLATE;
+    if (RadioButton(ICON_FA_ROTATE, op == ROTATE))
+        op = ROTATE;
+    if (RadioButton(ICON_FA_SQUARE_ARROW_UP_RIGHT, op == SCALE))
+        op = SCALE;
+    if (RadioButton(ICON_FA_GROUP_ARROWS_ROTATE, op == (TRANSLATE | ROTATE | SCALE)))
+        op = (TRANSLATE | ROTATE | SCALE);
 
-        if (IsKeyPressed(ImGuiKey_X))
-            mode = static_cast<MODE>(1 - mode);
-    }
+    Separator();
 
-    SetOrthographic(aCamera.GetType() == CameraType::Orthographic);
+    if (RadioButton(ICON_FA_CUBE, mode == LOCAL))
+        mode = LOCAL;
+    if (RadioButton(ICON_FA_GLOBE, mode == WORLD))
+        mode = WORLD;
+
+    SetOrthographic(aCam.GetType() == CameraType::Orthographic);
 
     if (auto transform = aRegistry.try_get<Transform>(GetSelected(aRegistry)))
     {
-        Matrix view = aCameraTransform.Invert() * GetDefaultViewMatrix();
-        Matrix proj = aCamera.GetProjMatrix();
+        Matrix view = aCamTrans.Invert() * GetDefaultViewMatrix();
+        Matrix proj = aCam.GetProjMatrix();
         Matrix world = transform->GetWorldMatrix(aRegistry);
 
-        if (Manipulate(&view._11, &proj._11, operation, mode, &world._11))
+        if (Manipulate(&view._11, &proj._11, op, mode, &world._11))
             transform->SetWorldMatrix(aRegistry, world);
     }
 }
