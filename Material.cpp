@@ -2,6 +2,31 @@
 #include "Material.h"
 #include "EngineAsset.h"
 
+namespace
+{
+    bool LocateFile(fs::path& aPath)
+    {
+        if (!aPath.has_filename())
+            return false;
+
+        if (fs::exists(aPath))
+            return true;
+
+        fs::path filename{ aPath.filename() };
+
+        for (auto& entry : fs::recursive_directory_iterator{ fs::current_path() })
+        {
+            if (entry.is_regular_file() && entry.path().filename() == filename)
+            {
+                aPath = entry.path();
+                return true;
+            }
+        }
+
+        return false;
+    }
+}
+
 /*
 * class Material
 */
@@ -27,8 +52,8 @@ Material::Material(const aiMaterial& aMaterial)
         if (aMaterial.GetTextureCount(aiType) == 0)
             continue;
 
-        aiString path{};
-        if (aMaterial.GetTexture(aiType, 0, &path) != aiReturn_SUCCESS)
+        aiString aiPath{};
+        if (aMaterial.GetTexture(aiType, 0, &aiPath) != aiReturn_SUCCESS)
             continue;
 
         TextureType type{};
@@ -50,12 +75,24 @@ Material::Material(const aiMaterial& aMaterial)
         default:
             Debug::Println(std::format(
                 "Warning: Unsupported texture type {}: {}",
-                TextureTypeToString(aiType), path.C_Str()
+                TextureTypeToString(aiType), aiPath.C_Str()
             ));
             continue;
         }
 
-        if (auto texture = TextureFactory::Get().GetAsset(path.C_Str(), type))
+        fs::path path{ aiPath.C_Str() };
+
+        if (!LocateFile(path))
+        {
+            Debug::Println(std::format(
+                "Error: Could not locate texture: {}",
+                aiPath.C_Str()
+            ));
+
+            continue;
+        }
+
+        if (auto texture = TextureFactory::Get().GetAsset(path, type))
             SetTexture(texture);
     }
 }
@@ -136,7 +173,7 @@ void ImGui::Inspect(const Material& aMaterial)
         if (texture && IsItemHovered())
         {
             BeginTooltip();
-            Image(texture->GetResource().Get(), { 256.f, 256.f });
+            Image(texture->GetResource().Get(), { 128.f, 128.f });
             EndTooltip();
         }
     }
