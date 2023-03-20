@@ -1,14 +1,14 @@
 #include "pch.h"
 #include "DearImGui.h"
 
-DearImGui::DearImGui(HWND hWnd, ID3D11Device* aDevice, ID3D11DeviceContext* aContext)
+DearImGui::DearImGui(HWND hWnd, DevicePtr aDevice, DeviceContextPtr aContext)
 {
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
 
     if (!ImGui_ImplWin32_Init(hWnd))
         return;
-    if (!ImGui_ImplDX11_Init(aDevice, aContext))
+    if (!ImGui_ImplDX11_Init(aDevice.Get(), aContext.Get()))
         return;
 
     ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_DockingEnable;
@@ -31,7 +31,7 @@ void DearImGui::NewFrame()
     ImGui_ImplWin32_NewFrame();
     ImGui::NewFrame();
     ImGuizmo::BeginFrame();
-    ImGuiViewport* viewport{ ImGui::GetMainViewport() };
+    ImGuiViewport* viewport = ImGui::GetMainViewport();
     ImGuizmo::SetRect(0.f, 0.f, viewport->Size.x, viewport->Size.y);
     ImGui::DockSpaceOverViewport(viewport, ImGuiDockNodeFlags_PassthruCentralNode | ImGuiDockNodeFlags_NoDockingInCentralNode);
 }
@@ -40,6 +40,11 @@ void DearImGui::Render()
 {
     ImGui::Render();
     ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+}
+
+DearImGui::operator bool() const
+{
+    return mySucceeded;
 }
 
 void DearImGui::AddFonts()

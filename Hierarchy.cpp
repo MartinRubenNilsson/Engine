@@ -12,8 +12,10 @@ void ImGui::Hierarchy(entt::registry& aRegistry)
 		EndPopup();
 	}
 
-	// Hierarchy is traversed depth-first using a stack.
-	// The stack is initialized to contain all root entities.
+	/*
+	* Hierarchy is traversed depth-first using a stack,
+	* which is initialized to contain all root entities.
+	*/
 
 	std::vector<entt::entity> stack{};
 
@@ -39,27 +41,37 @@ void ImGui::Hierarchy(entt::registry& aRegistry)
 		if (IsSelected({ aRegistry, entity }))
 			flags |= ImGuiTreeNodeFlags_Selected;
 
-		std::string name{ ICON_FA_CUBE" " };
-		name += transform.GetName();
+		std::string label{ ICON_FA_CUBE" " };
+		label += transform.GetName();
+		label += "##";
+		label += std::to_string(std::to_underlying(entity));
 
 		if (indent > 0.f)
 			Indent(indent);
 
-		const bool open = TreeNodeEx(name.c_str(), flags);
+		const bool open = TreeNodeEx(label.c_str(), flags);
 
 		if (IsItemClicked() && !IsItemToggledOpen())
 			Select({ aRegistry, entity });
 
-		if (BeginPopupContextItem(std::to_string(std::to_underlying(entity)).c_str()))
+		if (BeginPopupContextItem(label.c_str()))
 		{
+			if (Selectable("Duplicate"))
+			{
+				Transform& copy = transform.Duplicate(aRegistry, transform.GetParent());
+				Select({ aRegistry, copy.GetEntity() });
+				dirty = true;
+			}
 			if (Selectable("Delete"))
 			{
 				transform.Destroy(aRegistry);
 				dirty = true;
 			}
+			Separator();
 			if (Selectable("Create Child"))
 			{
-				transform.CreateChild(aRegistry);
+				Transform& child = transform.CreateChild(aRegistry);
+				Select({ aRegistry, child.GetEntity() });
 				dirty = true;
 			}
 			EndPopup();
@@ -68,6 +80,7 @@ void ImGui::Hierarchy(entt::registry& aRegistry)
 		if (BeginDragDropSource())
 		{
 			SetDragDropPayload("entity", &entity, sizeof(entt::entity));
+			Text(transform.GetName().data());
 			EndDragDropSource();
 		}
 
@@ -87,12 +100,17 @@ void ImGui::Hierarchy(entt::registry& aRegistry)
 
 		if (open)
 		{
-			for (entt::entity child : transform.GetChildren())
-				stack.push_back(child);
+			stack.append_range(transform.GetChildren());
 			TreePop();
 		}
 
 		if (indent > 0.f)
 			Unindent(indent);
+	}
+
+	if (IsKeyDown(ImGuiKey_Delete))
+	{
+		if (auto transform = aRegistry.try_get<Transform>(GetSelectedFront(aRegistry)))
+			transform->Destroy(aRegistry);
 	}
 }

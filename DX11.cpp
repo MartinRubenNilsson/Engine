@@ -5,23 +5,31 @@
 
 DX11::DX11()
 {
-	UINT flags{ D3D11_CREATE_DEVICE_SINGLETHREADED };
+	UINT flags = D3D11_CREATE_DEVICE_SINGLETHREADED;
 #ifdef _DEBUG
 	flags |= D3D11_CREATE_DEVICE_DEBUG;
 #endif
 
-	D3D_FEATURE_LEVEL featureLevel{ D3D_FEATURE_LEVEL_11_1 };
+	std::array levels
+	{
+		D3D_FEATURE_LEVEL_11_1,
+	};
 
 	myResult = D3D11CreateDevice(
 		NULL,
 		D3D_DRIVER_TYPE_HARDWARE,
 		NULL,
 		flags,
-		&featureLevel,
-		1,
+		levels.data(),
+		(UINT)levels.size(),
 		D3D11_SDK_VERSION,
 		&myDevice,
 		NULL,
 		&myContext
 	);
+}
+
+DX11::operator bool() const
+{
+	return SUCCEEDED(myResult);
 }

@@ -7,6 +7,8 @@ public:
 	Scene() = default;
 	Scene(const fs::path&);
 
+	// todo: add "FindWithTransformName" and "FindWithMeshName"
+
 	const fs::path& GetPath() const { return myPath; }
 	const entt::registry& GetRegistry() const { return myRegistry; }
 

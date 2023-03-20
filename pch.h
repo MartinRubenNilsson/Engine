@@ -48,6 +48,9 @@ using Microsoft::WRL::ComPtr;
 using namespace DirectX;
 using namespace DirectX::SimpleMath;
 
+using DevicePtr = ComPtr<ID3D11Device>;
+using DeviceContextPtr = ComPtr<ID3D11DeviceContext>;
+
 using SwapChainPtr = ComPtr<IDXGISwapChain>;
 using InputLayoutPtr = ComPtr<ID3D11InputLayout>;
 using BufferPtr = ComPtr<ID3D11Buffer>;

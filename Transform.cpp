@@ -23,6 +23,32 @@ Transform& Transform::CreateChild(entt::registry& aRegistry)
 	return child;
 }
 
+Transform& Transform::Duplicate(entt::registry& aRegistry, entt::entity aParent, bool aWorldTransformStays)
+{
+	Transform& copy = Create(aRegistry);
+	copy.myParent = aParent;
+	copy.myName = myName;
+
+	if (aWorldTransformStays)
+		copy.SetWorldMatrix(aRegistry, GetWorldMatrix(aRegistry));
+	else
+		copy.SetLocalMatrix(GetLocalMatrix());
+
+	if (auto parent = aRegistry.try_get<Transform>(aParent))
+		parent->AddChild(copy.myEntity);
+
+	for (auto [name, storage] : aRegistry.storage())
+	{
+		if (storage.type() != entt::type_id<Transform>() && storage.contains(myEntity))
+			storage.emplace(copy.myEntity, storage.get(myEntity));
+	}
+
+	for (entt::entity child : myChildren)
+		aRegistry.get<Transform>(child).Duplicate(aRegistry, copy.myEntity, false);
+
+	return copy;
+}
+
 void Transform::Destroy(entt::registry& aRegistry)
 {
 	entt::entity me = myEntity;
@@ -83,30 +109,30 @@ Matrix Transform::GetWorldMatrix(const entt::registry& aRegistry) const
 	return result;
 }
 
-void Transform::SetParent(entt::registry& aRegistry, entt::entity anEntity, bool aWorldTransformStays)
+void Transform::SetParent(entt::registry& aRegistry, entt::entity aParent, bool aWorldTransformStays)
 {
-	if (myParent == anEntity)
+	if (myParent == aParent)
 		return;
 
-	if (auto transform = aRegistry.try_get<Transform>(anEntity))
+	if (auto newParent = aRegistry.try_get<Transform>(aParent))
 	{
-		if (transform->IsChildOf(aRegistry, myEntity))
+		if (newParent->IsChildOf(aRegistry, myEntity))
 			return;
-		transform->AddChild(myEntity);
+		newParent->AddChild(myEntity);
 	}
 
-	if (auto parent = aRegistry.try_get<Transform>(myParent))
-		parent->RemoveChild(myEntity);
+	if (auto oldParent = aRegistry.try_get<Transform>(myParent))
+		oldParent->RemoveChild(myEntity);
 
 	if (aWorldTransformStays)
 	{
 		Matrix worldMatrix = GetWorldMatrix(aRegistry);
-		myParent = anEntity;
+		myParent = aParent;
 		SetWorldMatrix(aRegistry, worldMatrix);
 	}
 	else
 	{
-		myParent = anEntity;
+		myParent = aParent;
 	}
 }
 

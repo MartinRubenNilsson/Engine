@@ -293,10 +293,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
             ScopedViewports scopedViewport{ backBuffer.GetViewport() };
 
             backBuffer.Clear();
-
             renderer.Render(sceneReg);
             imGui.Render();
-
             backBuffer.Present();
         }
     }

@@ -62,11 +62,8 @@ Scene::Scene(const fs::path& aPath)
                 myRegistry.emplace<Mesh>(transform->GetEntity(), meshes.at(meshIndex));
             }
 
-            for (aiNode* childNode : std::span{ node->mChildren, node->mNumChildren })
-            {
-                Transform& childTransform = transform->CreateChild(myRegistry);
-                stack.emplace_back(&childTransform, childNode);
-            }
+            for (aiNode* child : std::span{ node->mChildren, node->mNumChildren })
+                stack.emplace_back(&transform->CreateChild(myRegistry), child);
         }
     }
 

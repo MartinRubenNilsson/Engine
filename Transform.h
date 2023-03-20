@@ -6,8 +6,8 @@ public:
 	static Transform& Create(entt::registry&);
 
 	Transform& CreateChild(entt::registry&);
-
-	void Destroy(entt::registry&); // Recursive, destroys children as well
+	Transform& Duplicate(entt::registry&, entt::entity aParent = entt::null, bool aWorldTransformStays = true);
+	void Destroy(entt::registry&);
 
 	entt::entity Find(const entt::registry&, std::string_view aName) const;
 
@@ -22,7 +22,7 @@ public:
 	void SetWorldMatrix(const entt::registry&, const Matrix&);
 	Matrix GetWorldMatrix(const entt::registry&) const;
 
-	void SetParent(entt::registry&, entt::entity, bool aWorldTransformStays = true); // Pass entt::null to unparent
+	void SetParent(entt::registry&, entt::entity aParent = entt::null, bool aWorldTransformStays = true);
 	entt::entity GetParent() const { return myParent; }
 
 	const auto& GetChildren() const { return myChildren; }

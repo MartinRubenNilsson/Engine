@@ -3,13 +3,13 @@
 class DearImGui
 {
 public:
-	DearImGui(HWND, ID3D11Device*, ID3D11DeviceContext*);
+	DearImGui(HWND, DevicePtr, DeviceContextPtr);
 	~DearImGui();
 
 	void NewFrame();
 	void Render();
 
-	explicit operator bool() const { return mySucceeded; }
+	explicit operator bool() const;
 
 private:
 	void AddFonts();
