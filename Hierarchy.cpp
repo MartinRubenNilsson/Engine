@@ -38,7 +38,7 @@ void ImGui::Hierarchy(entt::registry& aRegistry)
 		ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanAvailWidth;
 		if (!transform.HasChildren())
 			flags |= ImGuiTreeNodeFlags_Leaf;
-		if (IsSelected({ aRegistry, entity }))
+		if (entity == GetSelected(aRegistry))
 			flags |= ImGuiTreeNodeFlags_Selected;
 
 		std::string label{ ICON_FA_CUBE" " };
@@ -52,14 +52,14 @@ void ImGui::Hierarchy(entt::registry& aRegistry)
 		const bool open = TreeNodeEx(label.c_str(), flags);
 
 		if (IsItemClicked() && !IsItemToggledOpen())
-			Select({ aRegistry, entity });
+			Select(aRegistry, entity);
 
 		if (BeginPopupContextItem(label.c_str()))
 		{
 			if (Selectable("Duplicate"))
 			{
 				Transform& copy = transform.Duplicate(aRegistry, transform.GetParent());
-				Select({ aRegistry, copy.GetEntity() });
+				Select(aRegistry, copy.GetEntity());
 				dirty = true;
 			}
 			if (Selectable("Delete"))
@@ -71,7 +71,7 @@ void ImGui::Hierarchy(entt::registry& aRegistry)
 			if (Selectable("Create Child"))
 			{
 				Transform& child = transform.CreateChild(aRegistry);
-				Select({ aRegistry, child.GetEntity() });
+				Select(aRegistry, child.GetEntity());
 				dirty = true;
 			}
 			EndPopup();
@@ -110,7 +110,7 @@ void ImGui::Hierarchy(entt::registry& aRegistry)
 
 	if (IsKeyDown(ImGuiKey_Delete))
 	{
-		if (auto transform = aRegistry.try_get<Transform>(GetSelectedFront(aRegistry)))
+		if (auto transform = aRegistry.try_get<Transform>(GetSelected(aRegistry)))
 			transform->Destroy(aRegistry);
 	}
 }

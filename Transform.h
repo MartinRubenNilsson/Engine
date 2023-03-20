@@ -18,7 +18,7 @@ public:
 	void SetName(std::string_view aName)		{ myName = aName; }
 	std::string_view GetName() const			{ return myName; }
 	void SetLocalMatrix(const Matrix& aMatrix)	{ myLocalMatrix = aMatrix; }
-	const Matrix& GetLocalMatrix()				{ return myLocalMatrix; }
+	const Matrix& GetLocalMatrix() const		{ return myLocalMatrix; }
 	void SetWorldMatrix(const entt::registry&, const Matrix&);
 	Matrix GetWorldMatrix(const entt::registry&) const;
 
@@ -27,7 +27,8 @@ public:
 
 	const auto& GetChildren() const { return myChildren; }
 
-	bool IsChildOf(entt::registry&, entt::entity) const; // Also true if equal
+	bool IsChildOf(const entt::registry&, entt::entity) const; // Also true if equal
+	bool HasParent(const entt::registry&) const;
 	bool HasChildren() const { return !myChildren.empty(); }
 
 	float* Data();

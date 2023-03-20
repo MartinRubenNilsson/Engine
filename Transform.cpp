@@ -136,7 +136,7 @@ void Transform::SetParent(entt::registry& aRegistry, entt::entity aParent, bool 
 	}
 }
 
-bool Transform::IsChildOf(entt::registry& aRegistry, entt::entity anEntity) const
+bool Transform::IsChildOf(const entt::registry& aRegistry, entt::entity anEntity) const
 {
 	for (auto t = this; t; t = aRegistry.try_get<Transform>(t->myParent))
 	{
@@ -145,6 +145,11 @@ bool Transform::IsChildOf(entt::registry& aRegistry, entt::entity anEntity) cons
 	}
 
 	return false;
+}
+
+bool Transform::HasParent(const entt::registry& aRegistry) const
+{
+	return aRegistry.valid(myParent);
 }
 
 void Transform::AddChild(entt::entity anEntity)

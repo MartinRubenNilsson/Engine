@@ -26,7 +26,7 @@ void ImGui::Manipulator(entt::registry& aRegistry, Camera& aCamera, Matrix& aCam
 
     SetOrthographic(aCamera.GetType() == CameraType::Orthographic);
 
-    if (auto transform = aRegistry.try_get<Transform>(GetSelectedFront(aRegistry)))
+    if (auto transform = aRegistry.try_get<Transform>(GetSelected(aRegistry)))
     {
         Matrix view = aCameraTransform.Invert() * GetDefaultViewMatrix();
         Matrix proj = aCamera.GetProjMatrix();

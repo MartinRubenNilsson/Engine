@@ -18,5 +18,5 @@ void ImGui::Picker(entt::registry& aRegistry)
         static_cast<unsigned>(GetMousePos().y)
     );
 
-    Select({ aRegistry, selection }); // todo: if holding ctrl, then select multiple
+    Select(aRegistry, selection);
 }

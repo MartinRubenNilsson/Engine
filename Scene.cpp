@@ -5,13 +5,14 @@
 #include "Transform.h"
 #include "Camera.h"
 #include "Light.h"
+#include "EnttCommon.h"
 
 #pragma comment(lib, "assimp-vc142-mt")
 
 #define IMPORT_FLAGS \
     aiProcess_ConvertToLeftHanded | \
     aiProcessPreset_TargetRealtime_MaxQuality | \
-    static_cast<unsigned>(aiProcess_GenBoundingBoxes) 
+    static_cast<unsigned>(aiProcess_GenBoundingBoxes)
 
 Scene::Scene(const fs::path& aPath)
 {
@@ -20,7 +21,7 @@ Scene::Scene(const fs::path& aPath)
     if (!scene)
         return;
 
-    ScopedCurrentPath scopedPath{ aPath.parent_path() };
+    ScopedCurrentPath scopedPath{ aPath.parent_path() }; // Since texture paths are relative to scene
 
     // 1. Load materials
 
@@ -43,28 +44,26 @@ Scene::Scene(const fs::path& aPath)
     // 3. Load hierarchy and emplace materials and meshes
 
     Transform& root = Transform::Create(myRegistry);
+    std::vector<std::pair<Transform*, aiNode*>> stack{ { &root, scene->mRootNode } };
 
+    while (!stack.empty())
     {
-        std::vector<std::pair<Transform*, aiNode*>> stack{ { &root, scene->mRootNode } };
+        auto [transform, node] = stack.back();
+        stack.pop_back();
 
-        while (!stack.empty())
+        transform->SetName(node->mName.C_Str());
+        std::memcpy(transform->Data(), &node->mTransformation.Transpose(), sizeof(Matrix));
+
+        for (unsigned meshIndex : std::span{ node->mMeshes, node->mNumMeshes })
         {
-            auto [transform, node] = stack.back();
-            stack.pop_back();
-
-            transform->SetName(node->mName.C_Str());
-            std::memcpy(transform->Data(), &node->mTransformation.Transpose(), sizeof(Matrix));
-
-            for (unsigned meshIndex : std::span{ node->mMeshes, node->mNumMeshes })
-            {
-                unsigned materialIndex = meshToMaterialIndex.at(meshIndex);
-                myRegistry.emplace<Material>(transform->GetEntity(), materials.at(materialIndex));
-                myRegistry.emplace<Mesh>(transform->GetEntity(), meshes.at(meshIndex));
-            }
-
-            for (aiNode* child : std::span{ node->mChildren, node->mNumChildren })
-                stack.emplace_back(&transform->CreateChild(myRegistry), child);
+            unsigned materialIndex = meshToMaterialIndex.at(meshIndex);
+            myRegistry.emplace<Material>(transform->GetEntity(), materials.at(materialIndex));
+            myRegistry.emplace<Mesh>(transform->GetEntity(), meshes.at(meshIndex));
+            // todo: if nMumMeshes > 1, then this will result in a crash!
         }
+
+        for (aiNode* child : std::span{ node->mChildren, node->mNumChildren })
+            stack.emplace_back(&transform->CreateChild(myRegistry), child);
     }
 
     // 2. Load and emplace cameras
@@ -84,7 +83,54 @@ Scene::Scene(const fs::path& aPath)
     }
 }
 
+entt::entity Scene::Instantiate(entt::registry& aRegistry) const
+{
+    if (myRegistry.empty())
+        return entt::null;
+
+    auto& rootCopy = Transform::Create(aRegistry);
+    auto& rootOrig = myRegistry.get<Transform>(GetRootEntity());
+
+    std::vector<std::pair<Transform*, const Transform*>> stack{ { &rootCopy, &rootOrig } };
+
+    while (!stack.empty())
+    {
+        auto [copy, orig] = stack.back();
+        stack.pop_back();
+
+        copy->SetName(orig->GetName());
+        copy->SetLocalMatrix(orig->GetLocalMatrix());
+
+        for (entt::entity child : orig->GetChildren())
+        {
+            auto& childCopy = copy->CreateChild(aRegistry);
+            auto& childOrig = myRegistry.get<Transform>(child);
+            stack.emplace_back(&childCopy, &childOrig);
+        }
+
+        entt::handle dst{ aRegistry, copy->GetEntity() };
+        entt::const_handle src{ myRegistry, orig->GetEntity() };
+
+        TryCopy<Material>(dst, src);
+        TryCopy<Mesh>(dst, src);
+        TryCopy<Camera>(dst, src);
+        TryCopy<Light>(dst, src);
+    }
+
+    return rootCopy.GetEntity();
+}
+
 Scene::operator bool() const
 {
     return !myRegistry.empty();
+}
+
+entt::entity Scene::GetRootEntity() const
+{
+    for (auto [entity, transform] : myRegistry.view<Transform>().each())
+    {
+        if (!transform.HasParent(myRegistry))
+            return entity;
+    }
+    return entt::null;
 }

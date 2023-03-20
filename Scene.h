@@ -1,11 +1,13 @@
 #pragma once
-#include "Mesh.h"
 
 class Scene
 {
 public:
 	Scene() = default;
 	Scene(const fs::path&);
+
+	// Returns root entity
+	entt::entity Instantiate(entt::registry&) const;
 
 	// todo: add "FindWithTransformName" and "FindWithMeshName"
 
@@ -15,6 +17,8 @@ public:
 	explicit operator bool() const;
 
 private:
+	entt::entity GetRootEntity() const;
+
 	fs::path myPath{};
 	entt::registry myRegistry{};
 };

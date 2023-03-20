@@ -2,26 +2,16 @@
 #include "EnttCommon.h"
 #include "Tags.h"
 
-entt::entity GetSelectedFront(entt::registry& aRegistry)
-{
-	return aRegistry.view<Tag::Selected>().front();
-}
-
-void ClearSelection(entt::registry& aRegistry)
+void Select(entt::registry& aRegistry, entt::entity anEntity)
 {
 	auto selection = aRegistry.view<Tag::Selected>();
 	aRegistry.erase<Tag::Selected>(selection.begin(), selection.end());
+
+	if (aRegistry.valid(anEntity))
+		aRegistry.emplace_or_replace<Tag::Selected>(anEntity);
 }
 
-void Select(entt::handle aHandle, bool aMultiSelect)
+entt::entity GetSelected(entt::registry& aRegistry)
 {
-	if (!aMultiSelect)
-		ClearSelection(*aHandle.registry());
-	if (aHandle)
-		aHandle.emplace_or_replace<Tag::Selected>();
-}
-
-bool IsSelected(entt::handle aHandle)
-{
-	return aHandle.all_of<Tag::Selected>();
+	return aRegistry.view<Tag::Selected>().front();
 }

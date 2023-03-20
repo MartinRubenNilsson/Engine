@@ -13,6 +13,7 @@
 
 // Components
 #include "EnttSerialization.h"
+#include "EnttCommon.h"
 #include "Texture.h"
 #include "Cubemap.h"
 #include "Scene.h"
@@ -142,10 +143,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
                 if (extension == ".fbx")
                 {
                     if (auto scene = sceneFactory.GetAsset(path))
-                    {
-                        sceneJson = scene->GetRegistry();
-                        sceneReg = sceneJson;
-                    }
+                        Select(sceneReg, scene->Instantiate(sceneReg));
                 }
                 else
                 {

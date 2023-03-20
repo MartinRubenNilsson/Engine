@@ -61,7 +61,7 @@ namespace ImGui
 
 void ImGui::Inspector(entt::registry& aRegistry)
 {
-	entt::handle selection{ aRegistry, GetSelectedFront(aRegistry) };
+	entt::handle selection{ aRegistry, GetSelected(aRegistry) };
 	if (!selection)
 		return;
 
