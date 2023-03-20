@@ -12,8 +12,11 @@ public:
 	using Ptr = std::shared_ptr<const Asset>;
 
 	template <class... Args>
-	Ptr GetAsset(const Path& aPath, Args&&... someArgs)
+	Ptr GetAsset(Path aPath, Args&&... someArgs)
 	{
+		if (aPath.is_absolute())
+			aPath = fs::relative(aPath);
+
 		auto itr = myAssets.find(aPath);
 		if (itr != myAssets.end())
 			return itr->second;
