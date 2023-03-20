@@ -42,7 +42,7 @@ public:
 	Renderer(unsigned aWidth, unsigned aHeight);
 
 	bool ResizeTextures(unsigned aWidth, unsigned aHeight);
-	void SetCamera(Camera aCamera, const Matrix& aTransform);
+	void SetCamera(const Camera& aCamera, const Matrix& aTransform);
 	void Render(const entt::registry&);
 
 	RenderTexture& GetTexture(TextureSlot);

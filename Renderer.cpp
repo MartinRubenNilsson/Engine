@@ -81,29 +81,31 @@ bool Renderer::ResizeTextures(unsigned aWidth, unsigned aHeight)
 	return true;
 }
 
-void Renderer::SetCamera(Camera aCamera, const Matrix& aTransform)
+void Renderer::SetCamera(const Camera& aCamera, const Matrix& aTransform)
 {
-	if (!aCamera.customAspect)
-		aCamera.SetAspect(static_cast<float>(myWidth) / myHeight);
-
 	// Update bounding frustum
 	{
 		BoundingFrustum::CreateFromMatrix(myFrustum, aCamera.GetProjMatrix());
 		myFrustum.Transform(myFrustum, aTransform);
 	}
 
-	if (USE_REVERSE_Z)
-		aCamera.SwapNearAndFarZ();
-
 	// Update constant buffer
 	{
 		CameraBuffer buffer{};
-		buffer.viewProj = aTransform.Invert() * GetDefaultViewMatrix() * aCamera.GetProjMatrix();
-		buffer.invViewProj = buffer.viewProj.Invert();
-		buffer.clipPlanes.x = aCamera.GetNearZ();
-		buffer.clipPlanes.y = aCamera.GetFarZ();
 		buffer.position = (XMVECTOR)aTransform.Translation();
 		buffer.position.w = 1.f;
+		buffer.clipPlanes.x = aCamera.GetNearZ();
+		buffer.clipPlanes.y = aCamera.GetFarZ();
+
+		Camera modifiedCamera = aCamera;
+
+		if (!aCamera.customAspect)
+			modifiedCamera.SetAspect(static_cast<float>(myWidth) / myHeight);
+		if (USE_REVERSE_Z)
+			modifiedCamera.SwapNearAndFarZ();
+
+		buffer.viewProj = aTransform.Invert() * GetDefaultViewMatrix() * modifiedCamera.GetProjMatrix();
+		buffer.invViewProj = buffer.viewProj.Invert();
 
 		myCBuffers.at(b_Camera).Update(&buffer);
 	}

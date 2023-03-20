@@ -2,5 +2,6 @@
 
 float4 main(VsOutFullscreen input) : SV_TARGET
 {
-    return float4(GBufferNormalDepth.Sample(PointSampler, input.uv).www, 1.0);
+    float3 depth = GBufferNormalDepth.Sample(PointSampler, input.uv).www;
+    return float4(depth, 1.0);
 }
