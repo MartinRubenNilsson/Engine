@@ -112,11 +112,12 @@ void from_json(const json& j, Mesh& aMesh)
 
 	if (auto scene = SceneFactory::Get().GetAsset(path))
 	{
-		if (auto handle = scene->Find(name))
+		for (auto [entity, mesh] : scene->GetRegistry().view<Mesh>().each())
 		{
-			if (auto mesh = handle.try_get<Mesh>())
+			if (name == mesh.GetName())
 			{
-				aMesh = *mesh;
+				aMesh = mesh;
+				return;
 			}
 		}
 	}

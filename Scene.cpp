@@ -118,26 +118,6 @@ entt::entity Scene::Instantiate(entt::registry& aRegistry) const
     return rootCopy.GetEntity();
 }
 
-entt::handle Scene::Find(std::string_view aName)
-{
-    for (auto [entity, transform] : myRegistry.view<Transform>().each())
-    {
-        if (transform.GetName() == aName)
-            return { myRegistry, entity };
-    }
-    return { myRegistry, entt::null };
-}
-
-entt::const_handle Scene::Find(std::string_view aName) const
-{
-    for (auto [entity, transform] : myRegistry.view<Transform>().each())
-    {
-        if (transform.GetName() == aName)
-            return { myRegistry, entity };
-    }
-    return { myRegistry, entt::null };
-}
-
 Scene::operator bool() const
 {
     return !myRegistry.empty();
@@ -151,4 +131,14 @@ entt::entity Scene::GetRootEntity() const
             return entity;
     }
     return entt::null;
+}
+
+entt::handle Scene::Find(std::string_view aName)
+{
+    for (auto [entity, transform] : myRegistry.view<Transform>().each())
+    {
+        if (transform.GetName() == aName)
+            return { myRegistry, entity };
+    }
+    return { myRegistry, entt::null };
 }
