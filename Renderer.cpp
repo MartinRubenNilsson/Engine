@@ -267,17 +267,7 @@ void Renderer::RenderGeometry(const entt::registry& aRegistry)
 			myCBuffers.at(b_Mesh).Update(&buffer);
 		}
 
-		ScopedResources scopedResources
-		{
-			ShaderType::Pixel, t_MaterialAlbedo,
-			{
-				material.GetResource(TextureType::Albedo),
-				material.GetResource(TextureType::Normal),
-				material.GetResource(TextureType::Metallic),
-				material.GetResource(TextureType::Roughness),
-				material.GetResource(TextureType::Occlusion)
-			}
-		};
+		ScopedResources scopedMaterial{ ShaderType::Pixel, t_MaterialAlbedo, material.GetResources() };
 
 		mesh.Draw();
 		statistics.meshes++;

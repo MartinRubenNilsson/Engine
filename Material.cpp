@@ -18,10 +18,8 @@ Material::Material()
 }
 
 Material::Material(const aiMaterial& aMaterial)
-    : Material()
+    : myName{ aMaterial.GetName().C_Str() }
 {
-    myName = aMaterial.GetName().C_Str();
-
     for (int i = aiTextureType_DIFFUSE; i < aiTextureType_UNKNOWN; ++i)
     {
         aiTextureType aiType = static_cast<aiTextureType>(i);
@@ -58,25 +56,46 @@ Material::Material(const aiMaterial& aMaterial)
         }
 
         if (auto texture = TextureFactory::Get().GetAsset(path.C_Str(), type))
-            AddOrReplaceTexture(texture);
+            SetTexture(texture);
     }
 }
 
-void Material::AddOrReplaceTexture(Texture::Ptr aTexture)
+void Material::SetTexture(Texture::Ptr aTexture)
 {
-    if (!aTexture)
+    if (!aTexture || !*aTexture)
         return;
-    auto itr = std::ranges::find(myTextures, aTexture);
-    if (itr != myTextures.end())
-        *itr = aTexture;
-    else
-        myTextures.push_back(aTexture);
+    for (auto& texture : myTextures)
+    {
+        if (texture->GetType() == aTexture->GetType())
+        {
+            texture = aTexture;
+            return;
+        }
+    }
+    myTextures.push_back(aTexture);
 }
 
-ShaderResourcePtr Material::GetResource(TextureType aType) const
+Texture::Ptr Material::GetTexture(TextureType aType) const
 {
-    auto itr = std::ranges::find(myTextures, aType, [](Texture::Ptr ptr) { return ptr->GetType(); });
-    return itr != myTextures.end() ? (*itr)->GetResource() : nullptr;
+    for (auto& texture : myTextures)
+    {
+        if (texture->GetType() == aType)
+            return texture;
+    }
+    return nullptr;
+}
+
+std::vector<ShaderResourcePtr> Material::GetResources() const
+{
+    std::vector<ShaderResourcePtr> resources{};
+    for (TextureType type : GetMaterialTextureTypes())
+    {
+        if (auto texture = GetTexture(type))
+            resources.push_back(texture->GetResource());
+        else
+            resources.push_back(nullptr);
+    }
+    return resources;
 }
 
 void to_json(json& j, const Material& m)
@@ -98,14 +117,27 @@ void from_json(const json& j, Material& m)
 void ImGui::Inspect(const Material& aMaterial)
 {
     Text("Name: %s", aMaterial.GetName().data());
+    Spacing();
 
-    for (auto& texture : aMaterial.GetTextures())
+    for (TextureType type : GetMaterialTextureTypes())
     {
-        if (TreeNode(TextureTypeToString(texture->GetType())))
+        Texture::Ptr texture = aMaterial.GetTexture(type);
+
+        std::string label{ TextureTypeToString(type) };
+        label += ": ";
+        if (texture)
+            label += texture->GetPath().filename().string();
+
+        if (Selectable(label.c_str()))
         {
-            TextWrapped(texture->GetPath().string().c_str());
-            Image(texture->GetResource().Get(), { 200.f, 200.f });
-            TreePop();
+            // todo: open file explorer
+        }
+
+        if (texture && IsItemHovered())
+        {
+            BeginTooltip();
+            Image(texture->GetResource().Get(), { 256.f, 256.f });
+            EndTooltip();
         }
     }
 }

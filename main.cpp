@@ -145,6 +145,10 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
                     if (auto scene = sceneFactory.GetAsset(path))
                         Select(sceneReg, scene->Instantiate(sceneReg));
                 }
+                else if (extension == ".png")
+                {
+                    textureFactory.GetAsset(path);
+                }
                 else
                 {
                     Debug::Println(std::format(

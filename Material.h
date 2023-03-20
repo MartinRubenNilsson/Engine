@@ -7,12 +7,12 @@ public:
 	Material();
 	Material(const aiMaterial&);
 
-	void AddOrReplaceTexture(Texture::Ptr);
+	void SetTexture(Texture::Ptr);
+	Texture::Ptr GetTexture(TextureType) const;
 
-	ShaderResourcePtr GetResource(TextureType) const;
+	std::vector<ShaderResourcePtr> GetResources() const;
 
 	std::string_view GetName() const { return myName; }
-	const auto& GetTextures() const { return myTextures; }
 
 private:
 	friend void to_json(json&, const Material&);

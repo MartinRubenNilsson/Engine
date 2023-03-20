@@ -129,9 +129,15 @@ void from_json(const json& j, Mesh& aMesh)
 
 void ImGui::Inspect(Mesh& aMesh)
 {
-	fs::path label{ aMesh.GetPath().stem() / aMesh.GetName() };
+	std::string label{ "Mesh: " };
+	if (aMesh)
+	{
+		label += aMesh.GetPath().stem().string();
+		label += "/";
+		label += aMesh.GetName();
+	}
 
-	if (Button(label.empty() ? "None" : label.string().c_str()))
+	if (Selectable(label.c_str()))
 		OpenPopup("Select Mesh");
 
 	if (BeginPopup("Select Mesh"))
@@ -155,8 +161,12 @@ void ImGui::Inspect(Mesh& aMesh)
 		EndPopup();
 	}
 
+	Spacing();
+
 	Value("Vertices", aMesh.GetVertexCount());
 	Value("Triangles", aMesh.GetIndexCount() / 3);
+
+	Spacing();
 
 	auto& box = aMesh.GetBoundingBox();
 	Text("Center: (%.2g, %.2g, %.2g)", box.Center.x, box.Center.y, box.Center.z);

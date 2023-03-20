@@ -15,6 +15,8 @@ const char* TextureTypeToString(TextureType);
 DXGI_FORMAT	TextureTypeToFormat(TextureType);
 unsigned	TextureTypeToChannels(TextureType);
 
+std::span<const TextureType> GetMaterialTextureTypes();
+
 class Texture
 {
 public:
@@ -39,15 +41,10 @@ private:
 	fs::path myPath{};
 	TexturePtr myTexture{};
 	ShaderResourcePtr myShaderResource{};
-	TextureType myType{};
+	TextureType myType{ TextureType::Unknown };
 	unsigned myWidth{}, myHeight{};
 	HRESULT myResult{ E_FAIL };
 };
 
 using TextureFactory = AssetFactory<Texture>;
-
-namespace ImGui
-{
-	//void Inspect(Texture::Ptr&); // todo
-}
 

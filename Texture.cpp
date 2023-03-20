@@ -50,6 +50,20 @@ unsigned TextureTypeToChannels(TextureType aType)
 	return channels.at(std::to_underlying(aType));
 }
 
+std::span<const TextureType> GetMaterialTextureTypes()
+{
+    static constexpr std::array types
+    {
+        TextureType::Albedo,
+        TextureType::Normal,
+        TextureType::Metallic,
+        TextureType::Roughness,
+        TextureType::Occlusion,
+    };
+
+    return types;
+}
+
 /*
 * class Texture
 */
@@ -99,15 +113,15 @@ Texture::operator bool() const
 	return SUCCEEDED(myResult);
 }
 
-void to_json(json& j, const Texture::Ptr& t)
+void to_json(json& j, const Texture::Ptr& ptr)
 {
-    j["path"] = t->myPath;
-    j["type"] = t->myType;
+    j["path"] = ptr->myPath;
+    j["type"] = ptr->myType;
 }
 
-void from_json(const json& j, Texture::Ptr& t)
+void from_json(const json& j, Texture::Ptr& ptr)
 {
-    t = TextureFactory::Get().GetAsset(
+    ptr = TextureFactory::Get().GetAsset(
         j.at("path"),
         j.at("type").get<TextureType>()
     );
