@@ -12,6 +12,7 @@ DearImGui::DearImGui(HWND hWnd, DevicePtr aDevice, DeviceContextPtr aContext)
         return;
 
     ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+    ImGuizmo::AllowAxisFlip(false);
 
     AddFonts();
 
