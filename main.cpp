@@ -174,7 +174,10 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
         * Then, a context menu might open. Therefore we clear mouse state.
         */
         if (mouseState.positionMode == Mouse::MODE_RELATIVE)
+        {
             std::ranges::fill(ImGui::GetIO().MouseReleased, false);
+            //ImGui::BeginDisabled();
+        }
 
         {
             MenuCommand cmd = MenuCommand::None;
@@ -269,6 +272,10 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
                 ImGui::End();
             }
         }
+
+        /*if (mouseState.positionMode == Mouse::MODE_RELATIVE)
+            ImGui::EndDisabled();*/
+        
 
         switch (state)
         {

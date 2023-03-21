@@ -1,76 +1,103 @@
 #include "pch.h"
 #include "EnttSerialization.h"
+#include "Tags.h"
 #include "Transform.h"
 #include "Camera.h"
 #include "Mesh.h"
 #include "Material.h"
+// #include "Light.h"
 
-// todo: archives for tags
+// todo: lights
 
 namespace
 {
 	struct OutputArchive
 	{
-		json& j;
+		json& pool;
 
 		void operator()(entt::id_type) {}
 
-		template <class Component>
-		void operator()(entt::entity e, const Component& c)
+		void operator()(entt::entity anEntity)
 		{
-			json& jc = j.emplace_back(c);
-			jc["entity"] = e;
+			pool.emplace_back(anEntity);
+		}
+
+		template <class Component>
+		void operator()(entt::entity anEntity, const Component& aComponent)
+		{
+			json& component = pool.emplace_back(aComponent);
+			component["entity"] = anEntity;
 		}
 	};
 
 	struct InputArchive
 	{
-		const json& j;
-		size_t i = 0;
+		const json& pool;
+		size_t index = 0;
 
-		void operator()(entt::id_type& size)
+		void operator()(entt::id_type& aSize)
 		{
-			size = static_cast<entt::id_type>(j.size());
+			aSize = static_cast<entt::id_type>(pool.size());
+		}
+
+		void operator()(entt::entity& anEntity)
+		{
+			pool.at(index++).get_to(anEntity);
 		}
 
 		template <class Component>
-		void operator()(entt::entity& e, Component& c)
+		void operator()(entt::entity& anEntity, Component& aComponent)
 		{
-			const json& ji = j.at(i++);
-			ji.at("entity").get_to(e);
-			ji.get_to(c);
+			const json& component = pool.at(index++);
+			component.at("entity").get_to(anEntity);
+			component.get_to(aComponent);
 		}
 	};
+
+	template<class Component>
+	void ToJson(json& someJson, const entt::snapshot& aSnapshot)
+	{
+		static constexpr std::string_view name{ entt::type_name<Component>::value() };
+
+		OutputArchive archive{ someJson[name] };
+		aSnapshot.component<Component>(archive);
+	}
+
+	template <class Component>
+	void FromJson(const json& someJson, entt::snapshot_loader& aSnapshot)
+	{
+		static constexpr std::string_view name{ entt::type_name<Component>::value() };
+
+		if (someJson.contains(name))
+		{
+			InputArchive archive{ someJson.at(name) };
+			aSnapshot.component<Component>(archive);
+		}
+	}
 }
 
-void entt::to_json(json& j, const registry& aRegistry)
+void entt::to_json(json& someJson, const registry& aRegistry)
 {
-	j.clear();
+	someJson.clear();
 
-	OutputArchive transforms{ j["transforms"] };
-	OutputArchive materials{ j["materials"] };
-	OutputArchive meshes{ j["meshes"] };
-	OutputArchive cameras{ j["cameras"] };
+	entt::snapshot snapshot{ aRegistry };
 
-	entt::snapshot{ aRegistry }
-		.component<Transform>(transforms)
-		.component<Material>(materials)
-		.component<Mesh>(meshes)
-		.component<Camera>(cameras);
+	ToJson<Tag::Selected>(someJson, snapshot);
+	ToJson<Transform>(someJson, snapshot);
+	ToJson<Material>(someJson, snapshot);
+	ToJson<Mesh>(someJson, snapshot);
+	ToJson<Camera>(someJson, snapshot);
 }
 
-void entt::from_json(const json& j, registry& aRegistry)
+void entt::from_json(const json& someJson, registry& aRegistry)
 {
 	aRegistry.clear();
 
-	InputArchive transforms{ j.at("transforms") };
-	InputArchive materials{ j.at("materials") };
-	InputArchive meshes{ j.at("meshes") };
-	InputArchive cameras{ j.at("cameras") };
+	entt::snapshot_loader snapshot{ aRegistry };
 
-	entt::snapshot_loader{ aRegistry }
-		.component<Transform>(transforms)
-		.component<Material>(materials)
-		.component<Mesh>(meshes)
-		.component<Camera>(cameras);
+	FromJson<Tag::Selected>(someJson, snapshot);
+	FromJson<Transform>(someJson, snapshot);
+	FromJson<Material>(someJson, snapshot);
+	FromJson<Mesh>(someJson, snapshot);
+	FromJson<Camera>(someJson, snapshot);
 }
