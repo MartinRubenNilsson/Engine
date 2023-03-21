@@ -16,7 +16,7 @@ Mesh::Mesh(const aiMesh& aMesh)
 		return;
 	if (!aMesh.HasTangentsAndBitangents())
 		return;
-	if (aMesh.GetNumUVChannels() != 1)
+	if (aMesh.GetNumUVChannels() == 0)
 		return;
 	if (aMesh.mNumUVComponents[0] != 2)
 		return;
