@@ -11,5 +11,8 @@ float3 Hash3(uint n) // https://www.shadertoy.com/view/llGSzw
 float4 main(float4 pos : SV_POSITION) : SV_TARGET
 {
     uint entity = GBufferEntity.Load(uint3(pos.x, pos.y, 0));
-    return float4(Hash3(entity), 1.0);
+    if (entity == 0xffffffff)
+        return float4(0.0, 0.0, 0.0, 1.0);
+    else
+        return float4(Hash3(entity), 1.0);
 }
