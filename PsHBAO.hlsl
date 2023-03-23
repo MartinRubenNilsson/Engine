@@ -108,6 +108,8 @@ float GetRayOcclusion(float2 renderTargetResolution, float2 origin, float2 direc
 	
 	// gets the tangent for the current ray, this will be used to handle opposing horizon vectors
 	// Tangent is corrected with respect to per-pixel normal by projecting it onto the tangent plane defined by the normal
+   
+    
     float3 tangent = GetViewPosition(origin + texelSizedStep, frustumDiff) - centerViewPos;
     tangent -= dot(centerNormal, tangent) * centerNormal;
 	
@@ -122,12 +124,10 @@ float GetRayOcclusion(float2 renderTargetResolution, float2 origin, float2 direc
 	// set to bias value to avoid near-occluders
     float topOcclusion = bias;
     float occlusion = 0.0;
-
-	// march!
+    
     for (uint step = 0; step < numStepsPerRay; ++step)
     {
         occlusion += GetSampleOcclusion(uv, centerViewPos, centerNormal, tangent, topOcclusion);
-
         uv += stepUV;
     }
 
@@ -136,40 +136,20 @@ float GetRayOcclusion(float2 renderTargetResolution, float2 origin, float2 direc
 
 float main(VsOutFullscreen input) : SV_TARGET
 {
-    uint2 dim;
-    GBufferNormalDepth.GetDimensions(dim.x, dim.y);
-    
-    float2 renderTargetResolution = dim;
-    
-    /*
-    * Consider the surface geometry being rendered at the current pixel and let:
-    * P = its world position,
-    * N = its world normal.
-    */
-    
-    const float4 normalDepthP = GBufferNormalDepth.Sample(NormalDepthSampler, input.uv);
-    const float depthP = normalDepthP.w;
-    if (depthP == FAR_Z)
+    const float4 centerNormalDepth = GBufferNormalDepth.Sample(NormalDepthSampler, input.uv);
+    const float centerDepth = centerNormalDepth.w;
+    if (centerDepth == FAR_Z)
         return 1.0; // at far plane -> no occlusion -> full access
     
-    const float3 P = UVDepthToWorld(input.uv, depthP);
-    const float3 N = normalize(UnpackNormal(normalDepthP.xyz));
-    
-    /*
-    * COPY PASTED CODE BELOW
-    */
+    const float3 centerViewPos = UVDepthToViewPos(input.uv, centerDepth);
+    const float3 centerWorldNormal = normalize(UnpackNormal(centerNormalDepth.xyz));
     
     // The maximum screen position (the texel that corresponds with uv = 1), used to snap to texels
 	// (normally, this would be passed in as a constant)
+    uint2 dim;
+    GBufferNormalDepth.GetDimensions(dim.x, dim.y);
+    float2 renderTargetResolution = dim;
     float2 maxScreenCoords = renderTargetResolution - 1.0;
-
-	// reconstruct view-space position from depth buffer
-    //float centerDepth = depthTexture.SampleLevel(sourceSampler, pin.UV, 0);
-    float centerDepth = GBufferNormalDepth.Sample(NormalDepthSampler, input.uv).w;
-    float3 centerViewPos = UVDepthToViewPos(input.uv, centerDepth);
-	
-	// unpack normal
-    float3 centerNormal = normalize(normalsTexture.SampleLevel(sourceSampler, pin.UV, 0).xyz - .5);
 	
 	// Get the random factors and construct the row vectors for the 2D matrix from cos(a) and -sin(a) to rotate the sample directions
     float3 randomFactors = ditherTexture.SampleLevel(ditherSampler, pin.UV * ditherScale, 0);
@@ -192,7 +172,7 @@ float main(VsOutFullscreen input) : SV_TARGET
 
     for (uint i = 0; i < numRays; ++i)
     {
-        float2 sampleDir = CreateUnitVector(i * PI2 / numRays);
+        float2 sampleDir = CreateUnitVector(PI2 * i / numRays);
         sampleDir = mul(CreateRotationMatrix(totooot), sampleDir);
         totalOcclusion += GetRayOcclusion(renderTargetResolution, input.uv, sampleDir, randomFactors.z, maxScreenCoords, projectedRadii, numStepsPerRay, centerViewPos, centerNormal);
     }
