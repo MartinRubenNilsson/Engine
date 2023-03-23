@@ -105,6 +105,7 @@ void Renderer::SetCamera(const Camera& aCamera, const Matrix& aTransform)
 			modifiedCamera.SwapNearAndFarZ();
 
 		buffer.proj = modifiedCamera.GetProjMatrix();
+		buffer.invProj = buffer.proj.Invert();
 		buffer.viewProj = aTransform.Invert() * GetDefaultViewMatrix() * buffer.proj;
 		buffer.invViewProj = buffer.viewProj.Invert();
 

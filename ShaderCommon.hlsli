@@ -75,6 +75,7 @@ cbuffer ImmutableBuffer : register(b0)
 cbuffer CameraBuffer : register(b1)
 {
     float4x4 Proj;
+    float4x4 InvProj;
     float4x4 ViewProj;
     float4x4 InvViewProj;
     float4 CameraPosition;
@@ -178,10 +179,22 @@ float3 WorldToUVDepth(float3 worldPos)
     return float3(clipPos.x * 0.5 + 0.5, 0.5 - clipPos.y * 0.5, clipPos.z);
 }
 
+float3 ClipToViewPos(float3 clipPos)
+{
+    float4 viewPos = mul(InvProj, float4(clipPos, 1.0));
+    return viewPos.xyz / viewPos.z;
+}
+
 float3 ClipToWorld(float3 clipPos)
 {
     float4 worldPos = mul(InvViewProj, float4(clipPos, 1.0));
     return worldPos.xyz / worldPos.w;
+}
+
+float3 UVDepthToViewPos(float2 uv, float depth)
+{
+    float3 clipPos = { uv.x * 2.0 - 1.0, 1.0 - uv.y * 2.0, depth };
+    return ClipToViewPos(clipPos);
 }
 
 float3 UVDepthToWorld(float2 uv, float depth)

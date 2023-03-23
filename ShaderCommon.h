@@ -28,6 +28,7 @@ struct alignas(16) ImmutableBuffer
 struct alignas(16) CameraBuffer
 {
 	Matrix proj{};
+	Matrix invProj{};
 	Matrix viewProj{};
 	Matrix invViewProj{};
 	Vector4 position{};

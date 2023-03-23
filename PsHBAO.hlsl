@@ -4,34 +4,33 @@
 //static const float2 sampleDirections[32];
 //static const float ditherScale; // the ratio between the render target size and the dither texture size. Normally: renderTargetResolution / 4
 
-static const float strengthPerRay = 0.1875; // strength / numRays, strength = 1.5
 static const uint numRays = 8;
 static const uint maxStepsPerRay = 5;
+static const float strengthPerRay = 0.1875; // strength / numRays, strength = 1.5
 static const float halfSampleRadius = 0.25; // sampleRadius / 2, sampleRadius = 0.5
 static const float fallOff = 2.0; // the maximum distance to count samples
 static const float bias = 0.03; // minimum factor to start counting occluders
 
-
-//float2 CreateUnitVector(float angle)
-//{
-//    float s, c;
-//    sincos(angle, s, c);
-//    return float2(c, s);
-//}
-
-//float2x2 CreateRotationMatrix(float angle)
-//{
-//    float s, c;
-//    sincos(angle, s, c);
-//    return float2x2(c, -s, s, c);
-//}
-
-// Unproject a value from the depth buffer to the Z value in view space.
-// Multiply the result with an interpolated frustum vector to get the actual view-space coordinates
-float DepthToViewZ(float depthValue)
+float2 CreateUnitVector(float angle)
 {
-    return Proj[3][2] / (depthValue - Proj[2][2]);
+    float s, c;
+    sincos(angle, s, c);
+    return float2(c, s);
 }
+
+float2x2 CreateRotationMatrix(float angle)
+{
+    float s, c;
+    sincos(angle, s, c);
+    return float2x2(c, -s, s, c);
+}
+
+//// Unproject a value from the depth buffer to the Z value in view space.
+//// Multiply the result with an interpolated frustum vector to get the actual view-space coordinates
+//float DepthToViewZ(float depthValue)
+//{
+//    return Proj[3][2] / (depthValue - Proj[2][2]);
+//}
 
 // snaps a uv coord to the nearest texel centre
 float2 SnapToTexel(float2 uv, float2 maxScreenCoords)
@@ -39,37 +38,36 @@ float2 SnapToTexel(float2 uv, float2 maxScreenCoords)
     return round(uv * maxScreenCoords) * rcp(maxScreenCoords);
 }
 
-// rotates a sample direction according to the row-vectors of the rotation matrix
-float2 Rotate(float2 vec, float2 rotationX, float2 rotationY)
-{
-    float2 rotated;
-	// just so we can use dot product
-    float3 expanded = float3(vec, 0.0);
-    rotated.x = dot(expanded.xyz, rotationX.xyy);
-    rotated.y = dot(expanded.xyz, rotationY.xyy);
-    return rotated;
-}
+//// rotates a sample direction according to the row-vectors of the rotation matrix
+//float2 Rotate(float2 vec, float2 rotationX, float2 rotationY)
+//{
+//    float2 rotated;
+//	// just so we can use dot product
+//    float3 expanded = float3(vec, 0.0);
+//    rotated.x = dot(expanded.xyz, rotationX.xyy);
+//    rotated.y = dot(expanded.xyz, rotationY.xyy);
+//    return rotated;
+//}
 
-// Gets the view position for a uv coord
-float3 GetViewPosition(float2 uv, float2 frustumDiff)
-{
-    float depth = depthTexture.SampleLevel(sourceSampler, uv, 0);
-    float3 frustumVector = float3(viewFrustumVectors[3].xy + uv * frustumDiff, 1.0);
-    return frustumVector * DepthToViewZ(depth);
-}
+//// Gets the view position for a uv coord
+//float3 GetViewPosition(float2 uv, float2 frustumDiff)
+//{
+//    float depth = depthTexture.SampleLevel(sourceSampler, uv, 0);
+//    float3 frustumVector = float3(viewFrustumVectors[3].xy + uv * frustumDiff, 1.0);
+//    return frustumVector * DepthToViewZ(depth);
+//}
 
 // Retrieves the occlusion factor for a particular sample
 // uv: the centre coordinate of the kernel
-// frustumVector: The frustum vector of the sample point
 // centerViewPos: The view space position of the centre point
 // centerNormal: The normal of the centre point
 // tangent: The tangent vector in the sampling direction at the centre point
 // topOcclusion: The maximum cos(angle) found so far, will be updated when a new occlusion segment has been found
-float GetSampleOcclusion(float2 uv, float3 frustumVector, float3 centerViewPos, float3 centerNormal, float3 tangent, inout float topOcclusion)
+float GetSampleOcclusion(float2 uv, float3 centerViewPos, float3 centerNormal, float3 tangent, inout float topOcclusion)
 {
-	// reconstruct sample's view space position based on depth buffer and interpolated frustum vector
-    float sampleDepth = depthTexture.SampleLevel(sourceSampler, uv, 0);
-    float3 sampleViewPos = frustumVector * DepthToViewZ(sampleDepth);
+	// reconstruct sample's view space position based on depth buffer and camera proj
+    float sampleDepth = GBufferNormalDepth.Sample(NormalDepthSampler, uv).w;
+    float3 sampleViewPos = UVDepthToViewPos(uv, sampleDepth);
 
 	// get occlusion factor based on candidate horizon elevation
     float3 horizonVector = sampleViewPos - centerViewPos;
@@ -102,8 +100,7 @@ float GetSampleOcclusion(float2 uv, float3 frustumVector, float3 centerViewPos, 
 // numStepsPerRay: The amount of samples to take along the ray
 // centerViewPos: The view space position of the centre point
 // centerNormal: The normal of the centre point
-// frustumDiff: The difference between frustum vectors horizontally and vertically, used for frustum vector interpolation
-float GetRayOcclusion(float2 origin, float2 direction, float jitter, float2 maxScreenCoords, float2 projectedRadii, uint numStepsPerRay, float3 centerViewPos, float3 centerNormal, float2 frustumDiff)
+float GetRayOcclusion(float2 renderTargetResolution, float2 origin, float2 direction, float jitter, float2 maxScreenCoords, float2 projectedRadii, uint numStepsPerRay, float3 centerViewPos, float3 centerNormal)
 {
 	// calculate the nearest neighbour sample along the direction vector
     float2 texelSizedStep = direction * rcp(renderTargetResolution);
@@ -120,10 +117,6 @@ float GetRayOcclusion(float2 origin, float2 direction, float jitter, float2 maxS
 	// jitter the starting position for ray marching between the nearest neighbour and the sample step size
     float2 jitteredOffset = lerp(texelSizedStep, stepUV, jitter);
     float2 uv = SnapToTexel(origin + jitteredOffset, maxScreenCoords);
-	
-	// initial frustum vector matching the starting position and its per-step increments
-    float3 frustumVector = float3(viewFrustumVectors[3].xy + uv * frustumDiff, 1.0);
-    float2 frustumVectorStep = stepUV * frustumDiff;
 
 	// top occlusion keeps track of the occlusion contribution of the last found occluder.
 	// set to bias value to avoid near-occluders
@@ -133,10 +126,9 @@ float GetRayOcclusion(float2 origin, float2 direction, float jitter, float2 maxS
 	// march!
     for (uint step = 0; step < numStepsPerRay; ++step)
     {
-        occlusion += GetSampleOcclusion(uv, frustumVector, centerViewPos, centerNormal, tangent, topOcclusion);
+        occlusion += GetSampleOcclusion(uv, centerViewPos, centerNormal, tangent, topOcclusion);
 
         uv += stepUV;
-        frustumVector.xy += frustumVectorStep.xy;
     }
 
     return occlusion;
@@ -146,6 +138,8 @@ float main(VsOutFullscreen input) : SV_TARGET
 {
     uint2 dim;
     GBufferNormalDepth.GetDimensions(dim.x, dim.y);
+    
+    float2 renderTargetResolution = dim;
     
     /*
     * Consider the surface geometry being rendered at the current pixel and let:
@@ -170,8 +164,9 @@ float main(VsOutFullscreen input) : SV_TARGET
     float2 maxScreenCoords = renderTargetResolution - 1.0;
 
 	// reconstruct view-space position from depth buffer
-    float centerDepth = depthTexture.SampleLevel(sourceSampler, pin.UV, 0);
-    float3 centerViewPos = pin.FrustumVector.xyz * DepthToViewZ(centerDepth);
+    //float centerDepth = depthTexture.SampleLevel(sourceSampler, pin.UV, 0);
+    float centerDepth = GBufferNormalDepth.Sample(NormalDepthSampler, input.uv).w;
+    float3 centerViewPos = UVDepthToViewPos(input.uv, centerDepth);
 	
 	// unpack normal
     float3 centerNormal = normalize(normalsTexture.SampleLevel(sourceSampler, pin.UV, 0).xyz - .5);
@@ -180,10 +175,6 @@ float main(VsOutFullscreen input) : SV_TARGET
     float3 randomFactors = ditherTexture.SampleLevel(ditherSampler, pin.UV * ditherScale, 0);
     float2 rotationX = normalize(randomFactors.xy - .5);
     float2 rotationY = rotationX.yx * float2(-1.0f, 1.0f);
-		
-	// normally, you'd pass this in as a constant, but placing it here makes things easier to understand.
-	// basically, this is just so we can use UV coords to interpolate frustum vectors
-    float2 frustumDiff = float2(viewFrustumVectors[2].x - viewFrustumVectors[3].x, viewFrustumVectors[0].y - viewFrustumVectors[3].y);
 	
 	// scale the sample radius perspectively according to the given view depth (becomes ellipse)
     float w = centerViewPos.z * Proj[2][3] + Proj[3][3];
@@ -201,8 +192,9 @@ float main(VsOutFullscreen input) : SV_TARGET
 
     for (uint i = 0; i < numRays; ++i)
     {
-        float2 sampleDir = Rotate(sampleDirections[i].xy, rotationX, rotationY);
-        totalOcclusion += GetRayOcclusion(input.uv, sampleDir, randomFactors.z, maxScreenCoords, projectedRadii, numStepsPerRay, centerViewPos, centerNormal, frustumDiff);
+        float2 sampleDir = CreateUnitVector(i * PI2 / numRays);
+        sampleDir = mul(CreateRotationMatrix(totooot), sampleDir);
+        totalOcclusion += GetRayOcclusion(renderTargetResolution, input.uv, sampleDir, randomFactors.z, maxScreenCoords, projectedRadii, numStepsPerRay, centerViewPos, centerNormal);
     }
 
     return 1.0 - saturate(strengthPerRay * totalOcclusion);
