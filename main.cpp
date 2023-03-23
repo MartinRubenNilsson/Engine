@@ -68,7 +68,15 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
 
     ScopedTopology scopedTopology{ D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST };
     ScopedSamplers scopedSamplers{ 0, GetSamplerDescs() };
-    ScopedResources scopedResources{ ShaderType::Pixel, t_GaussianMap, { CreateGaussianMap(), CreateIntegrationMap() } };
+    ScopedResources scopedResources
+    {
+        ShaderType::Pixel, t_GaussianMap,
+        {
+            CreateGaussianMap(),
+            CreateIntegrationMap(),
+            CreateUniformMap(),
+        }
+    };
 
     BackBuffer backBuffer{ window };
     if (!backBuffer)

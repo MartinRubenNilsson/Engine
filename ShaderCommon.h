@@ -27,6 +27,7 @@ struct alignas(16) ImmutableBuffer
 
 struct alignas(16) CameraBuffer
 {
+	Matrix invView{};
 	Matrix proj{};
 	Matrix invProj{};
 	Matrix viewProj{};
@@ -86,6 +87,7 @@ enum TextureSlot : unsigned
 
 	t_GaussianMap = 30,
 	t_IntegrationMap,
+	t_UniformMap,
 
 	// "Virtual" textures that don't exist in memory but can be computed from other textures
 	t_Normal = D3D11_COMMONSHADER_INPUT_RESOURCE_REGISTER_COUNT,
@@ -111,5 +113,6 @@ std::array<D3D11_SAMPLER_DESC, SamplerCount> GetSamplerDescs();
 // Precomputed maps
 
 ShaderResourcePtr CreateGaussianMap();
+ShaderResourcePtr CreateUniformMap();
 ShaderResourcePtr CreateIntegrationMap(); // BRDF LUT for use in specular IBL
 

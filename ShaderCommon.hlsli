@@ -74,6 +74,7 @@ cbuffer ImmutableBuffer : register(b0)
 
 cbuffer CameraBuffer : register(b1)
 {
+    float4x4 InvView;
     float4x4 Proj;
     float4x4 InvProj;
     float4x4 ViewProj;
@@ -125,6 +126,7 @@ TextureCube PrefilteredMap : register(t22); // Specular IBL
 
 Texture2D GaussianMap    : register(t30);
 Texture2D IntegrationMap : register(t31); // BRDF LUT for use in specular IBL
+Texture2D<float2> UniformMap     : register(t32);
 
 /*
 * Samplers
@@ -210,4 +212,13 @@ float3 GetRandomUnitVec(float2 pixelPos)
     GaussianMap.GetDimensions(dim.x, dim.y);
     float2 uv = pixelPos / dim;
     return normalize(GaussianMap.Sample(GaussianSampler, uv).xyz);
+}
+
+// Requires that UniformMap is set.
+float2 GetUniformReal(float2 pixelPos)
+{
+    uint2 dim;
+    UniformMap.GetDimensions(dim.x, dim.y);
+    float2 uv = pixelPos / dim;
+    return UniformMap.Sample(GaussianSampler, uv);
 }

@@ -101,10 +101,10 @@ ShaderResourcePtr CreateGaussianMap()
 
 	{
 		std::default_random_engine engine{ seed };
-		std::normal_distribution<float> gaussian{};
+		std::normal_distribution<float> dist{};
 
 		for (float& sample : samples)
-			sample = gaussian(engine);
+			sample = dist(engine);
 	}
 
 	D3D11_TEXTURE2D_DESC desc{};
@@ -123,6 +123,52 @@ ShaderResourcePtr CreateGaussianMap()
 	D3D11_SUBRESOURCE_DATA data{};
 	data.pSysMem = samples.data();
 	data.SysMemPitch = size * 4 * sizeof(float);
+	data.SysMemSlicePitch = 0;
+
+	TexturePtr texture{};
+
+	if (FAILED(DX11_DEVICE->CreateTexture2D(&desc, &data, &texture)))
+		return nullptr;
+
+	ShaderResourcePtr resource{};
+
+	if (FAILED(DX11_DEVICE->CreateShaderResourceView(texture.Get(), NULL, &resource)))
+		return nullptr;
+
+	return resource;
+}
+
+ShaderResourcePtr CreateUniformMap()
+{
+	static constexpr unsigned size{ 512 };
+	static constexpr unsigned seed{ 134534 };
+
+	std::vector<float> samples(size * size * 2);
+
+	{
+		std::default_random_engine engine{ seed };
+		std::uniform_real_distribution<float> dist{};
+
+		for (float& sample : samples)
+			sample = dist(engine);
+	}
+
+	D3D11_TEXTURE2D_DESC desc{};
+	desc.Width = size;
+	desc.Height = size;
+	desc.MipLevels = 1;
+	desc.ArraySize = 1;
+	desc.Format = DXGI_FORMAT_R16G16_UNORM;
+	desc.SampleDesc.Count = 1;
+	desc.SampleDesc.Quality = 0;
+	desc.Usage = D3D11_USAGE_IMMUTABLE;
+	desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+	desc.CPUAccessFlags = 0;
+	desc.MiscFlags = 0;
+
+	D3D11_SUBRESOURCE_DATA data{};
+	data.pSysMem = samples.data();
+	data.SysMemPitch = size * 2 * sizeof(float);
 	data.SysMemSlicePitch = 0;
 
 	TexturePtr texture{};

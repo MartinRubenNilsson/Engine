@@ -110,7 +110,8 @@ float GetRayOcclusion(float2 renderTargetResolution, float2 origin, float2 direc
 	// Tangent is corrected with respect to per-pixel normal by projecting it onto the tangent plane defined by the normal
    
     
-    float3 tangent = GetViewPosition(origin + texelSizedStep, frustumDiff) - centerViewPos;
+    float depth = GBufferNormalDepth.Sample(NormalDepthSampler, origin + texelSizedStep).w;
+    float3 tangent = UVDepthToViewPos(origin + texelSizedStep, depth) - centerViewPos;
     tangent -= dot(centerNormal, tangent) * centerNormal;
 	
 	// calculate uv increments per marching step, snapped to texel centres to avoid depth discontinuity artefacts
@@ -125,7 +126,9 @@ float GetRayOcclusion(float2 renderTargetResolution, float2 origin, float2 direc
     float topOcclusion = bias;
     float occlusion = 0.0;
     
-    for (uint step = 0; step < numStepsPerRay; ++step)
+    const uint steps = min(maxStepsPerRay, numStepsPerRay);
+    
+    for (uint step = 0; step < steps; ++step)
     {
         occlusion += GetSampleOcclusion(uv, centerViewPos, centerNormal, tangent, topOcclusion);
         uv += stepUV;
@@ -143,6 +146,7 @@ float main(VsOutFullscreen input) : SV_TARGET
     
     const float3 centerViewPos = UVDepthToViewPos(input.uv, centerDepth);
     const float3 centerWorldNormal = normalize(UnpackNormal(centerNormalDepth.xyz));
+    const float3 centerViewNormal = mul((float3x3)InvView, centerWorldNormal);
     
     // The maximum screen position (the texel that corresponds with uv = 1), used to snap to texels
 	// (normally, this would be passed in as a constant)
@@ -152,9 +156,7 @@ float main(VsOutFullscreen input) : SV_TARGET
     float2 maxScreenCoords = renderTargetResolution - 1.0;
 	
 	// Get the random factors and construct the row vectors for the 2D matrix from cos(a) and -sin(a) to rotate the sample directions
-    float3 randomFactors = ditherTexture.SampleLevel(ditherSampler, pin.UV * ditherScale, 0);
-    float2 rotationX = normalize(randomFactors.xy - .5);
-    float2 rotationY = rotationX.yx * float2(-1.0f, 1.0f);
+    float2 randomFactors = GetUniformReal(input.pos.xy);
 	
 	// scale the sample radius perspectively according to the given view depth (becomes ellipse)
     float w = centerViewPos.z * Proj[2][3] + Proj[3][3];
@@ -173,8 +175,8 @@ float main(VsOutFullscreen input) : SV_TARGET
     for (uint i = 0; i < numRays; ++i)
     {
         float2 sampleDir = CreateUnitVector(PI2 * i / numRays);
-        sampleDir = mul(CreateRotationMatrix(totooot), sampleDir);
-        totalOcclusion += GetRayOcclusion(renderTargetResolution, input.uv, sampleDir, randomFactors.z, maxScreenCoords, projectedRadii, numStepsPerRay, centerViewPos, centerNormal);
+        sampleDir = mul(CreateRotationMatrix(PI2 * randomFactors.x), sampleDir);
+        totalOcclusion += GetRayOcclusion(renderTargetResolution, input.uv, sampleDir, randomFactors.y, maxScreenCoords, projectedRadii, numStepsPerRay, centerViewPos, centerViewNormal);
     }
 
     return 1.0 - saturate(strengthPerRay * totalOcclusion);
