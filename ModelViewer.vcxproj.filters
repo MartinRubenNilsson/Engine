@@ -346,7 +346,7 @@
     <FxCompile Include="PsNormal.hlsl">
       <Filter>shaders\fullscreen\output</Filter>
     </FxCompile>
-    <FxCompile Include="PsAccess.hlsl">
+    <FxCompile Include="PsOcclusion.hlsl">
       <Filter>shaders\fullscreen\output</Filter>
     </FxCompile>
     <FxCompile Include="PsHBAO.hlsl">

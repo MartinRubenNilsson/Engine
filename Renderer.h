@@ -12,7 +12,7 @@ enum class RenderOutput
 	Normal,
 	Position,
 	Entity,
-	Access,
+	Occlusion,
 	Count
 };
 
@@ -29,8 +29,8 @@ const char* ToString(OcclusionType);
 
 struct RenderSettings
 {
-	RenderOutput output = RenderOutput::Final;
-	OcclusionType ao = OcclusionType::SSAO;
+	RenderOutput output = RenderOutput::Occlusion;
+	OcclusionType occlusion = OcclusionType::HBAO;
 };
 
 struct RenderStatistics

@@ -148,6 +148,8 @@ float main(VsOutFullscreen input) : SV_TARGET
     const float3 centerWorldNormal = normalize(UnpackNormal(centerNormalDepth.xyz));
     const float3 centerViewNormal = mul((float3x3)InvView, centerWorldNormal);
     
+    return centerViewPos.z;
+    
     // The maximum screen position (the texel that corresponds with uv = 1), used to snap to texels
 	// (normally, this would be passed in as a constant)
     uint2 dim;
@@ -179,5 +181,6 @@ float main(VsOutFullscreen input) : SV_TARGET
         totalOcclusion += GetRayOcclusion(renderTargetResolution, input.uv, sampleDir, randomFactors.y, maxScreenCoords, projectedRadii, numStepsPerRay, centerViewPos, centerViewNormal);
     }
 
-    return 1.0 - saturate(strengthPerRay * totalOcclusion);
+    //return 1.0 - saturate(strengthPerRay * totalOcclusion);
+    return 0.5;
 }

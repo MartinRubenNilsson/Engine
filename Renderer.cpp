@@ -18,7 +18,7 @@ const char* ToString(RenderOutput anOutput)
 		"Normal",
 		"Position",
 		"Entity",
-		"Access",
+		"Occlusion",
 	};
 
 	return strings.at(std::to_underlying(anOutput));
@@ -78,7 +78,7 @@ bool Renderer::ResizeTextures(unsigned aWidth, unsigned aHeight)
 	myTextures[t_GBufferAlbedo]			= { aWidth, aHeight, DXGI_FORMAT_R8G8B8A8_UNORM};
 	myTextures[t_GBufferMetalRoughAo]	= { aWidth, aHeight, DXGI_FORMAT_R8G8B8A8_UNORM };
 	myTextures[t_GBufferEntity]			= { aWidth, aHeight, DXGI_FORMAT_R32_UINT };
-	myTextures[t_AmbientAccessMap]		= { aWidth / 2, aHeight / 2, DXGI_FORMAT_R16_UNORM };
+	myTextures[t_OcclusionMap]			= { aWidth / 2, aHeight / 2, DXGI_FORMAT_R16_UNORM };
 	myTextures[t_BlurInputTexture]		= { aWidth / 2, aHeight / 2, DXGI_FORMAT_R16_UNORM };
 	myTextures[t_LightingTexture]		= { aWidth, aHeight, DXGI_FORMAT_R32G32B32A32_FLOAT };
 
@@ -149,7 +149,7 @@ void Renderer::Render(const entt::registry& aRegistry)
 
 	RenderOcclusion();
 
-	ScopedResources scopedAccess{ ShaderType::Pixel, t_AmbientAccessMap, { myTextures.at(t_AmbientAccessMap) } };
+	ScopedResources scopedAccess{ ShaderType::Pixel, t_OcclusionMap, { myTextures.at(t_OcclusionMap) } };
 
 	RenderLights(aRegistry);
 
@@ -182,9 +182,9 @@ void Renderer::Render(const entt::registry& aRegistry)
 		FullscreenPass{ "PsEntity.cso" }.Render();
 		break;
 	}
-	case RenderOutput::Access:
+	case RenderOutput::Occlusion:
 	{
-		FullscreenPass{ "PsAccess.cso" }.Render();
+		FullscreenPass{ "PsOcclusion.cso" }.Render();
 		break;
 	}
 	}
@@ -215,7 +215,7 @@ void Renderer::Clear()
 			texture.Clear({ 0.f, 0.f, 0.f, FAR_Z });
 			break;
 		}
-		case t_AmbientAccessMap:
+		case t_OcclusionMap:
 		{
 			texture.Clear({ 1.f, 1.f, 1.f, 1.f });
 			break;
@@ -291,10 +291,10 @@ void Renderer::RenderGeometry(const entt::registry& aRegistry)
 
 void Renderer::RenderOcclusion()
 {
-	if (settings.ao == OcclusionType::None)
+	if (settings.occlusion == OcclusionType::None)
 		return;
 
-	auto& ambientMap{ myTextures.at(t_AmbientAccessMap) };
+	auto& ambientMap{ myTextures.at(t_OcclusionMap) };
 	auto& blurTexture{ myTextures.at(t_BlurInputTexture) };
 
 	ScopedViewports scopedViewports{ ambientMap.GetViewport() };
@@ -303,13 +303,13 @@ void Renderer::RenderOcclusion()
 	{
 		ScopedTargets scopedTarget{ ambientMap };
 
-		if (settings.ao == OcclusionType::SSAO)
+		if (settings.occlusion == OcclusionType::SSAO)
 			FullscreenPass{ "PsSSAO.cso" }.Render();
-		else if (settings.ao == OcclusionType::HBAO)
+		else if (settings.occlusion == OcclusionType::HBAO)
 			FullscreenPass{ "PsHBAO.cso" }.Render();
 	}
 	
-	for (size_t i = 0; i < 4; ++i)
+	for (size_t i = 0; i < 0; ++i)
 	{
 		// Blur horizontally
 		{
@@ -451,10 +451,10 @@ void Renderer::RenderSpotLights(std::span<const LightBuffer> someLights)
 
 void ImGui::Inspect(Renderer& aRenderer)
 {
-	if (TreeNode(ICON_FA_GEARS" Settings"))
+	if (TreeNodeEx(ICON_FA_GEARS" Settings", ImGuiTreeNodeFlags_DefaultOpen))
 	{
 		Combo("Output", aRenderer.settings.output);
-		Combo("AO", aRenderer.settings.ao);
+		Combo("AO", aRenderer.settings.occlusion);
 
 		TreePop();
 	}

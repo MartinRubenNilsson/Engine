@@ -71,7 +71,7 @@ enum TextureSlot : unsigned
 	t_GBufferMetalRoughAo,
 	t_GBufferEntity,
 
-	t_AmbientAccessMap,
+	t_OcclusionMap,
 	t_BlurInputTexture,
 	t_LightingTexture,
 

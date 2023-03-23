@@ -108,7 +108,7 @@ Texture2D GBufferAlbedo         : register(t1);
 Texture2D GBufferMetalRoughAo   : register(t2);
 Texture2D<uint> GBufferEntity   : register(t3);
 
-Texture2D AmbientAccessMap : register(t4);
+Texture2D OcclusionMap : register(t4);
 Texture2D BlurInputTexture : register(t5);
 Texture2D LightningTexture : register(t6);
 
