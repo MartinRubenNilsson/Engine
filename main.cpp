@@ -32,25 +32,19 @@
 
 // Other
 #include "EngineAsset.h"
+#include "Win32Common.h"
 
 namespace
 {
     bool theResize{ false };
     Drop theDrop{};
-
-    fs::path GetModulePath()
-    {
-        WCHAR path[MAX_PATH];
-        GetModuleFileName(GetModuleHandle(NULL), path, MAX_PATH);
-        return { path };
-    }
 }
 
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 
 int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
 {
-    fs::current_path(GetModulePath().remove_filename());
+    fs::current_path(GetExePath().remove_filename());
 
     Keyboard keyboard{};
     Mouse mouse{};
@@ -129,7 +123,6 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
             if (!renderer.ResizeTextures(w, h))
                 return EXIT_FAILURE;
             sceneCam.SetAspect(static_cast<float>(w) / h);
-
             theResize = false;
         }
 
@@ -157,7 +150,6 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
                     ));
                 }
             }
-
             theDrop = {};
         }
 

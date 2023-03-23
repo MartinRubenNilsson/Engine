@@ -116,6 +116,9 @@
     <ClInclude Include="ImGuiCommon.h">
       <Filter>imgui</Filter>
     </ClInclude>
+    <ClInclude Include="Win32Common.h">
+      <Filter>windows</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
@@ -221,6 +224,9 @@
     </ClCompile>
     <ClCompile Include="ImGuiCommon.cpp">
       <Filter>imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="Win32Common.cpp">
+      <Filter>windows</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
