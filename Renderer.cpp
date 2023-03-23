@@ -7,8 +7,9 @@
 #include "Light.h"
 #include "FullscreenPass.h"
 #include "Cubemap.h"
+#include "ImGuiCommon.h"
 
-const char* RenderOutputToString(RenderOutput anOutput)
+const char* ToString(RenderOutput anOutput)
 {
 	static constexpr std::array strings
 	{
@@ -21,6 +22,18 @@ const char* RenderOutputToString(RenderOutput anOutput)
 	};
 
 	return strings.at(std::to_underlying(anOutput));
+}
+
+const char* ToString(OcclusionType aType)
+{
+	static constexpr std::array strings
+	{
+		"None",
+		"SSAO",
+		"HBAO",
+	};
+
+	return strings.at(std::to_underlying(aType));
 }
 
 /*
@@ -134,8 +147,7 @@ void Renderer::Render(const entt::registry& aRegistry)
 		}
 	};
 
-	if (settings.ssao)
-		RenderOcclusion();
+	RenderOcclusion();
 
 	ScopedResources scopedAccess{ ShaderType::Pixel, t_AmbientAccessMap, { myTextures.at(t_AmbientAccessMap) } };
 
@@ -279,6 +291,9 @@ void Renderer::RenderGeometry(const entt::registry& aRegistry)
 
 void Renderer::RenderOcclusion()
 {
+	if (settings.ao == OcclusionType::None)
+		return;
+
 	auto& ambientMap{ myTextures.at(t_AmbientAccessMap) };
 	auto& blurTexture{ myTextures.at(t_BlurInputTexture) };
 
@@ -287,7 +302,11 @@ void Renderer::RenderOcclusion()
 	// Compute ambient access map
 	{
 		ScopedTargets scopedTarget{ ambientMap };
-		FullscreenPass{ "PsSSAO.cso" }.Render();
+
+		if (settings.ao == OcclusionType::SSAO)
+			FullscreenPass{ "PsSSAO.cso" }.Render();
+		else if (settings.ao == OcclusionType::HBAO)
+			FullscreenPass{ "PsHBAO.cso" }.Render();
 	}
 	
 	for (size_t i = 0; i < 4; ++i)
@@ -434,20 +453,8 @@ void ImGui::Inspect(Renderer& aRenderer)
 {
 	if (TreeNode(ICON_FA_GEARS" Settings"))
 	{
-		RenderSettings& settings{ aRenderer.settings };
-
-		if (BeginCombo("Output", RenderOutputToString(settings.output)))
-		{
-			for (int i = 0; i < std::to_underlying(RenderOutput::Count); ++i)
-			{
-				RenderOutput output{ i };
-				if (Selectable(RenderOutputToString(output), settings.output == output))
-					settings.output = output;
-			}
-			EndCombo();
-		}
-
-		Checkbox("SSAO", &aRenderer.settings.ssao);
+		Combo("Output", aRenderer.settings.output);
+		Combo("AO", aRenderer.settings.ao);
 
 		TreePop();
 	}

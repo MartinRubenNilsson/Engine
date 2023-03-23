@@ -16,12 +16,21 @@ enum class RenderOutput
 	Count
 };
 
-const char* RenderOutputToString(RenderOutput);
+enum class OcclusionType
+{
+	None,
+	SSAO,
+	HBAO,
+	Count,
+};
+
+const char* ToString(RenderOutput);
+const char* ToString(OcclusionType);
 
 struct RenderSettings
 {
-	RenderOutput output{};
-	bool ssao{ true };
+	RenderOutput output = RenderOutput::Final;
+	OcclusionType ao = OcclusionType::SSAO;
 };
 
 struct RenderStatistics
