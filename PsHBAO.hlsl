@@ -30,7 +30,7 @@ static const float bias = 0.03; // minimum factor to start counting occluders
 // Multiply the result with an interpolated frustum vector to get the actual view-space coordinates
 float DepthToViewZ(float depthValue)
 {
-    return projectionMatrix[3][2] / (depthValue - projectionMatrix[2][2]);
+    return Proj[3][2] / (depthValue - Proj[2][2]);
 }
 
 // snaps a uv coord to the nearest texel centre
@@ -186,8 +186,8 @@ float main(VsOutFullscreen input) : SV_TARGET
     float2 frustumDiff = float2(viewFrustumVectors[2].x - viewFrustumVectors[3].x, viewFrustumVectors[0].y - viewFrustumVectors[3].y);
 	
 	// scale the sample radius perspectively according to the given view depth (becomes ellipse)
-    float w = centerViewPos.z * projectionMatrix[2][3] + projectionMatrix[3][3];
-    float2 projectedRadii = halfSampleRadius * float2(projectionMatrix[1][1], projectionMatrix[2][2]) / w; // half radius because projection ([-1, 1]) -> uv ([0, 1])
+    float w = centerViewPos.z * Proj[2][3] + Proj[3][3];
+    float2 projectedRadii = halfSampleRadius * float2(Proj[1][1], Proj[2][2]) / w; // half radius because projection ([-1, 1]) -> uv ([0, 1])
     float screenRadius = projectedRadii.x * renderTargetResolution.x;
 
 	// bail out if there's nothing to march

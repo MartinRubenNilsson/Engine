@@ -3,7 +3,7 @@
 #define FULLSCREEN_VERTEX_COUNT 3
 #define CUBEMAP_VERTEX_COUNT 14
 
-#define USE_REVERSE_Z 1
+#define USE_REVERSE_Z 0
 
 #if USE_REVERSE_Z
 #define NEAR_Z 1.f
@@ -27,6 +27,7 @@ struct alignas(16) ImmutableBuffer
 
 struct alignas(16) CameraBuffer
 {
+	Matrix proj{};
 	Matrix viewProj{};
 	Matrix invViewProj{};
 	Vector4 position{};

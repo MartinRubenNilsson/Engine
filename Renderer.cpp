@@ -104,7 +104,8 @@ void Renderer::SetCamera(const Camera& aCamera, const Matrix& aTransform)
 		if (USE_REVERSE_Z)
 			modifiedCamera.SwapNearAndFarZ();
 
-		buffer.viewProj = aTransform.Invert() * GetDefaultViewMatrix() * modifiedCamera.GetProjMatrix();
+		buffer.proj = modifiedCamera.GetProjMatrix();
+		buffer.viewProj = aTransform.Invert() * GetDefaultViewMatrix() * buffer.proj;
 		buffer.invViewProj = buffer.viewProj.Invert();
 
 		myCBuffers.at(b_Camera).Update(&buffer);
