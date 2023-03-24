@@ -148,8 +148,6 @@ float main(VsOutFullscreen input) : SV_TARGET
     const float3 centerWorldNormal = normalize(UnpackNormal(centerNormalDepth.xyz));
     const float3 centerViewNormal = mul((float3x3)InvView, centerWorldNormal);
     
-    return centerViewPos.z;
-    
     // The maximum screen position (the texel that corresponds with uv = 1), used to snap to texels
 	// (normally, this would be passed in as a constant)
     uint2 dim;
@@ -161,10 +159,18 @@ float main(VsOutFullscreen input) : SV_TARGET
     float2 randomFactors = GetUniformReal(input.pos.xy);
 	
 	// scale the sample radius perspectively according to the given view depth (becomes ellipse)
-    float w = centerViewPos.z * Proj[2][3] + Proj[3][3];
-    float2 projectedRadii = halfSampleRadius * float2(Proj[1][1], Proj[2][2]) / w; // half radius because projection ([-1, 1]) -> uv ([0, 1])
+    //float w = centerViewPos.z * Proj[2][3] + Proj[3][3];
+    //float2 projectedRadii = halfSampleRadius * float2(Proj[1][1], Proj[2][2]) / w; // half radius because projection ([-1, 1]) -> uv ([0, 1])
+    //float screenRadius = projectedRadii.x * renderTargetResolution.x;
+    
+    //float w = centerViewPos.z * Proj[2][1] + Proj[2][2];
+    float w = centerViewPos.z;
+    float2 projectedRadii = halfSampleRadius * float2(Proj[0][0], Proj[1][1]) / w; // half radius because projection ([-1, 1]) -> uv ([0, 1])
     float screenRadius = projectedRadii.x * renderTargetResolution.x;
-
+    
+    if (screenRadius < 0.5)
+        return 0.5;
+    
 	// bail out if there's nothing to march
     if (screenRadius < 1.0)
         return 1.0;
@@ -180,6 +186,6 @@ float main(VsOutFullscreen input) : SV_TARGET
         sampleDir = mul(CreateRotationMatrix(PI2 * randomFactors.x), sampleDir);
         totalOcclusion += GetRayOcclusion(renderTargetResolution, input.uv, sampleDir, randomFactors.y, maxScreenCoords, projectedRadii, numStepsPerRay, centerViewPos, centerViewNormal);
     }
-
+    
     return 1.0 - saturate(strengthPerRay * totalOcclusion);
 }
