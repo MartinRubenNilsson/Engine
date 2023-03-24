@@ -6,6 +6,6 @@ float4 main(VsOutFullscreen input) : SV_TARGET
     if (normalDepth.w == FAR_Z)
         return float4(0.0, 0.0, 0.0, 1.0);
     
-    const float3 worldPos = UVDepthToWorld(input.uv, normalDepth.w);
+    const float3 worldPos = UVDepthToWorldPos(input.uv, normalDepth.w);
     return float4(worldPos, 1.0);
 }

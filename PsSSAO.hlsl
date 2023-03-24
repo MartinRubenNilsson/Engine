@@ -31,7 +31,7 @@ float main(VsOutFullscreen input) : SV_TARGET
     if (depthP == FAR_Z)
         return 1.0; // at far plane -> no occlusion -> full access
     
-    const float3 P = UVDepthToWorld(input.uv, depthP);
+    const float3 P = UVDepthToWorldPos(input.uv, depthP);
     const float3 N = normalize(UnpackNormal(normalDepthP.xyz));
     
     const float3 unitVec = GetRandomUnitVec(input.pos.xy);
@@ -48,7 +48,7 @@ float main(VsOutFullscreen input) : SV_TARGET
         const float2 uv = WorldToUVDepth(Q).xy;
 
         const float depthR = GBufferNormalDepth.Sample(NormalDepthSampler, uv).w;
-        const float3 R = UVDepthToWorld(uv, depthR);
+        const float3 R = UVDepthToWorldPos(uv, depthR);
         
         const float deltaWorldDepth = HyperbolicDepthToLinear(depthP) - HyperbolicDepthToLinear(depthR);
         const float weight = saturate(dot(N, normalize(R - P))); // Only points in front of P can occlude it

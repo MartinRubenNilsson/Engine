@@ -153,7 +153,7 @@ float main(VsOutFullscreen input) : SV_TARGET
     // The maximum screen position (the texel that corresponds with uv = 1), used to snap to texels
 	// (normally, this would be passed in as a constant)
     uint2 dim;
-    GBufferNormalDepth.GetDimensions(dim.x, dim.y);
+    OcclusionMap.GetDimensions(dim.x, dim.y);
     float2 renderTargetResolution = dim;
     float2 maxScreenCoords = renderTargetResolution - 1.0;
 	
@@ -181,6 +181,5 @@ float main(VsOutFullscreen input) : SV_TARGET
         totalOcclusion += GetRayOcclusion(renderTargetResolution, input.uv, sampleDir, randomFactors.y, maxScreenCoords, projectedRadii, numStepsPerRay, centerViewPos, centerViewNormal);
     }
 
-    //return 1.0 - saturate(strengthPerRay * totalOcclusion);
-    return 0.5;
+    return 1.0 - saturate(strengthPerRay * totalOcclusion);
 }

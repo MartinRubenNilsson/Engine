@@ -184,10 +184,10 @@ float3 WorldToUVDepth(float3 worldPos)
 float3 ClipToViewPos(float3 clipPos)
 {
     float4 viewPos = mul(InvProj, float4(clipPos, 1.0));
-    return viewPos.xyz / viewPos.z;
+    return viewPos.xyz / viewPos.w;
 }
 
-float3 ClipToWorld(float3 clipPos)
+float3 ClipToWorldPos(float3 clipPos)
 {
     float4 worldPos = mul(InvViewProj, float4(clipPos, 1.0));
     return worldPos.xyz / worldPos.w;
@@ -199,10 +199,10 @@ float3 UVDepthToViewPos(float2 uv, float depth)
     return ClipToViewPos(clipPos);
 }
 
-float3 UVDepthToWorld(float2 uv, float depth)
+float3 UVDepthToWorldPos(float2 uv, float depth)
 {
     float3 clipPos = { uv.x * 2.0 - 1.0, 1.0 - uv.y * 2.0, depth };
-    return ClipToWorld(clipPos);
+    return ClipToWorldPos(clipPos);
 }
 
 // Requires that GaussianMap is set.
