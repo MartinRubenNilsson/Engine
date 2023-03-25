@@ -30,8 +30,8 @@ const char* ToString(OcclusionType);
 
 struct RenderSettings
 {
-	RenderOutput output = RenderOutput::Occlusion;
-	OcclusionType occlusion = OcclusionType::HBAO;
+	RenderOutput output = RenderOutput::Final;
+	OcclusionType occlusion = OcclusionType::SSAO;
 };
 
 struct RenderStats

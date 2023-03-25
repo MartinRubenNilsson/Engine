@@ -119,6 +119,9 @@
     <ClInclude Include="Win32Common.h">
       <Filter>windows</Filter>
     </ClInclude>
+    <ClInclude Include="PhysX.h">
+      <Filter>physics</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
@@ -228,6 +231,9 @@
     <ClCompile Include="Win32Common.cpp">
       <Filter>windows</Filter>
     </ClCompile>
+    <ClCompile Include="PhysX.cpp">
+      <Filter>physics</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="graphics">
@@ -271,6 +277,9 @@
     </Filter>
     <Filter Include="entt">
       <UniqueIdentifier>{1ff725ee-0f58-476a-a8f5-08b5b9be5276}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="physics">
+      <UniqueIdentifier>{825eb5c9-4632-4533-b198-f926561a6277}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

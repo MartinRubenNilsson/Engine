@@ -4,6 +4,9 @@
 #include "Window.h"
 #include "Drop.h"
 
+// Physics
+#include "PhysX.h"
+
 // Rendering
 #include "StateFactory.h"
 #include "InputLayoutFactory.h"
@@ -55,6 +58,10 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
 
     window.SetIcon("icon.ico");
     mouse.SetWindow(window);
+
+    PhysX physX{};
+    if (!physX)
+        return EXIT_FAILURE;
 
     DX11 dx11{};
     if (!dx11)
