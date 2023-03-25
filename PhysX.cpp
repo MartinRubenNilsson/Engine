@@ -2,6 +2,7 @@
 #include "PhysX.h"
 
 #define PVD_HOST "127.0.0.1"
+#define NUM_THREADS 2
 
 PhysX::PhysX()
 {
@@ -17,7 +18,19 @@ PhysX::PhysX()
 	myPvd.reset(PxCreatePvd(*myFoundation));
 	if (!myPvd)
 		return;
+
+	bool trackAllocs = true;
+#else
+	bool trackAllocs = false;
 #endif
+
+	myPhysics.reset(PxCreateBasePhysics(PX_PHYSICS_VERSION, *myFoundation, PxTolerancesScale{}, trackAllocs, myPvd.get()));
+	if (!myPhysics)
+		return;
+
+	myCpuDispatcher.reset(PxDefaultCpuDispatcherCreate(NUM_THREADS));
+	if (!myCpuDispatcher)
+		return;
 
 	mySucceeded = true;
 }
@@ -33,6 +46,16 @@ void PhysX::DisconnectPvd()
 {
 	if (myPvd)
 		myPvd->disconnect();
+}
+
+PxPhysics* PhysX::GetPhysics()
+{
+	return myPhysics.get();
+}
+
+PxCpuDispatcher* PhysX::GetCpuDispatcher()
+{
+	return myCpuDispatcher.get();
 }
 
 PhysX::operator bool() const
