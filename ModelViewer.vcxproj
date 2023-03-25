@@ -211,6 +211,7 @@
     <ClInclude Include="EnttSerialization.h" />
     <ClInclude Include="Light.h" />
     <ClInclude Include="Manipulator.h" />
+    <ClInclude Include="PhysicsScene.h" />
     <ClInclude Include="PhysX.h" />
     <ClInclude Include="Picker.h" />
     <ClInclude Include="Renderer.h" />
@@ -255,6 +256,7 @@
     <ClCompile Include="EnttSerialization.cpp" />
     <ClCompile Include="Light.cpp" />
     <ClCompile Include="Manipulator.cpp" />
+    <ClCompile Include="PhysicsScene.cpp" />
     <ClCompile Include="PhysX.cpp" />
     <ClCompile Include="Picker.cpp" />
     <ClCompile Include="Renderer.cpp" />

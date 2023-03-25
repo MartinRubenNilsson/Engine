@@ -122,6 +122,9 @@
     <ClInclude Include="PhysX.h">
       <Filter>physics</Filter>
     </ClInclude>
+    <ClInclude Include="PhysicsScene.h">
+      <Filter>physics</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
@@ -232,6 +235,9 @@
       <Filter>windows</Filter>
     </ClCompile>
     <ClCompile Include="PhysX.cpp">
+      <Filter>physics</Filter>
+    </ClCompile>
+    <ClCompile Include="PhysicsScene.cpp">
       <Filter>physics</Filter>
     </ClCompile>
   </ItemGroup>
