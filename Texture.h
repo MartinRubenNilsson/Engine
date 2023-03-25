@@ -11,9 +11,9 @@ enum class TextureType
 	Cubemap,
 };
 
-const char* TextureTypeToString(TextureType);
-DXGI_FORMAT	TextureTypeToFormat(TextureType);
-unsigned	TextureTypeToChannels(TextureType);
+const char* ToString(TextureType);
+DXGI_FORMAT	ToFormat(TextureType);
+unsigned	ToChannels(TextureType);
 
 std::span<const TextureType> GetMaterialTextureTypes();
 

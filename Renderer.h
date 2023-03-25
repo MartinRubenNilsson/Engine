@@ -3,7 +3,8 @@
 #include "ConstantBuffer.h"
 #include "RenderTexture.h"
 #include "DepthBuffer.h"
-#include "Camera.h"
+
+class Camera;
 
 enum class RenderOutput
 {
@@ -33,19 +34,19 @@ struct RenderSettings
 	OcclusionType occlusion = OcclusionType::HBAO;
 };
 
-struct RenderStatistics
+struct RenderStats
 {
 	unsigned meshes{};
-	unsigned dLights{}; // Directional
-	unsigned pLights{}; // Point
-	unsigned sLights{}; // Spot
+	unsigned dirLights{};
+	unsigned pointLights{};
+	unsigned spotLights{};
 };
 
 class Renderer : public Singleton<Renderer>
 {
 public:
 	RenderSettings settings{};
-	RenderStatistics statistics{};
+	RenderStats stats{};
 
 	Renderer() = default;
 	Renderer(unsigned aWidth, unsigned aHeight);

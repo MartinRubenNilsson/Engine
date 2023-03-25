@@ -202,7 +202,7 @@ Renderer::operator bool() const
 
 void Renderer::Clear()
 {
-	statistics = {};
+	stats = {};
 
 	myDepthBuffer.Clear(FAR_Z);
 
@@ -285,7 +285,7 @@ void Renderer::RenderGeometry(const entt::registry& aRegistry)
 		ScopedResources scopedMaterial{ ShaderType::Pixel, t_MaterialAlbedo, material.GetResources() };
 
 		mesh.Draw();
-		statistics.meshes++;
+		stats.meshes++;
 	}
 }
 
@@ -417,7 +417,7 @@ void Renderer::RenderDirectionalLights(std::span<const LightBuffer> someLights)
 	{
 		myCBuffers.at(b_Light).Update(&light);
 		pass.Render();
-		statistics.dLights++;
+		stats.dirLights++;
 	}
 }
 
@@ -429,7 +429,7 @@ void Renderer::RenderPointLights(std::span<const LightBuffer> someLights)
 	{
 		myCBuffers.at(b_Light).Update(&light);
 		pass.Render();
-		statistics.pLights++;
+		stats.pointLights++;
 	}
 }
 
@@ -441,7 +441,7 @@ void Renderer::RenderSpotLights(std::span<const LightBuffer> someLights)
 	{
 		myCBuffers.at(b_Light).Update(&light);
 		pass.Render();
-		statistics.sLights++;
+		stats.spotLights++;
 	}
 }
 
@@ -455,19 +455,15 @@ void ImGui::Inspect(Renderer& aRenderer)
 	{
 		Combo("Output", aRenderer.settings.output);
 		Combo("AO", aRenderer.settings.occlusion);
-
 		TreePop();
 	}
 
-	if (TreeNode(ICON_FA_CHART_SIMPLE" Statistics"))
+	if (TreeNode(ICON_FA_CHART_SIMPLE" Stats"))
 	{
-		const RenderStatistics& stats{ aRenderer.statistics };
-
-		Value("Meshes", stats.meshes);
-		Value("Dir. Lights", stats.dLights);
-		Value("Point Lights", stats.pLights);
-		Value("Spot Lights", stats.sLights);
-
+		Value("Meshes", aRenderer.stats.meshes);
+		Value("Dir. Lights", aRenderer.stats.dirLights);
+		Value("Point Lights", aRenderer.stats.pointLights);
+		Value("Spot Lights", aRenderer.stats.spotLights);
 		TreePop();
 	}
 }

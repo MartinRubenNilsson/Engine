@@ -109,7 +109,7 @@ Material::Material(const aiMaterial& aMaterial)
         if (HasTexture(type))
             continue;
 
-        fs::path path{ myName + "_" + TextureTypeToString(type) + ".jpg" };
+        fs::path path{ myName + "_" + ToString(type) + ".jpg" };
 
         if (!fs::exists(path))
         {
@@ -183,7 +183,7 @@ void ImGui::Inspect(const Material& aMaterial)
     {
         Texture::Ptr texture = aMaterial.GetTexture(type);
 
-        std::string label{ TextureTypeToString(type) };
+        std::string label{ ToString(type) };
         label += ": ";
         if (texture)
             label += texture->GetPath().filename().string();

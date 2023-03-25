@@ -2,7 +2,7 @@
 #include "Texture.h"
 #include "Image.h"
 
-const char* TextureTypeToString(TextureType aType)
+const char* ToString(TextureType aType)
 {
     static constexpr std::array strings
     {
@@ -18,7 +18,7 @@ const char* TextureTypeToString(TextureType aType)
     return strings.at(std::to_underlying(aType));
 }
 
-DXGI_FORMAT TextureTypeToFormat(TextureType aType)
+DXGI_FORMAT ToFormat(TextureType aType)
 {
 	static constexpr std::array formats
 	{
@@ -34,7 +34,7 @@ DXGI_FORMAT TextureTypeToFormat(TextureType aType)
 	return formats.at(std::to_underlying(aType));
 }
 
-unsigned TextureTypeToChannels(TextureType aType)
+unsigned ToChannels(TextureType aType)
 {
 	static constexpr std::array channels
 	{
@@ -74,7 +74,7 @@ Texture::Texture(const fs::path& aPath, TextureType aType)
     if (aType == TextureType::Unknown)
         return;
 
-	Image image{ aPath, TextureTypeToChannels(aType) };
+	Image image{ aPath, ToChannels(aType) };
 	if (!image)
 		return;
 
@@ -83,7 +83,7 @@ Texture::Texture(const fs::path& aPath, TextureType aType)
     desc.Height = image.GetHeight();
     desc.MipLevels = 0;
     desc.ArraySize = 1;
-    desc.Format = TextureTypeToFormat(aType);
+    desc.Format = ToFormat(aType);
     desc.SampleDesc.Count = 1;
     desc.SampleDesc.Quality = 0;
     desc.Usage = D3D11_USAGE_DEFAULT;
