@@ -1,4 +1,6 @@
 #pragma once
+#define _SILENCE_CXX20_CISO646_REMOVED_WARNING
+//#define _SILENCE_ALL_CXX20_DEPRECATION_WARNINGS
 
 // cstd
 #include <cassert>
@@ -71,6 +73,12 @@ using HullShaderPtr = ComPtr<ID3D11HullShader>;
 using DomainShaderPtr = ComPtr<ID3D11DomainShader>;
 using ComputeShaderPtr = ComPtr<ID3D11ComputeShader>;
 
+// physx
+#include <PxPhysicsAPI.h>
+using namespace physx;
+
+template <class T>
+using PxPtr = std::unique_ptr<T, decltype([](T* ptr) { ptr->release(); })>;
 
 // imgui
 #include <imgui/imgui_impl_win32.h>

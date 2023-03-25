@@ -369,5 +369,6 @@
     <None Include="BlurCommon.hlsli">
       <Filter>shaders\fullscreen\occlusion</Filter>
     </None>
+    <None Include="packages.config" />
   </ItemGroup>
 </Project>

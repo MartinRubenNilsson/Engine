@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="packages\NVIDIA.PhysX.4.1.229882250\build\native\NVIDIA.PhysX.props" Condition="Exists('packages\NVIDIA.PhysX.4.1.229882250\build\native\NVIDIA.PhysX.props')" />
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
       <Configuration>Debug</Configuration>
@@ -471,11 +472,20 @@
   <ItemGroup>
     <None Include="BlurCommon.hlsli" />
     <None Include="Constants.hlsli" />
+    <None Include="packages.config" />
     <None Include="PbrCommon.hlsli" />
     <None Include="Random.hlsli" />
     <None Include="ShaderCommon.hlsli" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
+    <Import Project="packages\NVIDIA.PhysX.4.1.229882250\build\native\NVIDIA.PhysX.targets" Condition="Exists('packages\NVIDIA.PhysX.4.1.229882250\build\native\NVIDIA.PhysX.targets')" />
   </ImportGroup>
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('packages\NVIDIA.PhysX.4.1.229882250\build\native\NVIDIA.PhysX.props')" Text="$([System.String]::Format('$(ErrorText)', 'packages\NVIDIA.PhysX.4.1.229882250\build\native\NVIDIA.PhysX.props'))" />
+    <Error Condition="!Exists('packages\NVIDIA.PhysX.4.1.229882250\build\native\NVIDIA.PhysX.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\NVIDIA.PhysX.4.1.229882250\build\native\NVIDIA.PhysX.targets'))" />
+  </Target>
 </Project>

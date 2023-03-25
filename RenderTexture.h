@@ -19,10 +19,10 @@ public:
 private:
 	bool LazyInitTexel();
 
-	HRESULT myResult{ E_FAIL };
 	TexturePtr myTexture{}, myTexel{};
 	RenderTargetPtr myRenderTarget{};
 	ShaderResourcePtr myShaderResource{};
 	unsigned myWidth{}, myHeight{};
+	HRESULT myResult{ E_FAIL };
 };
 

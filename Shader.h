@@ -35,10 +35,10 @@ public:
 	operator bool() const noexcept;
 
 private:
-	HRESULT myResult{ E_FAIL };
 	ShaderVariant myShader{};
 	fs::path myPath{};
 	std::string myBytecode{};
+	HRESULT myResult{ E_FAIL };
 };
 
 using ShaderFactory = AssetFactory<Shader>;
