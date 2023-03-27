@@ -81,7 +81,6 @@
     <ClInclude Include="ConstantBuffer.h">
       <Filter>graphics\buffers</Filter>
     </ClInclude>
-    <ClInclude Include="Scene.h" />
     <ClInclude Include="Image.h">
       <Filter>graphics</Filter>
     </ClInclude>
@@ -122,9 +121,8 @@
     <ClInclude Include="PhysX.h">
       <Filter>physics</Filter>
     </ClInclude>
-    <ClInclude Include="PhysicsScene.h">
-      <Filter>physics</Filter>
-    </ClInclude>
+    <ClInclude Include="DeltaTimer.h" />
+    <ClInclude Include="Scene.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
@@ -199,7 +197,6 @@
     <ClCompile Include="ConstantBuffer.cpp">
       <Filter>graphics\buffers</Filter>
     </ClCompile>
-    <ClCompile Include="Scene.cpp" />
     <ClCompile Include="Image.cpp">
       <Filter>graphics</Filter>
     </ClCompile>
@@ -237,9 +234,8 @@
     <ClCompile Include="PhysX.cpp">
       <Filter>physics</Filter>
     </ClCompile>
-    <ClCompile Include="PhysicsScene.cpp">
-      <Filter>physics</Filter>
-    </ClCompile>
+    <ClCompile Include="DeltaTimer.cpp" />
+    <ClCompile Include="Scene.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="graphics">

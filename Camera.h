@@ -44,7 +44,8 @@ public:
 	bool customAspect{ false }; // If true, use camera aspect instead of screen's aspect when rendering.
 };
 
-entt::entity SortCamerasByDepth(entt::registry&); // Returns camera with least depth.
+void SortCamerasByDepth(entt::registry&);
+void GetFirstCamera(const entt::registry&, Camera&, Matrix&);
 
 namespace ImGui
 {

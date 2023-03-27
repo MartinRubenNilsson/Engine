@@ -309,7 +309,7 @@ void Renderer::RenderOcclusion()
 			FullscreenPass{ "PsHBAO.cso" }.Render();
 	}
 	
-	for (size_t i = 0; i < 0; ++i)
+	for (size_t i = 0; i < 4; ++i)
 	{
 		// Blur horizontally
 		{

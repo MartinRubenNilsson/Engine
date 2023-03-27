@@ -199,6 +199,7 @@
     <ClInclude Include="Cubemap.h" />
     <ClInclude Include="DearImGui.h" />
     <ClInclude Include="Debug.h" />
+    <ClInclude Include="DeltaTimer.h" />
     <ClInclude Include="DepthBuffer.h" />
     <ClInclude Include="Drop.h" />
     <ClInclude Include="DX11.h" />
@@ -211,7 +212,6 @@
     <ClInclude Include="EnttSerialization.h" />
     <ClInclude Include="Light.h" />
     <ClInclude Include="Manipulator.h" />
-    <ClInclude Include="PhysicsScene.h" />
     <ClInclude Include="PhysX.h" />
     <ClInclude Include="Picker.h" />
     <ClInclude Include="Renderer.h" />
@@ -222,10 +222,10 @@
     <ClInclude Include="Material.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="pch.h" />
+    <ClInclude Include="Scene.h" />
     <ClInclude Include="SceneViewManipulate.h" />
     <ClInclude Include="ShaderCommon.h" />
     <ClInclude Include="StateFactory.h" />
-    <ClInclude Include="Scene.h" />
     <ClInclude Include="Scopes.h" />
     <ClInclude Include="Shader.h" />
     <ClInclude Include="Singleton.h" />
@@ -244,6 +244,7 @@
     <ClCompile Include="Cubemap.cpp" />
     <ClCompile Include="DearImGui.cpp" />
     <ClCompile Include="Debug.cpp" />
+    <ClCompile Include="DeltaTimer.cpp" />
     <ClCompile Include="DepthBuffer.cpp" />
     <ClCompile Include="Drop.cpp" />
     <ClCompile Include="DX11.cpp" />
@@ -256,7 +257,6 @@
     <ClCompile Include="EnttSerialization.cpp" />
     <ClCompile Include="Light.cpp" />
     <ClCompile Include="Manipulator.cpp" />
-    <ClCompile Include="PhysicsScene.cpp" />
     <ClCompile Include="PhysX.cpp" />
     <ClCompile Include="Picker.cpp" />
     <ClCompile Include="Renderer.cpp" />
@@ -273,10 +273,10 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="Scene.cpp" />
     <ClCompile Include="SceneViewManipulate.cpp" />
     <ClCompile Include="ShaderCommon.cpp" />
     <ClCompile Include="StateFactory.cpp" />
-    <ClCompile Include="Scene.cpp" />
     <ClCompile Include="Scopes.cpp" />
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="BackBuffer.cpp" />

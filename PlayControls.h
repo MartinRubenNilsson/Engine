@@ -5,7 +5,8 @@ enum class PlayState
     Stopped,
     Starting,
     Started,
-    Stopping
+    Stopping,
+    Quit,
 };
 
 namespace ImGui

@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "Camera.h"
+#include "Transform.h"
 
 Matrix GetDefaultViewMatrix()
 {
@@ -78,10 +79,18 @@ void to_json(json& j, const Camera& c)
 	j["depth"] = c.depth;
 }
 
-entt::entity SortCamerasByDepth(entt::registry& aRegistry)
+void SortCamerasByDepth(entt::registry& aRegistry)
 {
 	aRegistry.sort<Camera>([](const Camera& lhs, const Camera& rhs) { return lhs.depth < rhs.depth; });
-	return aRegistry.view<Camera>().front();
+}
+
+void GetFirstCamera(const entt::registry& aRegistry, Camera& aCamera, Matrix& aTransform)
+{
+	if (entt::const_handle handle{ aRegistry, aRegistry.view<Camera, Transform>().front() })
+	{
+		aCamera = handle.get<Camera>();
+		aTransform = handle.get<Transform>().GetWorldMatrix(aRegistry);
+	}
 }
 
 /*

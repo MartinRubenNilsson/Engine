@@ -8,8 +8,7 @@ public:
 	bool ConnectPvd();
 	void DisconnectPvd();
 
-	PxPhysics* GetPhysics();
-	PxCpuDispatcher* GetCpuDispatcher();
+	PxScene* GetScene();
 
 	explicit operator bool() const;
 
@@ -21,6 +20,6 @@ private:
 	PxPtr<PxPvd> myPvd{};
 	PxPtr<PxPhysics> myPhysics{};
 	PxPtr<PxDefaultCpuDispatcher> myCpuDispatcher{};
+	PxPtr<PxScene> myScene{};
 	bool mySucceeded{ false };
 };
-

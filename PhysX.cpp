@@ -32,6 +32,26 @@ PhysX::PhysX()
 	if (!myCpuDispatcher)
 		return;
 
+	PxSceneDesc desc{ myPhysics->getTolerancesScale() };
+	desc.gravity = { 0.0f, -9.81f, 0.0f };
+	desc.cpuDispatcher = myCpuDispatcher.get();
+	desc.filterShader = PxDefaultSimulationFilterShader;
+	if (!desc.isValid())
+		return;
+
+	myScene.reset(myPhysics->createScene(desc));
+	if (!myScene)
+		return;
+
+#ifdef _DEBUG
+	if (auto client = myScene->getScenePvdClient())
+	{
+		client->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_CONTACTS, true);
+		client->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_SCENEQUERIES, true);
+		client->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_CONSTRAINTS, true);
+	}
+#endif
+
 	mySucceeded = true;
 }
 
@@ -48,14 +68,9 @@ void PhysX::DisconnectPvd()
 		myPvd->disconnect();
 }
 
-PxPhysics* PhysX::GetPhysics()
+PxScene* PhysX::GetScene()
 {
-	return myPhysics.get();
-}
-
-PxCpuDispatcher* PhysX::GetCpuDispatcher()
-{
-	return myCpuDispatcher.get();
+	return myScene.get();
 }
 
 PhysX::operator bool() const

@@ -19,9 +19,9 @@
 #include "EnttCommon.h"
 #include "Texture.h"
 #include "Cubemap.h"
-#include "Scene.h"
 #include "Camera.h"
 #include "Transform.h"
+#include "Scene.h"
 
 // Editor
 #include "DearImGui.h"
@@ -32,6 +32,9 @@
 #include "Picker.h"
 #include "PlayControls.h"
 #include "Menus.h"
+
+// Time
+#include "DeltaTimer.h"
 
 // Other
 #include "EngineAsset.h"
@@ -104,26 +107,29 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
     if (!ImportEngineAssets())
         return EXIT_FAILURE;
 
-    entt::registry sceneReg{};
-    json sceneJson{};
-    fs::path scenePath{};
-    Camera sceneCam{};
-    Matrix sceneCamTrans{};
+    entt::registry registry{};
+    json archive{};
+    fs::path archivePath{};
+
+    Camera editorCamera{};
+    Matrix editorCameraTransform{};
+
+    DeltaTimer deltaTimer{};
+    float simulationTime = 0.f;
+    bool simulate = false;
 
     PlayState state{};
-
-    bool run = true;
     MSG msg{};
 
-    while (run)
+    while (state != PlayState::Quit)
     {
-        window.SetTitle(scenePath.stem().wstring());
+        window.SetTitle(archivePath.stem().wstring());
 
         // Message loop
         while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
         {
             if (msg.message == WM_QUIT)
-                run = false;
+                state = PlayState::Quit;
 
             TranslateMessage(&msg);
             DispatchMessage(&msg);
@@ -133,11 +139,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
         if (theResize)
         {
             backBuffer.Resize();
-            unsigned w = backBuffer.GetWidth();
-            unsigned h = backBuffer.GetHeight();
-            if (!renderer.ResizeTextures(w, h))
+            if (!renderer.ResizeTextures(backBuffer.GetWidth(), backBuffer.GetHeight()))
                 return EXIT_FAILURE;
-            sceneCam.SetAspect(static_cast<float>(w) / h);
             theResize = false;
         }
 
@@ -151,7 +154,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
                 if (extension == ".fbx")
                 {
                     if (auto scene = sceneFactory.GetAsset(path))
-                        Select(sceneReg, scene->Instantiate(sceneReg));
+                        Select(registry, scene->Instantiate(registry));
                 }
                 else if (extension == ".png")
                 {
@@ -197,34 +200,34 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
                 ImGui::EndMainMenuBar();
             }
 
-            fs::path newScenePath = scenePath;
-            GetPath(cmd, newScenePath);
+            fs::path newArchivePath = archivePath;
+            GetPath(cmd, newArchivePath);
 
             switch (cmd)
             {
             case MenuCommand::NewScene:
             {
-                sceneReg.clear();
-                sceneJson.clear();
-                scenePath = newScenePath;
-                std::ofstream{ newScenePath } << sceneJson;
+                registry.clear();
+                archive.clear();
+                archivePath = newArchivePath;
+                std::ofstream{ newArchivePath } << archive;
                 break;
             }
             case MenuCommand::OpenScene:
             {
-                json newSceneJson{ json::parse(std::ifstream{ newScenePath }, nullptr, false) };
-                if (newSceneJson.is_discarded())
+                json newArchive{ json::parse(std::ifstream{ newArchivePath }, nullptr, false) };
+                if (newArchive.is_discarded())
                 {
                     Debug::Println(std::format(
                         "Error: Failed to parse scene: {}",
-                        newScenePath.string()
+                        newArchivePath.string()
                     ));
                 }
                 else
                 {
-                    sceneReg = newSceneJson;
-                    sceneJson = newSceneJson;
-                    scenePath = newScenePath;
+                    registry = newArchive;
+                    archive = newArchive;
+                    archivePath = newArchivePath;
                 }
                 break;
             }
@@ -232,12 +235,13 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
                 [[fallthrough]];
             case MenuCommand::SaveAs:
             {
-                sceneJson = sceneReg;
-                std::ofstream{ newScenePath } << sceneJson;
+                archive = registry;
+                std::ofstream{ newArchivePath } << archive;
                 break;
             }
             case MenuCommand::Exit:
-                return EXIT_SUCCESS;
+                state = PlayState::Quit;
+                break;
             }
         }
 
@@ -247,11 +251,11 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
             ImGui::End();
 
             ImGui::Begin(ICON_FA_LIST" Hierarchy");
-            ImGui::Hierarchy(sceneReg);
+            ImGui::Hierarchy(registry);
             ImGui::End();
 
             ImGui::Begin(ICON_FA_CIRCLE_INFO" Inspector");
-            ImGui::Inspector(sceneReg);
+            ImGui::Inspector(registry);
             ImGui::End();
 
             ImGui::SetNextWindowSize({});
@@ -261,8 +265,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
 
             if (state == PlayState::Stopped)
             {
-                ImGui::Picker(sceneReg);
-                ImGui::SceneViewManipulate(sceneCamTrans, keyboardState, mouseState);
+                ImGui::Picker(registry);
+                ImGui::SceneViewManipulate(editorCameraTransform, keyboardState, mouseState);
 
                 static ImGuizmo::OPERATION op = ImGuizmo::TRANSLATE;
                 static ImGuizmo::MODE mode = ImGuizmo::LOCAL;
@@ -275,43 +279,61 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
 
                 ImGui::SetNextWindowSize({});
                 ImGui::Begin("Manipulator", NULL, ImGuiWindowFlags_NoDecoration);
-                ImGui::Manipulator(sceneReg, sceneCam, sceneCamTrans, op, mode);
+                ImGui::Manipulator(registry, editorCamera, editorCameraTransform, op, mode);
                 ImGui::End();
             }
         }
 
         /*if (mouseState.positionMode == Mouse::MODE_RELATIVE)
             ImGui::EndDisabled();*/
-        
+
+        Camera camera{ editorCamera };
+        Matrix cameraTransform{ editorCameraTransform };
 
         switch (state)
         {
         case PlayState::Stopped:
         {
-            renderer.SetCamera(sceneCam, sceneCamTrans);
+            // todo: something here?
             break;
         }
         case PlayState::Starting:
         {
-            sceneJson = sceneReg;
+            archive = registry;
+            physX.ConnectPvd();
+            deltaTimer = {};
+            simulationTime = 0.f;
             state = PlayState::Started;
             break;
         }
         case PlayState::Started:
         {
-            entt::entity camEntity = SortCamerasByDepth(sceneReg);
-            if (sceneReg.all_of<Camera, Transform>(camEntity))
+            if (simulate)
+                physX.GetScene()->fetchResults(true);
+
+            const float deltaTime = deltaTimer.Query();
+            simulationTime += deltaTime;
+
+            // todo: game logic here
+
+            static constexpr float simulationStep = 1.f / 60.f;
+            simulate = (simulationTime >= simulationStep);
+
+            if (simulate)
             {
-                renderer.SetCamera(
-                    sceneReg.get<Camera>(camEntity),
-                    sceneReg.get<Transform>(camEntity).GetWorldMatrix(sceneReg)
-                );
+                simulationTime -= simulationStep;
+                physX.GetScene()->simulate(simulationStep);
             }
+
+            SortCamerasByDepth(registry);
+            GetFirstCamera(registry, camera, cameraTransform);
+
             break;
         }
         case PlayState::Stopping:
         {
-            sceneReg = sceneJson;
+            physX.DisconnectPvd();
+            registry = archive;
             state = PlayState::Stopped;
             break;
         }
@@ -326,7 +348,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
             ScopedViewports scopedViewport{ backBuffer.GetViewport() };
 
             backBuffer.Clear();
-            renderer.Render(sceneReg);
+            renderer.SetCamera(camera, cameraTransform);
+            renderer.Render(registry);
             imGui.Render();
             backBuffer.Present();
         }
