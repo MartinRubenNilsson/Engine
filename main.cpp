@@ -6,6 +6,7 @@
 
 // Physics
 #include "PhysX.h"
+#include "PhysicMaterial.h"
 
 // Rendering
 #include "StateFactory.h"
@@ -120,6 +121,10 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
 
     PlayState state{};
     MSG msg{};
+
+
+    // testing stuff
+    PhysicMaterial mat{};
 
     while (state != PlayState::Quit)
     {

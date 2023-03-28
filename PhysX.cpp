@@ -68,6 +68,11 @@ void PhysX::DisconnectPvd()
 		myPvd->disconnect();
 }
 
+PxPhysics* PhysX::GetPhysics()
+{
+	return myPhysics.get();
+}
+
 PxScene* PhysX::GetScene()
 {
 	return myScene.get();

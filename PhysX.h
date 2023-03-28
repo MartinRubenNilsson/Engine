@@ -8,6 +8,7 @@ public:
 	bool ConnectPvd();
 	void DisconnectPvd();
 
+	PxPhysics* GetPhysics();
 	PxScene* GetScene();
 
 	explicit operator bool() const;
@@ -23,3 +24,6 @@ private:
 	PxPtr<PxScene> myScene{};
 	bool mySucceeded{ false };
 };
+
+#define PX_PHYSICS PhysX::Get().GetPhysics()
+#define PX_SCENE PhysX::Get().GetScene()
