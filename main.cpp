@@ -144,8 +144,11 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
         if (theResize)
         {
             backBuffer.Resize();
-            if (!renderer.ResizeTextures(backBuffer.GetWidth(), backBuffer.GetHeight()))
+            unsigned w = backBuffer.GetWidth();
+            unsigned h = backBuffer.GetHeight();
+            if (!renderer.ResizeTextures(w, h))
                 return EXIT_FAILURE;
+            editorCamera.SetAspect(static_cast<float>(w) / h);
             theResize = false;
         }
 
