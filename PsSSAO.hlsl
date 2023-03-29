@@ -58,8 +58,5 @@ float main(VsOutFullscreen input) : SV_TARGET
     
     occlusion /= OFFSET_VECTOR_COUNT;
     
-    float access = 1.0 - occlusion;
-    access = pow(access, 4.0); // Sharpen contrast
-    
-    return access;
+    return pow(1.0 - occlusion, 4); // Raise to 4th power to sharpen contrast
 }

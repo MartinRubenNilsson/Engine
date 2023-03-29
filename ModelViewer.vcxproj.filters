@@ -123,7 +123,9 @@
     </ClInclude>
     <ClInclude Include="DeltaTimer.h" />
     <ClInclude Include="Scene.h" />
-    <ClInclude Include="PhysicMaterial.h" />
+    <ClInclude Include="PhysicMaterial.h">
+      <Filter>physics</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
@@ -237,7 +239,9 @@
     </ClCompile>
     <ClCompile Include="DeltaTimer.cpp" />
     <ClCompile Include="Scene.cpp" />
-    <ClCompile Include="PhysicMaterial.cpp" />
+    <ClCompile Include="PhysicMaterial.cpp">
+      <Filter>physics</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="graphics">

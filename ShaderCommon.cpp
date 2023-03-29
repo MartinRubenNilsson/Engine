@@ -63,6 +63,9 @@ ImmutableBuffer ImmutableBuffer::Create()
 			v.Normalize();
 			v *= uniform(engine);
 		}
+
+		auto copy = buffer.offsetVectors;
+		copy = copy;
 	}
 
 	return buffer;
