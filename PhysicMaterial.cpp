@@ -16,13 +16,31 @@ const char* ToString(CombineMode aMode)
 	return strings.at(std::to_underlying(aMode));
 }
 
+void to_json(json& j, const PhysicMaterial& m)
+{
+	j["dynamicFriction"] = m.GetDynamicFriction();
+	j["staticFriction"] = m.GetStaticFriction();
+	j["restitution"] = m.GetRestitution();
+	j["frictionCombine"] = m.GetFrictionCombineMode();
+	j["restitutionCombine"] = m.GetRestitutionCombineMode();
+}
+
+void from_json(const json& j, PhysicMaterial& m)
+{
+	m.SetDynamicFriction(j.at("dynamicFriction"));
+	m.SetStaticFriction(j.at("staticFriction"));
+	m.SetRestitution(j.at("restitution"));
+	m.SetFrictionCombineMode(j.at("frictionCombine"));
+	m.SetRestitutionCombineMode(j.at("restitutionCombine"));
+}
+
 /*
 * class PhysicMaterial
 */
 
 PhysicMaterial::PhysicMaterial()
 {
-	myImpl.reset(PX_PHYSICS->createMaterial(0.5f, 0.5f, 0.6f));
+	myImpl.reset(PX_PHYSICS->createMaterial(0.6f, 0.6f, 0.f));
 }
 
 void PhysicMaterial::SetDynamicFriction(float coef)
@@ -94,13 +112,13 @@ PhysicMaterial::operator bool() const
 * namespace ImGui
 */
 
-void ImGui::Inspect(PhysicMaterial& aMaterial)
+void ImGui::Inspect(PhysicMaterial& m)
 {
-	float dynamicFriction = aMaterial.GetDynamicFriction();
-	float staticFriction = aMaterial.GetStaticFriction();
-	float restitution = aMaterial.GetRestitution();
-	CombineMode frictionCombine = aMaterial.GetFrictionCombineMode();
-	CombineMode restitutionCombine = aMaterial.GetRestitutionCombineMode();
+	float dynamicFriction = m.GetDynamicFriction();
+	float staticFriction = m.GetStaticFriction();
+	float restitution = m.GetRestitution();
+	CombineMode frictionCombine = m.GetFrictionCombineMode();
+	CombineMode restitutionCombine = m.GetRestitutionCombineMode();
 
 	DragFloat("Dynamic Friction", &dynamicFriction, 0.01f, 0.f, FLT_MAX);
 	DragFloat("Static Friction", &staticFriction, 0.01f, 0.f, FLT_MAX);
@@ -108,9 +126,9 @@ void ImGui::Inspect(PhysicMaterial& aMaterial)
 	Combo("Friction Combine", frictionCombine);
 	Combo("Restitution Combine", restitutionCombine);
 
-	aMaterial.SetDynamicFriction(dynamicFriction);
-	aMaterial.SetStaticFriction(staticFriction);
-	aMaterial.SetRestitution(restitution);
-	aMaterial.SetFrictionCombineMode(frictionCombine);
-	aMaterial.SetRestitutionCombineMode(restitutionCombine);
+	m.SetDynamicFriction(dynamicFriction);
+	m.SetStaticFriction(staticFriction);
+	m.SetRestitution(restitution);
+	m.SetFrictionCombineMode(frictionCombine);
+	m.SetRestitutionCombineMode(restitutionCombine);
 }

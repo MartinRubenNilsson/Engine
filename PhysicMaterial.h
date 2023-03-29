@@ -35,6 +35,9 @@ private:
 	PxPtr<PxMaterial> myImpl{};
 };
 
+void to_json(json&, const PhysicMaterial&);
+void from_json(const json&, PhysicMaterial&);
+
 namespace ImGui
 {
 	void Inspect(PhysicMaterial&);
