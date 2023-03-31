@@ -57,11 +57,8 @@ void ImGui::Inspect(json& j)
 				break;
 			}
 		}
-		static std::string key{};
-		InputText("##Key", &key);
-		SameLine();
-		if (Button("+") && !j.contains(key))
-			j[key] = {};
+		if (SmallButton("+"))
+			OpenPopup("Add Name-Value Pair");
 		break;
 	}
 	case value_t::array:
@@ -105,6 +102,24 @@ void ImGui::Inspect(json& j)
 		SameLine();
 		InputDouble("##Float", j.get_ptr<double*>());
 		break;
+	}
+
+	SetNextWindowPos(GetMainViewport()->GetCenter(), ImGuiCond_Appearing, ImVec2{ 0.5f, 0.5f });
+
+	if (BeginPopupModal("Add Name-Value Pair", NULL, ImGuiWindowFlags_AlwaysAutoResize))
+	{
+		static std::string name{};
+		InputText("Name", &name);
+		if (Button("OK", ImVec2{ 120, 0 }))
+		{
+			if (!j.contains(name))
+				j[name] = {};
+			CloseCurrentPopup();
+		}
+		SameLine();
+		if (Button("Cancel", ImVec2{ 120, 0 }))
+			CloseCurrentPopup();
+		EndPopup();
 	}
 
 	PopID();
