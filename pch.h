@@ -98,9 +98,8 @@ using PxPtr = std::unique_ptr<T, decltype([](T* ptr) { ptr->release(); })>;
 #include <entt/entt.hpp>
 
 // nlohmann
-#include <nlohmann/json_fwd.hpp>
 #include <nlohmann/json.hpp>
-using nlohmann::json;
+using namespace nlohmann;
 
 // other
 #include "Singleton.h"

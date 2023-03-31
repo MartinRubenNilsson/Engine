@@ -1,50 +1,35 @@
 #include "pch.h"
 #include "Inspector.h"
 #include "EnttCommon.h"
+#include "ImGuiCommon.h"
 
+// Common
 #include "Transform.h"
+
+// Graphics
 #include "Mesh.h"
 #include "Material.h"
 #include "Camera.h"
 #include "Light.h"
 
+// Physics
 #include "PhysicMaterial.h"
+
+// Other
+#include "JsonCommon.h"
 
 namespace ImGui
 {
-	void Inspect(json& j)
-	{
-		/*for (auto& [key, value] : j.items())
-		{
-			using value_t = nlohmann::json::value_t;
-
-			switch (j.type())
-			{
-			case value_t::null:
-				Text(key.c_str());
-				break;
-			case value_t::boolean:
-				Checkbox(key.c_str(), value.get_ptr<bool*>());
-				break;
-			}
-		}*/
-
-		if (Button("Add"))
-			j.emplace_back("Hello");
-	}
-
 	template <class Component>
 	void InspectComponent(const char* aLabel, entt::handle aHandle)
 	{
-		constexpr bool isTransform = std::is_same_v<Component, Transform>;
-
 		if (aHandle.all_of<Component>())
 		{
 			bool open = CollapsingHeader(aLabel, ImGuiTreeNodeFlags_DefaultOpen);
 
 			if (BeginPopupContextItem())
 			{
-				if constexpr (isTransform)
+				if constexpr (std::is_same_v<Component, Transform>)
 				{
 					if (MenuItem("Reset"))
 						aHandle.get<Transform>().SetLocalMatrix({});
@@ -72,10 +57,10 @@ namespace ImGui
 		{
 			if (BeginPopup("Add Component"))
 			{
-				if constexpr (!isTransform)
+				if constexpr (!std::is_same_v<Component, Transform>)
 				{
 					if (MenuItem(aLabel))
-						aHandle.emplace<Component>();
+						aHandle.emplace<Component>() = {}; // json misbehaves if we just emplace
 				}
 				EndPopup();
 			}
@@ -95,7 +80,7 @@ void ImGui::Inspector(entt::registry& aRegistry)
 	InspectComponent<Camera>(ICON_FA_VIDEO" Camera", selection);
 	InspectComponent<Light>(ICON_FA_SUN" Light", selection);
 	InspectComponent<PhysicMaterial>(ICON_FA_HILL_ROCKSLIDE" Physic Material", selection);
-	InspectComponent<json>(ICON_FA_CHALKBOARD_USER" JSON", selection);
+	InspectComponent<json>(ICON_FA_CHALKBOARD" JSON", selection);
 
 	Separator();
 
