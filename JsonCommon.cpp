@@ -49,7 +49,7 @@ void ImGui::Inspect(json& j)
 		}
 		break;
 	case value_t::array:
-		for (size_t i = 0; i < j.size(); ++i)
+		for (int i = 0; i < j.size(); ++i)
 		{
 			PushID(i);
 			bool erase = SmallButton("-");
