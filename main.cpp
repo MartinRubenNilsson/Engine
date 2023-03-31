@@ -122,9 +122,6 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
     PlayState state{};
     MSG msg{};
 
-    // testing stuff
-    PhysicMaterial mat{};
-
     while (state != PlayState::Quit)
     {
         window.SetTitle(archivePath.stem().wstring());
@@ -268,10 +265,6 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
             ImGui::SetNextWindowSize({});
             ImGui::Begin("Play Controls", NULL, ImGuiWindowFlags_NoDecoration);
             ImGui::PlayControls(state);
-            ImGui::End();
-
-            ImGui::Begin("Physic Material");
-            ImGui::Inspect(mat);
             ImGui::End();
 
             if (state == PlayState::Stopped)

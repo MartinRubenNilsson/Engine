@@ -1,16 +1,40 @@
 #include "pch.h"
 #include "Inspector.h"
 #include "EnttCommon.h"
+
 #include "Transform.h"
 #include "Mesh.h"
 #include "Material.h"
 #include "Camera.h"
 #include "Light.h"
 
+#include "PhysicMaterial.h"
+
 namespace ImGui
 {
+	void Inspect(json& j)
+	{
+		/*for (auto& [key, value] : j.items())
+		{
+			using value_t = nlohmann::json::value_t;
+
+			switch (j.type())
+			{
+			case value_t::null:
+				Text(key.c_str());
+				break;
+			case value_t::boolean:
+				Checkbox(key.c_str(), value.get_ptr<bool*>());
+				break;
+			}
+		}*/
+
+		if (Button("Add"))
+			j.emplace_back("Hello");
+	}
+
 	template <class Component>
-	void InspectComponent(entt::handle aHandle, const char* aLabel)
+	void InspectComponent(const char* aLabel, entt::handle aHandle)
 	{
 		constexpr bool isTransform = std::is_same_v<Component, Transform>;
 
@@ -65,11 +89,13 @@ void ImGui::Inspector(entt::registry& aRegistry)
 	if (!selection)
 		return;
 
-	InspectComponent<Transform>(selection, ICON_FA_UP_DOWN_LEFT_RIGHT" Transform");
-	InspectComponent<Mesh>(selection, ICON_FA_CIRCLE_NODES" Mesh");
-	InspectComponent<Material>(selection, ICON_FA_PALETTE" Material");
-	InspectComponent<Camera>(selection, ICON_FA_VIDEO" Camera");
-	InspectComponent<Light>(selection, ICON_FA_SUN" Light");
+	InspectComponent<Transform>(ICON_FA_UP_DOWN_LEFT_RIGHT" Transform", selection);
+	InspectComponent<Mesh>(ICON_FA_CIRCLE_NODES" Mesh", selection);
+	InspectComponent<Material>(ICON_FA_PALETTE" Material", selection);
+	InspectComponent<Camera>(ICON_FA_VIDEO" Camera", selection);
+	InspectComponent<Light>(ICON_FA_SUN" Light", selection);
+	InspectComponent<PhysicMaterial>(ICON_FA_HILL_ROCKSLIDE" Physic Material", selection);
+	InspectComponent<json>(ICON_FA_CHALKBOARD_USER" JSON", selection);
 
 	Separator();
 
