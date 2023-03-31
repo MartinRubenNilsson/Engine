@@ -39,15 +39,31 @@ void ImGui::Inspect(json& j)
 	case value_t::null:
 		break;
 	case value_t::object:
+	{
 		for (auto& [key, value] : j.items())
 		{
+			PushID(&value);
+			bool erase = SmallButton("-");
+			PopID();
+			SameLine();
 			if (TreeNode(key.c_str()))
 			{
 				Inspect(value);
 				TreePop();
 			}
+			if (erase)
+			{
+				j.erase(key);
+				break;
+			}
 		}
+		static std::string key{};
+		InputText("##Key", &key);
+		SameLine();
+		if (Button("+") && !j.contains(key))
+			j[key] = {};
 		break;
+	}
 	case value_t::array:
 		for (int i = 0; i < j.size(); ++i)
 		{
