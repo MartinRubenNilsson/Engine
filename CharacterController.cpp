@@ -1,9 +1,7 @@
 #include "pch.h"
 #include "CharacterController.h"
 #include "PhysX.h"
-
-#define DEFAULT_RADIUS 0.5f
-#define DEFAULT_HEIGHT 2.f
+#include "Transform.h"
 
 namespace
 {
@@ -22,8 +20,8 @@ CharacterController::CharacterController()
 {
 	PxCapsuleControllerDesc desc{};
 	desc.material = PhysX::Get().GetDefaultMaterial();
-	desc.radius = DEFAULT_RADIUS;
-	desc.height = DEFAULT_HEIGHT;
+	desc.radius = 0.5f;
+	desc.height = 2.f;
 	if (!desc.isValid())
 		return;
 
@@ -35,24 +33,29 @@ CharacterController::CharacterController(const CharacterController& other)
 	: CharacterController()
 {
 	Copy(myImpl.get(), other.myImpl.get());
-	myMinMoveDistance = other.myMinMoveDistance;
+	minMoveDistance = other.minMoveDistance;
 }
 
 CharacterController& CharacterController::operator=(const CharacterController& other)
 {
 	Copy(myImpl.get(), other.myImpl.get());
-	myMinMoveDistance = other.myMinMoveDistance;
+	minMoveDistance = other.minMoveDistance;
 	return *this;
 }
 
-CollisionFlags CharacterController::Move(const Vector3& aDeltaPos, float aDeltaTime)
+CollisionFlags CharacterController::Move(const Vector3& aDeltaPos, entt::registry& aRegistry)
 {
-	CollisionFlags flags{};
-	if (myImpl)
-	{
-		PxControllerCollisionFlags pxFlags = myImpl->move(ToPx(aDeltaPos), myMinMoveDistance, aDeltaTime, {});
-		flags = CollisionFlags{ pxFlags.operator uint8_t() };
-	}
+	if (!myImpl)
+		return {};
+
+	float dt = aRegistry.ctx().get<float>(DELTA_TIME);
+
+	auto pxFlags = myImpl->move(ToPx(aDeltaPos), minMoveDistance, dt, {});
+	CollisionFlags flags{ pxFlags.operator uint8_t() };
+
+	if (auto transform = aRegistry.try_get<Transform>(entt::to_entity(aRegistry, *this)))
+		transform->SetWorldPosition(aRegistry, GetPosition());
+
 	return flags;
 }
 
@@ -101,7 +104,7 @@ void from_json(const json& j, CharacterController& c)
 	c.SetPosition(Vector3{ pos.data() });
 	c.SetRadius(j.at("radius"));
 	c.SetHeight(j.at("height"));
-	j.at("minMoveDistance").get_to(c.myMinMoveDistance);
+	j.at("minMoveDistance").get_to(c.minMoveDistance);
 }
 
 void to_json(json& j, const CharacterController& c)
@@ -111,7 +114,7 @@ void to_json(json& j, const CharacterController& c)
 	j["position"] = { pos.x, pos.y, pos.z };
 	j["radius"] = c.GetRadius();
 	j["height"] = c.GetHeight();
-	j["minMoveDistance"] = c.myMinMoveDistance;
+	j["minMoveDistance"] = c.minMoveDistance;
 }
 
 /*
@@ -127,4 +130,5 @@ void ImGui::Inspect(CharacterController& c)
 		c.SetRadius(radius);
 	if (DragFloat("Height", &height, 0.01f, 0.01f, FLT_MAX))
 		c.SetHeight(height);
+	DragFloat("Min Move Distance", &c.minMoveDistance, 0.01f, 0.f, FLT_MAX);
 }

@@ -15,10 +15,10 @@ public:
 	CharacterController(const CharacterController&);
 	CharacterController& operator=(const CharacterController&);
 
-	CollisionFlags Move(const Vector3& aDeltaPos, float aDeltaTime);
+	CollisionFlags Move(const Vector3& aDeltaPos, entt::registry&);
 
-	void SetPosition(const Vector3&); // Set center of capsule
-	Vector3 GetPosition() const; // Get center of capsule
+	void SetPosition(const Vector3&); // Set world position of center of capsule
+	Vector3 GetPosition() const; // Get world position of center of capsule
 
 	void SetRadius(float);
 	float GetRadius() const;
@@ -32,7 +32,9 @@ private:
 	friend void to_json(json&, const CharacterController&);
 
 	PxPtr<PxCapsuleController> myImpl{};
-	float myMinMoveDistance = 0.001f;
+
+public:
+	float minMoveDistance = 0.001f;
 };
 
 namespace ImGui

@@ -96,6 +96,9 @@ using PxPtr = std::unique_ptr<T, decltype([](T* ptr) { ptr->release(); })>;
 
 // entt
 #include <entt/entt.hpp>
+using namespace entt::literals;
+
+#define DELTA_TIME "deltaTime"_hs
 
 // nlohmann
 #include <nlohmann/json.hpp>
