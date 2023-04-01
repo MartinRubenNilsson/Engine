@@ -127,14 +127,14 @@
       <Filter>physics</Filter>
     </ClInclude>
     <ClInclude Include="JsonCommon.h" />
-    <ClInclude Include="CharacterController.h">
-      <Filter>physics</Filter>
-    </ClInclude>
     <ClInclude Include="Systems.h">
       <Filter>systems</Filter>
     </ClInclude>
     <ClInclude Include="PhysicsSystems.h">
       <Filter>systems</Filter>
+    </ClInclude>
+    <ClInclude Include="CharacterController.h">
+      <Filter>components</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -253,14 +253,14 @@
       <Filter>physics</Filter>
     </ClCompile>
     <ClCompile Include="JsonCommon.cpp" />
-    <ClCompile Include="CharacterController.cpp">
-      <Filter>physics</Filter>
-    </ClCompile>
     <ClCompile Include="Systems.cpp">
       <Filter>systems</Filter>
     </ClCompile>
     <ClCompile Include="PhysicsSystems.cpp">
       <Filter>systems</Filter>
+    </ClCompile>
+    <ClCompile Include="CharacterController.cpp">
+      <Filter>components</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -2,9 +2,45 @@
 #include "Mesh.h"
 #include "Scene.h"
 
+const char* ToString(MeshPrimitiveType aType)
+{
+	static constexpr std::array strings
+	{
+		"Plane",
+		"Cube",
+		"Sphere",
+		"Cylinder",
+		"Cone",
+		"Torus",
+		"Suzanne",
+	};
+
+	return strings.at(std::to_underlying(aType));
+}
+
 /*
 * class Mesh
 */
+
+Mesh::Mesh(MeshPrimitiveType aType)
+	: Mesh("assets/engine/primitives.fbx", ToString(aType))
+{
+}
+
+Mesh::Mesh(const fs::path& aPath, std::string_view aName)
+{
+	if (auto scene = SceneFactory::Get().GetAsset(aPath))
+	{
+		for (auto [entity, mesh] : scene->GetRegistry().view<Mesh>().each())
+		{
+			if (aName == mesh.GetName())
+			{
+				*this = mesh;
+				return;
+			}
+		}
+	}
+}
 
 Mesh::Mesh(const aiMesh& aMesh)
 {
@@ -99,28 +135,18 @@ Mesh::operator bool() const
 	return SUCCEEDED(myResult);
 }
 
-void to_json(json& j, const Mesh& aMesh)
+void to_json(json& j, const Mesh& m)
 {
-	j["path"] = aMesh.myPath;
-	j["name"] = aMesh.myName;
+	j["path"] = m.GetPath();
+	j["name"] = m.GetName();
 }
 
-void from_json(const json& j, Mesh& aMesh)
+void from_json(const json& j, Mesh& m)
 {
 	fs::path path = j.at("path");
 	std::string name = j.at("name");
 
-	if (auto scene = SceneFactory::Get().GetAsset(path))
-	{
-		for (auto [entity, mesh] : scene->GetRegistry().view<Mesh>().each())
-		{
-			if (name == mesh.GetName())
-			{
-				aMesh = mesh;
-				return;
-			}
-		}
-	}
+	m = { path, name };
 }
 
 /*

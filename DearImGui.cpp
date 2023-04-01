@@ -1,14 +1,14 @@
 #include "pch.h"
 #include "DearImGui.h"
 
-DearImGui::DearImGui(HWND hWnd, DevicePtr aDevice, DeviceContextPtr aContext)
+DearImGui::DearImGui(HWND hWnd, ID3D11Device* aDevice, ID3D11DeviceContext* aContext)
 {
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
 
     if (!ImGui_ImplWin32_Init(hWnd))
         return;
-    if (!ImGui_ImplDX11_Init(aDevice.Get(), aContext.Get()))
+    if (!ImGui_ImplDX11_Init(aDevice, aContext))
         return;
 
     ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_DockingEnable;

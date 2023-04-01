@@ -92,6 +92,11 @@ float CharacterController::GetHeight() const
 	return myImpl ? myImpl->getHeight() : 0.f;
 }
 
+PxCapsuleController* CharacterController::GetImpl()
+{
+	return myImpl.get();
+}
+
 CharacterController::operator bool() const
 {
 	return myImpl.operator bool();

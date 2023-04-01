@@ -12,7 +12,7 @@ fs::path GetPath(EngineAsset anAsset)
         "assets/engine/default_metallic.png",
         "assets/engine/default_roughness.png",
         "assets/engine/default_occlusion.png",
-        "assets/engine/shapes.fbx",
+        "assets/engine/primitives.fbx",
     };
 
     return { paths.at(std::to_underlying(anAsset)) };

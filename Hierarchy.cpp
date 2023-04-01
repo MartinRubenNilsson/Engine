@@ -4,12 +4,45 @@
 #include "EnttCommon.h"
 #include "ImGuiCommon.h"
 
+namespace ImGui
+{
+	entt::entity EntityCreationContextMenu(entt::registry& aRegistry)
+	{
+		entt::entity entity{ entt::null };
+
+		if (MenuItem("Create Empty"))
+			entity = CreateEmpty(aRegistry);
+		if (BeginMenu("Primitive"))
+		{
+			if (MenuItem("Plane"))
+				entity = CreatePlane(aRegistry);
+			if (MenuItem("Cube"))
+				entity = CreateCube(aRegistry);
+			if (MenuItem("Sphere"))
+				entity = CreateSphere(aRegistry);
+			if (MenuItem("Cylinder"))
+				entity = CreateCylinder(aRegistry);
+			if (MenuItem("Cone"))
+				entity = CreateCone(aRegistry);
+			if (MenuItem("Torus"))
+				entity = CreateTorus(aRegistry);
+			if (MenuItem("Suzanne"))
+				entity = CreateSuzanne(aRegistry);
+			EndMenu();
+		}
+
+		if (aRegistry.valid(entity))
+			Select(aRegistry, entity);
+
+		return entity;
+	}
+}
+
 void ImGui::Hierarchy(entt::registry& aRegistry)
 {
 	if (BeginPopupContextWindow())
 	{
-		if (Selectable("Create Root"))
-			Transform::Create(aRegistry);
+		EntityCreationContextMenu(aRegistry);
 		EndPopup();
 	}
 
@@ -68,13 +101,16 @@ void ImGui::Hierarchy(entt::registry& aRegistry)
 				transform.Destroy(aRegistry);
 				dirty = true;
 			}
+
 			Separator();
-			if (Selectable("Create Child"))
+
+			entt::entity newEntity = EntityCreationContextMenu(aRegistry);
+			if (auto newTransform = aRegistry.try_get<Transform>(newEntity))
 			{
-				Transform& child = transform.CreateChild(aRegistry);
-				Select(aRegistry, child.GetEntity());
+				newTransform->SetParent(aRegistry, entity, false);
 				dirty = true;
 			}
+
 			EndPopup();
 		}
 
@@ -123,6 +159,8 @@ void ImGui::Hierarchy(entt::registry& aRegistry)
 	/*
 	* Shortcuts
 	*/
+
+	// todo: move to main
 
 	if (IsKeyPressed(ImGuiKey_Delete))
 	{

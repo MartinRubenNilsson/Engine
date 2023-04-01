@@ -1,9 +1,25 @@
 #pragma once
 
+enum class MeshPrimitiveType
+{
+	Plane,
+	Cube,
+	Sphere,
+	Cylinder,
+	Cone,
+	Torus,
+	Suzanne,
+	Count
+};
+
+const char* ToString(MeshPrimitiveType);
+
 class Mesh
 {
 public:
 	Mesh() = default;
+	Mesh(MeshPrimitiveType);
+	Mesh(const fs::path& aPath, std::string_view aName);
 	Mesh(const aiMesh&);
 
 	/*
@@ -22,8 +38,6 @@ public:
 
 private:
 	friend class Scene;
-	friend void to_json(json&, const Mesh&);
-	friend void from_json(const json&, Mesh&);
 
 	fs::path myPath{}; // Path to the .fbx/.obj containing this mesh
 	std::string myName{}; // Name of the node/transform on which this mesh sits
@@ -32,6 +46,9 @@ private:
 	BoundingBox myBoundingBox{};
 	HRESULT myResult{ E_FAIL };
 };
+
+void to_json(json&, const Mesh&);
+void from_json(const json&, Mesh&);
 
 namespace ImGui
 {

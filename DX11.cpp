@@ -29,6 +29,16 @@ DX11::DX11()
 	);
 }
 
+ID3D11Device* DX11::GetDevice() const
+{
+	return myDevice.Get();
+}
+
+ID3D11DeviceContext* DX11::GetContext() const
+{
+	return myContext.Get();
+}
+
 DX11::operator bool() const
 {
 	return SUCCEEDED(myResult);

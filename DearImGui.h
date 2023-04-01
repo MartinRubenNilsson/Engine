@@ -3,7 +3,7 @@
 class DearImGui
 {
 public:
-	DearImGui(HWND, DevicePtr, DeviceContextPtr);
+	DearImGui(HWND, ID3D11Device*, ID3D11DeviceContext*);
 	~DearImGui();
 
 	void NewFrame();
@@ -16,3 +16,4 @@ private:
 
 	bool mySucceeded{ false };
 };
+
