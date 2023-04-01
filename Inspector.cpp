@@ -14,6 +14,7 @@
 
 // Physics
 #include "PhysicMaterial.h"
+#include "CharacterController.h"
 
 // Other
 #include "JsonCommon.h"
@@ -49,7 +50,7 @@ namespace ImGui
 
 			if (open)
 			{
-				Inspect(aHandle.get<Component>());
+				Inspect(aHandle.get<Component>()); // Inspect() must have an overload for Component
 				Spacing();
 			}
 		}
@@ -80,7 +81,8 @@ void ImGui::Inspector(entt::registry& aRegistry)
 	InspectComponent<Camera>(ICON_FA_VIDEO" Camera", selection);
 	InspectComponent<Light>(ICON_FA_SUN" Light", selection);
 	InspectComponent<PhysicMaterial>(ICON_FA_HILL_ROCKSLIDE" Physic Material", selection);
-	InspectComponent<json>(ICON_FA_CHALKBOARD" JSON", selection);
+	InspectComponent<CharacterController>(ICON_FA_CAPSULES" Character Controller", selection);
+	InspectComponent<json>(ICON_FA_CHALKBOARD_USER" JSON", selection);
 
 	Separator();
 

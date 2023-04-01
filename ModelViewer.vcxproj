@@ -195,6 +195,7 @@
   <ItemGroup>
     <ClInclude Include="AssetFactory.h" />
     <ClInclude Include="Camera.h" />
+    <ClInclude Include="CharacterController.h" />
     <ClInclude Include="ConstantBuffer.h" />
     <ClInclude Include="Cubemap.h" />
     <ClInclude Include="DearImGui.h" />
@@ -242,6 +243,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Camera.cpp" />
+    <ClCompile Include="CharacterController.cpp" />
     <ClCompile Include="ConstantBuffer.cpp" />
     <ClCompile Include="Cubemap.cpp" />
     <ClCompile Include="DearImGui.cpp" />

@@ -10,6 +10,8 @@ public:
 
 	PxPhysics* GetPhysics();
 	PxScene* GetScene();
+	PxControllerManager* GetControllerMgr();
+	PxMaterial* GetDefaultMaterial();
 
 	explicit operator bool() const;
 
@@ -22,6 +24,8 @@ private:
 	PxPtr<PxPhysics> myPhysics{};
 	PxPtr<PxDefaultCpuDispatcher> myCpuDispatcher{};
 	PxPtr<PxScene> myScene{};
+	PxPtr<PxControllerManager> myControllerMgr{};
+	PxPtr<PxMaterial> myDefaultMaterial{};
 	bool mySucceeded{ false };
 };
 

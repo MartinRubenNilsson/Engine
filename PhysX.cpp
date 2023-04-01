@@ -52,6 +52,14 @@ PhysX::PhysX()
 	}
 #endif
 
+	myControllerMgr.reset(PxCreateControllerManager(*myScene));
+	if (!myControllerMgr)
+		return;
+
+	myDefaultMaterial.reset(myPhysics->createMaterial(0.6f, 0.6f, 0.f));
+	if (!myDefaultMaterial)
+		return;
+
 	mySucceeded = true;
 }
 
@@ -76,6 +84,16 @@ PxPhysics* PhysX::GetPhysics()
 PxScene* PhysX::GetScene()
 {
 	return myScene.get();
+}
+
+PxControllerManager* PhysX::GetControllerMgr()
+{
+	return myControllerMgr.get();
+}
+
+PxMaterial* PhysX::GetDefaultMaterial()
+{
+	return myDefaultMaterial.get();
 }
 
 PhysX::operator bool() const

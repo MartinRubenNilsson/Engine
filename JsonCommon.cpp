@@ -44,13 +44,13 @@ void ImGui::Inspect(json& j)
 		{
 			PushID(&value);
 			bool erase = SmallButton("-");
-			PopID();
 			SameLine();
 			if (TreeNode(key.c_str()))
 			{
 				Inspect(value);
 				TreePop();
 			}
+			PopID();
 			if (erase)
 			{
 				j.erase(key);
@@ -66,13 +66,13 @@ void ImGui::Inspect(json& j)
 		{
 			PushID(i);
 			bool erase = SmallButton("-");
-			PopID();
 			SameLine();
 			if (TreeNode(std::to_string(i).c_str()))
 			{
 				Inspect(j.at(i));
 				TreePop();
 			}
+			PopID();
 			if (erase)
 			{
 				j.erase(i);
@@ -104,20 +104,20 @@ void ImGui::Inspect(json& j)
 		break;
 	}
 
-	SetNextWindowPos(GetMainViewport()->GetCenter(), ImGuiCond_Appearing, ImVec2{ 0.5f, 0.5f });
+	SetNextWindowPos(GetMainViewport()->GetCenter(), ImGuiCond_Appearing, { 0.5f, 0.5f });
 
 	if (BeginPopupModal("Add Name-Value Pair", NULL, ImGuiWindowFlags_AlwaysAutoResize))
 	{
 		static std::string name{};
 		InputText("Name", &name);
-		if (Button("OK", ImVec2{ 120, 0 }))
+		if (Button("OK", { 120, 0 }))
 		{
 			if (!j.contains(name))
 				j[name] = {};
 			CloseCurrentPopup();
 		}
 		SameLine();
-		if (Button("Cancel", ImVec2{ 120, 0 }))
+		if (Button("Cancel", { 120, 0 }))
 			CloseCurrentPopup();
 		EndPopup();
 	}
