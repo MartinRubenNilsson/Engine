@@ -4,6 +4,15 @@
 #define PVD_HOST "127.0.0.1"
 #define NUM_THREADS 2
 
+PxVec3 ToPx(const Vector3& v)
+{
+	return { v.x, v.y, v.z };
+}
+
+/*
+* class PhysX
+*/
+
 PhysX::PhysX()
 {
 	myFoundation.reset(PxCreateFoundation(PX_PHYSICS_VERSION, myAllocator, myErrorCallback));

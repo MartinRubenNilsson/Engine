@@ -1,5 +1,7 @@
 #pragma once
 
+PxVec3 ToPx(const Vector3&);
+
 class PhysX : public Singleton<PhysX>
 {
 public:
