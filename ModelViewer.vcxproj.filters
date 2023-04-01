@@ -130,6 +130,12 @@
     <ClInclude Include="CharacterController.h">
       <Filter>physics</Filter>
     </ClInclude>
+    <ClInclude Include="Systems.h">
+      <Filter>systems</Filter>
+    </ClInclude>
+    <ClInclude Include="PhysicsSystems.h">
+      <Filter>systems</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
@@ -250,6 +256,12 @@
     <ClCompile Include="CharacterController.cpp">
       <Filter>physics</Filter>
     </ClCompile>
+    <ClCompile Include="Systems.cpp">
+      <Filter>systems</Filter>
+    </ClCompile>
+    <ClCompile Include="PhysicsSystems.cpp">
+      <Filter>systems</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="graphics">
@@ -296,6 +308,9 @@
     </Filter>
     <Filter Include="physics">
       <UniqueIdentifier>{825eb5c9-4632-4533-b198-f926561a6277}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="systems">
+      <UniqueIdentifier>{6d1cbcf8-e262-4e79-b6d1-f5d206808cdc}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

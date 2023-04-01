@@ -9,6 +9,16 @@ PxVec3 ToPx(const Vector3& v)
 	return { v.x, v.y, v.z };
 }
 
+PxExtendedVec3 ToPxEx(const Vector3& v)
+{
+	return { static_cast<double>(v.x), static_cast<double>(v.y), static_cast<double>(v.z) };
+}
+
+Vector3 FromPx(const PxExtendedVec3& v)
+{
+	return { static_cast<float>(v.x), static_cast<float>(v.y), static_cast<float>(v.z) };
+}
+
 /*
 * class PhysX
 */

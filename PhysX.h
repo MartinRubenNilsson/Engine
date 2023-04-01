@@ -1,6 +1,8 @@
 #pragma once
 
 PxVec3 ToPx(const Vector3&);
+PxExtendedVec3 ToPxEx(const Vector3&);
+Vector3 FromPx(const PxExtendedVec3&);
 
 class PhysX : public Singleton<PhysX>
 {

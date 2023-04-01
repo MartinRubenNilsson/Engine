@@ -109,6 +109,15 @@ Matrix Transform::GetWorldMatrix(const entt::registry& aRegistry) const
 	return result;
 }
 
+void Transform::SetWorldPosition(const entt::registry& aRegistry, const Vector3& aPosition)
+{
+	Matrix matrix = GetWorldMatrix(aRegistry);
+	matrix._41 = aPosition.x;
+	matrix._42 = aPosition.y;
+	matrix._43 = aPosition.z;
+	SetWorldMatrix(aRegistry, matrix);
+}
+
 void Transform::SetParent(entt::registry& aRegistry, entt::entity aParent, bool aWorldTransformStays)
 {
 	if (myParent == aParent)

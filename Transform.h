@@ -22,6 +22,8 @@ public:
 	void SetWorldMatrix(const entt::registry&, const Matrix&);
 	Matrix GetWorldMatrix(const entt::registry&) const;
 
+	void SetWorldPosition(const entt::registry&, const Vector3&);
+
 	void SetParent(entt::registry&, entt::entity aParent = entt::null, bool aWorldTransformStays = true);
 	entt::entity GetParent() const { return myParent; }
 

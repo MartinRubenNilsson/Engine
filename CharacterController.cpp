@@ -29,6 +29,17 @@ CollisionFlags CharacterController::Move(const Vector3& aDeltaPos, float aDeltaT
 	return flags;
 }
 
+void CharacterController::SetPosition(const Vector3& pos)
+{
+	if (myImpl)
+		myImpl->setPosition(ToPxEx(pos));
+}
+
+Vector3 CharacterController::GetPosition() const
+{
+	return myImpl ? FromPx(myImpl->getPosition()) : Vector3{};
+}
+
 void CharacterController::SetRadius(float aRadius)
 {
 	if (myImpl)
@@ -56,6 +67,26 @@ CharacterController::operator bool() const
 	return myImpl.operator bool();
 }
 
+void from_json(const json& j, CharacterController& c)
+{
+	auto pos = j.at("position").get<std::array<float, 3>>();
+
+	c.SetPosition(Vector3{ pos.data() });
+	c.SetRadius(j.at("radius"));
+	c.SetHeight(j.at("height"));
+	j.at("minMoveDistance").get_to(c.myMinMoveDistance);
+}
+
+void to_json(json& j, const CharacterController& c)
+{
+	auto pos = c.GetPosition();
+
+	j["position"] = { pos.x, pos.y, pos.z };
+	j["radius"] = c.GetRadius();
+	j["height"] = c.GetHeight();
+	j["minMoveDistance"] = c.myMinMoveDistance;
+}
+
 /*
 * namespace ImGui
 */
@@ -70,3 +101,5 @@ void ImGui::Inspect(CharacterController& c)
 	if (DragFloat("Height", &height, 0.01f, 0.01f, FLT_MAX))
 		c.SetHeight(height);
 }
+
+

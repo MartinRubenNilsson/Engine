@@ -40,6 +40,7 @@
 // Other
 #include "EngineAsset.h"
 #include "Win32Common.h"
+#include "Systems.h"
 
 namespace
 {
@@ -116,7 +117,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
     Matrix editorCameraTransform{};
 
     DeltaTimer deltaTimer{};
-    float simulationTime = 0.f;
+    float simulationAccumulator = 0.f;
     bool simulate = false;
 
     PlayState state{};
@@ -306,31 +307,31 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
             archive = registry;
             physX.ConnectPvd();
             deltaTimer = {};
-            simulationTime = 0.f;
+            simulationAccumulator = 0.f;
             state = PlayState::Started;
             break;
         }
         case PlayState::Started:
         {
-            if (simulate)
+            if (simulate) // todo: possibly replace with a call to checkResults?
                 physX.GetScene()->fetchResults(true);
 
-            const float deltaTime = deltaTimer.Query();
-            simulationTime += deltaTime;
+            const float dt = deltaTimer.Query();
 
-            // todo: game logic here
+            Systems::Update(registry);
 
-            static constexpr float simulationStep = 1.f / 60.f;
-            simulate = (simulationTime >= simulationStep);
+            static constexpr float simulationStepSize = 1.f / 60.f;
+            simulationAccumulator += dt;
+            simulate = (simulationAccumulator >= simulationStepSize);
 
             if (simulate)
             {
-                simulationTime -= simulationStep;
-                physX.GetScene()->simulate(simulationStep);
+                simulationAccumulator -= simulationStepSize;
+                physX.GetScene()->simulate(simulationStepSize);
             }
 
-            SortCamerasByDepth(registry);
-            GetFirstCamera(registry, camera, cameraTransform);
+            SortCamerasByDepth(registry); // todo: make into system
+            GetFirstCamera(registry, camera, cameraTransform); // todo: make into system
 
             break;
         }

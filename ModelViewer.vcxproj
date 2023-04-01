@@ -215,6 +215,7 @@
     <ClInclude Include="Light.h" />
     <ClInclude Include="Manipulator.h" />
     <ClInclude Include="PhysicMaterial.h" />
+    <ClInclude Include="PhysicsSystems.h" />
     <ClInclude Include="PhysX.h" />
     <ClInclude Include="Picker.h" />
     <ClInclude Include="Renderer.h" />
@@ -233,6 +234,7 @@
     <ClInclude Include="Shader.h" />
     <ClInclude Include="Singleton.h" />
     <ClInclude Include="BackBuffer.h" />
+    <ClInclude Include="Systems.h" />
     <ClInclude Include="Tags.h" />
     <ClInclude Include="Texture.h" />
     <ClInclude Include="PlayControls.h" />
@@ -263,6 +265,7 @@
     <ClCompile Include="Light.cpp" />
     <ClCompile Include="Manipulator.cpp" />
     <ClCompile Include="PhysicMaterial.cpp" />
+    <ClCompile Include="PhysicsSystems.cpp" />
     <ClCompile Include="PhysX.cpp" />
     <ClCompile Include="Picker.cpp" />
     <ClCompile Include="Renderer.cpp" />
@@ -286,6 +289,7 @@
     <ClCompile Include="Scopes.cpp" />
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="BackBuffer.cpp" />
+    <ClCompile Include="Systems.cpp" />
     <ClCompile Include="Texture.cpp" />
     <ClCompile Include="PlayControls.cpp" />
     <ClCompile Include="Transform.cpp" />

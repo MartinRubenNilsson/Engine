@@ -15,6 +15,9 @@ public:
 
 	CollisionFlags Move(const Vector3& aDeltaPos, float aDeltaTime);
 
+	void SetPosition(const Vector3&); // Set center of capsule
+	Vector3 GetPosition() const; // Get center of capsule
+
 	void SetRadius(float);
 	float GetRadius() const;
 	void SetHeight(float);
@@ -23,6 +26,9 @@ public:
 	explicit operator bool() const;
 
 private:
+	friend void from_json(const json&, CharacterController&);
+	friend void to_json(json&, const CharacterController&);
+
 	PxPtr<PxCapsuleController> myImpl{};
 	float myMinMoveDistance = 0.001f;
 };

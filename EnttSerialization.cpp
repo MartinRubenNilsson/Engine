@@ -5,9 +5,11 @@
 #include "Camera.h"
 #include "Mesh.h"
 #include "Material.h"
-// #include "Light.h"
 
-// todo: lights
+// Physics
+#include "CharacterController.h"
+
+// #include "Light.h" // todo: lights
 
 namespace
 {
@@ -87,6 +89,7 @@ void entt::to_json(json& someJson, const registry& aRegistry)
 	ToJson<Material>(someJson, snapshot);
 	ToJson<Mesh>(someJson, snapshot);
 	ToJson<Camera>(someJson, snapshot);
+	ToJson<CharacterController>(someJson, snapshot);
 }
 
 void entt::from_json(const json& someJson, registry& aRegistry)
@@ -100,4 +103,5 @@ void entt::from_json(const json& someJson, registry& aRegistry)
 	FromJson<Material>(someJson, snapshot);
 	FromJson<Mesh>(someJson, snapshot);
 	FromJson<Camera>(someJson, snapshot);
+	FromJson<CharacterController>(someJson, snapshot);
 }
