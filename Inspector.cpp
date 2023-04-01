@@ -38,7 +38,7 @@ namespace ImGui
 				else
 				{
 					if (MenuItem("Reset"))
-						aHandle.get<Component>() = {};
+						aHandle.replace<Component>();
 					if (MenuItem("Remove"))
 					{
 						aHandle.erase<Component>();
@@ -61,7 +61,7 @@ namespace ImGui
 				if constexpr (!std::is_same_v<Component, Transform>)
 				{
 					if (MenuItem(aLabel))
-						aHandle.emplace<Component>() = {}; // json misbehaves if we just emplace
+						aHandle.emplace<Component>(); // json misbehaves if we just emplace
 				}
 				EndPopup();
 			}

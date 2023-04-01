@@ -5,6 +5,19 @@
 #define DEFAULT_RADIUS 0.5f
 #define DEFAULT_HEIGHT 2.f
 
+namespace
+{
+	void Copy(PxCapsuleController* dst, const PxCapsuleController* src)
+	{
+		if (!dst || !src || dst == src)
+			return;
+
+		dst->setPosition(src->getPosition());
+		dst->setRadius(src->getRadius());
+		dst->setHeight(src->getHeight());
+	}
+}
+
 CharacterController::CharacterController()
 {
 	PxCapsuleControllerDesc desc{};
@@ -16,6 +29,20 @@ CharacterController::CharacterController()
 
 	PxController* controller = PhysX::Get().GetControllerMgr()->createController(desc);
 	myImpl.reset(static_cast<PxCapsuleController*>(controller));
+}
+
+CharacterController::CharacterController(const CharacterController& other)
+	: CharacterController()
+{
+	Copy(myImpl.get(), other.myImpl.get());
+	myMinMoveDistance = other.myMinMoveDistance;
+}
+
+CharacterController& CharacterController::operator=(const CharacterController& other)
+{
+	Copy(myImpl.get(), other.myImpl.get());
+	myMinMoveDistance = other.myMinMoveDistance;
+	return *this;
 }
 
 CollisionFlags CharacterController::Move(const Vector3& aDeltaPos, float aDeltaTime)
@@ -101,5 +128,3 @@ void ImGui::Inspect(CharacterController& c)
 	if (DragFloat("Height", &height, 0.01f, 0.01f, FLT_MAX))
 		c.SetHeight(height);
 }
-
-

@@ -12,6 +12,8 @@ class CharacterController
 {
 public:
 	CharacterController();
+	CharacterController(const CharacterController&);
+	CharacterController& operator=(const CharacterController&);
 
 	CollisionFlags Move(const Vector3& aDeltaPos, float aDeltaTime);
 
