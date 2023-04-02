@@ -16,7 +16,6 @@ public:
 
 private:
 	entt::entity GetRootEntity() const;
-	entt::handle Find(std::string_view aName);
 
 	fs::path myPath{};
 	entt::registry myRegistry{};

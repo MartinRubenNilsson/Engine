@@ -76,12 +76,18 @@ Scene::Scene(const fs::path& aPath)
     // 2. Load and emplace cameras
 
     for (aiCamera* camera : std::span{ scene->mCameras, scene->mNumCameras })
-        Find(camera->mName.C_Str()).emplace<Camera>(*camera);
+    {
+        entt::entity entity = Find(myRegistry, camera->mName.C_Str());
+        myRegistry.emplace<Camera>(entity, *camera);
+    }
 
     // 3. Load and emplace lights
 
     for (aiLight* light : std::span{ scene->mLights, scene->mNumLights })
-        Find(light->mName.C_Str()).emplace<Light>(*light);
+    {
+        entt::entity entity = Find(myRegistry, light->mName.C_Str());
+        myRegistry.emplace<Light>(entity, *light);
+    }
 }
 
 entt::entity Scene::Instantiate(entt::registry& aRegistry) const
@@ -136,14 +142,4 @@ entt::entity Scene::GetRootEntity() const
             return entity;
     }
     return entt::null;
-}
-
-entt::handle Scene::Find(std::string_view aName)
-{
-    for (auto [entity, name] : myRegistry.view<std::string>().each())
-    {
-        if (name == aName)
-            return { myRegistry, entity };
-    }
-    return { myRegistry, entt::null };
 }

@@ -14,6 +14,20 @@ float GetDeltaTime(const entt::registry& aRegistry)
 }
 
 /*
+* Misc
+*/
+
+entt::entity Find(const entt::registry& aRegistry, std::string_view aName)
+{
+	for (auto [entity, name] : aRegistry.view<std::string>().each())
+	{
+		if (name == aName)
+			return entity;
+	}
+	return entt::null;
+}
+
+/*
 * Selection
 */
 
@@ -110,10 +124,20 @@ entt::entity CreateSuzanne(entt::registry& aRegistry)
 * Manipulation
 */
 
-void SetWorldPosition(entt::registry& aRegistry, entt::entity anEntity, const Vector3& aPos)
+//void SetWorldPosition(entt::registry& aRegistry, entt::entity anEntity, const Vector3& aPos)
+//{
+//	if (auto transform = aRegistry.try_get<Transform>(anEntity))
+//		transform->SetWorldPosition(aRegistry, aPos);
+//	if (auto controller = aRegistry.try_get<CharacterController>(anEntity))
+//		controller->SetPosition(aPos);
+//}
+
+void SetWorldMatrix(entt::registry& aRegistry, entt::entity anEntity, const Matrix& aMatrix)
 {
 	if (auto transform = aRegistry.try_get<Transform>(anEntity))
-		transform->SetWorldPosition(aRegistry, aPos);
+		transform->SetWorldMatrix(aRegistry, aMatrix);
+	if (auto controller = aRegistry.try_get<CharacterController>(anEntity))
+		controller->SetPosition(aMatrix.Translation());
 }
 
 void Move(entt::registry& aRegistry, entt::entity anEntity, const Vector3& aDeltaPos)

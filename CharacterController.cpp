@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "CharacterController.h"
 #include "PhysX.h"
+#include "SimpleMathSerialization.h"
 
 namespace
 {
@@ -100,9 +101,7 @@ CharacterController::operator bool() const
 
 void from_json(const json& j, CharacterController& c)
 {
-	auto pos = j.at("position").get<std::array<float, 3>>();
-
-	c.SetPosition(Vector3{ pos.data() });
+	c.SetPosition(j.at("position"));
 	c.SetRadius(j.at("radius"));
 	c.SetHeight(j.at("height"));
 	j.at("minMoveDistance").get_to(c.minMoveDistance);
@@ -110,9 +109,7 @@ void from_json(const json& j, CharacterController& c)
 
 void to_json(json& j, const CharacterController& c)
 {
-	auto pos = c.GetPosition();
-
-	j["position"] = { pos.x, pos.y, pos.z };
+	j["position"] = c.GetPosition();
 	j["radius"] = c.GetRadius();
 	j["height"] = c.GetHeight();
 	j["minMoveDistance"] = c.minMoveDistance;

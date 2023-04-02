@@ -3,6 +3,7 @@
 #include "EnttCommon.h"
 #include "Camera.h"
 #include "Transform.h"
+#include "EnttCommon.h"
 
 void ImGui::Shortcut(OPERATION& anOp)
 {
@@ -42,13 +43,14 @@ void ImGui::Manipulator(entt::registry& aRegistry, const Camera& aCam, const Mat
 
     SetOrthographic(aCam.GetType() == CameraType::Orthographic);
 
-    if (auto transform = aRegistry.try_get<Transform>(GetSelected(aRegistry)))
+    entt::entity selected = GetSelected(aRegistry);
+    if (auto transform = aRegistry.try_get<Transform>(selected))
     {
         Matrix view = aCamTrans.Invert() * GetDefaultViewMatrix();
         Matrix proj = aCam.GetProjMatrix();
         Matrix world = transform->GetWorldMatrix(aRegistry);
 
         if (Manipulate(&view._11, &proj._11, op, mode, &world._11))
-            transform->SetWorldMatrix(aRegistry, world);
+            SetWorldMatrix(aRegistry, selected, world);
     }
 }
