@@ -96,9 +96,6 @@
     <ClInclude Include="Picker.h">
       <Filter>editor</Filter>
     </ClInclude>
-    <ClInclude Include="EnttSerialization.h">
-      <Filter>entt</Filter>
-    </ClInclude>
     <ClInclude Include="EnttCommon.h">
       <Filter>entt</Filter>
     </ClInclude>
@@ -126,7 +123,6 @@
     <ClInclude Include="PhysicMaterial.h">
       <Filter>physics</Filter>
     </ClInclude>
-    <ClInclude Include="JsonCommon.h" />
     <ClInclude Include="Systems.h">
       <Filter>systems</Filter>
     </ClInclude>
@@ -135,6 +131,15 @@
     </ClInclude>
     <ClInclude Include="CharacterController.h">
       <Filter>components</Filter>
+    </ClInclude>
+    <ClInclude Include="SimpleMathSerialization.h">
+      <Filter>json</Filter>
+    </ClInclude>
+    <ClInclude Include="JsonCommon.h">
+      <Filter>json</Filter>
+    </ClInclude>
+    <ClInclude Include="EnttSerialization.h">
+      <Filter>json</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -225,9 +230,6 @@
     <ClCompile Include="EnttCommon.cpp">
       <Filter>entt</Filter>
     </ClCompile>
-    <ClCompile Include="EnttSerialization.cpp">
-      <Filter>entt</Filter>
-    </ClCompile>
     <ClCompile Include="PlayControls.cpp">
       <Filter>editor</Filter>
     </ClCompile>
@@ -252,7 +254,6 @@
     <ClCompile Include="PhysicMaterial.cpp">
       <Filter>physics</Filter>
     </ClCompile>
-    <ClCompile Include="JsonCommon.cpp" />
     <ClCompile Include="Systems.cpp">
       <Filter>systems</Filter>
     </ClCompile>
@@ -261,6 +262,15 @@
     </ClCompile>
     <ClCompile Include="CharacterController.cpp">
       <Filter>components</Filter>
+    </ClCompile>
+    <ClCompile Include="SimpleMathSerialization.cpp">
+      <Filter>json</Filter>
+    </ClCompile>
+    <ClCompile Include="JsonCommon.cpp">
+      <Filter>json</Filter>
+    </ClCompile>
+    <ClCompile Include="EnttSerialization.cpp">
+      <Filter>json</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -311,6 +321,9 @@
     </Filter>
     <Filter Include="systems">
       <UniqueIdentifier>{6d1cbcf8-e262-4e79-b6d1-f5d206808cdc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="json">
+      <UniqueIdentifier>{65f24812-b266-4cda-a115-751e47b38ab5}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

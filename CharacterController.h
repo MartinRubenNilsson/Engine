@@ -15,10 +15,8 @@ public:
 	CharacterController(const CharacterController&);
 	CharacterController& operator=(const CharacterController&);
 
-	// After moving, updates world position of owning entity's transform
-	CollisionFlags Move(const Vector3& aDeltaPos, entt::registry&);
+	CollisionFlags Move(const Vector3& aDeltaPos, float aDeltaTime);
 
-	// Todo: remove these methods so that we don't invalidate transform
 	void SetPosition(const Vector3&); // Set world position of center of capsule
 	Vector3 GetPosition() const; // Get world position of center of capsule
 

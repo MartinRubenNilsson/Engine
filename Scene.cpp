@@ -52,10 +52,13 @@ Scene::Scene(const fs::path& aPath)
         stack.pop_back();
 
         entt::entity entity = transform->GetEntity();
-        std::string_view name{ node->mName.C_Str() };
+        auto& name = myRegistry.emplace<std::string>(entity, node->mName.C_Str());
 
-        transform->SetName(name);
-        std::memcpy(transform->Data(), &node->mTransformation.Transpose(), sizeof(Matrix));
+        Matrix matrix{};
+        std::memcpy(&matrix, &node->mTransformation, sizeof(Matrix));
+        matrix.Transpose(matrix);
+
+        transform->SetMatrix(matrix);
 
         for (unsigned meshIndex : std::span{ node->mMeshes, node->mNumMeshes })
         {
@@ -96,8 +99,9 @@ entt::entity Scene::Instantiate(entt::registry& aRegistry) const
         auto [copy, orig] = stack.back();
         stack.pop_back();
 
-        copy->SetName(orig->GetName());
-        copy->SetLocalMatrix(orig->GetLocalMatrix());
+        copy->position = orig->position;
+        copy->rotation = orig->rotation;
+        copy->scale = orig->scale;
 
         for (entt::entity child : orig->GetChildren())
         {
@@ -109,6 +113,7 @@ entt::entity Scene::Instantiate(entt::registry& aRegistry) const
         entt::handle dst{ aRegistry, copy->GetEntity() };
         entt::const_handle src{ myRegistry, orig->GetEntity() };
 
+        TryCopy<std::string>(dst, src);
         TryCopy<Material>(dst, src);
         TryCopy<Mesh>(dst, src);
         TryCopy<Camera>(dst, src);
@@ -135,9 +140,9 @@ entt::entity Scene::GetRootEntity() const
 
 entt::handle Scene::Find(std::string_view aName)
 {
-    for (auto [entity, transform] : myRegistry.view<Transform>().each())
+    for (auto [entity, name] : myRegistry.view<std::string>().each())
     {
-        if (transform.GetName() == aName)
+        if (name == aName)
             return { myRegistry, entity };
     }
     return { myRegistry, entt::null };

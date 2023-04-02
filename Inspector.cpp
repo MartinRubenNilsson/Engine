@@ -33,7 +33,11 @@ namespace ImGui
 				if constexpr (std::is_same_v<Component, Transform>)
 				{
 					if (MenuItem("Reset"))
-						aHandle.get<Transform>().SetLocalMatrix({});
+					{
+						aHandle.get<Transform>().position = {};
+						aHandle.get<Transform>().rotation = {};
+						aHandle.get<Transform>().scale = Vector3::One;
+					}
 				}
 				else
 				{
@@ -74,6 +78,13 @@ void ImGui::Inspector(entt::registry& aRegistry)
 	entt::handle selection{ aRegistry, GetSelected(aRegistry) };
 	if (!selection)
 		return;
+
+	Value("Entity", std::to_underlying(selection.entity()));
+
+	if (auto name = selection.try_get<std::string>())
+		InputText("Name", name);
+
+	Separator();
 
 	InspectComponent<Transform>(ICON_FA_UP_DOWN_LEFT_RIGHT" Transform", selection);
 	InspectComponent<Mesh>(ICON_FA_CIRCLE_NODES" Mesh", selection);

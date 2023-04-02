@@ -30,6 +30,14 @@ namespace
 			json& component = pool.emplace_back(aComponent);
 			component["entity"] = anEntity;
 		}
+
+		template <>
+		void operator()(entt::entity anEntity, const std::string& aName)
+		{
+			json& component = pool.emplace_back();
+			component["entity"] = anEntity;
+			component["name"] = aName;
+		}
 	};
 
 	struct InputArchive
@@ -54,22 +62,26 @@ namespace
 			component.at("entity").get_to(anEntity);
 			component.get_to(aComponent);
 		}
+
+		template <>
+		void operator()(entt::entity& anEntity, std::string& aName)
+		{
+			const json& component = pool.at(index++);
+			component.at("entity").get_to(anEntity);
+			component.at("name").get_to(aName);
+		}
 	};
 
 	template<class Component>
-	void ToJson(json& someJson, const entt::snapshot& aSnapshot)
+	void ToJson(std::string_view name, json& someJson, const entt::snapshot& aSnapshot)
 	{
-		static constexpr std::string_view name{ entt::type_name<Component>::value() };
-
 		OutputArchive archive{ someJson[name] };
 		aSnapshot.component<Component>(archive);
 	}
 
 	template <class Component>
-	void FromJson(const json& someJson, entt::snapshot_loader& aSnapshot)
+	void FromJson(std::string_view name, const json& someJson, entt::snapshot_loader& aSnapshot)
 	{
-		static constexpr std::string_view name{ entt::type_name<Component>::value() };
-
 		if (someJson.contains(name))
 		{
 			InputArchive archive{ someJson.at(name) };
@@ -84,12 +96,13 @@ void entt::to_json(json& someJson, const registry& aRegistry)
 
 	entt::snapshot snapshot{ aRegistry };
 
-	ToJson<Tag::Selected>(someJson, snapshot);
-	ToJson<Transform>(someJson, snapshot);
-	ToJson<Material>(someJson, snapshot);
-	ToJson<Mesh>(someJson, snapshot);
-	ToJson<Camera>(someJson, snapshot);
-	ToJson<CharacterController>(someJson, snapshot);
+	ToJson<std::string>("name", someJson, snapshot);
+	ToJson<Tag::Selected>("selected", someJson, snapshot);
+	ToJson<Transform>("transform", someJson, snapshot);
+	ToJson<Material>("material", someJson, snapshot);
+	ToJson<Mesh>("mesh", someJson, snapshot);
+	ToJson<Camera>("camera", someJson, snapshot);
+	ToJson<CharacterController>("characterController", someJson, snapshot);
 }
 
 void entt::from_json(const json& someJson, registry& aRegistry)
@@ -98,10 +111,11 @@ void entt::from_json(const json& someJson, registry& aRegistry)
 
 	entt::snapshot_loader snapshot{ aRegistry };
 
-	FromJson<Tag::Selected>(someJson, snapshot);
-	FromJson<Transform>(someJson, snapshot);
-	FromJson<Material>(someJson, snapshot);
-	FromJson<Mesh>(someJson, snapshot);
-	FromJson<Camera>(someJson, snapshot);
-	FromJson<CharacterController>(someJson, snapshot);
+	FromJson<std::string>("name", someJson, snapshot);
+	FromJson<Tag::Selected>("selected", someJson, snapshot);
+	FromJson<Transform>("transform", someJson, snapshot);
+	FromJson<Material>("material", someJson, snapshot);
+	FromJson<Mesh>("mesh", someJson, snapshot);
+	FromJson<Camera>("camera", someJson, snapshot);
+	FromJson<CharacterController>("characterController", someJson, snapshot);
 }

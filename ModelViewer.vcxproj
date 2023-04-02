@@ -229,6 +229,7 @@
     <ClInclude Include="Scene.h" />
     <ClInclude Include="SceneViewManipulate.h" />
     <ClInclude Include="ShaderCommon.h" />
+    <ClInclude Include="SimpleMathSerialization.h" />
     <ClInclude Include="StateFactory.h" />
     <ClInclude Include="Scopes.h" />
     <ClInclude Include="Shader.h" />
@@ -285,6 +286,7 @@
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="SceneViewManipulate.cpp" />
     <ClCompile Include="ShaderCommon.cpp" />
+    <ClCompile Include="SimpleMathSerialization.cpp" />
     <ClCompile Include="StateFactory.cpp" />
     <ClCompile Include="Scopes.cpp" />
     <ClCompile Include="Shader.cpp" />

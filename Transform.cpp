@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "Transform.h"
+#include "SimpleMathSerialization.h"
 
 /*
 * class Transform
@@ -27,17 +28,16 @@ Transform& Transform::Duplicate(entt::registry& aRegistry, entt::entity aParent,
 {
 	Transform& copy = Create(aRegistry);
 	copy.myParent = aParent;
-	copy.myName = myName;
 
 	if (aWorldTransformStays)
 		copy.SetWorldMatrix(aRegistry, GetWorldMatrix(aRegistry));
 	else
-		copy.SetLocalMatrix(GetLocalMatrix());
+		copy.SetMatrix(GetMatrix());
 
 	if (auto parent = aRegistry.try_get<Transform>(aParent))
 		parent->AddChild(copy.myEntity);
 
-	for (auto [name, storage] : aRegistry.storage())
+	for (auto [_, storage] : aRegistry.storage())
 	{
 		if (storage.type() != entt::type_id<Transform>() && storage.contains(myEntity))
 			storage.emplace(copy.myEntity, storage.get(myEntity));
@@ -68,24 +68,6 @@ void Transform::Destroy(entt::registry& aRegistry)
 		transform->RemoveChild(me);
 }
 
-entt::entity Transform::Find(const entt::registry& aRegistry, std::string_view aName) const
-{
-	if (aName == myName)
-		return myEntity;
-
-	for (entt::entity child : myChildren)
-	{
-		if (auto transform = aRegistry.try_get<Transform>(child))
-		{
-			entt::entity entity = transform->Find(aRegistry, aName);
-			if (aRegistry.valid(entity))
-				return entity;
-		}
-	}
-
-	return entt::null;
-}
-
 size_t Transform::GetDepth(const entt::registry& aRegistry) const
 {
 	size_t depth = 0;
@@ -94,16 +76,26 @@ size_t Transform::GetDepth(const entt::registry& aRegistry) const
 	return depth;
 }
 
-void Transform::SetWorldMatrix(const entt::registry& aRegistry, const Matrix& aMatrix)
+void Transform::SetMatrix(Matrix aMatrix)
 {
-	myLocalMatrix = aMatrix;
+	aMatrix.Decompose(scale, rotation, position);
+}
+
+Matrix Transform::GetMatrix() const
+{
+	return Matrix::CreateScale(scale) * Matrix::CreateFromQuaternion(rotation) * Matrix::CreateTranslation(position);
+}
+
+void Transform::SetWorldMatrix(const entt::registry& aRegistry, Matrix aMatrix)
+{
 	if (auto transform = aRegistry.try_get<Transform>(myParent))
-		myLocalMatrix *= transform->GetWorldMatrix(aRegistry).Invert();
+		aMatrix *= transform->GetWorldMatrix(aRegistry).Invert();
+	SetMatrix(aMatrix);
 }
 
 Matrix Transform::GetWorldMatrix(const entt::registry& aRegistry) const
 {
-	Matrix result = myLocalMatrix;
+	Matrix result = GetMatrix();
 	if (auto transform = aRegistry.try_get<Transform>(myParent))
 		result *= transform->GetWorldMatrix(aRegistry);
 	return result;
@@ -173,60 +165,38 @@ void Transform::RemoveChild(entt::entity anEntity)
 	myChildren.erase(range.begin(), range.end());
 }
 
-float* Transform::Data()
-{
-	return &myLocalMatrix._11;
-}
-
-const float* Transform::Data() const
-{
-	return &myLocalMatrix._11;
-}
-
 void from_json(const json& j, Transform& t)
 {
-	std::array<float, 16> matrix{};
-
+	j.at("position").get_to(t.position);
+	j.at("rotation").get_to(t.rotation);
+	j.at("scale").get_to(t.scale);
 	j.at("entity").get_to(t.myEntity);
 	j.at("parent").get_to(t.myParent);
 	j.at("children").get_to(t.myChildren);
-	j.at("name").get_to(t.myName);
-	j.at("matrix").get_to(matrix);
-
-	std::memcpy(t.Data(), matrix.data(), sizeof(Matrix));
 }
 
 void to_json(json& j, const Transform& t)
 {
-	std::array<float, 16> matrix{};
-	std::memcpy(matrix.data(), t.Data(), sizeof(Matrix));
-
+	j["position"] = t.position;
+	j["rotation"] = t.rotation;
+	j["scale"] = t.scale;
 	j["entity"] = t.myEntity;
 	j["parent"] = t.myParent;
 	j["children"] = t.myChildren;
-	j["name"] = t.myName;
-	j["matrix"] = matrix;
 }
 
 /*
 * namespace ImGui
 */
 
-void ImGui::Inspect(Transform& aTransform)
+void ImGui::Inspect(Transform& t)
 {
-	Value("Entity", std::to_underlying(aTransform.GetEntity()));
+	DragFloat3("Position", &t.position.x, 0.025f);
 
-	std::string name{ aTransform.GetName() };
-	if (InputText("Name", &name))
-		aTransform.SetName(name);
+	// Todo: use imguizmo decompose instead
+	Vector3 euler = t.rotation.ToEuler();
+	if (DragFloat3("Rotation", &euler.x, 0.25f))
+		t.rotation = Quaternion::CreateFromYawPitchRoll(euler);
 
-	float translation[3]{};
-	float rotation[3]{};
-	float scale[3]{};
-
-	ImGuizmo::DecomposeMatrixToComponents(aTransform.Data(), translation, rotation, scale);
-	DragFloat3("Translation", translation, 0.025f);
-	DragFloat3("Rotation", rotation, 0.25f);
-	DragFloat3("Scale", scale, 0.025f);
-	ImGuizmo::RecomposeMatrixFromComponents(translation, rotation, scale, aTransform.Data());
+	DragFloat3("Scale", &t.scale.x, 0.025f);
 }

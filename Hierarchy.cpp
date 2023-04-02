@@ -66,6 +66,7 @@ void ImGui::Hierarchy(entt::registry& aRegistry)
 		entt::entity entity = stack.back();
 		stack.pop_back();
 
+		std::string& name = aRegistry.get<std::string>(entity);
 		Transform& transform = aRegistry.get<Transform>(entity);
 		const float indent = GetStyle().IndentSpacing * transform.GetDepth(aRegistry);
 
@@ -76,7 +77,7 @@ void ImGui::Hierarchy(entt::registry& aRegistry)
 			flags |= ImGuiTreeNodeFlags_Selected;
 
 		std::string label{ ICON_FA_CUBE" " };
-		label += transform.GetName();
+		label += name;
 		label += "##";
 		label += std::to_string(std::to_underlying(entity));
 
@@ -117,7 +118,7 @@ void ImGui::Hierarchy(entt::registry& aRegistry)
 		if (BeginDragDropSource())
 		{
 			SetDragDropPayload("entity", &entity, sizeof(entt::entity));
-			Text(transform.GetName().data());
+			Text(name.c_str());
 			EndDragDropSource();
 		}
 

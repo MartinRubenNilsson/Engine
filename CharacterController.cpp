@@ -1,7 +1,6 @@
 #include "pch.h"
 #include "CharacterController.h"
 #include "PhysX.h"
-#include "Transform.h"
 
 namespace
 {
@@ -43,18 +42,15 @@ CharacterController& CharacterController::operator=(const CharacterController& o
 	return *this;
 }
 
-CollisionFlags CharacterController::Move(const Vector3& aDeltaPos, entt::registry& aRegistry)
+CollisionFlags CharacterController::Move(const Vector3& aDeltaPos, float aDeltaTime)
 {
-	if (!myImpl)
-		return {};
+	CollisionFlags flags{};
 
-	float dt = aRegistry.ctx().get<float>(DELTA_TIME);
-
-	auto pxFlags = myImpl->move(ToPx(aDeltaPos), minMoveDistance, dt, {});
-	CollisionFlags flags{ pxFlags.operator uint8_t() };
-
-	if (auto transform = aRegistry.try_get<Transform>(entt::to_entity(aRegistry, *this)))
-		transform->SetWorldPosition(aRegistry, GetPosition());
+	if (myImpl)
+	{
+		PxControllerCollisionFlags pxFlags = myImpl->move(ToPx(aDeltaPos), minMoveDistance, aDeltaTime, {});
+		flags = CollisionFlags{ pxFlags.operator uint8_t() };
+	}
 
 	return flags;
 }

@@ -1,12 +1,11 @@
 #include "pch.h"
 #include "PhysicsSystems.h"
 #include "CharacterController.h"
+#include "EnttCommon.h"
 
 void Systems::MoveCharacterControllersUsingKeyboard(entt::registry& aRegistry)
 {
-	static constexpr float speed = 5.f;
-
-	const float dt = aRegistry.ctx().get<float>(DELTA_TIME);
+	// Todo: use state of keyboard instead of imgui
 
 	Vector3 dir{};
 	dir.x -= ImGui::IsKeyDown(ImGuiKey_LeftArrow);
@@ -14,8 +13,10 @@ void Systems::MoveCharacterControllersUsingKeyboard(entt::registry& aRegistry)
 	dir.z -= ImGui::IsKeyDown(ImGuiKey_DownArrow);
 	dir.z += ImGui::IsKeyDown(ImGuiKey_UpArrow);
 
-	for (auto [entity, controller] : aRegistry.view<CharacterController>().each())
+	Vector3 deltaPos = dir * 5.f * GetDeltaTime(aRegistry);
+
+	for (entt::entity entity : aRegistry.view<CharacterController>())
 	{
-		controller.Move(dir * speed * dt, aRegistry);
+		Move(aRegistry, entity, deltaPos);
 	}
 }

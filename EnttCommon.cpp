@@ -6,10 +6,17 @@
 #include "Transform.h"
 #include "Mesh.h"
 #include "Material.h"
+#include "CharacterController.h"
+
+float GetDeltaTime(const entt::registry& aRegistry)
+{
+	return aRegistry.ctx().get<float>("deltaTime"_hs);
+}
 
 /*
 * Selection
 */
+
 
 void Select(entt::registry& aRegistry, entt::entity anEntity)
 {
@@ -31,61 +38,92 @@ entt::entity GetSelected(entt::registry& aRegistry)
 
 entt::entity CreateEmpty(entt::registry& aRegistry)
 {
-	return Transform::Create(aRegistry).GetEntity();
-}
-
-entt::entity CreateEmptyWithMaterial(entt::registry& aRegistry)
-{
-	entt::entity entity = CreateEmpty(aRegistry);
-	aRegistry.emplace<Material>(entity);
+	entt::entity entity = Transform::Create(aRegistry).GetEntity();
+	aRegistry.emplace<std::string>(entity, "Entity");
 	return entity;
 }
 
 entt::entity CreatePlane(entt::registry& aRegistry)
 {
-	entt::entity entity = CreateEmptyWithMaterial(aRegistry);
+	entt::entity entity = Transform::Create(aRegistry).GetEntity();
+	aRegistry.emplace<std::string>(entity, "Plane");
 	aRegistry.emplace<Mesh>(entity, MeshPrimitiveType::Plane);
+	aRegistry.emplace<Material>(entity);
 	return entity;
 }
 
 entt::entity CreateCube(entt::registry& aRegistry)
 {
-	entt::entity entity = CreateEmptyWithMaterial(aRegistry);
+	entt::entity entity = Transform::Create(aRegistry).GetEntity();
+	aRegistry.emplace<std::string>(entity, "Cube");
 	aRegistry.emplace<Mesh>(entity, MeshPrimitiveType::Cube);
+	aRegistry.emplace<Material>(entity);
 	return entity;
 }
 
 entt::entity CreateSphere(entt::registry& aRegistry)
 {
-	entt::entity entity = CreateEmptyWithMaterial(aRegistry);
+	entt::entity entity = Transform::Create(aRegistry).GetEntity();
+	aRegistry.emplace<std::string>(entity, "Sphere");
 	aRegistry.emplace<Mesh>(entity, MeshPrimitiveType::Sphere);
+	aRegistry.emplace<Material>(entity);
 	return entity;
 }
 
 entt::entity CreateCylinder(entt::registry& aRegistry)
 {
-	entt::entity entity = CreateEmptyWithMaterial(aRegistry);
+	entt::entity entity = Transform::Create(aRegistry).GetEntity();
+	aRegistry.emplace<std::string>(entity, "Cylinder");
 	aRegistry.emplace<Mesh>(entity, MeshPrimitiveType::Cylinder);
+	aRegistry.emplace<Material>(entity);
 	return entity;
 }
 
 entt::entity CreateCone(entt::registry& aRegistry)
 {
-	entt::entity entity = CreateEmptyWithMaterial(aRegistry);
+	entt::entity entity = Transform::Create(aRegistry).GetEntity();
+	aRegistry.emplace<std::string>(entity, "Cone");
 	aRegistry.emplace<Mesh>(entity, MeshPrimitiveType::Cone);
+	aRegistry.emplace<Material>(entity);
 	return entity;
 }
 
 entt::entity CreateTorus(entt::registry& aRegistry)
 {
-	entt::entity entity = CreateEmptyWithMaterial(aRegistry);
+	entt::entity entity = Transform::Create(aRegistry).GetEntity();
+	aRegistry.emplace<std::string>(entity, "Torus");
 	aRegistry.emplace<Mesh>(entity, MeshPrimitiveType::Torus);
+	aRegistry.emplace<Material>(entity);
 	return entity;
 }
 
 entt::entity CreateSuzanne(entt::registry& aRegistry)
 {
-	entt::entity entity = CreateEmptyWithMaterial(aRegistry);
+	entt::entity entity = Transform::Create(aRegistry).GetEntity();
+	aRegistry.emplace<std::string>(entity, "Suzanne");
 	aRegistry.emplace<Mesh>(entity, MeshPrimitiveType::Suzanne);
+	aRegistry.emplace<Material>(entity);
 	return entity;
+}
+
+/*
+* Manipulation
+*/
+
+void SetWorldPosition(entt::registry& aRegistry, entt::entity anEntity, const Vector3& aPos)
+{
+	if (auto transform = aRegistry.try_get<Transform>(anEntity))
+		transform->SetWorldPosition(aRegistry, aPos);
+}
+
+void Move(entt::registry& aRegistry, entt::entity anEntity, const Vector3& aDeltaPos)
+{
+	if (!aRegistry.all_of<CharacterController, Transform>(anEntity))
+		return;
+
+	auto& controller = aRegistry.get<CharacterController>(anEntity);
+	auto& transform = aRegistry.get<Transform>(anEntity);
+
+	controller.Move(aDeltaPos, GetDeltaTime(aRegistry));
+	transform.SetWorldPosition(aRegistry, controller.GetPosition());
 }

@@ -317,7 +317,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
                 physX.GetScene()->fetchResults(true);
 
             const float dt = deltaTimer.Query();
-            registry.ctx().insert_or_assign(DELTA_TIME, dt);
+            registry.ctx().insert_or_assign("deltaTime"_hs, dt);
 
             Systems::Update(registry);
 
