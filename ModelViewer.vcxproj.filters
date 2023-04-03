@@ -144,6 +144,9 @@
     <ClInclude Include="Console.h">
       <Filter>windows</Filter>
     </ClInclude>
+    <ClInclude Include="Rigidbody.h">
+      <Filter>components</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
@@ -277,6 +280,9 @@
     </ClCompile>
     <ClCompile Include="Console.cpp">
       <Filter>windows</Filter>
+    </ClCompile>
+    <ClCompile Include="Rigidbody.cpp">
+      <Filter>components</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

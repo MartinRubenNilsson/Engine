@@ -15,6 +15,7 @@
 // Physics
 #include "PhysicMaterial.h"
 #include "CharacterController.h"
+#include "Rigidbody.h"
 
 // Other
 #include "JsonCommon.h"
@@ -93,6 +94,7 @@ void ImGui::Inspector(entt::registry& aRegistry)
 	InspectComponent<Light>(ICON_FA_SUN" Light", selection);
 	InspectComponent<PhysicMaterial>(ICON_FA_HILL_ROCKSLIDE" Physic Material", selection);
 	InspectComponent<CharacterController>(ICON_FA_CAPSULES" Character Controller", selection);
+	InspectComponent<Rigidbody>(ICON_FA_GAUGE_HIGH" Rigidbody", selection);
 	InspectComponent<json>(ICON_FA_CHALKBOARD_USER" JSON", selection);
 
 	Separator();

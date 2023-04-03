@@ -23,20 +23,20 @@ void Console::Write(const std::string& aString)
 
 std::string Console::Read()
 {
-	CHAR buffer[1024]{};
+	CHAR buffer[MAX_PATH]{};
 	DWORD charsRead = 0;
-	ReadConsoleA(GetStdHandle(STD_INPUT_HANDLE), buffer, 1024, &charsRead, NULL);
+	ReadConsoleA(GetStdHandle(STD_INPUT_HANDLE), buffer, MAX_PATH, &charsRead, NULL);
 	return { buffer, charsRead };
 }
 
-void Console::SetTitle(std::string_view aString)
+void Console::SetTitle(const std::string& aString)
 {
-	SetConsoleTitleA(aString.data());
+	SetConsoleTitleA(aString.c_str());
 }
 
 std::string Console::GetTitle()
 {
-	CHAR title[256]{};
-	DWORD length = GetConsoleTitleA(title, 256);
+	CHAR title[MAX_PATH]{};
+	DWORD length = GetConsoleTitleA(title, MAX_PATH);
 	return { title, length };
 }

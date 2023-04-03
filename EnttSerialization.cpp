@@ -8,6 +8,7 @@
 
 // Physics
 #include "CharacterController.h"
+#include "Rigidbody.h"
 
 // #include "Light.h" // todo: lights
 
@@ -103,6 +104,7 @@ void entt::to_json(json& someJson, const registry& aRegistry)
 	ToJson<Mesh>("mesh", someJson, snapshot);
 	ToJson<Camera>("camera", someJson, snapshot);
 	ToJson<CharacterController>("characterController", someJson, snapshot);
+	ToJson<Rigidbody>("rigidbody", someJson, snapshot);
 }
 
 void entt::from_json(const json& someJson, registry& aRegistry)
@@ -118,4 +120,5 @@ void entt::from_json(const json& someJson, registry& aRegistry)
 	FromJson<Mesh>("mesh", someJson, snapshot);
 	FromJson<Camera>("camera", someJson, snapshot);
 	FromJson<CharacterController>("characterController", someJson, snapshot);
+	FromJson<Rigidbody>("rigidbody", someJson, snapshot);
 }

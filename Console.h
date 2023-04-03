@@ -7,9 +7,9 @@ namespace Console
 	bool IsCreated();
 
 	void Write(const std::string&);
-	std::string Read();
+	std::string Read(); // At most MAX_PATH characters right now
 
-	void SetTitle(std::string_view);
+	void SetTitle(const std::string&);
 	std::string GetTitle();
 }
 
