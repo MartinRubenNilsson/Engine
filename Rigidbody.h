@@ -12,6 +12,13 @@ public:
 
 	Vector3 GetVelocity() const;
 
+	void SetMass(float);
+	float GetMass() const;
+	void SetDrag(float);
+	float GetDrag() const;
+
+	bool IsSleeping() const;
+
 	explicit operator bool() const;
 
 private:

@@ -151,4 +151,8 @@ void ImGui::PhysX()
 		else
 			thePvd->disconnect();
 	}
+
+	Value("Static Rigidbodies", theScene->getNbActors(PxActorTypeFlag::eRIGID_STATIC));
+	Value("Dynamic Rigidbodies", theScene->getNbActors(PxActorTypeFlag::eRIGID_DYNAMIC));
+	Value("Character Controllers", theControllerMgr->getNbControllers());
 }
