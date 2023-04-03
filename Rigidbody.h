@@ -17,6 +17,9 @@ public:
 	void SetDrag(float);
 	float GetDrag() const;
 
+	void SetUseGravity(bool);
+	bool GetUseGravity() const;
+
 	bool IsSleeping() const;
 
 	explicit operator bool() const;
