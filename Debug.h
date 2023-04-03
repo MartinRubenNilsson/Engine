@@ -1,9 +1,8 @@
 #pragma once
 
-class Debug
+namespace Debug
 {
-public:
-	static void Print(std::string_view);
-	static void Println(std::string_view);
-};
+	void Print(std::string_view);
+	void Println(std::string_view);
+}
 

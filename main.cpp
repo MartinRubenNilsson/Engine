@@ -41,6 +41,7 @@
 #include "EngineAsset.h"
 #include "Win32Common.h"
 #include "Systems.h"
+#include "Console.h"
 
 namespace
 {
@@ -159,7 +160,10 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
                 if (extension == ".fbx")
                 {
                     if (auto scene = sceneFactory.GetAsset(path))
-                        Select(registry, scene->Instantiate(registry));
+                    {
+                        entt::entity rootEntity = scene->Instantiate(registry);
+                        Select(registry, rootEntity);
+                    }
                 }
                 else if (extension == ".png")
                 {

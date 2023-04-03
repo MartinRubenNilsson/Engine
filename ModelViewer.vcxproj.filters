@@ -141,6 +141,9 @@
     <ClInclude Include="EnttSerialization.h">
       <Filter>json</Filter>
     </ClInclude>
+    <ClInclude Include="Console.h">
+      <Filter>windows</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
@@ -271,6 +274,9 @@
     </ClCompile>
     <ClCompile Include="EnttSerialization.cpp">
       <Filter>json</Filter>
+    </ClCompile>
+    <ClCompile Include="Console.cpp">
+      <Filter>windows</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
