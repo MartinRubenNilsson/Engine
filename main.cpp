@@ -55,23 +55,22 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
 {
     fs::current_path(GetExePath().remove_filename());
 
-    if (!PhysX::Create())
-        return EXIT_FAILURE;
-
     Keyboard keyboard{};
     Mouse mouse{};
-
-    Window window{ WndProc };
-    if (!window)
-        return EXIT_FAILURE;
-
-    window.SetIcon("icon.ico");
-    mouse.SetWindow(window);
 
     if (!DX11::Create())
         return EXIT_FAILURE;
 
-    DearImGui imGui{ window, DX11::GetDevice(), DX11::GetContext() };
+    if (!PhysX::Create())
+        return EXIT_FAILURE;
+
+    if (!Window::Create(WndProc))
+        return EXIT_FAILURE;
+
+    Window::SetIcon("icon.ico");
+    mouse.SetWindow(Window::GetHandle());
+
+    DearImGui imGui{ Window::GetHandle(), DX11::GetDevice(), DX11::GetContext() };
     if (!imGui)
         return EXIT_FAILURE;
 
@@ -93,7 +92,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
         }
     };
 
-    BackBuffer backBuffer{ window };
+    BackBuffer backBuffer{ Window::GetHandle() };
     if (!backBuffer)
         return EXIT_FAILURE;
 
@@ -124,7 +123,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
 
     while (state != PlayState::Quit)
     {
-        window.SetTitle(archivePath.stem().wstring());
+        Window::SetTitle(archivePath.stem().string());
 
         // Message loop
         while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))

@@ -1,13 +1,16 @@
 #include "pch.h"
 #include "Window.h"
 
-Window::Window()
-	: myHandle{ nullptr, DestroyWindow }
+namespace
 {
+	HWND theHandle = NULL;
 }
 
-Window::Window(WNDPROC aWndProc)
-	: Window{}
+/*
+* namespace Window
+*/
+
+bool Window::Create(WNDPROC aWndProc)
 {
 	WNDCLASS wndClass{};
 	wndClass.style = 0;
@@ -22,9 +25,9 @@ Window::Window(WNDPROC aWndProc)
 	wndClass.lpszClassName = L"Window";
 
 	if (RegisterClass(&wndClass) == 0)
-		return;
+		return false;
 
-	myHandle.reset(CreateWindowEx(
+	theHandle = CreateWindowEx(
 		WS_EX_ACCEPTFILES,
 		wndClass.lpszClassName,
 		NULL,
@@ -35,44 +38,46 @@ Window::Window(WNDPROC aWndProc)
 		NULL,
 		GetModuleHandle(NULL),
 		NULL
-	));
+	);
+
+	if (!theHandle)
+		return false;
+
+	using Ptr = std::unique_ptr<std::remove_pointer_t<HWND>, decltype(DestroyWindow)*>;
+	static Ptr ptr{ theHandle, DestroyWindow };
+
+	return true;
 }
 
 void Window::SetIcon(const fs::path& aPath)
 {
 	if (HICON hIcon = (HICON)LoadImage(NULL, aPath.wstring().c_str(), IMAGE_ICON, 0, 0, LR_LOADFROMFILE))
 	{
-		SendMessage(myHandle.get(), WM_SETICON, ICON_BIG, (LPARAM)hIcon);
-		SendMessage(myHandle.get(), WM_SETICON, ICON_SMALL, (LPARAM)hIcon);
+		SendMessage(theHandle, WM_SETICON, ICON_BIG, (LPARAM)hIcon);
+		SendMessage(theHandle, WM_SETICON, ICON_SMALL, (LPARAM)hIcon);
 	}
 }
 
-void Window::SetTitle(std::wstring_view aString)
+void Window::SetTitle(const std::string& aString)
 {
-	SetWindowText(myHandle.get(), aString.data());
+	SetWindowTextA(theHandle, aString.c_str());
 }
 
-std::wstring Window::GetTitle() const
+std::string Window::GetTitle()
 {
-	std::wstring title{};
-	title.resize(GetWindowTextLength(myHandle.get()) + 1);
-	title.resize(GetWindowText(myHandle.get(), title.data(), static_cast<int>(title.size())));
+	CHAR title[MAX_PATH]{};
+	GetWindowTextA(theHandle, title, MAX_PATH);
 	return title;
 }
 
-RECT Window::GetClientRect() const
+RECT Window::GetClientRect()
 {
 	RECT rect{};
-	::GetClientRect(myHandle.get(), &rect);
+	GetClientRect(theHandle, &rect);
 	return rect;
 }
 
-Window::operator HWND() const
+HWND Window::GetHandle()
 {
-	return myHandle.get();
-}
-
-Window::operator bool() const
-{
-	return myHandle.operator bool();
+	return theHandle;
 }

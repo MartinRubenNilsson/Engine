@@ -20,7 +20,7 @@ namespace
 
         OPENFILENAME name{};
         name.lStructSize = sizeof(OPENFILENAME);
-        name.hwndOwner = Window::Get();
+        name.hwndOwner = Window::GetHandle();
         name.lpstrFilter = theFilter;
         name.nFilterIndex = 1;
         name.lpstrFile = file;
@@ -42,7 +42,7 @@ namespace
 
         OPENFILENAME name{};
         name.lStructSize = sizeof(OPENFILENAME);
-        name.hwndOwner = Window::Get();
+        name.hwndOwner = Window::GetHandle();
         name.lpstrFilter = theFilter;
         name.nFilterIndex = 1;
         name.lpstrFile = file;
