@@ -2,13 +2,7 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <ClInclude Include="pch.h" />
-    <ClInclude Include="DX11.h">
-      <Filter>graphics</Filter>
-    </ClInclude>
     <ClInclude Include="Debug.h" />
-    <ClInclude Include="DearImGui.h">
-      <Filter>imgui</Filter>
-    </ClInclude>
     <ClInclude Include="Camera.h">
       <Filter>components</Filter>
     </ClInclude>
@@ -109,14 +103,11 @@
     <ClInclude Include="Manipulator.h">
       <Filter>editor</Filter>
     </ClInclude>
-    <ClInclude Include="ImGuiCommon.h">
-      <Filter>imgui</Filter>
-    </ClInclude>
     <ClInclude Include="Win32Common.h">
       <Filter>windows</Filter>
     </ClInclude>
     <ClInclude Include="PhysX.h">
-      <Filter>physics</Filter>
+      <Filter>api</Filter>
     </ClInclude>
     <ClInclude Include="DeltaTimer.h" />
     <ClInclude Include="Scene.h" />
@@ -147,17 +138,20 @@
     <ClInclude Include="PhysicMaterial.h">
       <Filter>components</Filter>
     </ClInclude>
+    <ClInclude Include="ImGuiCommon.h">
+      <Filter>imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="DearImGui.h">
+      <Filter>api</Filter>
+    </ClInclude>
+    <ClInclude Include="DX11.h">
+      <Filter>api</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
     <ClCompile Include="pch.cpp" />
-    <ClCompile Include="DX11.cpp">
-      <Filter>graphics</Filter>
-    </ClCompile>
     <ClCompile Include="Debug.cpp" />
-    <ClCompile Include="DearImGui.cpp">
-      <Filter>imgui</Filter>
-    </ClCompile>
     <ClCompile Include="Camera.cpp">
       <Filter>components</Filter>
     </ClCompile>
@@ -246,14 +240,11 @@
     <ClCompile Include="Manipulator.cpp">
       <Filter>editor</Filter>
     </ClCompile>
-    <ClCompile Include="ImGuiCommon.cpp">
-      <Filter>imgui</Filter>
-    </ClCompile>
     <ClCompile Include="Win32Common.cpp">
       <Filter>windows</Filter>
     </ClCompile>
     <ClCompile Include="PhysX.cpp">
-      <Filter>physics</Filter>
+      <Filter>api</Filter>
     </ClCompile>
     <ClCompile Include="DeltaTimer.cpp" />
     <ClCompile Include="Scene.cpp" />
@@ -283,6 +274,15 @@
     </ClCompile>
     <ClCompile Include="PhysicMaterial.cpp">
       <Filter>components</Filter>
+    </ClCompile>
+    <ClCompile Include="ImGuiCommon.cpp">
+      <Filter>imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="DearImGui.cpp">
+      <Filter>api</Filter>
+    </ClCompile>
+    <ClCompile Include="DX11.cpp">
+      <Filter>api</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -328,14 +328,14 @@
     <Filter Include="entt">
       <UniqueIdentifier>{1ff725ee-0f58-476a-a8f5-08b5b9be5276}</UniqueIdentifier>
     </Filter>
-    <Filter Include="physics">
-      <UniqueIdentifier>{825eb5c9-4632-4533-b198-f926561a6277}</UniqueIdentifier>
-    </Filter>
     <Filter Include="systems">
       <UniqueIdentifier>{6d1cbcf8-e262-4e79-b6d1-f5d206808cdc}</UniqueIdentifier>
     </Filter>
     <Filter Include="json">
       <UniqueIdentifier>{65f24812-b266-4cda-a115-751e47b38ab5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="api">
+      <UniqueIdentifier>{825eb5c9-4632-4533-b198-f926561a6277}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

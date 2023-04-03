@@ -1,20 +1,15 @@
 #pragma once
 
-class Drop
+namespace Drop
 {
-public:
-	Drop();
-	Drop(HDROP);
+	// Call this in the window procedure
+	void Accept(HDROP);
 
-	std::vector<fs::path> GetPaths() const;
-	POINT GetPoint() const;
+	// Call as such: if (Begin(()) { ...; End(); }
+	bool Begin();
+	void End();
 
-	explicit operator bool() const;
-
-private:
-	using Element = std::remove_pointer_t<HDROP>;
-	using Deleter = void(HDROP);
-
-	std::unique_ptr<Element, Deleter*> myDrop;
-};
+	std::vector<fs::path> GetPaths(); // Only call inbetween Begin()/End()
+	POINT GetPoint(); // Only call inbetween Begin()/End()
+}
 

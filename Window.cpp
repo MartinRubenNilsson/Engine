@@ -1,6 +1,8 @@
 #include "pch.h"
 #include "Window.h"
 
+LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
+
 namespace
 {
 	HWND theHandle = NULL;
@@ -10,11 +12,11 @@ namespace
 * namespace Window
 */
 
-bool Window::Create(WNDPROC aWndProc)
+bool Window::Create()
 {
 	WNDCLASS wndClass{};
 	wndClass.style = 0;
-	wndClass.lpfnWndProc = aWndProc;
+	wndClass.lpfnWndProc = WndProc;
 	wndClass.cbClsExtra = 0;
 	wndClass.cbWndExtra = 0;
 	wndClass.hInstance = GetModuleHandle(NULL);
@@ -43,8 +45,15 @@ bool Window::Create(WNDPROC aWndProc)
 	if (!theHandle)
 		return false;
 
-	using Ptr = std::unique_ptr<std::remove_pointer_t<HWND>, decltype(DestroyWindow)*>;
-	static Ptr ptr{ theHandle, DestroyWindow };
+	struct Destroyer
+	{
+		~Destroyer()
+		{
+			DestroyWindow(theHandle);
+		}
+	};
+
+	static Destroyer destroyer{};
 
 	return true;
 }

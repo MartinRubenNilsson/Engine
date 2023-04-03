@@ -2,7 +2,7 @@
 
 namespace Window
 {
-	bool Create(WNDPROC);
+	bool Create();
 
 	void SetIcon(const fs::path&);
 

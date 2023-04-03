@@ -1,39 +1,48 @@
 #include "pch.h"
 #include "Drop.h"
 
-Drop::Drop()
-    : myDrop{ nullptr, DragFinish }
+namespace
 {
+    HDROP theDrop = nullptr;
 }
 
-Drop::Drop(HDROP hDrop)
-    : Drop()
+/*
+* namespace Drop
+*/
+
+void Drop::Accept(HDROP hDrop)
 {
-    myDrop.reset(hDrop);
+    theDrop = hDrop;
 }
 
-std::vector<fs::path> Drop::GetPaths() const
+bool Drop::Begin()
 {
-    std::vector<fs::path> paths{ DragQueryFile(myDrop.get(), 0xFFFFFFFF, NULL, 0) };
+    return theDrop;
+}
 
-    for (UINT i = 0; i < paths.size(); ++i)
+void Drop::End()
+{
+    DragFinish(theDrop);
+    theDrop = nullptr;
+}
+
+std::vector<fs::path> Drop::GetPaths()
+{
+    std::vector<fs::path> paths{};
+
+    for (UINT i = 0, count = DragQueryFile(theDrop, 0xFFFFFFFF, NULL, 0); i < count; ++i)
     {
         WCHAR path[MAX_PATH]{};
-        DragQueryFile(myDrop.get(), i, path, MAX_PATH);
-        paths[i] = path;
+        DragQueryFile(theDrop, i, path, MAX_PATH);
+        paths.emplace_back(path);
     }
 
     return paths;
 }
 
-POINT Drop::GetPoint() const
+POINT Drop::GetPoint()
 {
     POINT point{};
-    DragQueryPoint(myDrop.get(), &point);
+    DragQueryPoint(theDrop, &point);
     return point;
-}
-
-Drop::operator bool() const
-{
-    return myDrop.operator bool();
 }

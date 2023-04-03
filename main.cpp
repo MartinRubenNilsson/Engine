@@ -46,10 +46,7 @@
 namespace
 {
     bool theResize{ false };
-    Drop theDrop{};
 }
-
-LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 
 int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
 {
@@ -64,7 +61,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
     if (!DX11::Create())
         return EXIT_FAILURE;
 
-    if (!Window::Create(WndProc))
+    if (!Window::Create())
         return EXIT_FAILURE;
 
     Window::SetIcon("icon.ico");
@@ -147,9 +144,9 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
         }
 
         // Handle dropped files
-        if (theDrop)
+        if (Drop::Begin())
         {
-            for (fs::path& path : theDrop.GetPaths())
+            for (fs::path& path : Drop::GetPaths())
             {
                 const fs::path extension{ path.extension() };
 
@@ -173,7 +170,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
                     ));
                 }
             }
-            theDrop = {};
+            Drop::End();
         }
 
         DearImGui::NewFrame();
@@ -392,7 +389,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         theResize = true;
         break;
     case WM_DROPFILES:
-        theDrop = { (HDROP)wParam };
+        Drop::Accept((HDROP)wParam);
         break;
     default:
         return DefWindowProc(hWnd, message, wParam, lParam);
