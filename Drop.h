@@ -5,7 +5,7 @@ namespace Drop
 	// Call this in the window procedure
 	void Accept(HDROP);
 
-	// Call as such: if (Begin(()) { ...; End(); }
+	// Call as such: if (Begin()) { ...; End(); }
 	bool Begin();
 	void End();
 

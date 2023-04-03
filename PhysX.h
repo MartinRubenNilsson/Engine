@@ -8,13 +8,13 @@ namespace PhysX
 {
 	bool Create();
 
-	bool ConnectPvd();
-	void DisconnectPvd();
-	bool IsPvdConnected();
-
 	PxPhysics* GetPhysics();
 	PxScene* GetScene();
 	PxControllerManager* GetControllerMgr();
 	PxMaterial* GetDefaultMaterial();
 }
 
+namespace ImGui
+{
+	void PhysX();
+}

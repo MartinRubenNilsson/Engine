@@ -102,21 +102,6 @@ bool PhysX::Create()
 	return true;
 }
 
-bool PhysX::ConnectPvd()
-{
-	return thePvd->connect(*thePvdTransport, PxPvdInstrumentationFlag::eALL);
-}
-
-void PhysX::DisconnectPvd()
-{
-	thePvd->disconnect();
-}
-
-bool PhysX::IsPvdConnected()
-{
-	return thePvd->isConnected();
-}
-
 PxPhysics* PhysX::GetPhysics()
 {
 	return thePhysics;
@@ -135,4 +120,20 @@ PxControllerManager* PhysX::GetControllerMgr()
 PxMaterial* PhysX::GetDefaultMaterial()
 {
 	return theDefaultMaterial;
+}
+
+/*
+* namespace ImGui
+*/
+
+void ImGui::PhysX()
+{
+	bool connected = thePvd->isConnected();
+	if (Checkbox("Connect Visual Debugger", &connected))
+	{
+		if (connected)
+			thePvd->connect(*thePvdTransport, PxPvdInstrumentationFlag::eALL);
+		else
+			thePvd->disconnect();
+	}
 }

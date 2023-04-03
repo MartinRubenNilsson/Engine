@@ -112,7 +112,6 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
 
     DeltaTimer deltaTimer{};
     float simulationAccumulator = 0.f;
-    bool simulate = false;
 
     PlayState state{};
     MSG msg{};
@@ -248,6 +247,10 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
         }
 
         {
+            ImGui::Begin("PhysX");
+            ImGui::PhysX();
+            ImGui::End();
+
             ImGui::Begin(ICON_FA_EYE" Renderer");
             ImGui::Inspect(renderer);
             ImGui::End();
@@ -302,7 +305,6 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
         case PlayState::Starting:
         {
             archive = registry;
-            PhysX::ConnectPvd();
             deltaTimer = {};
             simulationAccumulator = 0.f;
             state = PlayState::Started;
@@ -310,9 +312,6 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
         }
         case PlayState::Started:
         {
-            if (simulate) // todo: possibly replace with a call to checkResults?
-                PhysX::GetScene()->fetchResults(true);
-
             const float dt = deltaTimer.Query();
             registry.ctx().insert_or_assign("deltaTime"_hs, dt);
 
@@ -320,12 +319,12 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
 
             static constexpr float simulationStepSize = 1.f / 60.f;
             simulationAccumulator += dt;
-            simulate = (simulationAccumulator >= simulationStepSize);
 
-            if (simulate)
+            if (simulationAccumulator >= simulationStepSize)
             {
                 simulationAccumulator -= simulationStepSize;
                 PhysX::GetScene()->simulate(simulationStepSize);
+                PhysX::GetScene()->fetchResults(true);
             }
 
             SortCamerasByDepth(registry); // todo: make into system
@@ -335,7 +334,6 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
         }
         case PlayState::Stopping:
         {
-            PhysX::DisconnectPvd();
             registry = archive;
             state = PlayState::Stopped;
             break;
