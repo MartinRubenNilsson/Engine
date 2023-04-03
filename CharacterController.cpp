@@ -64,7 +64,7 @@ void CharacterController::SetPosition(const Vector3& pos)
 
 Vector3 CharacterController::GetPosition() const
 {
-	return myImpl ? FromPx(myImpl->getPosition()) : Vector3{};
+	return myImpl ? FromPxEx(myImpl->getPosition()) : Vector3{};
 }
 
 void CharacterController::SetRadius(float aRadius)

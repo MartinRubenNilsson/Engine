@@ -313,19 +313,19 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
         case PlayState::Started:
         {
             const float dt = deltaTimer.Query();
-            registry.ctx().insert_or_assign("deltaTime"_hs, dt);
-
-            Systems::Update(registry);
-
-            static constexpr float simulationStepSize = 1.f / 60.f;
             simulationAccumulator += dt;
 
+            static constexpr float simulationStepSize = 1.f / 60.f;
             if (simulationAccumulator >= simulationStepSize)
             {
                 simulationAccumulator -= simulationStepSize;
                 PhysX::GetScene()->simulate(simulationStepSize);
                 PhysX::GetScene()->fetchResults(true);
             }
+
+            registry.ctx().insert_or_assign("deltaTime"_hs, dt);
+
+            Systems::Update(registry);
 
             SortCamerasByDepth(registry); // todo: make into system
             GetFirstCamera(registry, camera, cameraTransform); // todo: make into system

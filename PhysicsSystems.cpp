@@ -1,7 +1,20 @@
 #include "pch.h"
 #include "PhysicsSystems.h"
-#include "CharacterController.h"
 #include "EnttCommon.h"
+
+// Components
+#include "Transform.h"
+#include "Rigidbody.h"
+#include "CharacterController.h"
+
+void Systems::UpdateTransformsOfRigidbodies(entt::registry& aRegistry)
+{
+	auto view = aRegistry.view<Transform, const Rigidbody>();
+	for (auto [entity, transform, rigidbody] : view.each())
+	{
+		rigidbody.GetTransform(transform.position, transform.rotation);
+	}
+}
 
 void Systems::MoveCharacterControllersUsingKeyboard(entt::registry& aRegistry)
 {

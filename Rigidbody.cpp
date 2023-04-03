@@ -1,11 +1,12 @@
 #include "pch.h"
 #include "Rigidbody.h"
 #include "PhysX.h"
+#include "SimpleMathSerialization.h"
 
 Rigidbody::Rigidbody()
 {
-	PxTransform pose{ PxIdentity };
-	PxRigidDynamic* rigid = PhysX::GetPhysics()->createRigidDynamic(pose);
+	PxTransform transform{ PxIdentity };
+	PxRigidDynamic* rigid = PhysX::GetPhysics()->createRigidDynamic(transform);
 	myImpl.reset(rigid);
 	PhysX::GetScene()->addActor(*rigid);
 }
@@ -31,22 +32,62 @@ Rigidbody& Rigidbody::operator=(const Rigidbody& other)
 	return *this;
 }
 
+void Rigidbody::SetTransform(const Vector3& p, const Quaternion& q)
+{
+	if (myImpl)
+		myImpl->setGlobalPose({ ToPx(p), ToPx(q) });
+}
+
+void Rigidbody::GetTransform(Vector3& p, Quaternion& q) const
+{
+	if (myImpl)
+	{
+		PxTransform transform{ myImpl->getGlobalPose() };
+		p = FromPx(transform.p);
+		q = FromPx(transform.q);
+	}
+}
+
+Vector3 Rigidbody::GetVelocity() const
+{
+	return myImpl ? FromPx(myImpl->getLinearVelocity()) : Vector3{};
+}
+
 Rigidbody::operator bool() const
 {
 	return myImpl.operator bool();
 }
 
-void from_json(const json&, Rigidbody&)
+void from_json(const json& j, Rigidbody& r)
 {
-	// todo
+	r.SetTransform(j.at("position"), j.at("rotation"));
 }
 
-void to_json(json&, const Rigidbody&)
+void to_json(json& j, const Rigidbody& r)
 {
-	 // todo
+	Vector3 p{};
+	Quaternion q{};
+	r.GetTransform(p, q);
+
+	j["position"] = p;
+	j["rotation"] = q;
 }
 
-void ImGui::Inspect(Rigidbody&)
+/*
+* namespace ImGui
+*/
+
+void ImGui::Inspect(Rigidbody& r)
 {
-	// todo
+	if (TreeNodeEx("Info", ImGuiTreeNodeFlags_DefaultOpen))
+	{
+		Vector3 vel = r.GetVelocity();
+		float speed = vel.Length();
+
+		BeginDisabled();
+		DragFloat("Speed", &speed);
+		DragFloat3("Velocity", &vel.x);
+		EndDisabled();
+		TreePop();
+	}
 }

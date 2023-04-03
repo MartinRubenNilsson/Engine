@@ -7,6 +7,7 @@
 #include "Mesh.h"
 #include "Material.h"
 #include "CharacterController.h"
+#include "Rigidbody.h"
 
 float GetDeltaTime(const entt::registry& aRegistry)
 {
@@ -134,10 +135,21 @@ entt::entity CreateSuzanne(entt::registry& aRegistry)
 
 void SetWorldMatrix(entt::registry& aRegistry, entt::entity anEntity, const Matrix& aMatrix)
 {
+	Vector3 position{};
+	Quaternion rotation{};
+	Vector3 scale{};
+
+	{
+		Matrix matrix{ aMatrix };
+		matrix.Decompose(scale, rotation, position);
+	}
+
 	if (auto transform = aRegistry.try_get<Transform>(anEntity))
 		transform->SetWorldMatrix(aRegistry, aMatrix);
 	if (auto controller = aRegistry.try_get<CharacterController>(anEntity))
-		controller->SetPosition(aMatrix.Translation());
+		controller->SetPosition(position);
+	if (auto rigidbody = aRegistry.try_get<Rigidbody>(anEntity))
+		rigidbody->SetTransform(position, rotation);
 }
 
 void Move(entt::registry& aRegistry, entt::entity anEntity, const Vector3& aDeltaPos)

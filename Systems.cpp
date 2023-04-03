@@ -4,5 +4,6 @@
 
 void Systems::Update(entt::registry& aRegistry)
 {
+	UpdateTransformsOfRigidbodies(aRegistry);
 	MoveCharacterControllersUsingKeyboard(aRegistry);
 }

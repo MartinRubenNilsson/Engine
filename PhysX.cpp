@@ -9,12 +9,27 @@ PxVec3 ToPx(const Vector3& v)
 	return { v.x, v.y, v.z };
 }
 
+Vector3 FromPx(const PxVec3& v)
+{
+	return { v.x, v.y, v.z };
+}
+
+PxQuat ToPx(const Quaternion& q)
+{
+	return { q.x, q.y, q.z, q.w };
+}
+
+Quaternion FromPx(const PxQuat& q)
+{
+	return { q.x, q.y, q.z, q.w };
+}
+
 PxExtendedVec3 ToPxEx(const Vector3& v)
 {
 	return { static_cast<double>(v.x), static_cast<double>(v.y), static_cast<double>(v.z) };
 }
 
-Vector3 FromPx(const PxExtendedVec3& v)
+Vector3 FromPxEx(const PxExtendedVec3& v)
 {
 	return { static_cast<float>(v.x), static_cast<float>(v.y), static_cast<float>(v.z) };
 }

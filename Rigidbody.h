@@ -7,6 +7,11 @@ public:
 	Rigidbody(const Rigidbody&);
 	Rigidbody& operator=(const Rigidbody&);
 
+	void SetTransform(const Vector3& p, const Quaternion& q);
+	void GetTransform(Vector3& p, Quaternion& q) const;
+
+	Vector3 GetVelocity() const;
+
 	explicit operator bool() const;
 
 private:
