@@ -1,19 +1,9 @@
 #pragma once
 
-class DearImGui
+namespace DearImGui
 {
-public:
-	DearImGui(HWND, ID3D11Device*, ID3D11DeviceContext*);
-	~DearImGui();
-
+	bool Create(HWND, ID3D11Device*, ID3D11DeviceContext*);
 	void NewFrame();
 	void Render();
-
-	explicit operator bool() const;
-
-private:
-	void AddFonts();
-
-	bool mySucceeded{ false };
 };
 

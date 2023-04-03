@@ -58,10 +58,10 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
     Keyboard keyboard{};
     Mouse mouse{};
 
-    if (!DX11::Create())
+    if (!PhysX::Create())
         return EXIT_FAILURE;
 
-    if (!PhysX::Create())
+    if (!DX11::Create())
         return EXIT_FAILURE;
 
     if (!Window::Create(WndProc))
@@ -70,8 +70,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
     Window::SetIcon("icon.ico");
     mouse.SetWindow(Window::GetHandle());
 
-    DearImGui imGui{ Window::GetHandle(), DX11::GetDevice(), DX11::GetContext() };
-    if (!imGui)
+    if (!DearImGui::Create(Window::GetHandle(), DX11::GetDevice(), DX11::GetContext()))
         return EXIT_FAILURE;
 
     StateFactory stateFactory{};
@@ -177,7 +176,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
             theDrop = {};
         }
 
-        imGui.NewFrame();
+        DearImGui::NewFrame();
 
         const Keyboard::State keyboardState{ keyboard.GetState() };
         const Mouse::State mouseState{ mouse.GetState() };
@@ -357,7 +356,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
             backBuffer.Clear();
             renderer.SetCamera(camera, cameraTransform);
             renderer.Render(registry);
-            imGui.Render();
+            DearImGui::Render();
             backBuffer.Present();
         }
     }
