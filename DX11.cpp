@@ -3,7 +3,17 @@
 #pragma comment(lib, "DXGI") 
 #pragma comment(lib, "D3D11") 
 
-DX11::DX11()
+namespace
+{
+	ID3D11Device* theDevice = nullptr;
+	ID3D11DeviceContext* theContext = nullptr;
+}
+
+/*
+* namespace DX11
+*/
+
+bool DX11::Create()
 {
 	UINT flags = D3D11_CREATE_DEVICE_SINGLETHREADED;
 #ifdef _DEBUG
@@ -15,7 +25,10 @@ DX11::DX11()
 		D3D_FEATURE_LEVEL_11_1,
 	};
 
-	myResult = D3D11CreateDevice(
+	static ComPtr<ID3D11Device> device{};
+	static ComPtr<ID3D11DeviceContext> context{};
+
+	HRESULT result = D3D11CreateDevice(
 		NULL,
 		D3D_DRIVER_TYPE_HARDWARE,
 		NULL,
@@ -23,23 +36,26 @@ DX11::DX11()
 		levels.data(),
 		(UINT)levels.size(),
 		D3D11_SDK_VERSION,
-		&myDevice,
+		&device,
 		NULL,
-		&myContext
+		&context
 	);
+
+	if (FAILED(result))
+		return false;
+
+	theDevice = device.Get();
+	theContext = context.Get();
+
+	return true;
 }
 
-ID3D11Device* DX11::GetDevice() const
+ID3D11Device* DX11::GetDevice()
 {
-	return myDevice.Get();
+	return theDevice;
 }
 
-ID3D11DeviceContext* DX11::GetContext() const
+ID3D11DeviceContext* DX11::GetContext()
 {
-	return myContext.Get();
-}
-
-DX11::operator bool() const
-{
-	return SUCCEEDED(myResult);
+	return theContext;
 }

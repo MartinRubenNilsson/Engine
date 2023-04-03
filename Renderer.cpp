@@ -406,7 +406,7 @@ void Renderer::RenderSkybox()
 	ScopedTargets scopedTargets{ { myTextures.at(t_LightingTexture) }, myDepthBuffer };
 	ScopedDepthStencil scopedDepthStencil{ depthStencil };
 
-	DX11_CONTEXT->Draw(CUBEMAP_VERTEX_COUNT, 0);
+	DX11::GetContext()->Draw(CUBEMAP_VERTEX_COUNT, 0);
 }
 
 void Renderer::RenderDirectionalLights(std::span<const LightBuffer> someLights)

@@ -55,6 +55,9 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
 {
     fs::current_path(GetExePath().remove_filename());
 
+    if (!PhysX::Create())
+        return EXIT_FAILURE;
+
     Keyboard keyboard{};
     Mouse mouse{};
 
@@ -65,11 +68,11 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
     window.SetIcon("icon.ico");
     mouse.SetWindow(window);
 
-    if (!PhysX::Create())
+    if (!DX11::Create())
         return EXIT_FAILURE;
 
-    DX11 dx11{};
-    if (!dx11)
+    DearImGui imGui{ window, DX11::GetDevice(), DX11::GetContext() };
+    if (!imGui)
         return EXIT_FAILURE;
 
     StateFactory stateFactory{};
@@ -96,10 +99,6 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
 
     Renderer renderer{ backBuffer.GetWidth(), backBuffer.GetHeight() };
     if (!renderer)
-        return EXIT_FAILURE;
-
-    DearImGui imGui{ window, dx11.GetDevice(), dx11.GetContext() };
-    if (!imGui)
         return EXIT_FAILURE;
 
     TextureFactory textureFactory{};

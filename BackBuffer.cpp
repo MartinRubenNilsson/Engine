@@ -25,7 +25,7 @@ BackBuffer::BackBuffer(HWND hWnd)
 	if (FAILED(myResult))
 		return;
 
-	myResult = factory->CreateSwapChain(DX11_DEVICE, &swapChainDesc, &mySwapChain);
+	myResult = factory->CreateSwapChain(DX11::GetDevice(), &swapChainDesc, &mySwapChain);
 	if (FAILED(myResult))
 		return;
 
@@ -60,7 +60,7 @@ void BackBuffer::Resize()
 	targetDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
 	targetDesc.Texture2D.MipSlice = 0;
 
-	myResult = DX11_DEVICE->CreateRenderTargetView(myTexture.Get(), &targetDesc, &myRenderTarget);
+	myResult = DX11::GetDevice()->CreateRenderTargetView(myTexture.Get(), &targetDesc, &myRenderTarget);
 	if (FAILED(myResult))
 		return;
 }
@@ -74,7 +74,7 @@ void BackBuffer::Present() const
 void BackBuffer::Clear()
 {
 	static constexpr FLOAT color[]{ 0.f, 0.f, 0.f, 0.f };
-	DX11_CONTEXT->ClearRenderTargetView(myRenderTarget.Get(), color);
+	DX11::GetContext()->ClearRenderTargetView(myRenderTarget.Get(), color);
 }
 
 Viewport BackBuffer::GetViewport() const

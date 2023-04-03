@@ -13,7 +13,7 @@ namespace
 			std::span elements{ VertexType::Elements };
 			std::string_view bytecode{ shader->GetBytecode() };
 
-			DX11_DEVICE->CreateInputLayout(
+			DX11::GetDevice()->CreateInputLayout(
 				elements.data(), (UINT)elements.size(),
 				bytecode.data(), bytecode.size(),
 				&layout

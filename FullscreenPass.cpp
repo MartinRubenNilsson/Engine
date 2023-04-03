@@ -11,6 +11,6 @@ FullscreenPass::FullscreenPass(const fs::path& aPixelShader)
 
 void FullscreenPass::Render() const
 {
-	DX11_CONTEXT->Draw(FULLSCREEN_VERTEX_COUNT, 0);
+	DX11::GetContext()->Draw(FULLSCREEN_VERTEX_COUNT, 0);
 }
 

@@ -82,7 +82,7 @@ Mesh::Mesh(const aiMesh& aMesh)
 		D3D11_SUBRESOURCE_DATA data{};
 		data.pSysMem = vertices.data();
 
-		myResult = DX11_DEVICE->CreateBuffer(&desc, &data, &myVertexBuffer);
+		myResult = DX11::GetDevice()->CreateBuffer(&desc, &data, &myVertexBuffer);
 		if (FAILED(myResult))
 			return;
 	}
@@ -102,7 +102,7 @@ Mesh::Mesh(const aiMesh& aMesh)
 		D3D11_SUBRESOURCE_DATA data{};
 		data.pSysMem = indices.data();
 
-		myResult = DX11_DEVICE->CreateBuffer(&desc, &data, &myIndexBuffer);
+		myResult = DX11::GetDevice()->CreateBuffer(&desc, &data, &myIndexBuffer);
 		if (FAILED(myResult))
 			return;
 	}
@@ -125,9 +125,9 @@ void Mesh::Draw() const
 	static constexpr UINT stride = sizeof(VsInBasic);
 	static constexpr UINT offset = 0;
 
-	DX11_CONTEXT->IASetVertexBuffers(0, 1, myVertexBuffer.GetAddressOf(), &stride, &offset);
-	DX11_CONTEXT->IASetIndexBuffer(myIndexBuffer.Get(), DXGI_FORMAT_R32_UINT, 0);
-	DX11_CONTEXT->DrawIndexed(myIndexCount, 0, 0);
+	DX11::GetContext()->IASetVertexBuffers(0, 1, myVertexBuffer.GetAddressOf(), &stride, &offset);
+	DX11::GetContext()->IASetIndexBuffer(myIndexBuffer.Get(), DXGI_FORMAT_R32_UINT, 0);
+	DX11::GetContext()->DrawIndexed(myIndexCount, 0, 0);
 }
 
 Mesh::operator bool() const

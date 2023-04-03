@@ -91,17 +91,17 @@ Texture::Texture(const fs::path& aPath, TextureType aType)
     desc.CPUAccessFlags = 0;
     desc.MiscFlags = D3D11_RESOURCE_MISC_GENERATE_MIPS;
 
-    myResult = DX11_DEVICE->CreateTexture2D(&desc, NULL, &myTexture);
+    myResult = DX11::GetDevice()->CreateTexture2D(&desc, NULL, &myTexture);
     if (FAILED(myResult))
         return;
 
-    DX11_CONTEXT->UpdateSubresource(myTexture.Get(), 0, NULL, image.Data(), image.GetRowPitch(), 0);
+    DX11::GetContext()->UpdateSubresource(myTexture.Get(), 0, NULL, image.Data(), image.GetRowPitch(), 0);
 
-    myResult = DX11_DEVICE->CreateShaderResourceView(myTexture.Get(), NULL, &myShaderResource);
+    myResult = DX11::GetDevice()->CreateShaderResourceView(myTexture.Get(), NULL, &myShaderResource);
     if (FAILED(myResult))
         return;
 
-    DX11_CONTEXT->GenerateMips(myShaderResource.Get());
+    DX11::GetContext()->GenerateMips(myShaderResource.Get());
 
     myType = aType;
     myWidth = image.GetWidth();

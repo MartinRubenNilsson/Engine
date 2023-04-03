@@ -21,15 +21,15 @@ RenderTexture::RenderTexture(unsigned aWidth, unsigned aHeight, DXGI_FORMAT aFor
 	targetDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
 	targetDesc.Texture2D.MipSlice = 0;
 
-	myResult = DX11_DEVICE->CreateTexture2D(&textureDesc, NULL, &myTexture);
+	myResult = DX11::GetDevice()->CreateTexture2D(&textureDesc, NULL, &myTexture);
 	if (FAILED(myResult))
 		return;
 
-	myResult = DX11_DEVICE->CreateRenderTargetView(myTexture.Get(), &targetDesc, &myRenderTarget);
+	myResult = DX11::GetDevice()->CreateRenderTargetView(myTexture.Get(), &targetDesc, &myRenderTarget);
 	if (FAILED(myResult))
 		return;
 
-	myResult = DX11_DEVICE->CreateShaderResourceView(myTexture.Get(), NULL, &myShaderResource);
+	myResult = DX11::GetDevice()->CreateShaderResourceView(myTexture.Get(), NULL, &myShaderResource);
 	if (FAILED(myResult))
 		return;
 
@@ -40,7 +40,7 @@ RenderTexture::RenderTexture(unsigned aWidth, unsigned aHeight, DXGI_FORMAT aFor
 void RenderTexture::Clear(const Color& aColor)
 {
 	if (myRenderTarget)
-		DX11_CONTEXT->ClearRenderTargetView(myRenderTarget.Get(), aColor);
+		DX11::GetContext()->ClearRenderTargetView(myRenderTarget.Get(), aColor);
 }
 
 void RenderTexture::GetTexel(std::span<std::byte> aBuffer, unsigned x, unsigned y)
@@ -59,12 +59,12 @@ void RenderTexture::GetTexel(std::span<std::byte> aBuffer, unsigned x, unsigned 
 	box.front = 0;
 	box.back = 1;
 
-	DX11_CONTEXT->CopySubresourceRegion(myTexel.Get(), 0, 0, 0, 0, myTexture.Get(), 0, &box);
+	DX11::GetContext()->CopySubresourceRegion(myTexel.Get(), 0, 0, 0, 0, myTexture.Get(), 0, &box);
 
 	D3D11_MAPPED_SUBRESOURCE resource{};
-	DX11_CONTEXT->Map(myTexel.Get(), 0, D3D11_MAP_READ, 0, &resource);
+	DX11::GetContext()->Map(myTexel.Get(), 0, D3D11_MAP_READ, 0, &resource);
 	std::memcpy(aBuffer.data(), resource.pData, aBuffer.size_bytes());
-	DX11_CONTEXT->Unmap(myTexel.Get(), 0);
+	DX11::GetContext()->Unmap(myTexel.Get(), 0);
 }
 
 Viewport RenderTexture::GetViewport() const
@@ -90,5 +90,5 @@ bool RenderTexture::LazyInitTexel()
 	desc.BindFlags = 0;
 	desc.CPUAccessFlags = D3D11_CPU_ACCESS_READ;
 
-	return SUCCEEDED(DX11_DEVICE->CreateTexture2D(&desc, NULL, &myTexel));
+	return SUCCEEDED(DX11::GetDevice()->CreateTexture2D(&desc, NULL, &myTexel));
 }

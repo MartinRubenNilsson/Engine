@@ -21,11 +21,11 @@ DepthBuffer::DepthBuffer(unsigned aWidth, unsigned aHeight)
 	depthDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
 	depthDesc.Texture2D.MipSlice = 0;
 
-	myResult = DX11_DEVICE->CreateTexture2D(&textureDesc, NULL, &myTexture);
+	myResult = DX11::GetDevice()->CreateTexture2D(&textureDesc, NULL, &myTexture);
 	if (FAILED(myResult))
 		return;
 
-	myResult = DX11_DEVICE->CreateDepthStencilView(myTexture.Get(), &depthDesc, &myDepthStencil);
+	myResult = DX11::GetDevice()->CreateDepthStencilView(myTexture.Get(), &depthDesc, &myDepthStencil);
 	if (FAILED(myResult))
 		return;
 
@@ -36,7 +36,7 @@ DepthBuffer::DepthBuffer(unsigned aWidth, unsigned aHeight)
 void DepthBuffer::Clear(float aDepth)
 {
 	if (myDepthStencil)
-		DX11_CONTEXT->ClearDepthStencilView(myDepthStencil.Get(), D3D11_CLEAR_DEPTH, aDepth, 0);
+		DX11::GetContext()->ClearDepthStencilView(myDepthStencil.Get(), D3D11_CLEAR_DEPTH, aDepth, 0);
 }
 
 DepthBuffer::operator bool() const

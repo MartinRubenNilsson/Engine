@@ -130,12 +130,12 @@ ShaderResourcePtr CreateGaussianMap()
 
 	TexturePtr texture{};
 
-	if (FAILED(DX11_DEVICE->CreateTexture2D(&desc, &data, &texture)))
+	if (FAILED(DX11::GetDevice()->CreateTexture2D(&desc, &data, &texture)))
 		return nullptr;
 
 	ShaderResourcePtr resource{};
 
-	if (FAILED(DX11_DEVICE->CreateShaderResourceView(texture.Get(), NULL, &resource)))
+	if (FAILED(DX11::GetDevice()->CreateShaderResourceView(texture.Get(), NULL, &resource)))
 		return nullptr;
 
 	return resource;
@@ -176,12 +176,12 @@ ShaderResourcePtr CreateUniformMap()
 
 	TexturePtr texture{};
 
-	if (FAILED(DX11_DEVICE->CreateTexture2D(&desc, &data, &texture)))
+	if (FAILED(DX11::GetDevice()->CreateTexture2D(&desc, &data, &texture)))
 		return nullptr;
 
 	ShaderResourcePtr resource{};
 
-	if (FAILED(DX11_DEVICE->CreateShaderResourceView(texture.Get(), NULL, &resource)))
+	if (FAILED(DX11::GetDevice()->CreateShaderResourceView(texture.Get(), NULL, &resource)))
 		return nullptr;
 
 	return resource;
@@ -206,12 +206,12 @@ ShaderResourcePtr CreateIntegrationMap()
 
 	TexturePtr texture{};
 
-	if (FAILED(DX11_DEVICE->CreateTexture2D(&desc, NULL, &texture)))
+	if (FAILED(DX11::GetDevice()->CreateTexture2D(&desc, NULL, &texture)))
 		return nullptr;
 
 	RenderTargetPtr target{};
 
-	if (FAILED(DX11_DEVICE->CreateRenderTargetView(texture.Get(), NULL, &target)))
+	if (FAILED(DX11::GetDevice()->CreateRenderTargetView(texture.Get(), NULL, &target)))
 		return nullptr;
 
 	{
@@ -222,7 +222,7 @@ ShaderResourcePtr CreateIntegrationMap()
 
 	ShaderResourcePtr resource{};
 
-	if (FAILED(DX11_DEVICE->CreateShaderResourceView(texture.Get(), NULL, &resource)))
+	if (FAILED(DX11::GetDevice()->CreateShaderResourceView(texture.Get(), NULL, &resource)))
 		return nullptr;
 
 	return resource;

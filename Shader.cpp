@@ -30,12 +30,12 @@ void SetShader(const ShaderVariant& aVariant)
 {
 	struct Setter
 	{
-		void operator()(const PixelShaderPtr& ptr) const { DX11_CONTEXT->PSSetShader(ptr.Get(), NULL, 0); }
-		void operator()(const VertexShaderPtr& ptr) const { DX11_CONTEXT->VSSetShader(ptr.Get(), NULL, 0); }
-		void operator()(const GeometryShaderPtr& ptr) const { DX11_CONTEXT->GSSetShader(ptr.Get(), NULL, 0); }
-		void operator()(const HullShaderPtr& ptr) const { DX11_CONTEXT->HSSetShader(ptr.Get(), NULL, 0); }
-		void operator()(const DomainShaderPtr& ptr) const { DX11_CONTEXT->DSSetShader(ptr.Get(), NULL, 0); }
-		void operator()(const ComputeShaderPtr& ptr) const { DX11_CONTEXT->CSSetShader(ptr.Get(), NULL, 0); }
+		void operator()(const PixelShaderPtr& ptr) const { DX11::GetContext()->PSSetShader(ptr.Get(), NULL, 0); }
+		void operator()(const VertexShaderPtr& ptr) const { DX11::GetContext()->VSSetShader(ptr.Get(), NULL, 0); }
+		void operator()(const GeometryShaderPtr& ptr) const { DX11::GetContext()->GSSetShader(ptr.Get(), NULL, 0); }
+		void operator()(const HullShaderPtr& ptr) const { DX11::GetContext()->HSSetShader(ptr.Get(), NULL, 0); }
+		void operator()(const DomainShaderPtr& ptr) const { DX11::GetContext()->DSSetShader(ptr.Get(), NULL, 0); }
+		void operator()(const ComputeShaderPtr& ptr) const { DX11::GetContext()->CSSetShader(ptr.Get(), NULL, 0); }
 	};
 
 	std::visit(Setter{}, aVariant);
@@ -45,12 +45,12 @@ void GetShader(ShaderVariant& aVariant)
 {
 	struct Getter
 	{
-		void operator()(PixelShaderPtr& ptr) const { DX11_CONTEXT->PSGetShader(&ptr, NULL, 0); }
-		void operator()(VertexShaderPtr& ptr) const { DX11_CONTEXT->VSGetShader(&ptr, NULL, 0); }
-		void operator()(GeometryShaderPtr& ptr) const { DX11_CONTEXT->GSGetShader(&ptr, NULL, 0); }
-		void operator()(HullShaderPtr& ptr) const { DX11_CONTEXT->HSGetShader(&ptr, NULL, 0); }
-		void operator()(DomainShaderPtr& ptr) const { DX11_CONTEXT->DSGetShader(&ptr, NULL, 0); }
-		void operator()(ComputeShaderPtr& ptr) const { DX11_CONTEXT->CSGetShader(&ptr, NULL, 0); }
+		void operator()(PixelShaderPtr& ptr) const { DX11::GetContext()->PSGetShader(&ptr, NULL, 0); }
+		void operator()(VertexShaderPtr& ptr) const { DX11::GetContext()->VSGetShader(&ptr, NULL, 0); }
+		void operator()(GeometryShaderPtr& ptr) const { DX11::GetContext()->GSGetShader(&ptr, NULL, 0); }
+		void operator()(HullShaderPtr& ptr) const { DX11::GetContext()->HSGetShader(&ptr, NULL, 0); }
+		void operator()(DomainShaderPtr& ptr) const { DX11::GetContext()->DSGetShader(&ptr, NULL, 0); }
+		void operator()(ComputeShaderPtr& ptr) const { DX11::GetContext()->CSGetShader(&ptr, NULL, 0); }
 	};
 
 	std::visit(Getter{}, aVariant);
@@ -87,12 +87,12 @@ Shader::Shader(const fs::path& aPath)
 	{
 		std::string_view bytecode{};
 
-		HRESULT operator()(PixelShaderPtr& ptr) const { return DX11_DEVICE->CreatePixelShader(bytecode.data(), bytecode.size(), NULL, &ptr); }
-		HRESULT operator()(VertexShaderPtr& ptr) const { return DX11_DEVICE->CreateVertexShader(bytecode.data(), bytecode.size(), NULL, &ptr); }
-		HRESULT operator()(GeometryShaderPtr& ptr) const { return DX11_DEVICE->CreateGeometryShader(bytecode.data(), bytecode.size(), NULL, &ptr); }
-		HRESULT operator()(HullShaderPtr& ptr)	const { return DX11_DEVICE->CreateHullShader(bytecode.data(), bytecode.size(), NULL, &ptr); }
-		HRESULT operator()(DomainShaderPtr& ptr) const { return DX11_DEVICE->CreateDomainShader(bytecode.data(), bytecode.size(), NULL, &ptr); }
-		HRESULT operator()(ComputeShaderPtr& ptr) const { return DX11_DEVICE->CreateComputeShader(bytecode.data(), bytecode.size(), NULL, &ptr); }
+		HRESULT operator()(PixelShaderPtr& ptr) const { return DX11::GetDevice()->CreatePixelShader(bytecode.data(), bytecode.size(), NULL, &ptr); }
+		HRESULT operator()(VertexShaderPtr& ptr) const { return DX11::GetDevice()->CreateVertexShader(bytecode.data(), bytecode.size(), NULL, &ptr); }
+		HRESULT operator()(GeometryShaderPtr& ptr) const { return DX11::GetDevice()->CreateGeometryShader(bytecode.data(), bytecode.size(), NULL, &ptr); }
+		HRESULT operator()(HullShaderPtr& ptr)	const { return DX11::GetDevice()->CreateHullShader(bytecode.data(), bytecode.size(), NULL, &ptr); }
+		HRESULT operator()(DomainShaderPtr& ptr) const { return DX11::GetDevice()->CreateDomainShader(bytecode.data(), bytecode.size(), NULL, &ptr); }
+		HRESULT operator()(ComputeShaderPtr& ptr) const { return DX11::GetDevice()->CreateComputeShader(bytecode.data(), bytecode.size(), NULL, &ptr); }
 	};
 
 	myResult = std::visit(Creator{ bytecode }, myShader);

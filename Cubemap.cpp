@@ -52,15 +52,15 @@ void Cubemap::CreateEnvironmentMap(ShaderResourcePtr anEquirectMap)
 	TexturePtr texture{};
 	RenderTargetPtr target{};
 
-	myResult = DX11_DEVICE->CreateTexture2D(&desc, NULL, &texture);
+	myResult = DX11::GetDevice()->CreateTexture2D(&desc, NULL, &texture);
 	if (FAILED(myResult))
 		return;
 
-	myResult = DX11_DEVICE->CreateShaderResourceView(texture.Get(), NULL, &myMaps.at(Environment));
+	myResult = DX11::GetDevice()->CreateShaderResourceView(texture.Get(), NULL, &myMaps.at(Environment));
 	if (FAILED(myResult))
 		return;
 
-	myResult = DX11_DEVICE->CreateRenderTargetView(texture.Get(), NULL, &target);
+	myResult = DX11::GetDevice()->CreateRenderTargetView(texture.Get(), NULL, &target);
 	if (FAILED(myResult))
 		return;
 
@@ -69,7 +69,7 @@ void Cubemap::CreateEnvironmentMap(ShaderResourcePtr anEquirectMap)
 	ScopedTargets scopedTarget{ target };
 	ScopedViewports scopedViewport{ CD3D11_VIEWPORT{ texture.Get(), target.Get() } };
 
-	DX11_CONTEXT->Draw(CUBEMAP_VERTEX_COUNT, 0);
+	DX11::GetContext()->Draw(CUBEMAP_VERTEX_COUNT, 0);
 }
 
 void Cubemap::CreateIrradianceMap()
@@ -92,15 +92,15 @@ void Cubemap::CreateIrradianceMap()
 		TexturePtr texture{};
 		RenderTargetPtr target{};
 
-	myResult = DX11_DEVICE->CreateTexture2D(&desc, NULL, &texture);
+	myResult = DX11::GetDevice()->CreateTexture2D(&desc, NULL, &texture);
 	if (FAILED(myResult))
 		return;
 
-	myResult = DX11_DEVICE->CreateShaderResourceView(texture.Get(), NULL, &myMaps.at(Irradiance));
+	myResult = DX11::GetDevice()->CreateShaderResourceView(texture.Get(), NULL, &myMaps.at(Irradiance));
 	if (FAILED(myResult))
 		return;
 
-	myResult = DX11_DEVICE->CreateRenderTargetView(texture.Get(), NULL, &target);
+	myResult = DX11::GetDevice()->CreateRenderTargetView(texture.Get(), NULL, &target);
 	if (FAILED(myResult))
 		return;
 
@@ -108,7 +108,7 @@ void Cubemap::CreateIrradianceMap()
 	ScopedTargets scopedTargets{ target };
 	ScopedViewports scopedViewport{ CD3D11_VIEWPORT{ texture.Get(), target.Get() } };
 
-	DX11_CONTEXT->Draw(CUBEMAP_VERTEX_COUNT, 0);
+	DX11::GetContext()->Draw(CUBEMAP_VERTEX_COUNT, 0);
 }
 
 void Cubemap::CreatePrefilteredMap()
@@ -131,11 +131,11 @@ void Cubemap::CreatePrefilteredMap()
 
 	TexturePtr texture{};
 
-	myResult = DX11_DEVICE->CreateTexture2D(&textureDesc, NULL, &texture);
+	myResult = DX11::GetDevice()->CreateTexture2D(&textureDesc, NULL, &texture);
 	if (FAILED(myResult))
 		return;
 
-	myResult = DX11_DEVICE->CreateShaderResourceView(texture.Get(), NULL, &myMaps.at(Prefiltered));
+	myResult = DX11::GetDevice()->CreateShaderResourceView(texture.Get(), NULL, &myMaps.at(Prefiltered));
 	if (FAILED(myResult))
 		return;
 
@@ -167,13 +167,13 @@ void Cubemap::CreatePrefilteredMap()
 
 		RenderTargetPtr target{};
 
-		myResult = DX11_DEVICE->CreateRenderTargetView(texture.Get(), &targetDesc, &target);
+		myResult = DX11::GetDevice()->CreateRenderTargetView(texture.Get(), &targetDesc, &target);
 		if (FAILED(myResult))
 			return;
 
 		ScopedTargets scopedTargets{ target };
 		ScopedViewports scopedViewports{ CD3D11_VIEWPORT{ texture.Get(), target.Get() } };
 
-		DX11_CONTEXT->Draw(CUBEMAP_VERTEX_COUNT, 0);
+		DX11::GetContext()->Draw(CUBEMAP_VERTEX_COUNT, 0);
 	}
 }
