@@ -4,34 +4,17 @@ PxVec3 ToPx(const Vector3&);
 PxExtendedVec3 ToPxEx(const Vector3&);
 Vector3 FromPx(const PxExtendedVec3&);
 
-class PhysX : public Singleton<PhysX>
+namespace PhysX
 {
-public:
-	PhysX();
+	bool Create();
 
 	bool ConnectPvd();
 	void DisconnectPvd();
+	bool IsPvdConnected();
 
 	PxPhysics* GetPhysics();
 	PxScene* GetScene();
 	PxControllerManager* GetControllerMgr();
 	PxMaterial* GetDefaultMaterial();
+}
 
-	explicit operator bool() const;
-
-private:
-	PxDefaultAllocator myAllocator{};
-	PxDefaultErrorCallback myErrorCallback{};
-	PxPtr<PxFoundation> myFoundation{};
-	PxPtr<PxPvdTransport> myPvdTransport{};
-	PxPtr<PxPvd> myPvd{};
-	PxPtr<PxPhysics> myPhysics{};
-	PxPtr<PxDefaultCpuDispatcher> myCpuDispatcher{};
-	PxPtr<PxScene> myScene{};
-	PxPtr<PxControllerManager> myControllerMgr{};
-	PxPtr<PxMaterial> myDefaultMaterial{};
-	bool mySucceeded{ false };
-};
-
-#define PX_PHYSICS PhysX::Get().GetPhysics()
-#define PX_SCENE PhysX::Get().GetScene()

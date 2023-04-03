@@ -65,8 +65,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
     window.SetIcon("icon.ico");
     mouse.SetWindow(window);
 
-    PhysX physX{};
-    if (!physX)
+    if (!PhysX::Create())
         return EXIT_FAILURE;
 
     DX11 dx11{};
@@ -309,7 +308,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
         case PlayState::Starting:
         {
             archive = registry;
-            physX.ConnectPvd();
+            PhysX::ConnectPvd();
             deltaTimer = {};
             simulationAccumulator = 0.f;
             state = PlayState::Started;
@@ -318,7 +317,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
         case PlayState::Started:
         {
             if (simulate) // todo: possibly replace with a call to checkResults?
-                physX.GetScene()->fetchResults(true);
+                PhysX::GetScene()->fetchResults(true);
 
             const float dt = deltaTimer.Query();
             registry.ctx().insert_or_assign("deltaTime"_hs, dt);
@@ -332,7 +331,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
             if (simulate)
             {
                 simulationAccumulator -= simulationStepSize;
-                physX.GetScene()->simulate(simulationStepSize);
+                PhysX::GetScene()->simulate(simulationStepSize);
             }
 
             SortCamerasByDepth(registry); // todo: make into system
@@ -342,7 +341,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
         }
         case PlayState::Stopping:
         {
-            physX.DisconnectPvd();
+            PhysX::DisconnectPvd();
             registry = archive;
             state = PlayState::Stopped;
             break;

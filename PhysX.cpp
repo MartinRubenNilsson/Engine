@@ -19,51 +19,64 @@ Vector3 FromPx(const PxExtendedVec3& v)
 	return { static_cast<float>(v.x), static_cast<float>(v.y), static_cast<float>(v.z) };
 }
 
+namespace
+{
+	PxPvdTransport* thePvdTransport = nullptr;
+	PxPvd* thePvd = nullptr;
+	PxPhysics* thePhysics = nullptr;
+	PxScene* theScene = nullptr;
+	PxControllerManager* theControllerMgr = nullptr;
+	PxMaterial* theDefaultMaterial = nullptr;
+}
+
 /*
-* class PhysX
+* namespace PhysX
 */
 
-PhysX::PhysX()
+bool PhysX::Create()
 {
-	myFoundation.reset(PxCreateFoundation(PX_PHYSICS_VERSION, myAllocator, myErrorCallback));
-	if (!myFoundation)
-		return;
+	static PxDefaultAllocator allocator{};
+	static PxDefaultErrorCallback errorCallback{};
+
+	static PxPtr<PxFoundation> foundation{ PxCreateFoundation(PX_PHYSICS_VERSION, allocator, errorCallback) };
+	if (!foundation)
+		return false;
 
 #ifdef _DEBUG
-	myPvdTransport.reset(PxDefaultPvdSocketTransportCreate(PVD_HOST, 5425, 10));
-	if (!myPvdTransport)
-		return;
+	static PxPtr<PxPvdTransport> pvdTransport{ PxDefaultPvdSocketTransportCreate(PVD_HOST, 5425, 10) };
+	if (!pvdTransport)
+		return false;
 
-	myPvd.reset(PxCreatePvd(*myFoundation));
-	if (!myPvd)
-		return;
+	static PxPtr<PxPvd> pvd{ PxCreatePvd(*foundation) };
+	if (!pvd)
+		return false;
 
 	bool trackAllocs = true;
 #else
 	bool trackAllocs = false;
 #endif
 
-	myPhysics.reset(PxCreateBasePhysics(PX_PHYSICS_VERSION, *myFoundation, PxTolerancesScale{}, trackAllocs, myPvd.get()));
-	if (!myPhysics)
-		return;
+	static PxPtr<PxPhysics> physics{ PxCreateBasePhysics(PX_PHYSICS_VERSION, *foundation, {}, trackAllocs, pvd.get()) };
+	if (!physics)
+		return false;
 
-	myCpuDispatcher.reset(PxDefaultCpuDispatcherCreate(NUM_THREADS));
-	if (!myCpuDispatcher)
-		return;
+	static PxPtr<PxDefaultCpuDispatcher> cpuDispatcher{ PxDefaultCpuDispatcherCreate(NUM_THREADS) };
+	if (!cpuDispatcher)
+		return false;
 
-	PxSceneDesc desc{ myPhysics->getTolerancesScale() };
+	PxSceneDesc desc{ physics->getTolerancesScale() };
 	desc.gravity = { 0.0f, -9.81f, 0.0f };
-	desc.cpuDispatcher = myCpuDispatcher.get();
+	desc.cpuDispatcher = cpuDispatcher.get();
 	desc.filterShader = PxDefaultSimulationFilterShader;
 	if (!desc.isValid())
-		return;
+		return false;
 
-	myScene.reset(myPhysics->createScene(desc));
-	if (!myScene)
-		return;
+	static PxPtr<PxScene> scene{ physics->createScene(desc) };
+	if (!scene)
+		return false;
 
 #ifdef _DEBUG
-	if (auto client = myScene->getScenePvdClient())
+	if (PxPvdSceneClient* client = scene->getScenePvdClient())
 	{
 		client->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_CONTACTS, true);
 		client->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_SCENEQUERIES, true);
@@ -71,51 +84,55 @@ PhysX::PhysX()
 	}
 #endif
 
-	myControllerMgr.reset(PxCreateControllerManager(*myScene));
-	if (!myControllerMgr)
-		return;
+	static PxPtr<PxControllerManager> controllerMgr{ PxCreateControllerManager(*scene) };
+	if (!controllerMgr)
+		return false;
 
-	myDefaultMaterial.reset(myPhysics->createMaterial(0.6f, 0.6f, 0.f));
-	if (!myDefaultMaterial)
-		return;
+	static PxPtr<PxMaterial> defaultMaterial{ physics->createMaterial(0.6f, 0.6f, 0.f) };
+	if (!defaultMaterial)
+		return false;
 
-	mySucceeded = true;
+	thePvdTransport = pvdTransport.get();
+	thePvd = pvd.get();
+	thePhysics = physics.get();
+	theScene = scene.get();
+	theControllerMgr = controllerMgr.get();
+	theDefaultMaterial = defaultMaterial.get();
+
+	return true;
 }
 
 bool PhysX::ConnectPvd()
 {
-	if (myPvd && myPvdTransport)
-		return myPvd->connect(*myPvdTransport, PxPvdInstrumentationFlag::eALL);
-	return false;
+	return thePvd->connect(*thePvdTransport, PxPvdInstrumentationFlag::eALL);
 }
 
 void PhysX::DisconnectPvd()
 {
-	if (myPvd)
-		myPvd->disconnect();
+	thePvd->disconnect();
+}
+
+bool PhysX::IsPvdConnected()
+{
+	return thePvd->isConnected();
 }
 
 PxPhysics* PhysX::GetPhysics()
 {
-	return myPhysics.get();
+	return thePhysics;
 }
 
 PxScene* PhysX::GetScene()
 {
-	return myScene.get();
+	return theScene;
 }
 
 PxControllerManager* PhysX::GetControllerMgr()
 {
-	return myControllerMgr.get();
+	return theControllerMgr;
 }
 
 PxMaterial* PhysX::GetDefaultMaterial()
 {
-	return myDefaultMaterial.get();
-}
-
-PhysX::operator bool() const
-{
-	return mySucceeded;
+	return theDefaultMaterial;
 }

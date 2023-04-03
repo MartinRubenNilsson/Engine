@@ -40,7 +40,7 @@ void from_json(const json& j, PhysicMaterial& m)
 
 PhysicMaterial::PhysicMaterial()
 {
-	myImpl.reset(PX_PHYSICS->createMaterial(0.6f, 0.6f, 0.f));
+	myImpl.reset(PhysX::GetPhysics()->createMaterial(0.6f, 0.6f, 0.f));
 }
 
 void PhysicMaterial::SetDynamicFriction(float coef)

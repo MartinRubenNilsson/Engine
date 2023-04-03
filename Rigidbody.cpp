@@ -5,18 +5,18 @@
 Rigidbody::Rigidbody()
 {
 	PxTransform pose{ PxIdentity };
-	PxRigidDynamic* rigid = PX_PHYSICS->createRigidDynamic(pose);
+	PxRigidDynamic* rigid = PhysX::GetPhysics()->createRigidDynamic(pose);
 	myImpl.reset(rigid);
-	PX_SCENE->addActor(*rigid);
+	PhysX::GetScene()->addActor(*rigid);
 }
 
 Rigidbody::Rigidbody(const Rigidbody& other)
 {
 	if (other)
 	{
-		PxRigidDynamic* rigid = PxCloneDynamic(*PX_PHYSICS, other.myImpl->getGlobalPose(), *other.myImpl);
+		PxRigidDynamic* rigid = PxCloneDynamic(*PhysX::GetPhysics(), other.myImpl->getGlobalPose(), *other.myImpl);
 		myImpl.reset(rigid);
-		PX_SCENE->addActor(*rigid);
+		PhysX::GetScene()->addActor(*rigid);
 	}
 }
 
@@ -24,9 +24,9 @@ Rigidbody& Rigidbody::operator=(const Rigidbody& other)
 {
 	if (other)
 	{
-		PxRigidDynamic* rigid = PxCloneDynamic(*PX_PHYSICS, other.myImpl->getGlobalPose(), *other.myImpl);
+		PxRigidDynamic* rigid = PxCloneDynamic(*PhysX::GetPhysics(), other.myImpl->getGlobalPose(), *other.myImpl);
 		myImpl.reset(rigid);
-		PX_SCENE->addActor(*rigid);
+		PhysX::GetScene()->addActor(*rigid);
 	}
 	return *this;
 }

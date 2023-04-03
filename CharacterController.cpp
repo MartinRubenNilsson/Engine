@@ -19,13 +19,13 @@ namespace
 CharacterController::CharacterController()
 {
 	PxCapsuleControllerDesc desc{};
-	desc.material = PhysX::Get().GetDefaultMaterial();
+	desc.material = PhysX::GetDefaultMaterial();
 	desc.radius = 0.5f;
 	desc.height = 2.f;
 	if (!desc.isValid())
 		return;
 
-	PxController* controller = PhysX::Get().GetControllerMgr()->createController(desc);
+	PxController* controller = PhysX::GetControllerMgr()->createController(desc);
 	myImpl.reset(static_cast<PxCapsuleController*>(controller));
 }
 

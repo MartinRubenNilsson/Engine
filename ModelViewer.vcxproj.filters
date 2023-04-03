@@ -120,9 +120,6 @@
     </ClInclude>
     <ClInclude Include="DeltaTimer.h" />
     <ClInclude Include="Scene.h" />
-    <ClInclude Include="PhysicMaterial.h">
-      <Filter>physics</Filter>
-    </ClInclude>
     <ClInclude Include="Systems.h">
       <Filter>systems</Filter>
     </ClInclude>
@@ -145,6 +142,9 @@
       <Filter>windows</Filter>
     </ClInclude>
     <ClInclude Include="Rigidbody.h">
+      <Filter>components</Filter>
+    </ClInclude>
+    <ClInclude Include="PhysicMaterial.h">
       <Filter>components</Filter>
     </ClInclude>
   </ItemGroup>
@@ -257,9 +257,6 @@
     </ClCompile>
     <ClCompile Include="DeltaTimer.cpp" />
     <ClCompile Include="Scene.cpp" />
-    <ClCompile Include="PhysicMaterial.cpp">
-      <Filter>physics</Filter>
-    </ClCompile>
     <ClCompile Include="Systems.cpp">
       <Filter>systems</Filter>
     </ClCompile>
@@ -282,6 +279,9 @@
       <Filter>windows</Filter>
     </ClCompile>
     <ClCompile Include="Rigidbody.cpp">
+      <Filter>components</Filter>
+    </ClCompile>
+    <ClCompile Include="PhysicMaterial.cpp">
       <Filter>components</Filter>
     </ClCompile>
   </ItemGroup>
