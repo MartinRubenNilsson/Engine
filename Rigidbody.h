@@ -16,6 +16,8 @@ public:
 	float GetMass() const;
 	void SetDrag(float);
 	float GetDrag() const;
+	void SetAngularDrag(float);
+	float GetAngularDrag() const;
 
 	void SetUseGravity(bool);
 	bool GetUseGravity() const;
