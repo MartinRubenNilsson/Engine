@@ -16,22 +16,19 @@ const char* ToString(CombineMode aMode)
 	return strings.at(std::to_underlying(aMode));
 }
 
-void to_json(json& j, const PhysicMaterial& m)
+namespace
 {
-	j["dynamicFriction"] = m.GetDynamicFriction();
-	j["staticFriction"] = m.GetStaticFriction();
-	j["restitution"] = m.GetRestitution();
-	j["frictionCombine"] = m.GetFrictionCombineMode();
-	j["restitutionCombine"] = m.GetRestitutionCombineMode();
-}
+	void Copy(PxMaterial* dst, const PxMaterial* src)
+	{
+		if (!dst || !src)
+			return;
 
-void from_json(const json& j, PhysicMaterial& m)
-{
-	m.SetDynamicFriction(j.at("dynamicFriction"));
-	m.SetStaticFriction(j.at("staticFriction"));
-	m.SetRestitution(j.at("restitution"));
-	m.SetFrictionCombineMode(j.at("frictionCombine"));
-	m.SetRestitutionCombineMode(j.at("restitutionCombine"));
+		dst->setDynamicFriction(src->getDynamicFriction());
+		dst->setStaticFriction(src->getStaticFriction());
+		dst->setRestitution(src->getRestitution());
+		dst->setFrictionCombineMode(src->getFrictionCombineMode());
+		dst->setRestitutionCombineMode(src->getRestitutionCombineMode());
+	}
 }
 
 /*
@@ -41,6 +38,18 @@ void from_json(const json& j, PhysicMaterial& m)
 PhysicMaterial::PhysicMaterial()
 {
 	myImpl.reset(PhysX::GetPhysics()->createMaterial(0.6f, 0.6f, 0.f));
+}
+
+PhysicMaterial::PhysicMaterial(const PhysicMaterial& other)
+	: PhysicMaterial()
+{
+	Copy(myImpl.get(), other.myImpl.get());
+}
+
+PhysicMaterial& PhysicMaterial::operator=(const PhysicMaterial& other)
+{
+	Copy(myImpl.get(), other.myImpl.get());
+	return *this;
 }
 
 void PhysicMaterial::SetDynamicFriction(float coef)
@@ -108,6 +117,24 @@ PhysicMaterial::operator bool() const
 	return myImpl.operator bool();
 }
 
+void to_json(json& j, const PhysicMaterial& m)
+{
+	j["dynamicFriction"] = m.GetDynamicFriction();
+	j["staticFriction"] = m.GetStaticFriction();
+	j["restitution"] = m.GetRestitution();
+	j["frictionCombine"] = m.GetFrictionCombineMode();
+	j["restitutionCombine"] = m.GetRestitutionCombineMode();
+}
+
+void from_json(const json& j, PhysicMaterial& m)
+{
+	m.SetDynamicFriction(j.at("dynamicFriction"));
+	m.SetStaticFriction(j.at("staticFriction"));
+	m.SetRestitution(j.at("restitution"));
+	m.SetFrictionCombineMode(j.at("frictionCombine"));
+	m.SetRestitutionCombineMode(j.at("restitutionCombine"));
+}
+
 /*
 * namespace ImGui
 */
@@ -120,15 +147,14 @@ void ImGui::Inspect(PhysicMaterial& m)
 	CombineMode frictionCombine = m.GetFrictionCombineMode();
 	CombineMode restitutionCombine = m.GetRestitutionCombineMode();
 
-	DragFloat("Dynamic Friction", &dynamicFriction, 0.01f, 0.f, FLT_MAX);
-	DragFloat("Static Friction", &staticFriction, 0.01f, 0.f, FLT_MAX);
-	DragFloat("Restitution", &restitution, 0.01f, 0.f, 1.f);
-	Combo("Friction Combine", frictionCombine);
-	Combo("Restitution Combine", restitutionCombine);
-
-	m.SetDynamicFriction(dynamicFriction);
-	m.SetStaticFriction(staticFriction);
-	m.SetRestitution(restitution);
-	m.SetFrictionCombineMode(frictionCombine);
-	m.SetRestitutionCombineMode(restitutionCombine);
+	if (DragFloat("Dynamic Friction", &dynamicFriction, 0.01f, 0.f, FLT_MAX))
+		m.SetDynamicFriction(dynamicFriction);
+	if (DragFloat("Static Friction", &staticFriction, 0.01f, 0.f, FLT_MAX))
+		m.SetStaticFriction(staticFriction);
+	if (DragFloat("Restitution", &restitution, 0.01f, 0.f, 1.f))
+		m.SetRestitution(restitution);
+	if (Combo("Friction Combine", frictionCombine))
+		m.SetFrictionCombineMode(frictionCombine);
+	if (Combo("Restitution Combine", restitutionCombine))
+		m.SetRestitutionCombineMode(restitutionCombine);
 }

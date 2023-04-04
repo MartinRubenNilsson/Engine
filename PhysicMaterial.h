@@ -15,6 +15,8 @@ class PhysicMaterial
 {
 public:
 	PhysicMaterial();
+	PhysicMaterial(const PhysicMaterial&);
+	PhysicMaterial& operator=(const PhysicMaterial&);
 
 	void SetDynamicFriction(float);
 	float GetDynamicFriction() const;

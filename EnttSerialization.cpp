@@ -7,6 +7,7 @@
 #include "Material.h"
 
 // Physics
+#include "PhysicMaterial.h"
 #include "CharacterController.h"
 #include "Rigidbody.h"
 
@@ -103,6 +104,9 @@ void entt::to_json(json& someJson, const registry& aRegistry)
 	ToJson<Material>("material", someJson, snapshot);
 	ToJson<Mesh>("mesh", someJson, snapshot);
 	ToJson<Camera>("camera", someJson, snapshot);
+
+	// Physics
+	ToJson<PhysicMaterial>("physicMaterial", someJson, snapshot);
 	ToJson<CharacterController>("characterController", someJson, snapshot);
 	ToJson<Rigidbody>("rigidbody", someJson, snapshot);
 }
@@ -119,6 +123,9 @@ void entt::from_json(const json& someJson, registry& aRegistry)
 	FromJson<Material>("material", someJson, snapshot);
 	FromJson<Mesh>("mesh", someJson, snapshot);
 	FromJson<Camera>("camera", someJson, snapshot);
+
+	// Physics
+	FromJson<PhysicMaterial>("physicMaterial", someJson, snapshot);
 	FromJson<CharacterController>("characterController", someJson, snapshot);
 	FromJson<Rigidbody>("rigidbody", someJson, snapshot);
 }
