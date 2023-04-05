@@ -1,27 +1,17 @@
 #include "pch.h"
 #include "DearImGui.h"
+#include "Window.h"
+#include "DX11.h"
 
-bool DearImGui::Create(HWND hWnd, ID3D11Device* aDevice, ID3D11DeviceContext* aContext)
+bool DearImGui::Create()
 {
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
 
-    if (!ImGui_ImplWin32_Init(hWnd))
+    if (!ImGui_ImplWin32_Init(Window::GetHandle()))
         return false;
-    if (!ImGui_ImplDX11_Init(aDevice, aContext))
+    if (!ImGui_ImplDX11_Init(DX11::GetDevice(), DX11::GetContext()))
         return false;
-
-    struct Destroyer
-    {
-        ~Destroyer()
-        {
-            ImGui_ImplDX11_Shutdown();
-            ImGui_ImplWin32_Shutdown();
-            ImGui::DestroyContext();
-        }
-    };
-
-    static Destroyer destroyer{};
 
     ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_DockingEnable;
     ImGuizmo::AllowAxisFlip(false);
@@ -42,6 +32,13 @@ bool DearImGui::Create(HWND hWnd, ID3D11Device* aDevice, ID3D11DeviceContext* aC
     io.Fonts->Build();
 
     return true;
+}
+
+void DearImGui::Destroy()
+{
+    ImGui_ImplDX11_Shutdown();
+    ImGui_ImplWin32_Shutdown();
+    ImGui::DestroyContext();
 }
 
 void DearImGui::NewFrame()

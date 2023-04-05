@@ -25,9 +25,6 @@ bool DX11::Create()
 		D3D_FEATURE_LEVEL_11_1,
 	};
 
-	static ComPtr<ID3D11Device> device{};
-	static ComPtr<ID3D11DeviceContext> context{};
-
 	HRESULT result = D3D11CreateDevice(
 		NULL,
 		D3D_DRIVER_TYPE_HARDWARE,
@@ -36,18 +33,18 @@ bool DX11::Create()
 		levels.data(),
 		(UINT)levels.size(),
 		D3D11_SDK_VERSION,
-		&device,
+		&theDevice,
 		NULL,
-		&context
+		&theContext
 	);
 
-	if (FAILED(result))
-		return false;
+	return SUCCEEDED(result);
+}
 
-	theDevice = device.Get();
-	theContext = context.Get();
-
-	return true;
+void DX11::Destroy()
+{
+	if (theContext) { theContext->Release(); theContext = nullptr; }
+	if (theDevice) { theDevice->Release(); theDevice = nullptr; }
 }
 
 ID3D11Device* DX11::GetDevice()

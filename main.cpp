@@ -52,23 +52,27 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
 {
     fs::current_path(GetExePath().remove_filename());
 
-    Keyboard keyboard{};
-    Mouse mouse{};
-
-    if (!PhysX::Create())
+    PhysX::Scope _physX{};
+    if (!_physX.ok)
         return EXIT_FAILURE;
 
-    if (!DX11::Create())
+    DX11::Scope _dx11{};
+    if (!_dx11.ok)
         return EXIT_FAILURE;
 
-    if (!Window::Create())
+    Window::Scope _window{};
+    if (!_window.ok)
+        return EXIT_FAILURE;
+
+    DearImGui::Scope _dearImGui{};
+    if (!_dearImGui.ok)
         return EXIT_FAILURE;
 
     Window::SetIcon("icon.ico");
-    mouse.SetWindow(Window::GetHandle());
 
-    if (!DearImGui::Create(Window::GetHandle(), DX11::GetDevice(), DX11::GetContext()))
-        return EXIT_FAILURE;
+    Keyboard keyboard{};
+    Mouse mouse{};
+    mouse.SetWindow(Window::GetHandle());
 
     StateFactory stateFactory{};
     ShaderFactory shaderFactory{};

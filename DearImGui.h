@@ -2,8 +2,18 @@
 
 namespace DearImGui
 {
-	bool Create(HWND, ID3D11Device*, ID3D11DeviceContext*);
+	// Window::Create() and DX11::Create() must be called before DearImGui::Create()
+	bool Create();
+	void Destroy();
 	void NewFrame();
 	void Render();
+
+	struct Scope
+	{
+		const bool ok;
+
+		Scope() : ok{ Create() } {}
+		~Scope() { Destroy(); }
+	};
 };
 

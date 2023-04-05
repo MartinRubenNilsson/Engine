@@ -4,6 +4,8 @@
 #define PVD_HOST "127.0.0.1"
 #define NUM_THREADS 2
 
+#define PX_RELEASE(x) if(x)	{ x->release(); x = NULL; }
+
 PxVec3 ToPx(const Vector3& v)
 {
 	return { v.x, v.y, v.z };
@@ -36,10 +38,15 @@ Vector3 FromPxEx(const PxExtendedVec3& v)
 
 namespace
 {
+	PxDefaultAllocator* theAllocator = nullptr;
+	PxDefaultErrorCallback* theErrorCallback = nullptr;
+
+	PxFoundation* theFoundation = nullptr;
 	PxPvdTransport* thePvdTransport = nullptr;
 	PxPvd* thePvd = nullptr;
 	PxPhysics* thePhysics = nullptr;
 	PxScene* theScene = nullptr;
+	PxDefaultCpuDispatcher* theCpuDispatcher = nullptr;
 	PxControllerManager* theControllerMgr = nullptr;
 	PxMaterial* theDefaultMaterial = nullptr;
 }
@@ -50,20 +57,20 @@ namespace
 
 bool PhysX::Create()
 {
-	static PxDefaultAllocator allocator{};
-	static PxDefaultErrorCallback errorCallback{};
+	theAllocator = new PxDefaultAllocator{};
+	theErrorCallback = new PxDefaultErrorCallback{};
 
-	static PxPtr<PxFoundation> foundation{ PxCreateFoundation(PX_PHYSICS_VERSION, allocator, errorCallback) };
-	if (!foundation)
+	theFoundation = PxCreateFoundation(PX_PHYSICS_VERSION, *theAllocator, *theErrorCallback);
+	if (!theFoundation)
 		return false;
 
 #ifdef _DEBUG
-	static PxPtr<PxPvdTransport> pvdTransport{ PxDefaultPvdSocketTransportCreate(PVD_HOST, 5425, 10) };
-	if (!pvdTransport)
+	thePvdTransport = PxDefaultPvdSocketTransportCreate(PVD_HOST, 5425, 10);
+	if (!thePvdTransport)
 		return false;
 
-	static PxPtr<PxPvd> pvd{ PxCreatePvd(*foundation) };
-	if (!pvd)
+	thePvd = PxCreatePvd(*theFoundation);
+	if (!thePvd)
 		return false;
 
 	bool trackAllocs = true;
@@ -71,27 +78,27 @@ bool PhysX::Create()
 	bool trackAllocs = false;
 #endif
 
-	static PxPtr<PxPhysics> physics{ PxCreateBasePhysics(PX_PHYSICS_VERSION, *foundation, {}, trackAllocs, pvd.get()) };
-	if (!physics)
+	thePhysics = PxCreateBasePhysics(PX_PHYSICS_VERSION, *theFoundation, {}, trackAllocs, thePvd);
+	if (!thePhysics)
 		return false;
 
-	static PxPtr<PxDefaultCpuDispatcher> cpuDispatcher{ PxDefaultCpuDispatcherCreate(NUM_THREADS) };
-	if (!cpuDispatcher)
+	theCpuDispatcher = PxDefaultCpuDispatcherCreate(NUM_THREADS);
+	if (!theCpuDispatcher)
 		return false;
 
-	PxSceneDesc desc{ physics->getTolerancesScale() };
+	PxSceneDesc desc{ thePhysics->getTolerancesScale() };
 	desc.gravity = { 0.0f, -9.81f, 0.0f };
-	desc.cpuDispatcher = cpuDispatcher.get();
+	desc.cpuDispatcher = theCpuDispatcher;
 	desc.filterShader = PxDefaultSimulationFilterShader;
 	if (!desc.isValid())
 		return false;
 
-	static PxPtr<PxScene> scene{ physics->createScene(desc) };
-	if (!scene)
+	theScene =  thePhysics->createScene(desc);
+	if (!theScene)
 		return false;
 
 #ifdef _DEBUG
-	if (PxPvdSceneClient* client = scene->getScenePvdClient())
+	if (PxPvdSceneClient* client = theScene->getScenePvdClient())
 	{
 		client->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_CONTACTS, true);
 		client->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_SCENEQUERIES, true);
@@ -99,22 +106,29 @@ bool PhysX::Create()
 	}
 #endif
 
-	static PxPtr<PxControllerManager> controllerMgr{ PxCreateControllerManager(*scene) };
-	if (!controllerMgr)
+	theControllerMgr = PxCreateControllerManager(*theScene);
+	if (!theControllerMgr)
 		return false;
 
-	static PxPtr<PxMaterial> defaultMaterial{ physics->createMaterial(0.6f, 0.6f, 0.f) };
-	if (!defaultMaterial)
+	theDefaultMaterial = thePhysics->createMaterial(0.6f, 0.6f, 0.f);
+	if (!theDefaultMaterial)
 		return false;
-
-	thePvdTransport = pvdTransport.get();
-	thePvd = pvd.get();
-	thePhysics = physics.get();
-	theScene = scene.get();
-	theControllerMgr = controllerMgr.get();
-	theDefaultMaterial = defaultMaterial.get();
 
 	return true;
+}
+
+void PhysX::Destroy()
+{
+	PX_RELEASE(theDefaultMaterial);
+	PX_RELEASE(theControllerMgr);
+	PX_RELEASE(theCpuDispatcher);
+	PX_RELEASE(theScene);
+	PX_RELEASE(thePhysics);
+	PX_RELEASE(thePvd);
+	PX_RELEASE(thePvdTransport);
+	PX_RELEASE(theFoundation);
+	if (theErrorCallback) { delete theErrorCallback; theErrorCallback = nullptr; }
+	if (theAllocator) { delete theAllocator; theAllocator = nullptr; }
 }
 
 PxPhysics* PhysX::GetPhysics()

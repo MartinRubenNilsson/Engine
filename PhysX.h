@@ -12,11 +12,19 @@ Vector3 FromPxEx(const PxExtendedVec3&);
 namespace PhysX
 {
 	bool Create();
-
+	void Destroy();
 	PxPhysics* GetPhysics();
 	PxScene* GetScene();
 	PxControllerManager* GetControllerMgr();
 	PxMaterial* GetDefaultMaterial();
+
+	struct Scope
+	{
+		const bool ok;
+
+		Scope() : ok{ Create() } {}
+		~Scope() { Destroy(); }
+	};
 }
 
 namespace ImGui

@@ -16,30 +16,26 @@ Rigidbody::Rigidbody()
 
 Rigidbody::Rigidbody(const Rigidbody& other)
 {
-	if (other)
+	PxRigidDynamic* copy = nullptr;
+	if (PxRigidDynamic* orig = other.myImpl.get())
 	{
-		PxRigidDynamic* rigid = PxCloneDynamic(*PhysX::GetPhysics(), other.myImpl->getGlobalPose(), *other.myImpl);
-		myImpl.reset(rigid);
-		if (rigid)
-		{
-			myImpl->setLinearDamping(other.myImpl->getLinearDamping()); // Should be copied by PxCloneDynamic but isn't
-			PhysX::GetScene()->addActor(*rigid);
-		}
+		copy = PxCloneDynamic(*PhysX::GetPhysics(), orig->getGlobalPose(), *orig);
+		copy->setLinearDamping(orig->getLinearDamping()); // Should be copied by PxCloneDynamic but isn't?
+		PhysX::GetScene()->addActor(*copy);
 	}
+	myImpl.reset(copy);
 }
 
 Rigidbody& Rigidbody::operator=(const Rigidbody& other)
 {
-	if (other)
+	PxRigidDynamic* copy = nullptr;
+	if (PxRigidDynamic* orig = other.myImpl.get())
 	{
-		PxRigidDynamic* rigid = PxCloneDynamic(*PhysX::GetPhysics(), other.myImpl->getGlobalPose(), *other.myImpl);
-		myImpl.reset(rigid);
-		if (rigid)
-		{
-			myImpl->setLinearDamping(other.myImpl->getLinearDamping()); // Should be copied by PxCloneDynamic but isn't
-			PhysX::GetScene()->addActor(*rigid);
-		}
+		copy = PxCloneDynamic(*PhysX::GetPhysics(), orig->getGlobalPose(), *orig);
+		copy->setLinearDamping(orig->getLinearDamping()); // Should be copied by PxCloneDynamic but isn't?
+		PhysX::GetScene()->addActor(*copy);
 	}
+	myImpl.reset(copy);
 	return *this;
 }
 

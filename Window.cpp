@@ -42,20 +42,12 @@ bool Window::Create()
 		NULL
 	);
 
-	if (!theHandle)
-		return false;
+	return theHandle;
+}
 
-	struct Destroyer
-	{
-		~Destroyer()
-		{
-			DestroyWindow(theHandle);
-		}
-	};
-
-	static Destroyer destroyer{};
-
-	return true;
+void Window::Destroy()
+{
+	DestroyWindow(theHandle);
 }
 
 void Window::SetIcon(const fs::path& aPath)
