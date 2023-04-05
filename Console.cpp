@@ -3,7 +3,14 @@
 
 bool Console::Create()
 {
-	return AllocConsole();
+	bool ok = AllocConsole();
+	if (ok)
+	{
+		HWND handle = GetConsoleWindow();
+		SetWindowLong(handle, GWL_STYLE, GetWindowLong(handle, GWL_STYLE) & ~WS_SYSMENU);
+		SetTitle("Console");
+	}
+	return ok;
 }
 
 bool Console::Destroy()
