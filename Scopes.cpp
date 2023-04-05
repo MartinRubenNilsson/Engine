@@ -1,7 +1,6 @@
 #include "pch.h"
 #include "Scopes.h"
 #include "InputLayoutFactory.h"
-#include "StateFactory.h"
 
 namespace
 {
@@ -87,7 +86,7 @@ ScopedShader::~ScopedShader()
 ScopedRasterizer::ScopedRasterizer(const D3D11_RASTERIZER_DESC& aDesc)
 {
 	DX11::GetContext()->RSGetState(&myRasterizerState);
-	DX11::GetContext()->RSSetState(StateFactory::Get().GetRasterizerState(aDesc).Get());
+	DX11::GetContext()->RSSetState(DX11::GetRasterizerState(aDesc).Get());
 }
 
 ScopedRasterizer::~ScopedRasterizer()
@@ -108,7 +107,7 @@ ScopedSamplers::ScopedSamplers(UINT aStartSlot, std::span<const D3D11_SAMPLER_DE
 	: ScopedSamplers{
 		aStartSlot,
 		someDescs
-			| std::views::transform([](auto& desc) { return StateFactory::Get().GetSamplerState(desc).Get(); })
+			| std::views::transform([](auto& desc) { return DX11::GetSamplerState(desc).Get(); })
 			| std::ranges::to<std::vector>()
 	}
 {
@@ -138,7 +137,7 @@ ScopedSamplers::~ScopedSamplers()
 ScopedDepthStencil::ScopedDepthStencil(const D3D11_DEPTH_STENCIL_DESC& aDesc, UINT aStencilRef)
 {
 	DX11::GetContext()->OMGetDepthStencilState(&myState, &myStencilRef);
-	DX11::GetContext()->OMSetDepthStencilState(StateFactory::Get().GetDepthStencilState(aDesc).Get(), aStencilRef);
+	DX11::GetContext()->OMSetDepthStencilState(DX11::GetDepthStencilState(aDesc).Get(), aStencilRef);
 }
 
 ScopedDepthStencil::~ScopedDepthStencil()
@@ -153,7 +152,7 @@ ScopedDepthStencil::~ScopedDepthStencil()
 ScopedBlend::ScopedBlend(const D3D11_BLEND_DESC& aDesc, const FLOAT aBlendFactor[4], UINT aSampleMask)
 {
 	DX11::GetContext()->OMGetBlendState(&myState, myBlendFactor, &mySampleMask);
-	DX11::GetContext()->OMSetBlendState(StateFactory::Get().GetBlendState(aDesc).Get(), aBlendFactor, aSampleMask);
+	DX11::GetContext()->OMSetBlendState(DX11::GetBlendState(aDesc).Get(), aBlendFactor, aSampleMask);
 }
 
 ScopedBlend::~ScopedBlend()

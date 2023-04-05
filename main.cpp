@@ -11,7 +11,6 @@
 #include "PhysicMaterial.h"
 
 // Rendering
-#include "StateFactory.h"
 #include "InputLayoutFactory.h"
 #include "BackBuffer.h"
 #include "Scopes.h"
@@ -80,7 +79,6 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
     Mouse mouse{};
     mouse.SetWindow(Window::GetHandle());
 
-    StateFactory stateFactory{};
     ShaderFactory shaderFactory{};
     InputLayoutFactory layoutFactory{};
     if (!layoutFactory)

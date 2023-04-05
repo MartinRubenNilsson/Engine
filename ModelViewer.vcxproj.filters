@@ -39,9 +39,6 @@
     <ClInclude Include="Light.h">
       <Filter>components</Filter>
     </ClInclude>
-    <ClInclude Include="StateFactory.h">
-      <Filter>graphics</Filter>
-    </ClInclude>
     <ClInclude Include="Shader.h">
       <Filter>graphics</Filter>
     </ClInclude>
@@ -183,9 +180,6 @@
       <Filter>components</Filter>
     </ClCompile>
     <ClCompile Include="Shader.cpp">
-      <Filter>graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="StateFactory.cpp">
       <Filter>graphics</Filter>
     </ClCompile>
     <ClCompile Include="InputLayoutFactory.cpp">
