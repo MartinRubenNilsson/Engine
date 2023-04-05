@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "ConstantBuffer.h"
+#include "DX11.h"
 
 ConstantBuffer::ConstantBuffer(unsigned aByteWidth)
 {

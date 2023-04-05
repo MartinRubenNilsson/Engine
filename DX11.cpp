@@ -143,3 +143,18 @@ ID3D11DeviceContext* DX11::GetContext()
 {
 	return theContext;
 }
+
+/*
+* class ScopedTopology
+*/
+
+ScopedTopology::ScopedTopology(D3D11_PRIMITIVE_TOPOLOGY aTopology)
+{
+	theContext->IAGetPrimitiveTopology(&myTopology);
+	theContext->IASetPrimitiveTopology(aTopology);
+}
+
+ScopedTopology::~ScopedTopology()
+{
+	theContext->IASetPrimitiveTopology(myTopology);
+}

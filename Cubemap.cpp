@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "Cubemap.h"
+#include "DX11.h"
 #include "Scopes.h"
 #include "ShaderCommon.h"
 #include "Texture.h"

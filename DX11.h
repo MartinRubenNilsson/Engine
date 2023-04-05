@@ -22,3 +22,13 @@ namespace DX11
 	};
 }
 
+class ScopedTopology
+{
+public:
+	ScopedTopology(D3D11_PRIMITIVE_TOPOLOGY);
+	~ScopedTopology();
+
+private:
+	D3D11_PRIMITIVE_TOPOLOGY myTopology{};
+};
+

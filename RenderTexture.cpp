@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "RenderTexture.h"
+#include "DX11.h"
 
 RenderTexture::RenderTexture(unsigned aWidth, unsigned aHeight, DXGI_FORMAT aFormat)
 {

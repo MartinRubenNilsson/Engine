@@ -22,16 +22,6 @@ private:
 	fs::path myPath{};
 };
 
-class ScopedTopology : Scope
-{
-public:
-	ScopedTopology(D3D11_PRIMITIVE_TOPOLOGY);
-	~ScopedTopology();
-
-private:
-	D3D11_PRIMITIVE_TOPOLOGY myTopology{};
-};
-
 class ScopedLayout : Scope
 {
 public:

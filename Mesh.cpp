@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "Mesh.h"
 #include "Scene.h"
+#include "DX11.h"
 
 const char* ToString(MeshPrimitiveType aType)
 {

@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "InputLayoutFactory.h"
+#include "DX11.h"
 
 namespace
 {

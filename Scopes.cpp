@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "Scopes.h"
+#include "DX11.h"
 #include "InputLayoutFactory.h"
 
 namespace
@@ -30,20 +31,7 @@ ScopedCurrentPath::~ScopedCurrentPath()
 	fs::current_path(myPath);
 }
 
-/*
-* class ScopedTopology
-*/
 
-ScopedTopology::ScopedTopology(D3D11_PRIMITIVE_TOPOLOGY aTopology)
-{
-	DX11::GetContext()->IAGetPrimitiveTopology(&myTopology);
-	DX11::GetContext()->IASetPrimitiveTopology(aTopology);
-}
-
-ScopedTopology::~ScopedTopology()
-{
-	DX11::GetContext()->IASetPrimitiveTopology(myTopology);
-}
 
 /*
 * class ScopedLayout

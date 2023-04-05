@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "DepthBuffer.h"
+#include "DX11.h"
 
 DepthBuffer::DepthBuffer(unsigned aWidth, unsigned aHeight)
 {

@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "ShaderCommon.h"
 #include "FullscreenPass.h"
+#include "DX11.h"
 
 ImmutableBuffer ImmutableBuffer::Create()
 {

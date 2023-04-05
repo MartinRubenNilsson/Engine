@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "FullscreenPass.h"
 #include "ShaderCommon.h"
+#include "DX11.h"
 
 FullscreenPass::FullscreenPass(const fs::path& aPixelShader)
 	: myLayout{ typeid(EmptyVertex) }

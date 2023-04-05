@@ -11,6 +11,7 @@
 #include "PhysicMaterial.h"
 
 // Rendering
+#include "DX11.h"
 #include "InputLayoutFactory.h"
 #include "BackBuffer.h"
 #include "Scopes.h"

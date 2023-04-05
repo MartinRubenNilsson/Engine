@@ -8,6 +8,7 @@
 #include "FullscreenPass.h"
 #include "Cubemap.h"
 #include "ImGuiCommon.h"
+#include "DX11.h"
 
 const char* ToString(RenderOutput anOutput)
 {

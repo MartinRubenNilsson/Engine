@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "Shader.h"
+#include "DX11.h"
 
 void EmplaceShader(ShaderType aType, ShaderVariant& aVariant)
 {

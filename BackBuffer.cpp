@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "BackBuffer.h"
+#include "DX11.h"
 
 BackBuffer::BackBuffer(HWND hWnd)
 {

@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "Texture.h"
 #include "Image.h"
+#include "DX11.h"
 
 const char* ToString(TextureType aType)
 {
