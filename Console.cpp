@@ -13,9 +13,9 @@ bool Console::Create()
 	return ok;
 }
 
-bool Console::Destroy()
+void Console::Destroy()
 {
-	return FreeConsole();
+	FreeConsole();
 }
 
 void Console::SetVisible(bool yes)

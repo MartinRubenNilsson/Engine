@@ -3,7 +3,7 @@
 namespace Console
 {
 	bool Create();
-	bool Destroy();
+	void Destroy();
 	void SetVisible(bool);
 	bool IsVisible();
 	void Write(const std::string&);
