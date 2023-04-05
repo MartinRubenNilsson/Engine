@@ -1,6 +1,8 @@
 #include "pch.h"
 
 // Windows
+#include "Win32Common.h"
+#include "Console.h"
 #include "Window.h"
 #include "Drop.h"
 
@@ -39,9 +41,7 @@
 
 // Other
 #include "EngineAsset.h"
-#include "Win32Common.h"
 #include "Systems.h"
-#include "Console.h"
 
 namespace
 {
@@ -51,6 +51,12 @@ namespace
 int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
 {
     fs::current_path(GetExePath().remove_filename());
+
+    Console::Scope _console{};
+    if (!_console.ok)
+        return EXIT_FAILURE;
+
+    Console::SetVisible(false);
 
     PhysX::Scope _physX{};
     if (!_physX.ok)
@@ -64,11 +70,11 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
     if (!_window.ok)
         return EXIT_FAILURE;
 
+    Window::SetIcon("icon.ico");
+
     DearImGui::Scope _dearImGui{};
     if (!_dearImGui.ok)
         return EXIT_FAILURE;
-
-    Window::SetIcon("icon.ico");
 
     Keyboard keyboard{};
     Mouse mouse{};
@@ -202,6 +208,15 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
             if (ImGui::BeginMainMenuBar())
             {
                 ImGui::MainMenu(cmd);
+
+                if (ImGui::BeginMenu("Window"))
+                {
+                    bool visible = Console::IsVisible();
+                    if (ImGui::MenuItem("Console", NULL, &visible))
+                        Console::SetVisible(visible);
+                    ImGui::EndMenu();
+                }
+
                 ImGui::EndMainMenuBar();
             }
 

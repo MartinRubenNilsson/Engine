@@ -11,9 +11,14 @@ bool Console::Destroy()
 	return FreeConsole();
 }
 
-bool Console::IsCreated()
+void Console::SetVisible(bool yes)
 {
-	return GetConsoleWindow();
+	ShowWindow(GetConsoleWindow(), yes ? SW_SHOW : SW_HIDE);
+}
+
+bool Console::IsVisible()
+{
+	return IsWindowVisible(GetConsoleWindow());
 }
 
 void Console::Write(const std::string& aString)
