@@ -3,6 +3,8 @@
 #pragma comment(lib, "DXGI") 
 #pragma comment(lib, "D3D11")
 
+#define PX_RELEASE(ptr) if (ptr) { ptr->Release(); ptr = NULL; }
+
 #define SPECIALIZE_HASH(DESC) \
 template <> \
 struct hash<DESC> \
@@ -86,18 +88,15 @@ void DX11::Destroy()
 	theDepthStencilStates.clear();
 	theBlendStates.clear();
 
-	if (theContext) { theContext->Release(); theContext = nullptr; }
-	if (theDevice) { theDevice->Release(); theDevice = nullptr; }
+	PX_RELEASE(theContext)
+	PX_RELEASE(theDevice)
 }
 
 RasterizerStatePtr DX11::GetRasterizerState(const D3D11_RASTERIZER_DESC& aDesc)
 {
 	auto& state = theRasterizerStates[aDesc];
 	if (!state)
-	{
-		assert(theRasterizerStates.size() <= D3D11_REQ_RASTERIZER_OBJECT_COUNT_PER_DEVICE);
 		theDevice->CreateRasterizerState(&aDesc, &state);
-	}
 	return state;
 }
 
@@ -105,10 +104,7 @@ SamplerStatePtr DX11::GetSamplerState(const D3D11_SAMPLER_DESC& aDesc)
 {
 	auto& state = theSamplerStates[aDesc];
 	if (!state)
-	{
-		assert(theSamplerStates.size() <= D3D11_REQ_SAMPLER_OBJECT_COUNT_PER_DEVICE);
 		theDevice->CreateSamplerState(&aDesc, &state);
-	}
 	return state;
 }
 
@@ -116,10 +112,7 @@ DepthStencilStatePtr DX11::GetDepthStencilState(const D3D11_DEPTH_STENCIL_DESC& 
 {
 	auto& state = theDepthStencilStates[aDesc];
 	if (!state)
-	{
-		assert(theDepthStencilStates.size() <= D3D11_REQ_DEPTH_STENCIL_OBJECT_COUNT_PER_DEVICE);
 		theDevice->CreateDepthStencilState(&aDesc, &state);
-	}
 	return state;
 }
 
@@ -127,10 +120,7 @@ BlendStatePtr DX11::GetBlendState(const D3D11_BLEND_DESC& aDesc)
 {
 	auto& state = theBlendStates[aDesc];
 	if (!state)
-	{
-		assert(theDepthStencilStates.size() <= D3D11_REQ_BLEND_OBJECT_COUNT_PER_DEVICE);
 		theDevice->CreateBlendState(&aDesc, &state);
-	}
 	return state;
 }
 
