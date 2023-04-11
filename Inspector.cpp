@@ -66,7 +66,7 @@ namespace ImGui
 				if constexpr (!std::is_same_v<Component, Transform>)
 				{
 					if (MenuItem(aLabel))
-						aHandle.emplace<Component>(); // json misbehaves if we just emplace
+						aHandle.emplace<Component>();
 				}
 				EndPopup();
 			}
