@@ -4,7 +4,8 @@
 #define PVD_HOST "127.0.0.1"
 #define NUM_THREADS 2
 
-#define PX_RELEASE(x) if(x)	{ x->release(); x = NULL; }
+#define PX_RELEASE(x) if (x) { x->release(); x = nullptr; }
+#define PX_DELETE(x) if (x) { delete x; x = nullptr; }
 
 PxVec3 ToPx(const Vector3& v)
 {
@@ -119,16 +120,17 @@ bool PhysX::Create()
 
 void PhysX::Destroy()
 {
-	PX_RELEASE(theDefaultMaterial);
-	PX_RELEASE(theControllerMgr);
-	PX_RELEASE(theCpuDispatcher);
-	PX_RELEASE(theScene);
-	PX_RELEASE(thePhysics);
-	PX_RELEASE(thePvd);
-	PX_RELEASE(thePvdTransport);
-	PX_RELEASE(theFoundation);
-	if (theErrorCallback) { delete theErrorCallback; theErrorCallback = nullptr; }
-	if (theAllocator) { delete theAllocator; theAllocator = nullptr; }
+	PX_RELEASE(theDefaultMaterial)
+	PX_RELEASE(theControllerMgr)
+	PX_RELEASE(theCpuDispatcher)
+	PX_RELEASE(theScene)
+	PX_RELEASE(thePhysics)
+	PX_RELEASE(thePvd)
+	PX_RELEASE(thePvdTransport)
+	PX_RELEASE(theFoundation)
+
+	PX_DELETE(theErrorCallback)
+	PX_DELETE(theAllocator)
 }
 
 PxPhysics* PhysX::GetPhysics()

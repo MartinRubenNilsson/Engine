@@ -33,12 +33,12 @@ float4 main(VsOutFullscreen input) : SV_TARGET
     const float3 irradiance = IrradianceMap.Sample(TrilinearSampler, N).rgb;
     const float3 prefiltered = PrefilteredMap.SampleLevel(TrilinearSampler, R, roughness * MaxReflectionLOD).rgb;
     const float2 integration = IntegrationMap.Sample(TrilinearSampler, float2(NdV, roughness)).xy;
-    const float access = OcclusionMap.Sample(TrilinearSampler, input.uv).r;
+    const float occlusion = OcclusionMap.Sample(TrilinearSampler, input.uv).r;
     
     float3 color = 0.0;
     color += kD * irradiance * diffuseColor; // Diffuse
     color += (kS * integration.x + integration.y) * prefiltered; // Specular
-    color *= access; // Ambient occlusion
+    color *= occlusion; // Ambient occlusion
     
     return float4(color, 1.0);
 }

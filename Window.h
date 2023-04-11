@@ -4,11 +4,6 @@ namespace Window
 {
 	bool Create();
 	void Destroy();
-	void SetIcon(const fs::path&);
-	void SetTitle(const std::string&);
-	std::string GetTitle();
-	RECT GetClientRect();
-	HWND GetHandle();
 
 	struct Scope
 	{
@@ -17,5 +12,11 @@ namespace Window
 		Scope() : ok{ Create() } {}
 		~Scope() { Destroy(); }
 	};
+
+	void SetIcon(const fs::path&);
+	void SetTitle(const std::string&);
+	std::string GetTitle();
+	RECT GetClientRect();
+	HWND GetHandle();
 }
 

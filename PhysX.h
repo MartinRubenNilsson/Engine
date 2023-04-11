@@ -13,10 +13,6 @@ namespace PhysX
 {
 	bool Create();
 	void Destroy();
-	PxPhysics* GetPhysics();
-	PxScene* GetScene();
-	PxControllerManager* GetControllerMgr();
-	PxMaterial* GetDefaultMaterial();
 
 	struct Scope
 	{
@@ -25,6 +21,11 @@ namespace PhysX
 		Scope() : ok{ Create() } {}
 		~Scope() { Destroy(); }
 	};
+
+	PxPhysics* GetPhysics();
+	PxScene* GetScene();
+	PxControllerManager* GetControllerMgr();
+	PxMaterial* GetDefaultMaterial();
 }
 
 namespace ImGui
